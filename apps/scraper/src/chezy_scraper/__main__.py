@@ -1,6 +1,7 @@
 """Chezy scraper CLI.
 
 uv run scraper scrape --platform fotocasa --operation rent --tier small
+uv run scraper media --tier small
 uv run scraper stats
 """
 
@@ -16,11 +17,12 @@ from chezy_scraper.adapters.fotocasa import FotocasaAdapter
 from chezy_scraper.adapters.habitaclia import HabitacliaAdapter
 from chezy_scraper.config import Settings
 from chezy_scraper.fetch.http import BlockedError, HttpFetcher
+from chezy_scraper.media import MediaRootUnavailableError, mirror, write_manifest
 from chezy_scraper.models import Listing, Operation, Platform
 from chezy_scraper.observability import audit, configure_logging
 from chezy_scraper.pipeline import scrape as run_scrape
 from chezy_scraper.sinks.jsonl import read_listings
-from chezy_scraper.tiers import Tier
+from chezy_scraper.tiers import MEDIA_BY_DEFAULT, Tier
 
 app = typer.Typer(no_args_is_help=True, add_completion=False, help="Barcelona listing scraper.")
 
@@ -85,6 +87,39 @@ def scrape(
     typer.echo(
         f"{result.platform}/{result.operation}/{result.tier}: {result.tier_total} listings "
         f"({result.new_listings} new, {result.pages_fetched} pages, master {result.master_total})"
+    )
+
+
+@app.command()
+def media(
+    tier: Annotated[Tier, typer.Option(help="Tier whose images are mirrored.")] = "small",
+    *,
+    with_media: Annotated[
+        bool, typer.Option(help="Required to mirror the large tier (tens of GB).")
+    ] = False,
+) -> None:
+    """Mirror listing images (WebP, 1280 px, <=25 photos + plans) to the media volume."""
+    settings = Settings.from_env()
+    configure_logging()
+    if tier not in MEDIA_BY_DEFAULT and not with_media:
+        typer.echo(f"{tier} images are opt-in; pass --with-media.", err=True)
+        raise typer.Exit(2)
+    listings: list[Listing] = []
+    for path in sorted(settings.listings_dir.glob(f"*-{tier}.jsonl")):
+        listings.extend(read_listings(path))
+    if not listings:
+        typer.echo(f"no {tier} datasets yet; run `scraper scrape --tier {tier}` first", err=True)
+        raise typer.Exit(1)
+    try:
+        manifest, result = mirror(listings, settings.media_root)
+    except MediaRootUnavailableError as exc:
+        typer.echo(f"MEDIA VOLUME MISSING: {exc}", err=True)
+        raise typer.Exit(4) from exc
+    write_manifest(settings.media_root, manifest)
+    audit.emit("cli.media", actor="user", outcome="success", target=tier, **result.__dict__)
+    typer.echo(
+        f"{tier}: {result.listings} listings, {result.downloaded} downloaded, "
+        f"{result.skipped_existing} existing, {result.failed} failed"
     )
 
 
