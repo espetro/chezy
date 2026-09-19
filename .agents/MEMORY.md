@@ -53,6 +53,9 @@
   `no-restricted-imports` patterns.
 - **DB env var is `POSTGRES_URL`** (not `DATABASE_URL`) — see `apps/web/drizzle.config.ts`
   and `apps/web/lib/db/`.
+- **Demo coverage is Barcelona city only** — listings dataset is Barcelona-only, so
+  onboarding asks for neighborhoods, not cities. Governed by `COVERAGE_CITY` in
+  `apps/web/lib/constants.ts`; referenced by `onboardingPrompt` in `lib/ai/prompts.ts`.
 
 ## Disk budget (multi-worktree)
 

@@ -19,6 +19,10 @@ export const suggestions = [
   "What is the weather in San Francisco?",
 ];
 
+// Demo coverage is Barcelona city only — the dataset/scraper only contain
+// Barcelona listings, so onboarding asks for neighborhoods, not cities.
+export const COVERAGE_CITY = "Barcelona";
+
 // SLNG resolves the LiveKit project from (region, orchestrator). Only
 // us-east | eu-central | ap-south exist; pipecat has no EU deployment, and
 // the chezy-vonage connection lives in the eu-central/livekit project.

@@ -24,6 +24,7 @@ the durable identity that survives across browsers/sessions.
 | Identity model | Username-keyed `User` row, find-or-create; session guest row untouched |
 | Required fields | `areas` + `budgetMaxEur` + `bedroomsMin` |
 | Gate scope | Search/recommendations only; all other chat unaffected |
+| Coverage | Barcelona city only — `areas` = Barcelona neighborhoods; governed by `COVERAGE_CITY` in `apps/web/lib/constants.ts` |
 
 ## Data model
 
@@ -117,6 +118,8 @@ New `onboardingPrompt` section appended in `systemPrompt` when `supportsTools`:
 
 - **Identity**: when the user names themselves, call `identifyUser` before
   anything else. Re-identify if they claim a different name mid-chat.
+- **Coverage**: Barcelona city only — `areas` means Barcelona neighborhoods;
+  agent declines other cities and steers back (driven by `COVERAGE_CITY`).
 - **Onboarding**: ask missing fields conversationally, 1–2 at a time (never a
   form dump): areas → budget (EUR) → bedrooms. Then invite free-form
   requirements (commute, gym, pets, elevator…). Call `saveUserProfile` as
