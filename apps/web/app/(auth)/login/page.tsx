@@ -19,7 +19,7 @@ export default function Page() {
 
   const { update: updateSession } = useSession();
 
-  // updateSession (next-auth useSession update) and router are stable refs.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: router and updateSession are stable refs
   useEffect(() => {
     if (state.status === "failed") {
       toast({ description: "Invalid credentials!", type: "error" });
@@ -33,7 +33,7 @@ export default function Page() {
       updateSession();
       router.refresh();
     }
-  }, [state.status, setIsSuccessful, updateSession, router]);
+  }, [state.status]);
 
   const handleSubmit = (formData: FormData) => {
     setEmail(formData.get("email") as string);
@@ -42,8 +42,12 @@ export default function Page() {
 
   return (
     <>
-      <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-      <p className="text-sm text-muted-foreground">Sign in to your account to continue</p>
+      <h1 className="text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">
+        Welcome back
+      </h1>
+      <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
+        Sign in to your account to continue
+      </p>
       <AuthForm action={handleSubmit} defaultEmail={email}>
         <SubmitButton isSuccessful={isSuccessful}>Sign in</SubmitButton>
         <p className="text-center text-[13px] text-muted-foreground">

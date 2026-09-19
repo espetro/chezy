@@ -65,7 +65,7 @@ export const FlowSegmentedSelector = <T extends string | number>({
               tabIndex={isTabStop ? 0 : -1}
               onClick={() => onChange(option.value)}
               className={cn(
-                "rounded-[12px] px-1 py-2 text-center text-label-md transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
+                "min-h-11 rounded-[12px] px-1 py-2 text-center text-label-md transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
                 isSelected
                   ? "bg-obsidian font-semibold text-snow"
                   : "bg-paper text-steel hover:text-obsidian",

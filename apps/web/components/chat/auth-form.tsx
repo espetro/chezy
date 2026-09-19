@@ -21,7 +21,7 @@ export function AuthForm({
         <Input
           autoComplete="email"
           autoFocus
-          className="h-10 rounded-lg border-border/50 bg-muted/50 text-sm transition-colors focus:border-foreground/20 focus:bg-muted"
+          className="h-11 rounded-lg border-border/50 bg-muted/50 text-sm transition-colors focus:border-foreground/20 focus:bg-muted"
           defaultValue={defaultEmail}
           id="email"
           name="email"
@@ -36,7 +36,7 @@ export function AuthForm({
           Password
         </Label>
         <Input
-          className="h-10 rounded-lg border-border/50 bg-muted/50 text-sm transition-colors focus:border-foreground/20 focus:bg-muted"
+          className="h-11 rounded-lg border-border/50 bg-muted/50 text-sm transition-colors focus:border-foreground/20 focus:bg-muted"
           id="password"
           name="password"
           placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"

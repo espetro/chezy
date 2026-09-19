@@ -17,7 +17,7 @@ const variantClasses: Record<ButtonVariant, string> = {
 
 const sizeClasses: Record<ButtonSize, string> = {
   md: "px-4 py-3 text-[14px]",
-  sm: "px-3 py-2 text-[13px]",
+  sm: "px-3 py-1.5 text-xs sm:text-[13px]",
 };
 
 export const FlowButton = ({
@@ -28,7 +28,7 @@ export const FlowButton = ({
 }: ButtonProps) => (
   <button
     className={cn(
-      "inline-flex items-center justify-center gap-2 rounded-buttons font-medium transition-opacity disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:ring-offset-2",
+      "inline-flex min-h-11 items-center justify-center gap-2 rounded-buttons font-medium transition-opacity disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:ring-offset-2",
       variantClasses[variant],
       sizeClasses[size],
       className,

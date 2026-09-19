@@ -83,7 +83,7 @@ export const AgentCallGate = ({ listing }: AgentCallGateProps) => {
 
   if (status === "discarded") {
     return (
-      <div className="flex items-center justify-between rounded-cards bg-card-subtle px-6 py-5 shadow-sm">
+      <div className="flex items-center justify-between rounded-cards bg-card-subtle px-4 py-4 shadow-sm sm:px-6 sm:py-5">
         <p className="text-[14px] text-fog">Candidate discarded.</p>
         <FlowButton variant="ghost" size="sm" onClick={() => setStatus(visit ? "booked" : "idle")}>
           Undo
@@ -93,7 +93,7 @@ export const AgentCallGate = ({ listing }: AgentCallGateProps) => {
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-cards bg-snow p-7 shadow-sm">
+    <div className="flex flex-col gap-4 rounded-cards bg-snow p-5 shadow-sm sm:p-7">
       {isAutoCall ? (
         <div className="flex items-start gap-3">
           <FlowAgentMark size="sm" className="mt-0.5" />
@@ -148,14 +148,22 @@ export const AgentCallGate = ({ listing }: AgentCallGateProps) => {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex w-full flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3">
         {status === "idle" ? (
-          <FlowButton onClick={() => void startCall()}>Call the agency now</FlowButton>
+          <FlowButton className="w-full sm:w-auto" onClick={() => void startCall()}>
+            Call the agency now
+          </FlowButton>
         ) : undefined}
         {status === "failed" ? (
-          <FlowButton onClick={() => void startCall()}>Try again</FlowButton>
+          <FlowButton className="w-full sm:w-auto" onClick={() => void startCall()}>
+            Try again
+          </FlowButton>
         ) : undefined}
-        <FlowButton variant="ghost" onClick={() => setStatus("discarded")}>
+        <FlowButton
+          className="w-full sm:w-auto"
+          variant="ghost"
+          onClick={() => setStatus("discarded")}
+        >
           Discard candidate
         </FlowButton>
       </div>

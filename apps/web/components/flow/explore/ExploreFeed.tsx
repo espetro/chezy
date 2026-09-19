@@ -26,11 +26,11 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
   );
 
   return (
-    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-6 py-10 md:px-8">
-      <div className="flex items-start gap-3 rounded-cards bg-snow px-6 py-5 shadow-sm">
+    <div className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-10 md:max-w-[1200px]">
+      <div className="flex items-start gap-3 rounded-cards bg-snow px-4 py-4 shadow-sm sm:px-6 sm:py-5">
         <FlowAgentMark size="sm" className="mt-0.5" />
         <div className="flex flex-col gap-1.5">
-          <p className="text-[15px] text-graphite">
+          <p className="text-sm text-graphite sm:text-[15px]">
             I found <strong>{listings.length} candidates</strong> that match your search across our
             partner agency network. Sorted by match — I'll let you know as soon as a new one comes
             in.
@@ -39,13 +39,13 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setActiveZone(undefined)}
             className={cn(
-              "rounded-pills border px-4 py-2 text-[13px]",
+              "min-h-11 rounded-pills border px-4 py-2 text-[13px]",
               !activeZone
                 ? "border-obsidian bg-obsidian text-snow"
                 : "border-mist bg-snow text-graphite hover:border-iron",
@@ -59,7 +59,7 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
               type="button"
               onClick={() => setActiveZone(zone)}
               className={cn(
-                "rounded-pills border px-4 py-2 text-[13px]",
+                "min-h-11 rounded-pills border px-4 py-2 text-[13px]",
                 activeZone === zone
                   ? "border-obsidian bg-obsidian text-snow"
                   : "border-mist bg-snow text-graphite hover:border-iron",
@@ -70,12 +70,12 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
           ))}
         </div>
 
-        <label className="flex items-center gap-2 text-[13px] text-fog">
+        <label className="flex w-full items-center gap-2 text-[13px] text-fog sm:w-auto">
           Sort by
           <select
             value={sortMode}
             onChange={(event) => setSortMode(event.target.value as SortMode)}
-            className="rounded-inputs border border-mist bg-snow px-3 py-2 text-[13px] text-graphite outline-none focus-visible:ring-2 focus-visible:ring-obsidian"
+            className="h-11 flex-1 rounded-inputs border border-mist bg-snow px-3 py-2 text-[13px] text-graphite outline-none focus-visible:ring-2 focus-visible:ring-obsidian sm:flex-none"
           >
             <option value="match">Best match</option>
             <option value="price-asc">Price (low to high)</option>

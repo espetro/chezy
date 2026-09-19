@@ -219,7 +219,7 @@ export const AutonomyStep = ({ prefs, onChange }: StepProps) => (
             aria-checked={isSelected}
             onClick={() => onChange({ autonomy: option.level })}
             className={cn(
-              "flex items-start justify-between gap-3 rounded-[18px] p-3 text-left transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
+              "flex min-h-11 items-start justify-between gap-3 rounded-[18px] p-3 text-left transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
               isSelected ? "bg-obsidian text-snow" : "bg-paper text-graphite hover:text-obsidian",
             )}
           >

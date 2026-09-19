@@ -29,7 +29,7 @@ export const CandidateCard = ({ listing }: CandidateCardProps) => (
       />
     </div>
 
-    <div className="flex flex-1 flex-col gap-3 p-7">
+    <div className="flex flex-1 flex-col gap-3 p-5 sm:p-7">
       <div>
         <h3 className="text-subheading font-semibold text-obsidian">{listing.title}</h3>
         <p className="mt-1 text-[14px] text-fog">

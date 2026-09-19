@@ -61,7 +61,7 @@ export const CandidateCarousel = ({ listings, label }: CandidateCarouselProps) =
 
   if (total === 0) {
     return (
-      <p className="rounded-cards bg-snow px-6 py-8 text-center text-[14px] text-fog shadow-sm">
+      <p className="rounded-cards bg-snow px-4 py-8 text-center text-[14px] text-fog shadow-sm sm:px-6">
         No candidates match these filters yet.
       </p>
     );
@@ -92,7 +92,11 @@ export const CandidateCarousel = ({ listings, label }: CandidateCarouselProps) =
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        <div className="flex gap-1.5" role="group" aria-label="Choose a match to view">
+        <div
+          className="flex [scrollbar-width:none] gap-1.5 overflow-x-auto"
+          role="group"
+          aria-label="Choose a match to view"
+        >
           {listings.map((listing, index) => (
             <button
               key={listing.id}
@@ -100,11 +104,16 @@ export const CandidateCarousel = ({ listings, label }: CandidateCarouselProps) =
               aria-pressed={index === activeIndex}
               aria-label={`Go to match ${index + 1} of ${total}`}
               onClick={() => scrollToIndex(index)}
-              className={cn(
-                "size-2 rounded-full transition-colors duration-200",
-                index === activeIndex ? "bg-obsidian" : "bg-mist hover:bg-ash",
-              )}
-            />
+              className="group flex h-11 w-5 shrink-0 items-center justify-center"
+            >
+              <span
+                aria-hidden
+                className={cn(
+                  "size-2 rounded-full transition-colors duration-200",
+                  index === activeIndex ? "bg-obsidian" : "bg-mist group-hover:bg-ash",
+                )}
+              />
+            </button>
           ))}
         </div>
 
@@ -114,7 +123,7 @@ export const CandidateCarousel = ({ listings, label }: CandidateCarouselProps) =
             onClick={goPrevious}
             disabled={activeIndex === 0}
             aria-label="Previous match"
-            className="flex size-10 items-center justify-center rounded-full border border-mist bg-snow text-graphite transition-opacity hover:border-iron focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex size-11 items-center justify-center rounded-full border border-mist bg-snow text-graphite transition-opacity hover:border-iron focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-30"
           >
             <ChevronLeft size={18} />
           </button>
@@ -123,7 +132,7 @@ export const CandidateCarousel = ({ listings, label }: CandidateCarouselProps) =
             onClick={goNext}
             disabled={activeIndex === total - 1}
             aria-label="Next match"
-            className="flex size-10 items-center justify-center rounded-full border border-mist bg-snow text-graphite transition-opacity hover:border-iron focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex size-11 items-center justify-center rounded-full border border-mist bg-snow text-graphite transition-opacity hover:border-iron focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-30"
           >
             <ChevronRight size={18} />
           </button>
