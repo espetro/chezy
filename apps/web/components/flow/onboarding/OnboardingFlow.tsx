@@ -50,7 +50,7 @@ const scrollIntoViewOnMount = (element: HTMLDivElement | null) => {
 const canSubmit = (id: OnboardingStepId, prefs: UserPreferences) => {
   switch (id) {
     case "routine":
-      return prefs.workAddress.trim().length > 0 && prefs.commuteMaxMin !== undefined && prefs.zones.length > 0;
+      return prefs.zones.length > 0;
     case "moveIn":
       return prefs.moveIn?.mode === "flexible" || (prefs.moveIn?.mode === "date" && prefs.moveIn.date !== "");
     default:
@@ -64,7 +64,10 @@ const answerSummary = (id: OnboardingStepId, prefs: UserPreferences): string | u
       return "Let's go";
     case "routine": {
       const commute = commuteOptions.find((o) => o.value === prefs.commuteMaxMin)?.label;
-      return `${prefs.zones.map(zoneLabel).join(", ")} · max ${commute} from ${prefs.workAddress}`;
+      const zones = prefs.zones.map(zoneLabel).join(", ");
+      const from = prefs.workAddress.trim();
+      if (commute === undefined) return zones;
+      return from.length > 0 ? `${zones} · max ${commute} from ${from}` : `${zones} · max ${commute}`;
     }
     case "budget":
       return `${formatEur(prefs.budgetMin)} — ${formatEur(prefs.budgetMax)} · ${prefs.rooms >= 3 ? "3+" : prefs.rooms} bd · +${prefs.sizeMin} m²`;

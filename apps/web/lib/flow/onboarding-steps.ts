@@ -111,12 +111,6 @@ export const onboardingSteps: OnboardingStep[] = [
     cta: "Let's go",
   },
   {
-    id: "routine",
-    agentMessage: "Where do you spend your days, and how far are you willing to commute?",
-    sectionTitle: "Routine & area",
-    cta: "Continue",
-  },
-  {
     id: "budget",
     agentMessage: "What's your monthly range, and how much space do you need?",
     sectionTitle: "Budget & space",
@@ -132,6 +126,12 @@ export const onboardingSteps: OnboardingStep[] = [
     id: "mustHaves",
     agentMessage: "What can't you live without? Select everything that applies.",
     sectionTitle: "Must-haves",
+    cta: "Continue",
+  },
+  {
+    id: "routine",
+    agentMessage: "Where do you spend your days, and how far are you willing to commute?",
+    sectionTitle: "Routine & area",
     cta: "Continue",
   },
   {

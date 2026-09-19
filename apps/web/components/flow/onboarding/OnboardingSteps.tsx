@@ -79,17 +79,15 @@ export const RoutineStep = ({ prefs, onChange }: StepProps) => {
 
   return (
     <FlowSectionCard
-      title="1. Routine & area"
+      title="4. Routine & area"
       icon={<Navigation size={16} aria-hidden />}
-      aside={<FlowBadge variant="accent">High priority</FlowBadge>}
+      aside={<FlowBadge variant="muted">Fine-tuning</FlowBadge>}
     >
-      <FlowTextField
-        label="Work or study address you commute to"
-        icon={<Briefcase size={18} aria-hidden />}
-        placeholder="Diagonal 405 (Passeig de Gràcia), BCN"
-        value={prefs.workAddress}
-        onChange={(event) => onChange({ workAddress: event.target.value })}
-        autoComplete="street-address"
+      <FlowToggleChipGroup
+        label="Target neighborhoods"
+        options={zoneOptions}
+        selected={prefs.zones}
+        onChange={(zones) => onChange({ zones })}
       />
       <FlowSegmentedSelector
         label="Max commute time"
@@ -98,11 +96,13 @@ export const RoutineStep = ({ prefs, onChange }: StepProps) => {
         value={prefs.commuteMaxMin}
         onChange={(commuteMaxMin) => onChange({ commuteMaxMin })}
       />
-      <FlowToggleChipGroup
-        label="Target neighborhoods"
-        options={zoneOptions}
-        selected={prefs.zones}
-        onChange={(zones) => onChange({ zones })}
+      <FlowTextField
+        label="Work or study address you commute to (optional)"
+        icon={<Briefcase size={18} aria-hidden />}
+        placeholder="Diagonal 405 (Passeig de Gràcia), BCN"
+        value={prefs.workAddress}
+        onChange={(event) => onChange({ workAddress: event.target.value })}
+        autoComplete="street-address"
       />
     </FlowSectionCard>
   );
@@ -110,7 +110,7 @@ export const RoutineStep = ({ prefs, onChange }: StepProps) => {
 
 export const BudgetStep = ({ prefs, onChange }: StepProps) => (
   <FlowSectionCard
-    title="2. Budget & space"
+    title="1. Budget & space"
     icon={<Wallet size={16} aria-hidden />}
     aside={<FlowBadge variant="steel">No hidden fees</FlowBadge>}
   >
@@ -153,14 +153,14 @@ export const BudgetStep = ({ prefs, onChange }: StepProps) => (
 );
 
 export const MoveInStep = ({ prefs, onChange }: StepProps) => (
-  <FlowSectionCard title="3. When are you moving?" icon={<Calendar size={16} aria-hidden />}>
+  <FlowSectionCard title="2. When are you moving?" icon={<Calendar size={16} aria-hidden />}>
     <FlowDateChips value={prefs.moveIn} onChange={(moveIn) => onChange({ moveIn })} />
   </FlowSectionCard>
 );
 
 export const MustHavesStep = ({ prefs, onChange }: StepProps) => (
   <FlowSectionCard
-    title="4. Must-haves"
+    title="3. Must-haves"
     icon={<BadgeCheck size={16} aria-hidden />}
     aside={<FlowBadge variant="muted">Strict filters</FlowBadge>}
   >
@@ -260,13 +260,13 @@ export const SummaryStep = ({ prefs, onChange }: StepProps) => {
     .map((o) => o.label);
 
   const rows: Array<[string, string]> = [
-    ["Work address", prefs.workAddress || "—"],
-    ["Commute", commuteLabel],
-    ["Neighborhoods", prefs.zones.length > 0 ? prefs.zones.map(zoneLabel).join(", ") : "Anywhere in Barcelona"],
     ["Monthly range", `${formatEur(prefs.budgetMin)} — ${formatEur(prefs.budgetMax)}`],
     ["Space", `${prefs.rooms >= 3 ? "3+" : prefs.rooms} bd · ${prefs.sizeMin >= 80 ? "80+" : `+${prefs.sizeMin}`} m²`],
     ["Move-in", moveInLabel],
     ["Must-haves", mustHaveLabels.length > 0 ? mustHaveLabels.join(", ") : "—"],
+    ["Neighborhoods", prefs.zones.length > 0 ? prefs.zones.map(zoneLabel).join(", ") : "Anywhere in Barcelona"],
+    ["Commute", commuteLabel],
+    ["Work address", prefs.workAddress || "—"],
     [
       "Dealbreakers",
       dealBreakerLabels.length > 0
