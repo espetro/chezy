@@ -1,16 +1,17 @@
-import { AbsoluteFill, Composition } from "remotion";
-
-const Scaffold = () => (
-  <AbsoluteFill style={{ background: "#0a0a0a" }} />
-);
+import { Composition } from "remotion";
+import { DemoComposition } from "./DemoComposition";
+import { demoConfig } from "./config/demo.config";
+import { buildTimeline } from "./config/timeline";
+import durations from "./generated/durations.json";
 
 export const RemotionRoot = () => (
   <Composition
     id="ChezyDemo"
-    component={Scaffold}
-    fps={30}
-    width={1920}
-    height={1080}
-    durationInFrames={30}
+    component={DemoComposition}
+    fps={demoConfig.fps}
+    width={demoConfig.width}
+    height={demoConfig.height}
+    durationInFrames={buildTimeline(demoConfig, durations).total}
+    defaultProps={{ config: demoConfig }}
   />
 );
