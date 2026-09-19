@@ -21,13 +21,13 @@ const MUST_HAVE_AMENITIES: Record<string, readonly string[]> = {
 };
 
 const MUST_HAVE_LABELS: Record<string, string> = {
-  exterior: "luz natural",
-  balcony_or_terrace: "balcón/terraza",
-  elevator: "ascensor",
-  air_conditioning: "aire acondicionado",
-  furnished: "amueblado",
-  pets_allowed: "mascotas",
-  heating: "calefacción",
+  exterior: "exterior-facing",
+  balcony_or_terrace: "balcony/terrace",
+  elevator: "elevator",
+  air_conditioning: "air conditioning",
+  furnished: "furnished",
+  pets_allowed: "pets allowed",
+  heating: "heating",
 };
 
 export function haversineKm(a: GeoPoint, b: GeoPoint): number {
@@ -62,7 +62,7 @@ export function scoreListing(profile: SearchProfile, row: Listing): MatchResult 
   const budget = budgetScore(price, profile.minPriceEur, profile.maxPriceEur);
   total += budget;
   if (budget === 30) {
-    reasons.push(`Dentro de tu presupuesto (${eur.format(price)}/mes)`);
+    reasons.push(`Within your budget (${eur.format(price)}/month)`);
   }
 
   if (profile.neighbourhoods.length === 0) {
@@ -80,10 +80,10 @@ export function scoreListing(profile: SearchProfile, row: Listing): MatchResult 
     };
     if (placeMatch(row.neighbourhood)) {
       total += 25;
-      reasons.push(`En ${row.neighbourhood}, uno de tus barrios objetivo`);
+      reasons.push(`In ${row.neighbourhood}, one of your preferred neighborhoods`);
     } else if (placeMatch(row.district)) {
       total += 15;
-      reasons.push(`En ${row.district}, distrito de tu lista`);
+      reasons.push(`In ${row.district}, a district on your list`);
     }
   }
 
@@ -98,7 +98,7 @@ export function scoreListing(profile: SearchProfile, row: Listing): MatchResult 
     if (covered.length > 0) {
       const labels = covered.map((mh) => MUST_HAVE_LABELS[mh] ?? mh).join(", ");
       reasons.push(
-        `Cumple ${covered.length} de ${profile.mustHaves.length} imprescindibles: ${labels}`,
+        `Matches ${covered.length} of ${profile.mustHaves.length} must-haves: ${labels}`,
       );
     }
   }
@@ -110,7 +110,7 @@ export function scoreListing(profile: SearchProfile, row: Listing): MatchResult 
     total += 10;
   }
   if (row.rooms !== null && row.builtM2 !== null) {
-    reasons.push(`${row.rooms} habitaciones y ${Math.round(row.builtM2)} m²`);
+    reasons.push(`${row.rooms} bedrooms and ${Math.round(row.builtM2)} m²`);
   }
 
   let commuteMin: number | undefined;
@@ -125,7 +125,7 @@ export function scoreListing(profile: SearchProfile, row: Listing): MatchResult 
       { lat: row.lat, lon: row.lon },
     );
     if (commuteMin <= profile.maxCommuteMin) {
-      reasons.push(`A ~${commuteMin} min de tu trabajo`);
+      reasons.push(`Estimated commute: ~${commuteMin} min to work`);
     }
   }
 

@@ -18,10 +18,10 @@ const RELAX_ORDER: readonly FeedRelaxation[] = [
 ];
 
 const RELAX_CLAUSES: Record<FeedRelaxation, string> = {
-  minM2: "superficie mínima",
-  neighbourhoods: "barrios",
-  maxPriceEur: "presupuesto",
-  minRooms: "habitaciones",
+  minM2: "minimum floor area",
+  neighbourhoods: "neighborhoods",
+  maxPriceEur: "budget",
+  minRooms: "bedrooms",
 };
 
 export async function buildFeed(
@@ -58,9 +58,9 @@ export async function buildFeed(
   const items = rankListings(profile, rows).slice(0, 20);
   const note =
     relaxed.length > 0
-      ? `Pocos pisos cumplen todo: ampliamos ${relaxed
+      ? `Few homes meet every preference: we broadened ${relaxed
           .map((s) => RELAX_CLAUSES[s])
-          .join(", ")} para no dejarte sin opciones.`
+          .join(", ")} to show more options.`
       : undefined;
 
   return { items, relaxed, note };
