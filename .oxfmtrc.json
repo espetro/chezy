@@ -1,0 +1,28 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxfmt/configuration_schema.json",
+  "useTabs": false,
+  "tabWidth": 2,
+  "indentWidth": 2,
+  "lineWidth": 100,
+  "insertFinalNewline": true,
+  "trailingComma": "all",
+  "singleQuote": false,
+  "semi": true,
+  "arrowParens": "always",
+  "bracketSpacing": true,
+  "experimentalTailwindcss": {
+    "stylesheet": "apps/web/app/globals.css"
+  },
+  "ignorePatterns": [
+    "**/node_modules",
+    "**/.venv",
+    "**/.next",
+    "**/.output",
+    "**/dist",
+    "**/build",
+    "**/coverage",
+    "**/pnpm-lock.yaml",
+    "**/uv.lock",
+    "**/.pg0"
+  ]
+}

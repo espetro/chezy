@@ -1,0 +1,175 @@
+[tools]
+# ── Languages & package managers ───────────────────────────────────────────
+node  = "24"               # Next.js 16 + React 19 + AI SDK 7 baseline
+pnpm  = "12"               # Repo policy; do not swap for npm/bun
+python = "3.12"            # apps/scraper target; matches pyproject requires-python
+uv    = "latest"           # uv moves fast; lockfile pins actual versions
+
+# ── Runtime services ───────────────────────────────────────────────────────
+pg0   = "latest"           # Embedded Postgres 18 + pgvector; replaces Docker
+ffmpeg = "latest"          # Screenshot/video capture for the AI SDK tests
+
+# ── Repo automation ────────────────────────────────────────────────────────
+lefthook = "latest"        # Pre-push hook → `mise run validate`
+
+# ── Lint / format / type (oxc project; versions track together) ────────────
+"npm:oxlint"           = "1.77"     # Linter (matches AGENTS.md pin)
+"npm:oxlint-tsgolint"  = "7"        # Type-aware rules; must match oxlint minor
+"npm:oxfmt"            = "0.60"     # Formatter (matches AGENTS.md pin)
+
+# ── Frontend validation tools ──────────────────────────────────────────────
+# Tier 1 — app-level browser control. Stable @eN accessibility refs for LLM
+# agents, parallel sessions, optional `chat` subcommand. Pin globally so every
+# teammate + agent has the same version on `mise install`.
+"npm:agent-browser"    = "latest"
+
+# Tier 1 fallback — raw Playwright CLI (uses the same Chromium binary as
+# agent-browser under the hood).
+"npm:playwright"       = { version = "latest", lazy = true }  # ~650 MB deferred
+
+# Tier 2 — component-level isolation. Use when app-level setup is conflicting
+# or polluted; `pnpm dlx react-cosmos dev` from apps/web mounts each component
+# in its own sandboxed fixture.
+"npm:react-cosmos"     = "latest"
+
+# ── Repository hygiene (lazy — only pulled when first used) ────────────────
+"github:rhysd/actionlint"   = { version = "latest", lazy = true }
+"github:koalaman/shellcheck" = { version = "latest", lazy = true }
+"github:hadolint/hadolint"   = { version = "latest", lazy = true }
+
+[env]
+# uv: keep editable .venv entries as symlinks into the global cache. Hardlink
+# mode silently inflates disk on mv/tar via APFS CoW-materialize. The venv is
+# project-local per worktree because uv's editable-install .pth files embed
+# absolute paths to the source directory of the worktree that last ran
+# `uv sync` — sharing .venv across worktrees poisons the source resolution
+# silently. See .agents/docs/worktree-disk-budget.md.
+UV_LINK_MODE            = "symlink"
+
+# Mirrors pyproject's [tool.uv] compile-bytecode = false as belt-and-suspenders.
+PYTHONDONTWRITEBYTECODE = "1"
+
+# Raise V8 heap before Next.js + AI SDK 7 hit OOM during builds on 16 GB macs.
+NODE_OPTIONS            = "--max-old-space-size=4096"
+
+# Make mise exec find locally-pnpm-installed CLIs without `pnpm exec`.
+_.path                  = ["./node_modules/.bin"]
+
+# ── Tasks ──────────────────────────────────────────────────────────────────
+
+[tasks."db:start"]
+description = "Start pg0 (embedded Postgres 18 + pgvector) on :5432"
+run = "pg0 start --port 5432"
+
+[tasks."db:stop"]
+description = "Stop the local pg0 instance"
+run = "pg0 stop --port 5432"
+
+[tasks."db:reset"]
+description = "Reset the local pg0 database (drops + recreates)"
+run = "pg0 reset --port 5432"
+
+[tasks."db:status"]
+description = "Show pg0 instance status"
+run = "pg0 info"
+
+[tasks.lint]
+description = "Lint TS (oxlint) + Python (ruff) workspaces"
+run = "pnpm lint && uv run --all-packages ruff check ."
+
+[tasks."lint:ts"]
+description = "Lint TS only (oxlint)"
+run = "pnpm lint"
+
+[tasks."lint:py"]
+description = "Lint Python only (ruff)"
+run = "uv run --all-packages ruff check ."
+
+[tasks.typecheck]
+description = "Typecheck TS (tsc -b) + Python (basedpyright)"
+run = "pnpm typecheck && uv run --all-packages basedpyright ."
+
+[tasks."typecheck:ts"]
+description = "tsc -b across the pnpm workspace"
+run = "pnpm typecheck"
+
+[tasks."typecheck:py"]
+description = "basedpyright strict on the uv workspace"
+run = "uv run --all-packages basedpyright ."
+
+[tasks.format]
+description = "Format TS (oxfmt) + Python (ruff format)"
+run = "pnpm format && uv run --all-packages ruff format ."
+
+[tasks."format:check"]
+description = "Check formatting without writing (CI mode)"
+run = "pnpm format:check && uv run --all-packages ruff format --check ."
+
+[tasks.test]
+description = "Run tests (vitest TS + pytest Py) across the workspaces"
+run = "pnpm test && uv run --all-packages pytest"
+
+[tasks."test:ts"]
+description = "Vitest only"
+run = "pnpm test"
+
+[tasks."test:py"]
+description = "pytest only"
+run = "uv run --all-packages pytest"
+
+[tasks."test:affected"]
+description = "Coverage-based affected-test selection (pytest-testmon today; vitest --filter when feature lands)"
+run = "uv run --all-packages pytest --testmon"
+
+# Two-tier validate gate. `validate:quick` is the in-loop tier (~10-30s warm);
+# `validate` is the pre-push tier (full suite). Both self-skip when no relevant
+# files changed vs origin/main. The validate scripts are `scripts/validate.ts`
+# and `scripts/validate.py`. See .agents/notes/2026-09-19.md for rationale.
+
+[tasks.validate]
+run = "tsx scripts/validate.ts && python3 scripts/validate.py"
+description = "Fast merge gate: TS typecheck/lint/format/test + Python ruff/format/basedpyright/pytest. Both self-skip when nothing relevant to that language changed vs origin/main. Same gate CI runs on every branch push."
+
+[tasks."validate:ts"]
+run = "tsx scripts/validate.ts"
+description = "TS-only validate. Use in Python-empty worktrees."
+
+[tasks."validate:py"]
+run = "python3 scripts/validate.py"
+description = "Python-only validate. Use in TS-empty worktrees."
+
+[tasks."validate:quick"]
+run = "tsx scripts/validate.ts --quick && python3 scripts/validate.py --quick"
+description = "In-loop fast tier (~10-30s warm): typecheck + lint + format:check + ruff + structural scripts, no vitest/pytest/basedpyright. NOT a substitute for validate; the pre-push hook still runs the full suite."
+
+[tasks."validate:full"]
+depends = ["validate"]
+description = "Full merge gate: validate plus Playwright e2e (LAZY — only runs when tests/e2e/** changed vs origin/main; no-op until e2e suite lands)."
+
+[tasks."test:e2e"]
+description = "Playwright e2e suite. Lazy-installed: only `playwright install chromium` on first run. Tests live under tests/e2e/**."
+run = "pnpm exec playwright test"
+
+[tasks."hooks:install"]
+description = "Install lefthook git hooks (also runs on `pnpm install` via the root `prepare` script)"
+run = "lefthook install"
+
+[tasks."wt:init"]
+description = "Initialize a new worktree: copy .env, run pnpm install, uv sync --all-packages, then db:start"
+run = "bash scripts/worktree-init.sh"
+
+[tasks.dev]
+description = "Run the web dev server (Next.js 16)"
+run = "pnpm --filter @chezy/web dev"
+
+[tasks.build]
+description = "Build all workspaces"
+run = "pnpm build"
+
+[tasks."cosmos"]
+description = "Tier-2 component validation. Spawns react-cosmos dev server for isolated component fixtures. Use when app-level setup (apps/web dev server) is conflicting or polluted."
+run = "pnpm --filter @chezy/web cosmos"
+
+[tasks."browser:smoke"]
+description = "Tier-1 app-level validation. Spawns agent-browser for a one-off smoke check against the dev server."
+run = "agent-browser --help"

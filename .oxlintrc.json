@@ -1,0 +1,69 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "off",
+    "suspicious": "off"
+  },
+  "options": {
+    "typeAware": true,
+    "typeCheck": true
+  },
+  "plugins": ["react", "unicorn", "import", "typescript"],
+  "rules": {
+    "react/react-compiler": ["error", { "reportAllBailouts": false }],
+    "react/exhaustive-deps": "error",
+    "unicorn/no-null": ["error", { "checkStrictEquality": false }],
+    "typescript/consistent-type-imports": "error",
+    "import/no-cycle": "error",
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "zod",
+            "message": "chezy uses Valibot for runtime validation. See packages/config/src/env.ts for the env parser, and .agents/skills/typescript-react-guidelines/ for the schema patterns."
+          },
+          {
+            "name": "@biomejs/biome",
+            "message": "chezy uses oxlint + oxfmt. Do not import the Biome CLI from source."
+          }
+        ],
+        "patterns": [
+          {
+            "group": ["@/components/*", "@/lib/*", "@/hooks/*", "@/*"],
+            "message": "Use the `~/*` alias (tsconfig paths) instead of the upstream vercel/chatbot `@/*` alias. Imports starting with `@/` are forbidden."
+          },
+          {
+            "group": ["drizzle-orm/*", "@/lib/db/*"],
+            "message": "Server-only persistence. Reach the server via a Route Handler / Server Action; do not value-import from client components."
+          }
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "CallExpression[callee.name='useEffect']",
+        "message": "chezy bans useEffect. See .agents/skills/no-use-effect/SKILL.md for the 5 replacement patterns and the useMountEffect escape hatch (import { useMountEffect } from '@chezy/ui/hooks/useMountEffect')."
+      },
+      {
+        "selector": "MemberExpression[object.name='process'][property.name='env']",
+        "message": "Inject config through packages/config (Valibot env parser). Direct process.env reads are banned outside packages/config and *.config-bound.ts files."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["scripts/**", "**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "no-restricted-syntax": "off"
+      }
+    },
+    {
+      "files": ["**/cosmos.config.ts", "**/__cosmos__/**"],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+# Git hooks powered by lefthook. Install via the root package.json `prepare`
+# script (`lefthook install`) on `pnpm install`.
+#
+# pre-push runs the full local validate gate (`mise run validate`: typecheck +
+# lint + format:check + ruff + basedpyright + vitest + pytest). This is the
+# same gate CI runs, so catching failures here saves a round-trip.
+# The gate validates the push, not your diff — a red gate on an untouched file
+# means your push carries somebody else's unpushed commit (diagnose with
+# `git log --oneline @{u}..HEAD`). `git push --no-verify` is forbidden by
+# AGENTS.md policy.
+#
+# Pre-commit is intentionally empty on day 0. Add staged checks per the
+# backlog in `.agents/notes/2026-09-19.md` when their owning feature lands:
+#
+#   [add when: apps/web/app/api/** first route ships]
+#       scripts/check-sensitive-routes.ts (auth-marker audit)
+#   [add when: drizzle-kit generate runs once]
+#       scripts/check-migration-breakpoints.ts
+#   [add when: pnpm catalogs.default adds a second tool]
+#       scripts/check-workspace-manifests.ts
+#   [add when: vite dev reaches 3+ clients]
+#       scripts/check-tailwind-source-paths.ts
+#   [add when: react-cosmos fixtures land]
+#       scripts/check-cosmos-fixture-coverage.ts
+
+pre-push:
+  parallel: false  # serialize to avoid corrupting ~/.local/share/chezy/gate-timings.json
+  commands:
+    validate:
+      run: mise run validate
