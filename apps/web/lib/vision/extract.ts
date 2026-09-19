@@ -3,14 +3,11 @@ import path from "node:path";
 
 import * as v from "valibot";
 
-import { VISION_FETCH_TIMEOUT_MS } from "@/lib/constants";
-import { env } from "@/lib/env";
+import { VISION_FETCH_TIMEOUT_MS } from "~/lib/constants";
+import { env } from "~/lib/env";
 
-import {
-  INSIGHTS_PROMPT_VERSION,
-  LISTING_INSIGHTS_PROMPT,
-} from "@/lib/vision/prompt";
-import { type ListingInsights, ListingInsightsSchema } from "@/lib/vision/schema";
+import { INSIGHTS_PROMPT_VERSION, LISTING_INSIGHTS_PROMPT } from "~/lib/vision/prompt";
+import { type ListingInsights, ListingInsightsSchema } from "~/lib/vision/schema";
 
 const MAX_PHOTOS = 25;
 const MAX_TOKENS = 5000;
@@ -84,7 +81,7 @@ function stripFences(text: string): string {
 export async function extractListingInsights(
   input: {
     listingId: string;
-    photos: { url: string; localPath: string | null }[];
+    photos: { url: string; localPath: string | undefined }[];
   },
   opts?: { modelId?: string },
 ): Promise<{
@@ -95,9 +92,7 @@ export async function extractListingInsights(
 }> {
   const model = opts?.modelId ?? env.VISION_MODEL_ID;
   const photos = input.photos.slice(0, MAX_PHOTOS);
-  const parts: (TextPart | ImagePart)[] = [
-    { type: "text", text: LISTING_INSIGHTS_PROMPT },
-  ];
+  const parts: (TextPart | ImagePart)[] = [{ type: "text", text: LISTING_INSIGHTS_PROMPT }];
   for (const photo of photos) {
     const local = photo.localPath ? await dataUrl(photo.localPath) : undefined;
     parts.push({ type: "image_url", image_url: { url: local ?? photo.url } });

@@ -4,11 +4,11 @@ import readline from "node:readline";
 
 import { eq } from "drizzle-orm";
 
-import { db } from "@/lib/db/client";
-import { listing, listingInsight } from "@/lib/db/schema";
-import { extractListingInsights } from "@/lib/vision/extract";
-import { INSIGHTS_PROMPT_VERSION } from "@/lib/vision/prompt";
-import type { ListingInsights } from "@/lib/vision/schema";
+import { db } from "~/lib/db/client";
+import { listing, listingInsight } from "~/lib/db/schema";
+import { extractListingInsights } from "~/lib/vision/extract";
+import { INSIGHTS_PROMPT_VERSION } from "~/lib/vision/prompt";
+import type { ListingInsights } from "~/lib/vision/schema";
 
 type Extraction = Awaited<ReturnType<typeof extractListingInsights>>;
 
@@ -39,9 +39,7 @@ export function toInsightRow(
   };
 }
 
-export async function getListingInsights(
-  listingId: string,
-): Promise<ListingInsights | undefined> {
+export async function getListingInsights(listingId: string): Promise<ListingInsights | undefined> {
   const rows = await db
     .select()
     .from(listingInsight)
@@ -51,10 +49,7 @@ export async function getListingInsights(
 
 // lib/insights.ts -> apps/web -> repo root (has chezy-mock-data/).
 // import.meta.dirname is undefined under Turbopack; fall back to cwd (apps/web).
-const REPO_ROOT = path.resolve(
-  import.meta.dirname ?? path.join(process.cwd(), "lib"),
-  "../../..",
-);
+const REPO_ROOT = path.resolve(import.meta.dirname ?? path.join(process.cwd(), "lib"), "../../..");
 
 // Media items marked `photo` can actually be portal-embedded 3D-tour / viewer
 // links (plushglobalmedia, matterport, floorfy, inmovilla) that the provider
@@ -73,9 +68,7 @@ let localPathIndex: Map<string, Map<string, string>> | undefined;
 
 // Maps listingId -> (media url -> local_path) so the VLM gets the cheaper
 // local WebPs. Parsed lazily from the committed JSONL (300 rows).
-async function datasetLocalPaths(
-  listingId: string,
-): Promise<Map<string, string>> {
+async function datasetLocalPaths(listingId: string): Promise<Map<string, string>> {
   if (!localPathIndex) {
     localPathIndex = new Map();
     const rl = readline.createInterface({
@@ -109,19 +102,16 @@ async function datasetLocalPaths(
 export async function selectPhotos(row: {
   id: string;
   media: { url: string; kind: string; roomType: string | null }[];
-}): Promise<{ url: string; localPath: string | null; mediaIndex: number }[]> {
+}): Promise<{ url: string; localPath: string | undefined; mediaIndex: number }[]> {
   const localPaths = await datasetLocalPaths(row.id);
   return row.media
     .map((m, mediaIndex) => ({
       url: m.url,
-      localPath: localPaths.get(m.url) ?? null,
+      localPath: localPaths.get(m.url) ?? undefined,
       kind: m.kind,
       mediaIndex,
     }))
-    .filter(
-      (p) =>
-        p.kind === "photo" && (p.localPath !== null || isCdnImageUrl(p.url)),
-    )
+    .filter((p) => p.kind === "photo" && (p.localPath !== undefined || isCdnImageUrl(p.url)))
     .map(({ url, localPath, mediaIndex }) => ({ url, localPath, mediaIndex }));
 }
 
@@ -129,10 +119,7 @@ export async function ensureListingInsights(
   listingId: string,
   opts?: { force?: boolean; modelId?: string },
 ): Promise<ListingInsights> {
-  const rows = await db
-    .select()
-    .from(listing)
-    .where(eq(listing.id, listingId));
+  const rows = await db.select().from(listing).where(eq(listing.id, listingId));
   const row = rows[0];
   if (!row) {
     throw new Error(`listing not found: ${listingId}`);
@@ -143,11 +130,7 @@ export async function ensureListingInsights(
     .from(listingInsight)
     .where(eq(listingInsight.listingId, listingId));
   const current = stored[0];
-  if (
-    !opts?.force &&
-    current &&
-    current.promptVersion === INSIGHTS_PROMPT_VERSION
-  ) {
+  if (!opts?.force && current && current.promptVersion === INSIGHTS_PROMPT_VERSION) {
     return current.insights;
   }
 
@@ -184,18 +167,13 @@ export async function ensureListingInsights(
     }
   }
   if (dirty) {
-    await db
-      .update(listing)
-      .set({ media })
-      .where(eq(listing.id, listingId));
+    await db.update(listing).set({ media }).where(eq(listing.id, listingId));
   }
 
   return insights;
 }
 
-export function insightsToCallVariables(
-  insights: ListingInsights,
-): Record<string, string> {
+export function insightsToCallVariables(insights: ListingInsights): Record<string, string> {
   return {
     property_highlights: insights.highlights_es.slice(0, 3).join("; "),
     property_condition: String(insights.condition.score_1to5),

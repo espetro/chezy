@@ -3,9 +3,9 @@ import { tool } from "ai";
 import { eq } from "drizzle-orm";
 import * as v from "valibot";
 
-import { db } from "@/lib/db/client";
-import { listing } from "@/lib/db/schema";
-import { getListingInsights, selectPhotos } from "@/lib/insights";
+import { db } from "~/lib/db/client";
+import { listing } from "~/lib/db/schema";
+import { getListingInsights, selectPhotos } from "~/lib/insights";
 
 export const getListingInsightsTool = tool({
   description:
@@ -20,9 +20,7 @@ export const getListingInsightsTool = tool({
     const row = rows[0];
     const photos = row ? await selectPhotos(row) : [];
     const urls = (indexes: number[]) =>
-      indexes
-        .map((i) => photos[i]?.url)
-        .filter((u): u is string => Boolean(u));
+      indexes.map((i) => photos[i]?.url).filter((u): u is string => Boolean(u));
     return {
       id,
       insights,

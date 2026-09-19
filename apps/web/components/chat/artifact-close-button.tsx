@@ -1,5 +1,5 @@
 import { memo, useCallback } from "react";
-import { initialArtifactData, useArtifact } from "@/hooks/use-artifact";
+import { initialArtifactData, useArtifact } from "~/hooks/use-artifact";
 import { CrossIcon } from "./icons";
 
 function PureArtifactCloseButton() {
@@ -11,7 +11,7 @@ function PureArtifactCloseButton() {
             ...currentArtifact,
             isVisible: false,
           }
-        : { ...initialArtifactData, status: "idle" }
+        : { ...initialArtifactData, status: "idle" },
     );
   }, [setArtifact]);
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { FlowButton } from "@/components/flow/ui/Button";
-import { FlowPill } from "@/components/flow/ui/Pill";
+import { FlowButton } from "~/components/flow/ui/Button";
+import { FlowPill } from "~/components/flow/ui/Pill";
 
 const painPoints = [
   "No more endless scrolling on listing sites — the agent filters for you",

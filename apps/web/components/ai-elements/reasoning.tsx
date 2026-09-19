@@ -3,11 +3,8 @@
 import type { ComponentProps, HTMLAttributes, ReactNode } from "react";
 
 import { useControllableState } from "@radix-ui/react-use-controllable-state";
-import {
-  Collapsible,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { cn } from "@/lib/utils";
+import { Collapsible, CollapsibleTrigger } from "~/components/ui/collapsible";
+import { cn } from "~/lib/utils";
 import { cjk } from "@streamdown/cjk";
 import { code } from "@streamdown/code";
 import { math } from "@streamdown/math";
@@ -34,7 +31,7 @@ interface ReasoningContextValue {
   duration: number | undefined;
 }
 
-const ReasoningContext = createContext<ReasoningContextValue | null>(null);
+const ReasoningContext = createContext<ReasoningContextValue | undefined>(undefined);
 
 export const useReasoning = () => {
   const context = useContext(ReasoningContext);
@@ -93,6 +90,8 @@ export const Reasoning = memo(
         }
       } else if (startTimeRef.current !== null) {
         setDuration(Math.ceil((Date.now() - startTimeRef.current) / MS_IN_S));
+        // Ref typed number | null by upstream context.
+        // oxlint-disable-next-line unicorn/no-null
         startTimeRef.current = null;
       }
     }, [isStreaming, setDuration]);
@@ -106,12 +105,7 @@ export const Reasoning = memo(
 
     // Auto-close when streaming ends (once only, and only if it ever streamed)
     useEffect(() => {
-      if (
-        hasEverStreamedRef.current &&
-        !isStreaming &&
-        isOpen &&
-        !hasAutoClosed
-      ) {
+      if (hasEverStreamedRef.current && !isStreaming && isOpen && !hasAutoClosed) {
         const timer = setTimeout(() => {
           setIsOpen(false);
           setHasAutoClosed(true);
@@ -125,12 +119,12 @@ export const Reasoning = memo(
       (newOpen: boolean) => {
         setIsOpen(newOpen);
       },
-      [setIsOpen]
+      [setIsOpen],
     );
 
     const contextValue = useMemo(
       () => ({ duration, isOpen, isStreaming, setIsOpen }),
-      [duration, isOpen, isStreaming, setIsOpen]
+      [duration, isOpen, isStreaming, setIsOpen],
     );
 
     return (
@@ -145,18 +139,20 @@ export const Reasoning = memo(
         </Collapsible>
       </ReasoningContext.Provider>
     );
-  }
+  },
 );
 
-export type ReasoningTriggerProps = ComponentProps<
-  typeof CollapsibleTrigger
-> & {
+export type ReasoningTriggerProps = ComponentProps<typeof CollapsibleTrigger> & {
   getThinkingMessage?: (isStreaming: boolean, duration?: number) => ReactNode;
 };
 
 const defaultGetThinkingMessage = (isStreaming: boolean, duration?: number) => {
   if (isStreaming || duration === 0) {
-    return <Shimmer className="font-medium" duration={1}>Thinking...</Shimmer>;
+    return (
+      <Shimmer className="font-medium" duration={1}>
+        Thinking...
+      </Shimmer>
+    );
   }
   if (duration === undefined) {
     return <p>Thought for a few seconds</p>;
@@ -177,7 +173,7 @@ export const ReasoningTrigger = memo(
       <CollapsibleTrigger
         className={cn(
           "flex w-full items-center gap-2 text-muted-foreground text-[13px] leading-[1.65] transition-colors hover:text-foreground",
-          className
+          className,
         )}
         {...props}
       >
@@ -185,16 +181,13 @@ export const ReasoningTrigger = memo(
           <>
             {getThinkingMessage(isStreaming, duration)}
             <ChevronDownIcon
-              className={cn(
-                "size-4 transition-transform",
-                isOpen ? "rotate-180" : "rotate-0"
-              )}
+              className={cn("size-4 transition-transform", isOpen ? "rotate-180" : "rotate-0")}
             />
           </>
         )}
       </CollapsibleTrigger>
     );
-  }
+  },
 );
 
 export type ReasoningContentProps = HTMLAttributes<HTMLDivElement> & {
@@ -203,37 +196,35 @@ export type ReasoningContentProps = HTMLAttributes<HTMLDivElement> & {
 
 const streamdownPlugins = { cjk, code, math, mermaid };
 
-export const ReasoningContent = memo(
-  ({ className, children, ...props }: ReasoningContentProps) => {
-    const { isStreaming, isOpen } = useReasoning();
-    const scrollRef = useRef<HTMLDivElement>(null);
-    useEffect(() => {
-      if (isStreaming && scrollRef.current) {
-        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-      }
-    }, [children, isStreaming]);
+export const ReasoningContent = memo(({ className, children, ...props }: ReasoningContentProps) => {
+  const { isStreaming, isOpen } = useReasoning();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (isStreaming && scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [children, isStreaming]);
 
-    if (!isOpen) return null;
+  if (!isOpen) return undefined;
 
-    return (
+  return (
+    <div
+      className={cn(
+        "mt-2 animate-in fade-in-0 duration-200 text-muted-foreground/60 [overflow-anchor:none]",
+        className,
+      )}
+      {...props}
+    >
       <div
-        className={cn(
-          "mt-2 animate-in fade-in-0 duration-200 text-muted-foreground/60 [overflow-anchor:none]",
-          className
-        )}
-        {...props}
+        className="max-h-[200px] overflow-y-auto rounded-lg border border-border/20 bg-muted/30 px-3 py-2 text-[11px] leading-relaxed"
+        ref={scrollRef}
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-        <div
-          className="max-h-[200px] overflow-y-auto rounded-lg border border-border/20 bg-muted/30 px-3 py-2 text-[11px] leading-relaxed"
-          ref={scrollRef}
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          <Streamdown plugins={streamdownPlugins}>{children}</Streamdown>
-        </div>
+        <Streamdown plugins={streamdownPlugins}>{children}</Streamdown>
       </div>
-    );
-  }
-);
+    </div>
+  );
+});
 
 Reasoning.displayName = "Reasoning";
 ReasoningTrigger.displayName = "ReasoningTrigger";

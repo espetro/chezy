@@ -1,21 +1,10 @@
-import {
-  and,
-  asc,
-  count,
-  eq,
-  gt,
-  gte,
-  ilike,
-  lte,
-  or,
-  type SQL,
-} from "drizzle-orm";
+import { and, asc, count, eq, gt, gte, ilike, lte, or, type SQL } from "drizzle-orm";
 import * as v from "valibot";
 
-import { PRICE_HEADROOM } from "@/lib/constants";
-import { db } from "@/lib/db/client";
-import { listing, type Listing } from "@/lib/db/schema";
-import { esInt, eur, sentenceCase, speechText, streetCase } from "@/lib/format";
+import { PRICE_HEADROOM } from "~/lib/constants";
+import { db } from "~/lib/db/client";
+import { listing, type Listing } from "~/lib/db/schema";
+import { esInt, eur, sentenceCase, speechText, streetCase } from "~/lib/format";
 
 export { eur };
 
@@ -49,18 +38,14 @@ export const ListingRecordSchema = v.object({
   amenities: v.optional(v.array(v.string()), []),
   title: v.nullable(v.string()),
   description: v.nullable(v.string()),
-  publisher: v.nullable(
-    v.object({ name: v.nullable(v.string()), kind: v.nullable(v.string()) }),
-  ),
+  publisher: v.nullable(v.object({ name: v.nullable(v.string()), kind: v.nullable(v.string()) })),
   media: v.optional(v.array(MediaItemSchema), []),
   published_at: v.nullable(v.string()),
 });
 
 export type ListingRecord = v.InferOutput<typeof ListingRecordSchema>;
 
-export function toListingRow(
-  record: ListingRecord,
-): typeof listing.$inferInsert {
+export function toListingRow(record: ListingRecord): typeof listing.$inferInsert {
   return {
     id: `${record.platform}:${record.platform_id}`,
     platform: record.platform,
@@ -84,21 +69,18 @@ export function toListingRow(
     amenities: record.amenities,
     // A third of the dataset has no title; fall back to the first line of the
     // description so the column can stay notNull.
-    title:
-      record.title ?? record.description?.split("\n", 1)[0]?.slice(0, 120) ?? "",
+    title: record.title ?? record.description?.split("\n", 1)[0]?.slice(0, 120) ?? "",
     description: record.description,
-    publisherName: record.publisher?.name ?? null,
-    publisherKind: record.publisher?.kind ?? null,
+    publisherName: record.publisher?.name ?? undefined,
+    publisherKind: record.publisher?.kind ?? undefined,
     coverUrl:
-      record.media.find((m) => m.kind === "photo")?.url ??
-      record.media[0]?.url ??
-      null,
+      record.media.find((m) => m.kind === "photo")?.url ?? record.media[0]?.url ?? undefined,
     media: record.media.map((m) => ({
       url: m.url,
       kind: m.kind,
       roomType: m.room_type,
     })),
-    publishedAt: record.published_at ? new Date(record.published_at) : null,
+    publishedAt: record.published_at ? new Date(record.published_at) : undefined,
   };
 }
 
@@ -280,9 +262,7 @@ export async function searchListings(
   });
 
   const deduped = dedupeListings(rows);
-  const listings = deduped
-    .slice(0, Math.min(search.limit ?? 5, 10))
-    .map(toListingSummary);
+  const listings = deduped.slice(0, Math.min(search.limit ?? 5, 10)).map(toListingSummary);
 
   return {
     listings,
@@ -299,18 +279,10 @@ export interface CandidateFilter {
   minM2?: number;
 }
 
-function rentCandidateFilters(
-  filter: CandidateFilter,
-  withHeadroom: boolean,
-): SQL[] {
-  const filters: SQL[] = [
-    eq(listing.operation, "rent"),
-    gt(listing.priceEur, 0),
-  ];
+function rentCandidateFilters(filter: CandidateFilter, withHeadroom: boolean): SQL[] {
+  const filters: SQL[] = [eq(listing.operation, "rent"), gt(listing.priceEur, 0)];
   if (filter.maxPriceEur !== undefined) {
-    const cap = withHeadroom
-      ? filter.maxPriceEur * PRICE_HEADROOM
-      : filter.maxPriceEur;
+    const cap = withHeadroom ? filter.maxPriceEur * PRICE_HEADROOM : filter.maxPriceEur;
     filters.push(lte(listing.priceEur, cap));
   }
   if (filter.minRooms !== undefined) {
@@ -322,11 +294,7 @@ function rentCandidateFilters(
   if (filter.neighbourhoods && filter.neighbourhoods.length > 0) {
     const places = filter.neighbourhoods
       .map(
-        (n) =>
-          or(
-            ilike(listing.neighbourhood, `%${n}%`),
-            ilike(listing.district, `%${n}%`),
-          ) as SQL,
+        (n) => or(ilike(listing.neighbourhood, `%${n}%`), ilike(listing.district, `%${n}%`)) as SQL,
       )
       .filter((s): s is SQL => s !== undefined);
     if (places.length > 0) {
@@ -337,9 +305,7 @@ function rentCandidateFilters(
 }
 
 // Feed candidate pool: rents within budget headroom, ordered cheapest first.
-export async function listRentCandidates(
-  filter: CandidateFilter,
-): Promise<Listing[]> {
+export async function listRentCandidates(filter: CandidateFilter): Promise<Listing[]> {
   return db
     .select()
     .from(listing)
@@ -350,9 +316,7 @@ export async function listRentCandidates(
 
 // Exact-match counter for the "N pisos coinciden" badge: same filters but
 // without the price headroom.
-export async function countRentCandidates(
-  filter: CandidateFilter,
-): Promise<number> {
+export async function countRentCandidates(filter: CandidateFilter): Promise<number> {
   const [row] = await db
     .select({ value: count() })
     .from(listing)
@@ -361,22 +325,16 @@ export async function countRentCandidates(
 }
 
 // Full row for the listing detail page (media, lat/lon, floor, amenities).
-export async function getListingRowById(
-  id: string,
-): Promise<Listing | undefined> {
+export async function getListingRowById(id: string): Promise<Listing | undefined> {
   const rows = await db.select().from(listing).where(eq(listing.id, id));
   return rows[0];
 }
 
-export async function getListingById(
-  id: string,
-): Promise<ListingSummary | undefined> {
+export async function getListingById(id: string): Promise<ListingSummary | undefined> {
   const rows = await db.select().from(listing).where(eq(listing.id, id));
   const row = rows[0];
   return row ? toListingSummary(row) : undefined;
 }
-
-
 
 // Street names that already carry a thoroughfare prefix don't get "calle ".
 const STREET_PREFIX =
@@ -388,9 +346,7 @@ function speechPrice(summary: ListingSummary): string {
     return "";
   }
   const amount = esInt.format(summary.priceEur);
-  return summary.operation === "rent"
-    ? `${amount} euros al mes`
-    : `${amount} euros`;
+  return summary.operation === "rent" ? `${amount} euros al mes` : `${amount} euros`;
 }
 
 function speechLocation(summary: ListingSummary): string {
@@ -398,9 +354,7 @@ function speechLocation(summary: ListingSummary): string {
     const street = streetCase(summary.street);
     const place = summary.neighbourhood ?? summary.district ?? "Barcelona";
     const streetPart = STREET_PREFIX.test(street) ? street : `calle ${street}`;
-    return speechText(
-      `${streetPart}, ${place}${place === "Barcelona" ? "" : ", Barcelona"}`,
-    );
+    return speechText(`${streetPart}, ${place}${place === "Barcelona" ? "" : ", Barcelona"}`);
   }
   return speechText(
     [summary.neighbourhood, summary.district]
@@ -412,9 +366,7 @@ function speechLocation(summary: ListingSummary): string {
 function speechSummary(summary: ListingSummary): string {
   const parts: string[] = [];
   if (summary.rooms !== null) {
-    parts.push(
-      summary.rooms === 1 ? "1 habitación" : `${summary.rooms} habitaciones`,
-    );
+    parts.push(summary.rooms === 1 ? "1 habitación" : `${summary.rooms} habitaciones`);
   }
   if (summary.builtM2 !== null) {
     parts.push(`${Math.round(summary.builtM2)} metros cuadrados`);
@@ -433,17 +385,14 @@ function speechSummary(summary: ListingSummary): string {
 
 // Variables the SLNG voice agent reads aloud: speech-ready text (no €, no
 // straight apostrophes, no ALL-CAPS).
-export function listingToCallVariables(
-  summary: ListingSummary,
-): Record<string, string> {
+export function listingToCallVariables(summary: ListingSummary): Record<string, string> {
   return {
     property_ref: summary.id,
     property_title: sentenceCase(summary.title).slice(0, 90),
     property_price: speechPrice(summary),
     property_location: speechLocation(summary),
     property_rooms: summary.rooms?.toString() ?? "",
-    property_m2:
-      summary.builtM2 === null ? "" : Math.round(summary.builtM2).toString(),
+    property_m2: summary.builtM2 === null ? "" : Math.round(summary.builtM2).toString(),
     property_summary: speechSummary(summary),
   };
 }

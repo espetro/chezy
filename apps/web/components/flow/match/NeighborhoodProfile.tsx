@@ -1,4 +1,4 @@
-import type { NeighborhoodProfile as NeighborhoodProfileData } from "@/lib/flow/types";
+import type { NeighborhoodProfile as NeighborhoodProfileData } from "~/lib/flow/types";
 
 interface NeighborhoodProfileProps {
   profile: NeighborhoodProfileData;

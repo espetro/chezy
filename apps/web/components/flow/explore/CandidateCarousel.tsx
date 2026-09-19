@@ -2,9 +2,9 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, useState } from "react";
-import { CandidateCard } from "@/components/flow/explore/CandidateCard";
-import type { FlowListing } from "@/lib/flow/types";
-import { cn } from "@/lib/utils";
+import { CandidateCard } from "~/components/flow/explore/CandidateCard";
+import type { FlowListing } from "~/lib/flow/types";
+import { cn } from "~/lib/utils";
 
 interface CandidateCarouselProps {
   listings: FlowListing[];
@@ -27,9 +27,7 @@ export const CandidateCarousel = ({ listings, label }: CandidateCarouselProps) =
     const slide = track?.children[index];
     if (!(slide instanceof HTMLElement)) return;
 
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     slide.scrollIntoView({
       behavior: prefersReducedMotion ? "auto" : "smooth",
@@ -74,7 +72,7 @@ export const CandidateCarousel = ({ listings, label }: CandidateCarouselProps) =
       <div
         ref={trackRef}
         onScroll={handleTrackScroll}
-        className="flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex snap-x snap-mandatory [scrollbar-width:none] gap-6 overflow-x-auto scroll-smooth pb-2 [&::-webkit-scrollbar]:hidden"
       >
         {listings.map((listing, index) => (
           <div
@@ -94,7 +92,11 @@ export const CandidateCarousel = ({ listings, label }: CandidateCarouselProps) =
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        <div className="flex gap-1.5 overflow-x-auto [scrollbar-width:none]" role="group" aria-label="Choose a match to view">
+        <div
+          className="flex [scrollbar-width:none] gap-1.5 overflow-x-auto"
+          role="group"
+          aria-label="Choose a match to view"
+        >
           {listings.map((listing, index) => (
             <button
               key={listing.id}
@@ -121,7 +123,7 @@ export const CandidateCarousel = ({ listings, label }: CandidateCarouselProps) =
             onClick={goPrevious}
             disabled={activeIndex === 0}
             aria-label="Previous match"
-            className="flex size-11 items-center justify-center rounded-full border border-mist bg-snow text-graphite transition-opacity hover:border-iron disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian"
+            className="flex size-11 items-center justify-center rounded-full border border-mist bg-snow text-graphite transition-opacity hover:border-iron focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-30"
           >
             <ChevronLeft size={18} />
           </button>
@@ -130,7 +132,7 @@ export const CandidateCarousel = ({ listings, label }: CandidateCarouselProps) =
             onClick={goNext}
             disabled={activeIndex === total - 1}
             aria-label="Next match"
-            className="flex size-11 items-center justify-center rounded-full border border-mist bg-snow text-graphite transition-opacity hover:border-iron disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian"
+            className="flex size-11 items-center justify-center rounded-full border border-mist bg-snow text-graphite transition-opacity hover:border-iron focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-30"
           >
             <ChevronRight size={18} />
           </button>

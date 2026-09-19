@@ -2,7 +2,7 @@ import { valibotSchema } from "@ai-sdk/valibot";
 import { tool } from "ai";
 import * as v from "valibot";
 
-import { searchListings } from "@/lib/listings";
+import { searchListings } from "~/lib/listings";
 
 export const searchListingsTool = tool({
   description:
@@ -15,7 +15,7 @@ export const searchListingsTool = tool({
       maxPriceEur: v.optional(v.number()),
       minRooms: v.optional(v.number()),
       limit: v.optional(v.number()),
-    })
+    }),
   ),
   execute: (input) => searchListings(input),
 });

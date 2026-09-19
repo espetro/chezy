@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import { auth } from "@/app/(auth)/auth";
-import { OnboardingFlow } from "@/components/flow/onboarding/OnboardingFlow";
-import { fromSearchProfile } from "@/lib/flow/adapters";
-import { defaultPreferences } from "@/lib/flow/onboarding-steps";
-import { countRentCandidates } from "@/lib/listings";
-import { getProfile } from "@/lib/profile";
+import { auth } from "~/app/(auth)/auth";
+import { OnboardingFlow } from "~/components/flow/onboarding/OnboardingFlow";
+import { fromSearchProfile } from "~/lib/flow/adapters";
+import { defaultPreferences } from "~/lib/flow/onboarding-steps";
+import { countRentCandidates } from "~/lib/listings";
+import { getProfile } from "~/lib/profile";
 
 export default function OnboardingPage() {
   return (

@@ -21,17 +21,17 @@ import {
   UserX,
   Wallet,
 } from "lucide-react";
-import { FlowBadge } from "@/components/flow/ui/Badge";
-import { FlowCheckboxRow } from "@/components/flow/ui/CheckboxRow";
-import { FlowDateChips } from "@/components/flow/ui/DateChips";
-import { FlowRangeSlider } from "@/components/flow/ui/RangeSlider";
-import { FlowSectionCard } from "@/components/flow/ui/SectionCard";
-import { FlowSegmentedSelector } from "@/components/flow/ui/SegmentedSelector";
-import { FlowSelectableTile } from "@/components/flow/ui/SelectableTile";
-import { FlowStatTile } from "@/components/flow/ui/StatTile";
-import { FlowSwitch } from "@/components/flow/ui/Switch";
-import { FlowTextField } from "@/components/flow/ui/TextField";
-import { FlowToggleChipGroup } from "@/components/flow/ui/ToggleChip";
+import { FlowBadge } from "~/components/flow/ui/Badge";
+import { FlowCheckboxRow } from "~/components/flow/ui/CheckboxRow";
+import { FlowDateChips } from "~/components/flow/ui/DateChips";
+import { FlowRangeSlider } from "~/components/flow/ui/RangeSlider";
+import { FlowSectionCard } from "~/components/flow/ui/SectionCard";
+import { FlowSegmentedSelector } from "~/components/flow/ui/SegmentedSelector";
+import { FlowSelectableTile } from "~/components/flow/ui/SelectableTile";
+import { FlowStatTile } from "~/components/flow/ui/StatTile";
+import { FlowSwitch } from "~/components/flow/ui/Switch";
+import { FlowTextField } from "~/components/flow/ui/TextField";
+import { FlowToggleChipGroup } from "~/components/flow/ui/ToggleChip";
 import {
   BUDGET,
   autonomyOptions,
@@ -44,9 +44,9 @@ import {
   zoneLabel,
   type DealBreakerIcon,
   type MustHaveIcon,
-} from "@/lib/flow/onboarding-steps";
-import type { UserPreferences } from "@/lib/flow/types";
-import { cn } from "@/lib/utils";
+} from "~/lib/flow/onboarding-steps";
+import type { UserPreferences } from "~/lib/flow/types";
+import { cn } from "~/lib/utils";
 
 export interface StepProps {
   prefs: UserPreferences;

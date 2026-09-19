@@ -1,18 +1,12 @@
 "use client";
 import type { UseChatHelpers } from "@ai-sdk/react";
 import { useCallback } from "react";
-import type { Vote } from "@/lib/db/schema";
-import type { ChatMessage } from "@/lib/types";
-import { cn, sanitizeText } from "@/lib/utils";
+import type { Vote } from "~/lib/db/schema";
+import type { ChatMessage } from "~/lib/types";
+import { cn, sanitizeText } from "~/lib/utils";
 import { MessageContent, MessageResponse } from "../ai-elements/message";
 import { Shimmer } from "../ai-elements/shimmer";
-import {
-  Tool,
-  ToolContent,
-  ToolHeader,
-  ToolInput,
-  ToolOutput,
-} from "../ai-elements/tool";
+import { Tool, ToolContent, ToolHeader, ToolInput, ToolOutput } from "../ai-elements/tool";
 import { useDataStream } from "./data-stream-provider";
 import { ListingCard, ListingResults } from "./listing-results";
 import { DocumentToolResult } from "./document";
@@ -29,11 +23,7 @@ function WaitingText() {
 
   return (
     <div className="flex min-h-[calc(13px*1.65)] min-w-0 items-center text-[13px] leading-[1.65]">
-      <Shimmer
-        as="span"
-        className="font-medium whitespace-normal break-words"
-        duration={1}
-      >
+      <Shimmer as="span" className="font-medium break-words whitespace-normal" duration={1}>
         {waitingText}
       </Shimmer>
     </div>
@@ -65,14 +55,14 @@ function ToolApprovalActions({
   return (
     <div className="flex items-center justify-end gap-2 border-t px-4 py-3">
       <button
-        className="rounded-md px-3 py-1.5 text-muted-foreground text-sm transition-colors hover:bg-muted hover:text-foreground"
+        className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         onClick={handleDeny}
         type="button"
       >
         Deny
       </button>
       <button
-        className="rounded-md bg-primary px-3 py-1.5 text-primary-foreground text-sm transition-colors hover:bg-primary/90"
+        className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground transition-colors hover:bg-primary/90"
         onClick={handleAllow}
         type="button"
       >
@@ -105,9 +95,7 @@ const PurePreviewMessage = ({
   requiresScrollPadding: boolean;
   onEdit?: (message: ChatMessage) => void;
 }) => {
-  const attachmentsFromMessage = message.parts.filter(
-    (part) => part.type === "file"
-  );
+  const attachmentsFromMessage = message.parts.filter((part) => part.type === "file");
 
   useDataStream();
 
@@ -117,18 +105,13 @@ const PurePreviewMessage = ({
   const hasAnyContent = message.parts?.some(
     (part) =>
       (part.type === "text" && part.text?.trim().length > 0) ||
-      (part.type === "reasoning" &&
-        "text" in part &&
-        part.text?.trim().length > 0) ||
-      part.type.startsWith("tool-")
+      (part.type === "reasoning" && "text" in part && part.text?.trim().length > 0) ||
+      part.type.startsWith("tool-"),
   );
   const isThinking = isAssistant && isLoading && !hasAnyContent;
 
   const attachments = attachmentsFromMessage.length > 0 && (
-    <div
-      className="flex flex-row justify-end gap-2"
-      data-testid={"message-attachments"}
-    >
+    <div className="flex flex-row justify-end gap-2" data-testid={"message-attachments"}>
       {attachmentsFromMessage.map((attachment) => (
         <PreviewAttachment
           attachment={{
@@ -153,7 +136,7 @@ const PurePreviewMessage = ({
       }
       return acc;
     },
-    { isStreaming: false, rendered: false, text: "" }
+    { isStreaming: false, rendered: false, text: "" },
   ) ?? { isStreaming: false, rendered: false, text: "" };
 
   const parts = message.parts?.map((part, index) => {
@@ -171,7 +154,7 @@ const PurePreviewMessage = ({
           />
         );
       }
-      return null;
+      return undefined;
     }
 
     if (type === "text") {
@@ -195,8 +178,7 @@ const PurePreviewMessage = ({
       const isDenied =
         state === "output-denied" ||
         (state === "approval-responded" &&
-          (part as { approval?: { approved?: boolean } }).approval?.approved ===
-            false);
+          (part as { approval?: { approved?: boolean } }).approval?.approved === false);
       const widthClass = "w-[min(100%,450px)]";
 
       if (
@@ -228,7 +210,7 @@ const PurePreviewMessage = ({
             <Tool className="w-full" defaultOpen={true}>
               <ToolHeader state="output-denied" type="tool-getWeather" />
               <ToolContent>
-                <div className="px-4 py-3 text-muted-foreground text-sm">
+                <div className="px-4 py-3 text-sm text-muted-foreground">
                   Weather lookup was denied.
                 </div>
               </ToolContent>
@@ -255,8 +237,7 @@ const PurePreviewMessage = ({
           <Tool className="w-full" defaultOpen={true}>
             <ToolHeader state={state} type="tool-getWeather" />
             <ToolContent>
-              {(state === "input-available" ||
-                state === "approval-requested") && (
+              {(state === "input-available" || state === "approval-requested") && (
                 <ToolInput input={part.input} />
               )}
               {state === "approval-requested" && approvalId && (
@@ -300,11 +281,7 @@ const PurePreviewMessage = ({
           );
         }
 
-        if (
-          part.type === "tool-getListing" &&
-          part.output &&
-          !("error" in part.output)
-        ) {
+        if (part.type === "tool-getListing" && part.output && !("error" in part.output)) {
           return (
             <div className="w-full max-w-sm" key={toolCallId}>
               <ListingCard listing={part.output} />
@@ -312,7 +289,7 @@ const PurePreviewMessage = ({
           );
         }
 
-        return null;
+        return undefined;
       }
 
       return (
@@ -320,9 +297,7 @@ const PurePreviewMessage = ({
           <Tool className="w-full" defaultOpen={false}>
             <ToolHeader
               state={state}
-              title={
-                type === "tool-searchListings" ? "Buscando anuncios…" : undefined
-              }
+              title={type === "tool-searchListings" ? "Buscando anuncios…" : undefined}
               type={type}
             />
             <ToolContent>
@@ -347,13 +322,7 @@ const PurePreviewMessage = ({
         );
       }
 
-      return (
-        <DocumentPreview
-          isReadonly={isReadonly}
-          key={toolCallId}
-          result={part.output}
-        />
-      );
+      return <DocumentPreview isReadonly={isReadonly} key={toolCallId} result={part.output} />;
     }
 
     if (type === "tool-updateDocument") {
@@ -385,11 +354,7 @@ const PurePreviewMessage = ({
       const { toolCallId, state } = part;
 
       return (
-        <Tool
-          className="w-[min(100%,450px)]"
-          defaultOpen={true}
-          key={toolCallId}
-        >
+        <Tool className="w-[min(100%,450px)]" defaultOpen={true} key={toolCallId}>
           <ToolHeader state={state} type="tool-requestSuggestions" />
           <ToolContent>
             {state === "input-available" && <ToolInput input={part.input} />}
@@ -416,7 +381,7 @@ const PurePreviewMessage = ({
       );
     }
 
-    return null;
+    return undefined;
   });
 
   const actions = !isReadonly && (
@@ -444,16 +409,12 @@ const PurePreviewMessage = ({
     <div
       className={cn(
         "group/message w-full",
-        !isAssistant && "animate-[fade-up_0.25s_cubic-bezier(0.22,1,0.36,1)]"
+        !isAssistant && "animate-[fade-up_0.25s_cubic-bezier(0.22,1,0.36,1)]",
       )}
       data-role={message.role}
       data-testid={`message-${message.role}`}
     >
-      <div
-        className={cn(
-          isUser ? "flex flex-col items-end gap-2" : "flex items-start gap-3"
-        )}
-      >
+      <div className={cn(isUser ? "flex flex-col items-end gap-2" : "flex items-start gap-3")}>
         {isAssistant && (
           <div className="flex h-[calc(13px*1.65)] shrink-0 items-center">
             <div className="flex size-7 items-center justify-center rounded-lg bg-muted/60 text-muted-foreground ring-1 ring-border/50">
@@ -490,4 +451,3 @@ export const ThinkingMessage = () => (
     </div>
   </div>
 );
-

@@ -1,15 +1,8 @@
-import type { Listing, SearchProfile } from "@/lib/db/schema";
-import {
-  type CandidateFilter,
-  listRentCandidates,
-} from "@/lib/listings";
-import { type MatchResult, rankListings } from "@/lib/match";
+import type { Listing, SearchProfile } from "~/lib/db/schema";
+import { type CandidateFilter, listRentCandidates } from "~/lib/listings";
+import { type MatchResult, rankListings } from "~/lib/match";
 
-export type FeedRelaxation =
-  | "minM2"
-  | "neighbourhoods"
-  | "maxPriceEur"
-  | "minRooms";
+export type FeedRelaxation = "minM2" | "neighbourhoods" | "maxPriceEur" | "minRooms";
 
 export interface FeedResult {
   readonly items: Array<{ listing: Listing; match: MatchResult }>;

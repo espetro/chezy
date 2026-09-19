@@ -1,8 +1,8 @@
-import { COMMUTE_MIN_PER_KM, COMMUTE_OVERHEAD_MIN } from "@/lib/constants";
-import type { Listing, SearchProfile } from "@/lib/db/schema";
-import { eur } from "@/lib/format";
-import { type GeoPoint, normalizeText } from "@/lib/geocode";
-import { dedupeListings } from "@/lib/listings";
+import { COMMUTE_MIN_PER_KM, COMMUTE_OVERHEAD_MIN } from "~/lib/constants";
+import type { Listing, SearchProfile } from "~/lib/db/schema";
+import { eur } from "~/lib/format";
+import { type GeoPoint, normalizeText } from "~/lib/geocode";
+import { dedupeListings } from "~/lib/listings";
 
 export interface MatchResult {
   readonly score: number;
@@ -54,10 +54,7 @@ function budgetScore(price: number, min: number, max: number): number {
   return Math.max(0, 30 - 3 * over);
 }
 
-export function scoreListing(
-  profile: SearchProfile,
-  row: Listing,
-): MatchResult {
+export function scoreListing(profile: SearchProfile, row: Listing): MatchResult {
   const reasons: string[] = [];
   let total = 0;
 
@@ -153,7 +150,6 @@ export function rankListings(
     .map((listing) => ({ listing, match: scoreListing(profile, listing) }))
     .sort(
       (a, b) =>
-        b.match.score - a.match.score ||
-        (a.listing.priceEur ?? 0) - (b.listing.priceEur ?? 0),
+        b.match.score - a.match.score || (a.listing.priceEur ?? 0) - (b.listing.priceEur ?? 0),
     );
 }

@@ -6,9 +6,9 @@ import path from "node:path";
 import { createInterface } from "node:readline";
 import * as v from "valibot";
 
-import { db } from "@/lib/db/client";
-import { listing } from "@/lib/db/schema";
-import { ListingRecordSchema, toListingRow } from "@/lib/listings";
+import { db } from "~/lib/db/client";
+import { listing } from "~/lib/db/schema";
+import { ListingRecordSchema, toListingRow } from "~/lib/listings";
 
 const DATASET = path.resolve(
   import.meta.dirname,

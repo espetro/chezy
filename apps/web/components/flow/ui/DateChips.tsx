@@ -1,8 +1,8 @@
 "use client";
 
-import { FlowCalendar, formatFlowDate, toIsoDate } from "@/components/flow/ui/Calendar";
-import type { MoveIn } from "@/lib/flow/types";
-import { cn } from "@/lib/utils";
+import { FlowCalendar, formatFlowDate, toIsoDate } from "~/components/flow/ui/Calendar";
+import type { MoveIn } from "~/lib/flow/types";
+import { cn } from "~/lib/utils";
 
 interface DateChipsProps {
   value: MoveIn | undefined;

@@ -7,23 +7,19 @@ import { type Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import type { Suggestion } from "@/lib/db/schema";
-import {
-  documentSchema,
-  handleTransaction,
-  headingRule,
-} from "@/lib/editor/config";
+import type { Suggestion } from "~/lib/db/schema";
+import { documentSchema, handleTransaction, headingRule } from "~/lib/editor/config";
 import {
   buildContentFromDocument,
   buildDocumentFromContent,
   createDecorations,
-} from "@/lib/editor/functions";
+} from "~/lib/editor/functions";
 import {
   projectWithPositions,
   suggestionsPlugin,
   suggestionsPluginKey,
   type UISuggestion,
-} from "@/lib/editor/suggestions";
+} from "~/lib/editor/suggestions";
 import { SuggestionDialog } from "./suggestion";
 
 type EditorProps = {
@@ -38,17 +34,10 @@ type EditorProps = {
   activeSuggestion?: UISuggestion | null;
 };
 
-function PureEditor({
-  content,
-  onSaveContent,
-  suggestions,
-  status,
-}: EditorProps) {
+function PureEditor({ content, onSaveContent, suggestions, status }: EditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorView | null>(null);
-  const [activeSuggestion, setActiveSuggestion] = useState<UISuggestion | null>(
-    null
-  );
+  const [activeSuggestion, setActiveSuggestion] = useState<UISuggestion | undefined>(undefined);
   const suggestionsRef = useRef<UISuggestion[]>([]);
 
   useEffect(() => {
@@ -94,6 +83,8 @@ function PureEditor({
     return () => {
       if (editorRef.current) {
         editorRef.current.destroy();
+        // Ref typed EditorView | null by CodeMirror.
+        // oxlint-disable-next-line unicorn/no-null
         editorRef.current = null;
       }
     };
@@ -115,9 +106,7 @@ function PureEditor({
 
   useEffect(() => {
     if (editorRef.current && content) {
-      const currentContent = buildContentFromDocument(
-        editorRef.current.state.doc
-      );
+      const currentContent = buildContentFromDocument(editorRef.current.state.doc);
 
       if (status === "streaming") {
         const newDocument = buildDocumentFromContent(content);
@@ -125,7 +114,7 @@ function PureEditor({
         const transaction = editorRef.current.state.tr.replaceWith(
           0,
           editorRef.current.state.doc.content.size,
-          newDocument.content
+          newDocument.content,
         );
 
         transaction.setMeta("no-save", true);
@@ -139,7 +128,7 @@ function PureEditor({
         const transaction = editorRef.current.state.tr.replaceWith(
           0,
           editorRef.current.state.doc.content.size,
-          newDocument.content
+          newDocument.content,
         );
 
         transaction.setMeta("no-save", true);
@@ -152,17 +141,12 @@ function PureEditor({
     if (editorRef.current?.state.doc && content) {
       const projectedSuggestions = projectWithPositions(
         editorRef.current.state.doc,
-        suggestions
-      ).filter(
-        (suggestion) => suggestion.selectionStart && suggestion.selectionEnd
-      );
+        suggestions,
+      ).filter((suggestion) => suggestion.selectionStart && suggestion.selectionEnd);
 
       suggestionsRef.current = projectedSuggestions;
 
-      const decorations = createDecorations(
-        projectedSuggestions,
-        editorRef.current
-      );
+      const decorations = createDecorations(projectedSuggestions, editorRef.current);
 
       const transaction = editorRef.current.state.tr;
       transaction.setMeta(suggestionsPluginKey, { decorations });
@@ -184,16 +168,13 @@ function PureEditor({
         state.doc,
         currentDecorations
           .find()
-          .filter(
-            (decoration: Decoration) =>
-              decoration.spec.suggestionId !== activeSuggestion.id
-          )
+          .filter((decoration: Decoration) => decoration.spec.suggestionId !== activeSuggestion.id),
       );
 
       const decorationTransaction = state.tr;
       decorationTransaction.setMeta(suggestionsPluginKey, {
         decorations: newDecorations,
-        selected: null,
+        selected: undefined,
       });
       dispatch(decorationTransaction);
     }
@@ -201,22 +182,22 @@ function PureEditor({
     const textTransaction = editorRef.current.state.tr.replaceWith(
       activeSuggestion.selectionStart,
       activeSuggestion.selectionEnd,
-      state.schema.text(activeSuggestion.suggestedText)
+      state.schema.text(activeSuggestion.suggestedText),
     );
     textTransaction.setMeta("no-debounce", true);
     dispatch(textTransaction);
 
-    setActiveSuggestion(null);
+    setActiveSuggestion(undefined);
   }, [activeSuggestion]);
 
   const handleCloseSuggestion = useCallback(() => {
-    setActiveSuggestion(null);
+    setActiveSuggestion(undefined);
   }, []);
 
   return (
     <>
       <div
-        className="prose dark:prose-invert prose-neutral relative max-w-none"
+        className="relative prose max-w-none prose-neutral dark:prose-invert"
         ref={containerRef}
       />
       {activeSuggestion &&
@@ -227,9 +208,7 @@ function PureEditor({
             onClose={handleCloseSuggestion}
             suggestion={activeSuggestion}
           />,
-          containerRef.current.closest(
-            "[data-slot='artifact-content']"
-          ) as HTMLElement
+          containerRef.current.closest("[data-slot='artifact-content']") as HTMLElement,
         )}
     </>
   );

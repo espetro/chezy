@@ -10,15 +10,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useActiveChat } from "@/hooks/use-active-chat";
-import {
-  initialArtifactData,
-  useArtifact,
-  useArtifactSelector,
-} from "@/hooks/use-artifact";
-import type { Attachment, ChatMessage } from "@/lib/types";
-import { cn } from "@/lib/utils";
+} from "~/components/ui/alert-dialog";
+import { useActiveChat } from "~/hooks/use-active-chat";
+import { initialArtifactData, useArtifact, useArtifactSelector } from "~/hooks/use-artifact";
+import type { Attachment, ChatMessage } from "~/lib/types";
+import { cn } from "~/lib/utils";
 import { Artifact } from "./artifact";
 import { ChatHeader } from "./chat-header";
 import { DataStreamHandler } from "./data-stream-handler";
@@ -48,9 +44,7 @@ export function ChatShell() {
     setShowCreditCardAlert,
   } = useActiveChat();
 
-  const [editingMessage, setEditingMessage] = useState<ChatMessage | null>(
-    null
-  );
+  const [editingMessage, setEditingMessage] = useState<ChatMessage | undefined>(undefined);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const isArtifactVisible = useArtifactSelector((state) => state.isVisible);
   const { setArtifact } = useArtifact();
@@ -64,7 +58,7 @@ export function ChatShell() {
       prevChatIdRef.current = chatId;
       stopRef.current();
       setArtifact(initialArtifactData);
-      setEditingMessage(null);
+      setEditingMessage(undefined);
       setAttachments([]);
     }
   }, [chatId, setArtifact]);
@@ -78,11 +72,11 @@ export function ChatShell() {
       setInput(text ?? "");
       setEditingMessage(msg);
     },
-    [setInput]
+    [setInput],
   );
 
   const handleCancelEdit = useCallback(() => {
-    setEditingMessage(null);
+    setEditingMessage(undefined);
     setInput("");
   }, [setInput]);
 
@@ -92,7 +86,7 @@ export function ChatShell() {
     }
 
     const msg = editingMessage;
-    setEditingMessage(null);
+    setEditingMessage(undefined);
     await submitEditedMessage({
       message: msg,
       regenerate,
@@ -105,7 +99,7 @@ export function ChatShell() {
   const handleActivateGateway = useCallback(() => {
     window.open(
       "https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%3Fmodal%3Dadd-credit-card",
-      "_blank"
+      "_blank",
     );
     window.location.href = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/`;
   }, []);
@@ -116,7 +110,7 @@ export function ChatShell() {
         <div
           className={cn(
             "flex min-w-0 flex-col bg-sidebar transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
-            isArtifactVisible ? "w-[40%]" : "w-full"
+            isArtifactVisible ? "w-[40%]" : "w-full",
           )}
         >
           <ChatHeader
@@ -154,9 +148,7 @@ export function ChatShell() {
                   onModelChange={setCurrentModelId}
                   selectedModelId={currentModelId}
                   selectedVisibilityType={visibilityType}
-                  sendMessage={
-                    editingMessage ? handleSendEditedMessage : sendMessage
-                  }
+                  sendMessage={editingMessage ? handleSendEditedMessage : sendMessage}
                   setAttachments={setAttachments}
                   setInput={setInput}
                   setMessages={setMessages}
@@ -190,24 +182,19 @@ export function ChatShell() {
 
       <DataStreamHandler />
 
-      <AlertDialog
-        onOpenChange={setShowCreditCardAlert}
-        open={showCreditCardAlert}
-      >
+      <AlertDialog onOpenChange={setShowCreditCardAlert} open={showCreditCardAlert}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Activate AI Gateway</AlertDialogTitle>
             <AlertDialogDescription>
               This application requires{" "}
-              {process.env.NODE_ENV === "production" ? "the owner" : "you"} to
-              activate Vercel AI Gateway.
+              {process.env.NODE_ENV === "production" ? "the owner" : "you"} to activate Vercel AI
+              Gateway.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleActivateGateway}>
-              Activate
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleActivateGateway}>Activate</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

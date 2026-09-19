@@ -3,7 +3,7 @@
 import { useMountEffect } from "@chezy/ui/hooks/useMountEffect";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { ChatBubble } from "@/components/flow/onboarding/ChatBubble";
+import { ChatBubble } from "~/components/flow/onboarding/ChatBubble";
 import {
   AutonomyStep,
   BudgetStep,
@@ -13,12 +13,12 @@ import {
   RoutineStep,
   SummaryStep,
   formatEur,
-} from "@/components/flow/onboarding/OnboardingSteps";
-import { ThinkingBubble } from "@/components/flow/onboarding/ThinkingBubble";
-import { FlowStepper } from "@/components/flow/ui/Stepper";
-import { FlowStickyActionBar } from "@/components/flow/ui/StickyActionBar";
-import { toSearchProfileInput } from "@/lib/flow/adapters";
-import { AGENT_THINKING_DELAY_MS } from "@/lib/flow/constants";
+} from "~/components/flow/onboarding/OnboardingSteps";
+import { ThinkingBubble } from "~/components/flow/onboarding/ThinkingBubble";
+import { FlowStepper } from "~/components/flow/ui/Stepper";
+import { FlowStickyActionBar } from "~/components/flow/ui/StickyActionBar";
+import { toSearchProfileInput } from "~/lib/flow/adapters";
+import { AGENT_THINKING_DELAY_MS } from "~/lib/flow/constants";
 import {
   autonomyOptions,
   commuteOptions,
@@ -29,8 +29,8 @@ import {
   progressStepCount,
   zoneLabel,
   type OnboardingStepId,
-} from "@/lib/flow/onboarding-steps";
-import type { UserPreferences } from "@/lib/flow/types";
+} from "~/lib/flow/onboarding-steps";
+import type { UserPreferences } from "~/lib/flow/types";
 
 interface HistoryEntry {
   agentMessage: string;

@@ -8,19 +8,17 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-## Verbatim template — manual-review checklist
+## Diverged template
 
-This directory is a verbatim import of `vercel/chatbot` (PR #2). The repo-root
-`.oxlintrc.json` excludes `apps/web/**` via `ignorePatterns`, so the chezy rules do not
-apply here yet. Before dropping `apps/web/**` from `ignorePatterns`, migrate:
+This directory originates from `vercel/chatbot` (PR #2 was the last sync point; see git
+history). It has since diverged from upstream and is linted by the root `.oxlintrc.json`
+like any other chezy code, with two permanent scoped exemptions:
 
-- `@/*` import alias → `~/*` (tsconfig paths; root `tsconfig.base.json` convention).
-- `zod` → `valibot` for all runtime validation (`app/(chat)/api/chat/schema.ts`, etc.).
-- Decide whether to keep or remove the NextAuth guest-credentials auth in
-  `app/(auth)/` — today `/api/chat` depends on it (`unauthorized:chat` without a
-  session), so removal needs a replacement session mechanism.
-- Direct `process.env` reads → `lib/env.ts`, which already parses env with Valibot;
-  other modules should import `env` from it instead of reading `process.env`.
-- `useEffect` → the five patterns in `../../.agents/skills/no-use-effect/SKILL.md`
+- `zod` stays in template sources (`app/(chat)/api/chat/schema.ts`, etc.) via the
+  `apps/web/**` `no-restricted-imports` override. New chezy-owned code must use Valibot.
+- `useEffect` stays in template sources (~90 sites) via the same override. New chezy-owned
+  code must use the five patterns in `../../.agents/skills/no-use-effect/SKILL.md`
   (`useMountEffect` escape hatch from `@chezy/ui/hooks/useMountEffect`).
-- Then drop `apps/web/**` from `.oxlintrc.json` `ignorePatterns` and fix the fallout.
+
+Everything else applies: `~/*` alias, `process.env` via `lib/env.ts` (config-bound files
+excepted), `unicorn/no-null`, etc.

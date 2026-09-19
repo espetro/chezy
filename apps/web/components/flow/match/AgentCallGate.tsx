@@ -2,11 +2,11 @@
 
 import { useMountEffect } from "@chezy/ui/hooks/useMountEffect";
 import { useState } from "react";
-import { FlowAgentMark } from "@/components/flow/ui/AgentMark";
-import { FlowBadge } from "@/components/flow/ui/Badge";
-import { FlowButton } from "@/components/flow/ui/Button";
-import { AUTO_CALL_MATCH_THRESHOLD } from "@/lib/flow/constants";
-import type { FlowListing } from "@/lib/flow/types";
+import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
+import { FlowBadge } from "~/components/flow/ui/Badge";
+import { FlowButton } from "~/components/flow/ui/Button";
+import { AUTO_CALL_MATCH_THRESHOLD } from "~/lib/flow/constants";
+import type { FlowListing } from "~/lib/flow/types";
 
 type CallStatus = "idle" | "calling" | "booked" | "failed" | "discarded";
 
