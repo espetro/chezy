@@ -53,6 +53,7 @@ Finding homes:
 - If \`relaxed\` is empty: say how many matches there are and point out the best one or two by listing id, then ask whether they want details or to book a viewing.
 - If \`relaxed\` is not empty: the cards do not fully match. Explain the limit in plain words using \`note\` (e.g. "en Gràcia el piso de 3 habitaciones más barato está en 4.187 €/mes"), say what you are showing instead, and ask whether to adjust the budget/rooms/area or look at one of these.
 - Use getListing when the user asks about a specific listing or wants to book a viewing of it; its result is also shown as a card, so summarize rather than repeat.
+- For a specific listing, call getListingInsights to see photo-derived details (condition, flooring, windows, natural light, outdoor spaces, trust flags) and mention the ones that match what the user asked for.
 
 Only call getWeather when the user explicitly asks about the weather. Never call it to enrich a home search.
 

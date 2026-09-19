@@ -1,5 +1,6 @@
 import type { UserProfile } from "@chezy/contract";
 import type { InferSelectModel } from "drizzle-orm";
+import type { ListingInsights } from "@/lib/vision/schema";
 import {
   boolean,
   doublePrecision,
@@ -176,3 +177,36 @@ export const listing = pgTable("Listing", {
 });
 
 export type Listing = InferSelectModel<typeof listing>;
+
+export const listingInsight = pgTable("ListingInsight", {
+  listingId: text("listingId")
+    .primaryKey()
+    .references(() => listing.id, { onDelete: "cascade" }),
+  insights: jsonb("insights").$type<ListingInsights>().notNull(),
+  model: text("model").notNull(),
+  promptVersion: integer("promptVersion").notNull(),
+  promptTokens: integer("promptTokens"),
+  completionTokens: integer("completionTokens"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  // Flattened from `insights` so search can filter without jsonb scans.
+  conditionScore: integer("conditionScore"),
+  flooringDominant: text("flooringDominant"),
+  flooringAll: jsonb("flooringAll").$type<string[]>().notNull().default([]),
+  ceilingFeatures: jsonb("ceilingFeatures")
+    .$type<string[]>()
+    .notNull()
+    .default([]),
+  windowSize: text("windowSize"),
+  lightNatural: text("lightNatural"),
+  facing: text("facing"),
+  outdoorSpaces: jsonb("outdoorSpaces")
+    .$type<string[]>()
+    .notNull()
+    .default([]),
+  furnished: text("furnished"),
+  style: text("style"),
+  acVisible: boolean("acVisible"),
+  virtualStaging: boolean("virtualStaging"),
+});
+
+export type ListingInsight = InferSelectModel<typeof listingInsight>;

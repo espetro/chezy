@@ -6,6 +6,7 @@ import * as v from "valibot";
 
 import { nextSlotIso } from "@/lib/calendar";
 import { env } from "@/lib/env";
+import { getListingInsights, insightsToCallVariables } from "@/lib/insights";
 import { getListingById, listingToCallVariables } from "@/lib/listings";
 import { dispatchSlngCall } from "@/lib/slng";
 import { placeVonageCall } from "@/lib/vonage";
@@ -30,10 +31,15 @@ export async function POST(request: Request): Promise<Response> {
   try {
     if (env.VIEWING_MODE === "slng") {
       const summary = await getListingById(input.propertyRef);
+      // Stored insights only — extraction never runs on the call path.
+      const insights = await getListingInsights(input.propertyRef);
       const result = await dispatchSlngCall({
         to: input.agencyPhone,
         variables: summary
-          ? listingToCallVariables(summary)
+          ? {
+              ...listingToCallVariables(summary),
+              ...(insights ? insightsToCallVariables(insights) : {}),
+            }
           : { property_ref: input.propertyRef },
       });
       const view: ViewingResult = {
