@@ -4,9 +4,15 @@ import { useState } from "react";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
 import { CandidateCarousel } from "~/components/flow/explore/CandidateCarousel";
 import type { FlowListing } from "~/lib/flow/types";
-import { cn } from "~/lib/utils";
 
 type SortMode = "match" | "price-asc";
+
+const ALL_ZONES = "all";
+
+const filterLabelClass = "flex w-full items-center gap-2 text-[13px] text-fog sm:w-auto";
+
+const filterSelectClass =
+  "h-11 min-w-0 flex-1 rounded-inputs border border-mist bg-snow px-3 py-2 text-[13px] text-graphite outline-none focus-visible:ring-2 focus-visible:ring-obsidian sm:flex-none";
 
 interface ExploreFeedProps {
   listings: FlowListing[];
@@ -40,42 +46,30 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setActiveZone(undefined)}
-            className={cn(
-              "min-h-11 rounded-pills border px-4 py-2 text-[13px]",
-              !activeZone
-                ? "border-obsidian bg-obsidian text-snow"
-                : "border-mist bg-snow text-graphite hover:border-iron",
-            )}
+        <label className={filterLabelClass}>
+          Neighborhood
+          <select
+            value={activeZone ?? ALL_ZONES}
+            onChange={(event) =>
+              setActiveZone(event.target.value === ALL_ZONES ? undefined : event.target.value)
+            }
+            className={filterSelectClass}
           >
-            All neighborhoods
-          </button>
-          {zones.map((zone) => (
-            <button
-              key={zone}
-              type="button"
-              onClick={() => setActiveZone(zone)}
-              className={cn(
-                "min-h-11 rounded-pills border px-4 py-2 text-[13px]",
-                activeZone === zone
-                  ? "border-obsidian bg-obsidian text-snow"
-                  : "border-mist bg-snow text-graphite hover:border-iron",
-              )}
-            >
-              {zone}
-            </button>
-          ))}
-        </div>
+            <option value={ALL_ZONES}>All neighborhoods ({listings.length})</option>
+            {zones.map((zone) => (
+              <option key={zone} value={zone}>
+                {zone} ({listings.filter((listing) => listing.neighborhood === zone).length})
+              </option>
+            ))}
+          </select>
+        </label>
 
-        <label className="flex w-full items-center gap-2 text-[13px] text-fog sm:w-auto">
+        <label className={filterLabelClass}>
           Sort by
           <select
             value={sortMode}
             onChange={(event) => setSortMode(event.target.value as SortMode)}
-            className="h-11 flex-1 rounded-inputs border border-mist bg-snow px-3 py-2 text-[13px] text-graphite outline-none focus-visible:ring-2 focus-visible:ring-obsidian sm:flex-none"
+            className={filterSelectClass}
           >
             <option value="match">Best match</option>
             <option value="price-asc">Price (low to high)</option>
