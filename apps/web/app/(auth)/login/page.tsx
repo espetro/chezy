@@ -45,8 +45,8 @@ export default function Page() {
 
   return (
     <>
-      <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-      <p className="text-sm text-muted-foreground">
+      <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">Welcome back</h1>
+      <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
         Sign in to your account to continue
       </p>
       <AuthForm action={handleSubmit} defaultEmail={email}>
