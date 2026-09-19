@@ -3,7 +3,7 @@
 **Finding a flat, made easy.**
 
 Hackathon: September 2026. Demo: Sunday 2026-09-20, 11:00 CEST.
-v1: qualitative problem statement; cited Barcelona market stats deferred to v2.
+v2: the problem section cites Barcelona market stats (sources linked inline).
 
 ## TL;DR
 
@@ -18,10 +18,17 @@ Two facts about renting in Barcelona compound each other:
 
 1. **Listings lie.** "Luminoso" can mean windows onto a 1.5 m interior lightwell. Photos
    hide the floor, asking prices drift above the barrio average, and the listing is
-   written for the agency, not the renter.
-2. **Speed decides.** Desirable flats are gone in days. The renter who calls first gets
-   the viewing; agencies rarely answer email or portal messages, and the call happens in
-   Spanish or Catalan, during office hours.
+   written for the agency, not the renter. In Q1 2026, asking rents advertised on
+   idealista averaged ~€20/m² in Barcelona while registered rental contracts averaged
+   €16.89/m²
+   ([INCASÒL data via Spanish Property Insight, Aug 2026](https://www.spanishpropertyinsight.com/2026/08/19/barcelona-rent-controls-rents-rise-while-rental-opportunities-remain-scarce/)).
+   The advertised number is not the number people pay.
+2. **Speed decides.** Desirable flats are gone in days, sometimes hours: 36% of homes
+   rented through idealista in Barcelona in Q2 2026 spent less than 24 hours on the
+   market, versus 17% nationally and 9% in Madrid
+   ([idealista/data, Aug 2026](https://www.idealista.com/news/inmobiliario/vivienda/2026/08/13/909818-el-17-de-los-alquileres-de-viviendas-en-el-segundo-trimestre-se-concreto-en-apenas)).
+   The renter who calls first gets the viewing; agencies rarely answer email or portal
+   messages, and the call happens in Spanish or Catalan, during office hours.
 
 Our persona is **Jessie**, an international moving to Barcelona. She doesn't know barrio
 price norms, can't spot a lightwell from listing photos, and can't call agencies in
