@@ -23,6 +23,13 @@ export const suggestions = [
 // Barcelona listings, so onboarding asks for neighborhoods, not cities.
 export const COVERAGE_CITY = "Barcelona";
 
+// Fallback gateway for local dev: a bifrost instance on this machine.
+// OPENAI_COMPATIBLE_BASE_URL (see .env.example) overrides it everywhere.
+export const DEFAULT_PROVIDER_BASE_URL = "http://localhost:8317/v1";
+
+// Chat model used when CHEZY_MODEL_ID is unset.
+export const DEFAULT_CHAT_MODEL_ID = "deepseek-ai/DeepSeek-V4.1-Flash";
+
 // SLNG resolves the LiveKit project from (region, orchestrator). Only
 // us-east | eu-central | ap-south exist; pipecat has no EU deployment, and
 // the chezy-vonage connection lives in the eu-central/livekit project.
