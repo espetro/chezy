@@ -42,12 +42,12 @@ export const FlowToggleChipGroup = ({
               aria-pressed={isActive}
               onClick={() => toggle(option.value)}
               className={cn(
-                "flex min-h-11 items-center gap-1.5 rounded-full px-3 py-1.5 text-label-md transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
+                "flex min-h-11 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-label-md transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
                 isActive ? "bg-obsidian text-snow" : "bg-paper text-steel hover:text-obsidian",
               )}
             >
               <span>{option.label}</span>
-              <Check size={14} aria-hidden className={cn(!isActive && "opacity-0")} />
+              {isActive ? <Check size={14} aria-hidden /> : undefined}
             </button>
           );
         })}
