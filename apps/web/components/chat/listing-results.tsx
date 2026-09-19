@@ -2,8 +2,8 @@
 
 import { HouseIcon } from "lucide-react";
 
-import type { ListingSearchResult, ListingSummary } from "@/lib/listings";
-import { safeHttpUrl } from "@/lib/utils";
+import type { ListingSearchResult, ListingSummary } from "~/lib/listings";
+import { safeHttpUrl } from "~/lib/utils";
 
 const priceFormatter = new Intl.NumberFormat("es-ES", {
   currency: "EUR",
@@ -14,14 +14,15 @@ const priceFormatter = new Intl.NumberFormat("es-ES", {
 });
 
 export function ListingCard({ listing }: { listing: ListingSummary }) {
+  const listingUrl = safeHttpUrl(listing.url);
   const price =
-    listing.priceEur != null
+    listing.priceEur != undefined
       ? `${priceFormatter.format(listing.priceEur)}${listing.operation === "rent" ? "/mes" : ""}`
       : undefined;
   const headline = [
-    listing.rooms != null ? `${listing.rooms} hab` : undefined,
-    listing.builtM2 != null ? `${listing.builtM2} m²` : undefined,
-    listing.bathrooms != null ? `${listing.bathrooms} baños` : undefined,
+    listing.rooms != undefined ? `${listing.rooms} hab` : undefined,
+    listing.builtM2 != undefined ? `${listing.builtM2} m²` : undefined,
+    listing.bathrooms != undefined ? `${listing.bathrooms} baños` : undefined,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -48,10 +49,10 @@ export function ListingCard({ listing }: { listing: ListingSummary }) {
         <p className="line-clamp-2 text-xs text-muted-foreground">{listing.title}</p>
         <div className="flex items-center justify-between pt-1">
           <span className="font-mono text-[10px] text-muted-foreground">{listing.id}</span>
-          {safeHttpUrl(listing.url) && (
+          {listingUrl && (
             <a
               className="text-xs text-primary hover:underline"
-              href={safeHttpUrl(listing.url)}
+              href={listingUrl}
               rel="noreferrer"
               target="_blank"
             >
