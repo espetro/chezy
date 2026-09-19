@@ -80,7 +80,7 @@ export const FlowCalendar = ({ value, onChange, min }: CalendarProps) => {
             type="button"
             aria-label="Previous month"
             onClick={() => shiftMonth(-1)}
-            className="flex size-8 items-center justify-center rounded-full text-steel transition-colors hover:bg-snow hover:text-obsidian focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian"
+            className="flex size-11 items-center justify-center rounded-full text-steel transition-colors hover:bg-snow hover:text-obsidian focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian"
           >
             <ChevronLeft size={16} aria-hidden />
           </button>
@@ -88,7 +88,7 @@ export const FlowCalendar = ({ value, onChange, min }: CalendarProps) => {
             type="button"
             aria-label="Next month"
             onClick={() => shiftMonth(1)}
-            className="flex size-8 items-center justify-center rounded-full text-steel transition-colors hover:bg-snow hover:text-obsidian focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian"
+            className="flex size-11 items-center justify-center rounded-full text-steel transition-colors hover:bg-snow hover:text-obsidian focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian"
           >
             <ChevronRight size={16} aria-hidden />
           </button>
@@ -107,7 +107,7 @@ export const FlowCalendar = ({ value, onChange, min }: CalendarProps) => {
         ))}
 
         {Array.from({ length: blanks }, (_, index) => (
-          <span key={`blank-${String(index)}`} className="size-9" />
+          <span key={`blank-${String(index)}`} className="h-11" />
         ))}
 
         {Array.from({ length: total }, (_, index) => {
@@ -125,7 +125,7 @@ export const FlowCalendar = ({ value, onChange, min }: CalendarProps) => {
               aria-pressed={isSelected}
               onClick={() => onChange(iso)}
               className={cn(
-                "flex size-9 items-center justify-center rounded-full text-body-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
+                "flex h-11 w-full items-center justify-center rounded-full text-body-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
                 isSelected
                   ? "bg-obsidian font-semibold text-snow"
                   : "text-graphite hover:bg-snow hover:text-obsidian",
@@ -143,14 +143,14 @@ export const FlowCalendar = ({ value, onChange, min }: CalendarProps) => {
         <button
           type="button"
           onClick={() => onChange("")}
-          className="text-label-md text-steel transition-colors hover:text-obsidian focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian"
+          className="min-h-11 text-label-md text-steel transition-colors hover:text-obsidian focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian"
         >
           Clear
         </button>
         <button
           type="button"
           onClick={() => onChange(todayIso)}
-          className="text-label-md font-semibold text-ember transition-colors hover:text-ember-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian"
+          className="min-h-11 text-label-md font-semibold text-ember transition-colors hover:text-ember-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian"
         >
           Today
         </button>
