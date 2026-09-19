@@ -1,10 +1,18 @@
+// errors.ts is reachable from client code (lib/utils.ts), so it must not import
+// the @chezy/observability index (its file sink pulls in node:*). `getLogger`
+// is the same logtape function the facade re-exports, and `./logger` is the
+// facade's import-free entry point.
+import { rootLogger } from "@chezy/observability/logger";
+import { getLogger } from "@logtape/logtape";
+
 export type ErrorType =
   | "bad_request"
   | "unauthorized"
   | "forbidden"
   | "not_found"
   | "rate_limit"
-  | "offline";
+  | "offline"
+  | "timeout";
 
 export type Surface =
   | "chat"
@@ -35,6 +43,8 @@ export const visibilityBySurface: Record<Surface, ErrorVisibility> = {
   vote: "response",
 };
 
+const errorLogger = getLogger([...rootLogger.category, "errors"]);
+
 export class ChatbotError extends Error {
   type: ErrorType;
   surface: Surface;
@@ -63,11 +73,7 @@ export class ChatbotError extends Error {
     const { message, cause, statusCode } = this;
 
     if (visibility === "log") {
-      console.error({
-        cause,
-        code,
-        message,
-      });
+      errorLogger.error("{code}: {message}", { cause, code, message });
 
       return Response.json(
         { code: "", message: "Something went wrong. Please try again later." },
@@ -106,6 +112,10 @@ export function getMessageByErrorCode(errorCode: ErrorCode): string {
       return "You need to sign in to view this chat. Please sign in and try again.";
     case "offline:chat":
       return "We're having trouble sending your message. Please check your internet connection and try again.";
+    case "timeout:chat":
+      return "The request took too long to respond. Please try again.";
+    case "timeout:api":
+      return "The service took too long to respond. Please try again.";
 
     case "not_found:document":
       return "The requested document was not found. Please check the document ID and try again.";
@@ -135,6 +145,8 @@ function getStatusCodeByType(type: ErrorType) {
       return 429;
     case "offline":
       return 503;
+    case "timeout":
+      return 504;
     default:
       return 500;
   }

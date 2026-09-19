@@ -4,6 +4,7 @@
 import { getLogger } from "@chezy/observability";
 
 import {
+  FETCH_TIMEOUT_MS,
   SLNG_AGENT_ORCHESTRATOR,
   SLNG_AGENT_REGION,
   SLNG_API_BASE_URL,
@@ -55,6 +56,7 @@ async function slngFetch(
       "content-type": "application/json",
     },
     ...(init.body === undefined ? {} : { body: JSON.stringify(init.body) }),
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
 }
 

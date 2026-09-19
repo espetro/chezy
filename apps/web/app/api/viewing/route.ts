@@ -2,6 +2,7 @@
 // locally; in `slng` mode the SLNG agent places the outbound call; in
 // `vonage` mode Vonage places the call and plays a short line.
 import { ViewingRequestSchema, type ViewingResult } from "@chezy/contract";
+import { getLogger } from "@chezy/observability";
 import * as v from "valibot";
 
 import { nextSlotIso } from "@/lib/calendar";
@@ -10,6 +11,8 @@ import { getListingInsights, insightsToCallVariables } from "@/lib/insights";
 import { getListingById, listingToCallVariables } from "@/lib/listings";
 import { dispatchSlngCall } from "@/lib/slng";
 import { placeVonageCall } from "@/lib/vonage";
+
+const logger = getLogger(["chezy", "viewing"]);
 
 export async function POST(request: Request): Promise<Response> {
   let body: unknown;
@@ -89,6 +92,11 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json(view);
   } catch (error) {
     const detail = error instanceof Error ? error.message : "unknown error";
+    logger.error("viewing dispatch failed ({channel}): {detail}", {
+      channel: env.VIEWING_MODE,
+      detail,
+      propertyRef: input.propertyRef,
+    });
     const view: ViewingResult = {
       status: "failed",
       channel: env.VIEWING_MODE,

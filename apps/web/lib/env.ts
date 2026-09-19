@@ -38,6 +38,11 @@ const EnvSchema = v.object({
   // OpenAI-compatible chat provider (Nebius AI Studio) — chat + VLM calls.
   OPENAI_COMPATIBLE_BASE_URL: v.optional(v.string()),
   OPENAI_COMPATIBLE_API_KEY: v.optional(v.string()),
+  // Chat + title model ids; unset falls back in lib/ai/models.ts.
+  CHEZY_MODEL_ID: v.optional(v.string()),
+  CHEZY_TITLE_MODEL_ID: v.optional(v.string()),
+  // Template flag: "1" hides model choice in the demo deployment.
+  IS_DEMO: v.optional(v.string()),
   // Vision model for photo insights. Kimi-K3 needs thinking off; gemma-3-27b
   // is the cheap fallback.
   VISION_MODEL_ID: v.fallback(v.string(), "moonshotai/Kimi-K3"),
