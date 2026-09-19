@@ -133,3 +133,7 @@ of `apps/web/app/globals.css`; none of them redefine the chat's shadcn tokens. S
 - `apps/web` re-alignment checklist (see `apps/web/AGENTS.md`): `@/*`→`~/*`, zod→valibot,
   next-auth keep/remove decision, `process.env`→`lib/env.ts`, `useEffect`→patterns, then
   drop `apps/web/**` from `.oxlintrc.json` ignorePatterns.
+- Norma compliance pass (2026-09-19): fixes, accepted register and defence in
+  `.agents/notes/2026-09-19-norma-compliance.md`. `next build` already fails on `main` at
+  `lib/vision/extract.ts` (`import.meta.dirname`); `lib/errors.ts` must not import the
+  `@chezy/observability` index (client bundle).
