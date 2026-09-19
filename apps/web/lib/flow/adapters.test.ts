@@ -81,7 +81,7 @@ describe("toSearchProfileInput", () => {
       dealBreakers: [
         "no-dark-interior",
         "no-excessive-deposit",
-        "no-unknown-flatmates",
+        "no-suspicious-ads",
       ],
     });
     expect(input.mustHaves).toEqual([
@@ -95,7 +95,7 @@ describe("toSearchProfileInput", () => {
     expect(input.redLines).toEqual([
       "no_interior",
       "no_high_deposit",
-      "no_flatmates",
+      "no_suspicious_ads",
     ]);
   });
 
@@ -125,7 +125,7 @@ const baseProfile: SearchProfile = {
   moveDate: "2026-10-01",
   flexibleDays: 0,
   mustHaves: ["exterior", "pets_allowed"],
-  redLines: ["no_interior", "no_flatmates"],
+  redLines: ["no_interior", "no_suspicious_ads"],
   alertsEnabled: true,
   verified: false,
   createdAt: new Date(0),
@@ -145,7 +145,7 @@ describe("fromSearchProfile", () => {
       sizeMin: 50,
       moveIn: { mode: "date", date: "2026-10-01" },
       mustHaves: ["natural-light", "pets"],
-      dealBreakers: ["no-dark-interior", "no-unknown-flatmates"],
+      dealBreakers: ["no-dark-interior", "no-suspicious-ads"],
       alerts: true,
       autonomy: "cowork",
     });

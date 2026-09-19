@@ -49,8 +49,8 @@ export const mustHaveOptions: MustHaveOption[] = [
   { id: "pets", label: "Pets allowed", icon: "paw", tag: "Pets allowed" },
 ];
 
-export type DealBreakerId = "no-dark-interior" | "no-excessive-deposit" | "no-unknown-flatmates";
-export type DealBreakerIcon = "ban" | "warning" | "user-x";
+export type DealBreakerId = "no-dark-interior" | "no-excessive-deposit" | "no-suspicious-ads";
+export type DealBreakerIcon = "ban" | "warning" | "shield-alert";
 
 export interface DealBreakerOption {
   id: DealBreakerId;
@@ -61,7 +61,11 @@ export interface DealBreakerOption {
 export const dealBreakerOptions: DealBreakerOption[] = [
   { id: "no-dark-interior", label: "No dark ground floors or interior-facing units", icon: "ban" },
   { id: "no-excessive-deposit", label: "No agencies with excessive deposit (+2 months)", icon: "warning" },
-  { id: "no-unknown-flatmates", label: "No unknown flatmates", icon: "user-x" },
+  {
+    id: "no-suspicious-ads",
+    label: "No suspicious or likely-fake listings",
+    icon: "shield-alert",
+  },
 ];
 
 export const autonomyOptions: AutonomyOption[] = [
