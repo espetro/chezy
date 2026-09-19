@@ -30,6 +30,48 @@ Notes on pocket-tts:
   `kyutai/pocket-tts` HF repo: accept its terms and run `hf auth login`
   once. `.safetensors` voices and built-in names work without it.
 
+### Narrator voice
+
+`voice.voice` in `src/config/demo.config.ts` is passed to
+`pocket-tts --voice`. It accepts:
+
+- A built-in voice name: `alba`, `marius`, `javert`, `jean`, `fantine`,
+  `cosette`, `eponine`, `azelma` (plus more; run `pocket-tts generate --help`
+  or try a bad name to print the full catalog).
+- A path to a `.safetensors` or `.wav` voice file, resolved relative to
+  `apps/video` (absolute paths work too), or an `hf://` path.
+
+The default is `voices/chezy-narrator.safetensors`: alba's precomputed
+voice state, committed so narration is identical on every machine and does
+not depend on the HF voice catalog staying stable. `mise run video:tts`
+emits intro-line samples for `alba`/`marius`/`jean` under
+`public/audio/vo/samples/` if you want to audition alternates.
+
+The TTS cache key is sha256(voice + text); for file voices it hashes the
+file contents, so pointing at a different file or re-exporting it
+regenerates every segment. Just run `mise run video:tts` again.
+
+### Use your own voice
+
+1. Record 15 to 30 s of clean speech to WAV: QuickTime Player (File > New
+   Audio Recording) or Audacity, quiet room, no music. This must be a real
+   recording of your voice; `say` output is synthesized speech and is not
+   valid source material.
+2. One-time: voice cloning needs the gated `kyutai/pocket-tts` model on
+   Hugging Face. Accept the terms at
+   <https://huggingface.co/kyutai/pocket-tts>, then `hf auth login`
+   (or `uvx hf auth login`). Without this, `export-voice` and `--voice`
+   with a `.wav` both fail; `.safetensors` files and built-in names do not
+   need it.
+3. Export the voice: `pocket-tts export-voice you.wav voices/you.safetensors`
+   (from `apps/video/`). Committing it is fine; `voices/` is not gitignored.
+   You can also skip the export and point `voice.voice` at the `.wav`
+   directly; the `.safetensors` just skips the encoding step on every run.
+4. Set `voice.voice = "voices/you.safetensors"` in `demo.config.ts` and run
+   `mise run video:tts`. The cache sees the new voice and regenerates all
+   segments; `mise run video:durations` (or `video:all`) picks up the new
+   timings.
+
 ## Pipeline
 
 All tasks run from the repo root via `mise run`:

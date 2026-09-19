@@ -1,15 +1,21 @@
 // Generates VO WAVs with pocket-tts, cached by sha256(voice + text) so an
-// unchanged segment is skipped. Also emits intro-line samples for the three
-// candidate voices (alba, marius, jean) into public/audio/vo/samples/ so the
-// user can pick a narrator. Run via `mise run video:tts`.
+// unchanged segment is skipped. `voice` in demo.config.ts is either a
+// built-in pocket-tts voice name (alba, marius, ...) or a path to a
+// .safetensors/.wav voice file resolved relative to this package dir; for
+// files the cache key hashes the file contents, so re-exporting or swapping
+// the voice file regenerates every segment. Also emits intro-line samples
+// for the three candidate voices (alba, marius, jean) into
+// public/audio/vo/samples/ so the user can pick a narrator. Run via
+// `mise run video:tts`.
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
 import { copy } from "../src/copy/copy.schema";
 import { demoConfig } from "../src/config/demo.config";
 
-const VO_DIR = join(import.meta.dirname, "..", "public", "audio", "vo");
+const ROOT = join(import.meta.dirname, "..");
+const VO_DIR = join(ROOT, "public", "audio", "vo");
 const SAMPLES_DIR = join(VO_DIR, "samples");
 const CACHE_FILE = join(VO_DIR, ".cache.json");
 
@@ -18,16 +24,32 @@ const SAMPLE_VOICES = ["alba", "marius", "jean"];
 
 type Cache = Record<string, string>;
 
-const hash = (voice: string, text: string) =>
-  createHash("sha256").update(`${voice}\n${text}`).digest("hex").slice(0, 16);
+// `arg` is what pocket-tts --voice receives; `cacheId` is what the cache
+// key hashes (file contents for paths, the name itself for built-ins and
+// hf:// URLs).
+type VoiceRef = { arg: string; cacheId: string };
+
+const fileDigest = (path: string) =>
+  createHash("sha256").update(readFileSync(path)).digest("hex").slice(0, 16);
+
+const resolveVoice = (voice: string): VoiceRef => {
+  const candidate = isAbsolute(voice) ? voice : join(ROOT, voice);
+  if (existsSync(candidate)) {
+    return { arg: candidate, cacheId: fileDigest(candidate) };
+  }
+  return { arg: voice, cacheId: voice };
+};
+
+const hash = (voiceId: string, text: string) =>
+  createHash("sha256").update(`${voiceId}\n${text}`).digest("hex").slice(0, 16);
 
 const loadCache = (): Cache => {
   if (!existsSync(CACHE_FILE)) return {};
   return JSON.parse(readFileSync(CACHE_FILE, "utf8")) as Cache;
 };
 
-const synth = (voice: string, text: string, out: string, key: string, cache: Cache) => {
-  const digest = hash(voice, text);
+const synth = (voice: VoiceRef, text: string, out: string, key: string, cache: Cache) => {
+  const digest = hash(voice.cacheId, text);
   if (cache[key] === digest && existsSync(out)) {
     console.log(`skip  ${key} (unchanged)`);
     return;
@@ -35,7 +57,7 @@ const synth = (voice: string, text: string, out: string, key: string, cache: Cac
   console.log(`synth ${key} -> ${out}`);
   execFileSync(
     "pocket-tts",
-    ["generate", "--text", text, "--output-path", out, "--voice", voice, "-q"],
+    ["generate", "--text", text, "--output-path", out, "--voice", voice.arg, "-q"],
     { stdio: "inherit" },
   );
   cache[key] = digest;
@@ -43,7 +65,8 @@ const synth = (voice: string, text: string, out: string, key: string, cache: Cac
 
 mkdirSync(SAMPLES_DIR, { recursive: true });
 const cache = loadCache();
-const voice = demoConfig.voice.voice;
+const voice = resolveVoice(demoConfig.voice.voice);
+console.log(`voice: ${voice.arg}`);
 
 synth(voice, copy.intro.vo, join(VO_DIR, "intro.wav"), "intro", cache);
 for (const cp of demoConfig.checkpoints) {
@@ -53,7 +76,7 @@ for (const cp of demoConfig.checkpoints) {
 
 for (const sampleVoice of SAMPLE_VOICES) {
   synth(
-    sampleVoice,
+    resolveVoice(sampleVoice),
     copy.intro.vo,
     join(SAMPLES_DIR, `intro-${sampleVoice}.wav`),
     `sample:intro:${sampleVoice}`,
