@@ -1,6 +1,6 @@
 import type { DemoConfig, SegmentId } from "./demo.config";
 
-export const DEFAULT_TAIL_FRAMES = 15;
+export const DEFAULT_TAIL_FRAMES = 24;
 
 export type SegmentTiming = {
   id: SegmentId;

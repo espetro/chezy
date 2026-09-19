@@ -20,7 +20,7 @@ export type ClipSource =
 
 export type Checkpoint = {
   id: CheckpointId;
-  tailFrames?: number; // breathing room after the VO ends, default 15
+  tailFrames?: number; // breathing room after the VO ends, default 24
   badges: Badge[]; // sponsor/tech fired in this step
   mustShow: string[]; // handoff checklist for the real capture
   startState: string; // handoff prose, not on screen
