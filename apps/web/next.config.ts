@@ -5,7 +5,9 @@ const config: NextConfig = {
   // proxy.ts (replacing middleware.ts from older versions), typedRoutes,
   // and the AI SDK instrumentation hook. Add those in follow-up tickets.
   typedRoutes: true,
-  reactCompiler: true,
+  // Disabled until `babel-plugin-react-compiler` is a declared dependency.
+  // Enabling it without the plugin fails the build at compile time.
+  reactCompiler: false,
   experimental: {
     // ppr is experimental but stable enough for the chatbot fork.
     ppr: false,
