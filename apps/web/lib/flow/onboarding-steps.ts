@@ -1,5 +1,5 @@
-import type { AutonomyOption, CommuteMax, ListingTag, UserPreferences } from "@/lib/flow/types";
-import { DISTRICT_CHIPS } from "@/lib/neighbourhoods";
+import type { AutonomyOption, CommuteMax, ListingTag, UserPreferences } from "~/lib/flow/types";
+import { DISTRICT_CHIPS } from "~/lib/neighbourhoods";
 
 // Stored zones are the ilike-compatible district values; labels are what the chips show.
 export const zoneOptions = DISTRICT_CHIPS.map((chip) => ({

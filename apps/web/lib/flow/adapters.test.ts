@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import type { Listing, SearchProfile } from "@/lib/db/schema";
-import type { MatchResult } from "@/lib/match";
-import type { UserPreferences } from "@/lib/flow/types";
+import type { Listing, SearchProfile } from "~/lib/db/schema";
+import type { MatchResult } from "~/lib/match";
+import type { UserPreferences } from "~/lib/flow/types";
 import { fromSearchProfile, toFlowListing, toSearchProfileInput } from "./adapters";
 
 const fullPrefs: UserPreferences = {
