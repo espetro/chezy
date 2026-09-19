@@ -18,7 +18,8 @@
     "react": "catalog:default",
     "react-dom": "catalog:default",
     "remotion": "4.0.526",
-    "valibot": "catalog:default"
+    "valibot": "catalog:default",
+    "zod": "4.5.4"
   },
   "devDependencies": {
     "@types/node": "catalog:default",
