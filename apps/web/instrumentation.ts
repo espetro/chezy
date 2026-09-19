@@ -1,5 +1,8 @@
-import { setupLogging } from "~lib/observability";
+import { OpenTelemetry } from "@ai-sdk/otel";
+import { registerOTel } from "@vercel/otel";
+import { registerTelemetry } from "ai";
 
-export async function register(): Promise<void> {
-  await setupLogging();
+export function register() {
+  registerOTel({ serviceName: "chatbot" });
+  registerTelemetry(new OpenTelemetry());
 }
