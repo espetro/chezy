@@ -54,9 +54,7 @@ describe("fetch deadlines", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response));
 
     return fetchWithErrorHandlers("/api/chat")
-      .then((result) =>
-        vi.advanceTimersByTimeAsync(FETCH_TIMEOUT_MS * 2).then(() => result),
-      )
+      .then((result) => vi.advanceTimersByTimeAsync(FETCH_TIMEOUT_MS * 2).then(() => result))
       .then((result) => {
         expect(result).toBe(response);
         expect(vi.getTimerCount()).toBe(0);
