@@ -99,6 +99,28 @@ async function datasetLocalPaths(
   return localPathIndex.get(listingId) ?? new Map();
 }
 
+// The photo list sent to the VLM for a listing row: `photo` items that have a
+// local file or a CDN URL, in media order. per_image/evidence indexes refer to
+// positions in this list.
+export async function selectPhotos(row: {
+  id: string;
+  media: { url: string; kind: string; roomType: string | null }[];
+}): Promise<{ url: string; localPath: string | null; mediaIndex: number }[]> {
+  const localPaths = await datasetLocalPaths(row.id);
+  return row.media
+    .map((m, mediaIndex) => ({
+      url: m.url,
+      localPath: localPaths.get(m.url) ?? null,
+      kind: m.kind,
+      mediaIndex,
+    }))
+    .filter(
+      (p) =>
+        p.kind === "photo" && (p.localPath !== null || isCdnImageUrl(p.url)),
+    )
+    .map(({ url, localPath, mediaIndex }) => ({ url, localPath, mediaIndex }));
+}
+
 export async function ensureListingInsights(
   listingId: string,
   opts?: { force?: boolean; modelId?: string },
@@ -125,20 +147,9 @@ export async function ensureListingInsights(
     return current.insights;
   }
 
-  const localPaths = await datasetLocalPaths(listingId);
-  const photoMediaIndexes: number[] = [];
-  const photos = row.media
-    .map((m, mediaIndex) => ({ ...m, mediaIndex }))
-    .filter((m) => m.kind === "photo")
-    .map((m) => ({ url: m.url, localPath: localPaths.get(m.url) ?? null, mediaIndex: m.mediaIndex }))
-    .filter((p) => {
-      if (p.localPath !== null || isCdnImageUrl(p.url)) {
-        photoMediaIndexes.push(p.mediaIndex);
-        return true;
-      }
-      return false;
-    })
-    .map(({ url, localPath }) => ({ url, localPath }));
+  const selected = await selectPhotos(row);
+  const photos = selected.map(({ url, localPath }) => ({ url, localPath }));
+  const photoMediaIndexes = selected.map((p) => p.mediaIndex);
 
   const extraction = await extractListingInsights(
     { listingId, photos },
