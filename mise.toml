@@ -202,3 +202,7 @@ run = "pnpm --filter @chezy/web cosmos"
 [tasks."browser:smoke"]
 description = "Tier-1 app-level validation. Spawns agent-browser for a one-off smoke check against the dev server."
 run = "agent-browser --help"
+
+[tasks."listings:enrich"]
+description = "Extract VLM photo insights into ListingInsight (idempotent; --limit N --force --concurrency K --model ID)"
+run = "cd apps/web && node --env-file-if-exists=.env.local --import=tsx scripts/enrich-listings.ts"

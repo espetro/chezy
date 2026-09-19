@@ -15,7 +15,7 @@ const MAX_PHOTOS = 25;
 const MAX_TOKENS = 5000;
 
 // lib/vision/extract.ts -> apps/web -> repo root (has chezy-mock-data/).
-const REPO_ROOT = path.resolve(import.meta.dirname, "../../..");
+const REPO_ROOT = path.resolve(import.meta.dirname, "../../../..");
 
 async function dataUrl(localPath: string): Promise<string | undefined> {
   try {
