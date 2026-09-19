@@ -41,7 +41,7 @@ own, no click needed.
 ```
 +---------------------------------------------------------------+
 | (•)  [ Auto-call · ≥95% match ]                                 |  <- FlowBadge accent
-|      This match cleared chezMoi's 95% confidence bar, so the   |
+|      This match cleared Chezy's 95% confidence bar, so the   |
 |      agent called Tecnocasa Gràcia automatically — no approval |
 |      needed.                                                    |
 |                                                                  |
@@ -58,7 +58,7 @@ own, no click needed.
 ```
 +---------------------------------------------------------------+
 | (•)  [ Auto-call · ≥95% match ]                                 |
-|      This match cleared chezMoi's 95% confidence bar, so the   |
+|      This match cleared Chezy's 95% confidence bar, so the   |
 |      agent called Tecnocasa Gràcia automatically — no approval |
 |      needed.                                                    |
 |                                                                  |

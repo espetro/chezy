@@ -11,7 +11,7 @@ const painPoints = [
 const FlowLandingPage = () => (
   <main className="mx-auto flex min-h-screen w-full max-w-[1200px] flex-col gap-20 px-6 py-16 md:px-8">
     <header className="flex items-center justify-between">
-      <span className="text-[15px] font-semibold">chezMoi</span>
+      <span className="text-[15px] font-semibold">Chezy</span>
       <div className="flex items-center gap-2">
         <Link href="/chat">
           <FlowButton variant="ghost" size="sm">Talk to your agent</FlowButton>
@@ -31,7 +31,7 @@ const FlowLandingPage = () => (
           Find your next home without chasing it yourself
         </h1>
         <p className="text-body-lg text-fog">
-          Describe what you're looking for once. chezMoi tracks inventory
+          Describe what you're looking for once. Chezy tracks inventory
           from partner agencies, scores every listing against your profile,
           and calls the agency itself the moment a match is strong enough.
         </p>

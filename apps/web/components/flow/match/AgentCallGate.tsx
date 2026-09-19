@@ -102,7 +102,7 @@ export const AgentCallGate = ({ listing }: AgentCallGateProps) => {
               Auto-call · ≥{AUTO_CALL_MATCH_THRESHOLD}% match
             </FlowBadge>
             <p className="text-[13px] text-fog">
-              This match cleared chezMoi's {AUTO_CALL_MATCH_THRESHOLD}% confidence bar, so
+              This match cleared Chezy's {AUTO_CALL_MATCH_THRESHOLD}% confidence bar, so
               the agent called {listing.agency} automatically — no approval needed.
             </p>
           </div>

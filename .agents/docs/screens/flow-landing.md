@@ -12,7 +12,7 @@ Header: wordmark left, single CTA right, no border (floats on canvas).
 
 ```
 +------------------------------------------------------------------+
-|  chezMoi                                          [ Get started ] |
+|  Chezy                                          [ Get started ] |
 +------------------------------------------------------------------+
 ```
 
@@ -27,7 +27,7 @@ Hero — two columns on `md:` and up:
 |   (56-64px, weight 600, obsidian)  |  |    sites — the agent       |
 |                                     |  |    filters for you         |
 | Describe what you're looking for   |  |                            |
-| once. chezMoi tracks inventory     |  | -> The agent writes and    |
+| once. Chezy tracks inventory     |  | -> The agent writes and    |
 | from partner agencies, scores      |  |    sends the first         |
 | every listing against your         |  |    contact to the agency   |
 | profile, and handles the first     |  |                            |

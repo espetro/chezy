@@ -502,7 +502,7 @@ textarea:focus-visible {
 /* ============================================================================
  * /flow — isolated design tokens (2026-09-19)
  *
- * Ported from the standalone chezMoi/chezy prototype (onboarding/explore/match
+ * Ported from the standalone Chezy prototype (onboarding/explore/match
  * screens, see /flow's own README + .agents/docs/screens/). Every token below
  * is a NEW name — none of them redefine `--background`, `--foreground`,
  * `--card`, `--border`, `--muted-foreground`, or any other shadcn semantic
