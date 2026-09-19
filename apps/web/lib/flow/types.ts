@@ -47,7 +47,9 @@ export interface MatchReason {
   detail: string;
 }
 
-export interface Listing {
+// FlowListing, not Listing: `Listing` is the DB row type in @/lib/db/schema and the two
+// coexist in lib/flow/adapters.ts, so this keeps the designer's shape under a unique name.
+export interface FlowListing {
   id: string;
   title: string;
   neighborhood: string;
