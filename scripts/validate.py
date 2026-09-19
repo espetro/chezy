@@ -19,6 +19,7 @@ skip, or `mise run validate:py`.
 Ported from `../brioso/scripts/validate.py` (adapted for chezy's single
 workspace shape).
 """
+
 from __future__ import annotations
 
 import json
@@ -26,7 +27,7 @@ import os
 import subprocess
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -38,6 +39,7 @@ GLOBAL_TRIGGERS = {"pyproject.toml", "uv.lock", "ruff.toml", ".ruff.toml"}
 # Single workspace today. When packages/ multiply (e.g. apps/api), port
 # brioso's PROJECTS dict + per-project owned_paths.
 OWNED_PATHS = ["apps/scraper", "tests"]
+_MAX_SHOWN = 5  # changed files listed in the skip summary
 
 
 def _changed_files() -> tuple[list[str] | None, str]:
@@ -47,6 +49,7 @@ def _changed_files() -> tuple[list[str] | None, str]:
             cwd=ROOT,
             capture_output=True,
             text=True,
+            check=False,
         )
     except FileNotFoundError:
         return None, "git missing"
@@ -70,6 +73,7 @@ def _changed_files() -> tuple[list[str] | None, str]:
         cwd=ROOT,
         capture_output=True,
         text=True,
+        check=False,
     )
     if diff.returncode != 0:
         return None, "git diff failed"
@@ -80,13 +84,12 @@ def _triggered(changed: list[str]) -> list[str]:
     return [
         f
         for f in changed
-        if f in GLOBAL_TRIGGERS
-        or any(f == p or f.startswith(p + "/") for p in OWNED_PATHS)
+        if f in GLOBAL_TRIGGERS or any(f == p or f.startswith(p + "/") for p in OWNED_PATHS)
     ]
 
 
 def run(args: list[str]) -> tuple[int, str]:
-    result = subprocess.run(args, cwd=ROOT, capture_output=True, text=True)
+    result = subprocess.run(args, cwd=ROOT, capture_output=True, text=True, check=False)
     return result.returncode, (result.stdout + result.stderr).strip()
 
 
@@ -104,10 +107,10 @@ def record_gate_timing(gate: str, secs: float) -> None:
     try:
         directory = Path.home() / ".local" / "share" / "chezy"
         timings = directory / "gate-timings.json"
-        entries = json.loads(timings.read_text()) if timings.exists() else []
-        entries.append(
-            {"gate": gate, "secs": secs, "date": datetime.now(timezone.utc).isoformat()}
+        entries: list[dict[str, object]] = (
+            json.loads(timings.read_text()) if timings.exists() else []
         )
+        entries.append({"gate": gate, "secs": secs, "date": datetime.now(UTC).isoformat()})
         directory.mkdir(parents=True, exist_ok=True)
         timings.write_text(json.dumps(entries, indent=2))
     except (OSError, json.JSONDecodeError, TypeError):
@@ -134,13 +137,19 @@ def main() -> int:
         if not triggered_paths:
             print(f"SKIP py: no python changes vs {base}")
             return 0
-        shown = ", ".join(triggered_paths[:5])
-        more = f" (+{len(triggered_paths) - 5} more)" if len(triggered_paths) > 5 else ""
+        shown = ", ".join(triggered_paths[:_MAX_SHOWN])
+        more = (
+            f" (+{len(triggered_paths) - _MAX_SHOWN} more)"
+            if len(triggered_paths) > _MAX_SHOWN
+            else ""
+        )
         print(f"py: {len(triggered_paths)} python file(s) changed vs {base}: {shown}{more}")
 
     # Linux/macOS dependency-graph preflight. Catches Linux-only marker issues
     # before they make it to CI.
-    lock_check = subprocess.run(["uv", "lock", "--check"], cwd=ROOT, capture_output=True, text=True)
+    lock_check = subprocess.run(
+        ["uv", "lock", "--check"], cwd=ROOT, capture_output=True, text=True, check=False
+    )
     if lock_check.returncode != 0:
         print("FAIL py: uv lock --check")
         print(f"\n--- py: uv lock --check output ---\n{lock_check.stdout}{lock_check.stderr}\n")
@@ -148,13 +157,16 @@ def main() -> int:
 
     steps: list[tuple[str, list[str]]] = [
         ("py: ruff check", ["uv", "run", "--all-packages", "ruff", "check", "."]),
-        ("py: ruff format --check", ["uv", "run", "--all-packages", "ruff", "format", "--check", "."]),
+        (
+            "py: ruff format --check",
+            ["uv", "run", "--all-packages", "ruff", "format", "--check", "."],
+        ),
     ]
     if not quick:
         steps.extend(
             [
                 ("py: basedpyright", ["uv", "run", "--all-packages", "basedpyright", "."]),
-                ("py: pytest", ["uv", "run", "--all-packages", "pytest", "--passwithno-tests"]),
+                ("py: pytest", ["uv", "run", "--all-packages", "pytest"]),
             ]
         )
 

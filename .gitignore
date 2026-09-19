@@ -24,6 +24,12 @@ build/
 *.db-journal
 local.db
 
+# Scraper output (raw payloads, JSONL datasets, audit logs)
+.data/
+*.jsonl
+!apps/scraper/tests/fixtures/**/*.jsonl
+.audit/
+
 # Secrets / env
 .env
 .env.local

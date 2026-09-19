@@ -12,6 +12,7 @@ file or a non-existent task, the contract is broken and CI should catch it.
 If you're adding a new `[gate: ...]` reference in any AGENTS.md, this test will
 flag it. Add the corresponding `mise.toml [tasks.X]` or create the file first.
 """
+
 from __future__ import annotations
 
 import re
@@ -59,7 +60,15 @@ def resolve(target: str, tasks: set[str]) -> str:
     if "." in target and not target.startswith("."):
         # Treat as a repo-relative path. Allow both `path/to/foo.ts` and
         # `path/to/foo` (the latter means "directory or unspecified ext").
-        candidates = [target, f"{target}.md", f"{target}.ts", f"{target}.json", f"{target}.yml", f"{target}.yaml", f"{target}.py"]
+        candidates = [
+            target,
+            f"{target}.md",
+            f"{target}.ts",
+            f"{target}.json",
+            f"{target}.yml",
+            f"{target}.yaml",
+            f"{target}.py",
+        ]
         if any((REPO_ROOT / c).exists() for c in candidates):
             return "ok"
         return "missing"
@@ -87,7 +96,10 @@ def main() -> int:
         elif verdict == "unknown":
             unknown.append((f, n, t))
 
-    print(f"checked {len(targets)} gate marker(s) across {len(iter_agents_files())} AGENTS.md file(s).")
+    print(
+        f"checked {len(targets)} gate marker(s) across "
+        f"{len(iter_agents_files())} AGENTS.md file(s)."
+    )
     print(f"resolved mise.toml tasks: {sorted(tasks)}")
 
     if missing:
@@ -95,7 +107,7 @@ def main() -> int:
         for f, n, t in missing:
             print(f"  {f.relative_to(REPO_ROOT)}:{n} -> [gate: {t}]", file=sys.stderr)
         print(
-            "\nAdd `[tasks.\"<name>\"]` to mise.toml OR create the referenced "
+            '\nAdd `[tasks."<name>"]` to mise.toml OR create the referenced '
             "file at the path. If a marker is meant to be human-only, drop "
             "the `[gate: ...]` syntax.",
             file=sys.stderr,
@@ -103,7 +115,10 @@ def main() -> int:
         return 1
 
     if unknown:
-        print("\nWARN: the following markers are ambiguous; consider naming them explicitly:", file=sys.stderr)
+        print(
+            "\nWARN: the following markers are ambiguous; consider naming them explicitly:",
+            file=sys.stderr,
+        )
         for f, n, t in unknown:
             print(f"  {f.relative_to(REPO_ROOT)}:{n} -> [gate: {t}]", file=sys.stderr)
 
