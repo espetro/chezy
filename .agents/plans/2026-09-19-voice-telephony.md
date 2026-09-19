@@ -142,6 +142,33 @@ Live test, no public URL and no SIP trunk required:
 - Test call `from +12012556040` to `+34654808087`: **answered, completed, 9s,
   price EUR 0.0145, rate ~EUR 0.097/min** (call uuid `fcdf9aa7-94cb-4c39-ac66-bd8abe671660`).
 
+### SLNG agent region / orchestrator (verified)
+
+SLNG resolves the agent's LiveKit project from the pair **(region, orchestrator)**.
+Valid agent regions are only:
+
+| Region | Location |
+| ------ | -------- |
+| `eu-central` | Frankfurt (Europe) |
+| `us-east` | Ashburn (United States) |
+| `ap-south` | Mumbai (Asia) |
+
+`us-west` / `eu-north` / `eu-west` / `gb` / `br` / `il` / `za` are
+inference-platform `X-Region-Override` regions, **not** agent regions.
+
+- `pipecat` has no `eu-central` deployment: PATCH `{"region":"eu-central"}` with
+  `orchestrator: pipecat` returns 404
+  `{"error":{"code":"AGENT_NOT_FOUND","message":"No default LiveKit deployment configured for region 'eu-central' and orchestrator 'pipecat'"}}`.
+  PATCHing `region` + `orchestrator` together succeeds.
+- Agent `housy` had drifted to `eu-west`/`pipecat` (no LiveKit deployment, so no
+  SIP trunk could attach). It is now pinned to `eu-central`/`livekit` ->
+  `livekit_deployment: default-eu`, with connection `chezy-vonage`
+  (`sip_outbound_trunk_id` `80ec46a8-90ce-420e-b405-8e932020dc7b`, LiveKit trunk
+  `ST_oVjMBnab8c5B`, caller ID `+12012556040`) attached.
+- The pin is enforced in code: `ensureSlngAgentPinned()` in `apps/web/lib/slng.ts`
+  GETs the agent and PATCHes `region`/`orchestrator` when they drift, before every
+  `dispatchSlngCall`; `mise run slng:agent:sync` runs the same check standalone.
+
 ### Revised preferred architecture (Option B)
 
 Because the Voice API leg is proven and needs no trunk, prefer it over Vonage SIP
@@ -198,6 +225,8 @@ plumbing, not a prize play.
 
 ## Open questions
 
-- Which teammate holds SLNG org admin to create the connection?
+- ~~Which teammate holds SLNG org admin to create the connection?~~ Done — the
+  `chezy-vonage` connection exists and is attached to `housy` (see "SLNG agent
+  region / orchestrator (verified)").
 - Service account vs OAuth for Google Calendar (recommend service account).
 - Deploy to Vercel today, or tunnel for tonight and deploy before the demo?
