@@ -106,6 +106,18 @@ run = "pg0 info"
 description = "Load chezy-mock-data/data/listings.jsonl into the Listing table (idempotent upsert)"
 run = "cd apps/web && node --env-file-if-exists=.env.local --import=tsx scripts/seed-listings.ts"
 
+[tasks."demo:setup"]
+description = "Start pg0, migrate and seed rental fixtures without resetting user data"
+run = [
+  """pg0 info --output json | node -e 'process.exit(JSON.parse(require("node:fs").readFileSync(0, "utf8")).running ? 0 : 1)' || mise run db:start""",
+  "cd apps/web && node --env-file-if-exists=.env.local --import=tsx lib/db/migrate.ts",
+  "mise run db:seed",
+]
+
+[tasks."demo:check"]
+description = "Verify repeatable persona, fixture candidates, transactional rollback and user isolation"
+run = "cd apps/web && node --env-file-if-exists=.env.local --import=tsx scripts/check-demo.ts"
+
 [tasks."slng:agent:sync"]
 description = "Pin the SLNG agent to eu-central/livekit and report its outbound trunk"
 # cd into apps/web so tsx picks up its tsconfig `@/*` paths.
