@@ -154,7 +154,7 @@ def main() -> int:
         steps.extend(
             [
                 ("py: basedpyright", ["uv", "run", "--all-packages", "basedpyright", "."]),
-                ("py: pytest", ["uv", "run", "--all-packages", "pytest", "--passwithno-tests"]),
+                ("py: pytest", ["uv", "run", "--all-packages", "pytest"]),
             ]
         )
 
