@@ -1,7 +1,9 @@
 "use client";
 
+import { ArrowUpDown } from "lucide-react";
 import { useState } from "react";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
+import { FlowDropdown } from "~/components/flow/ui/Dropdown";
 import { CandidateCarousel } from "~/components/flow/explore/CandidateCarousel";
 import type { FlowListing } from "~/lib/flow/types";
 
@@ -9,10 +11,10 @@ type SortMode = "match" | "price-asc";
 
 const ALL_ZONES = "all";
 
-const filterLabelClass = "flex w-full items-center gap-2 text-[13px] text-fog sm:w-auto";
-
-const filterSelectClass =
-  "h-11 min-w-0 flex-1 rounded-inputs border border-mist bg-snow px-3 py-2 text-[13px] text-graphite outline-none focus-visible:ring-2 focus-visible:ring-obsidian sm:flex-none";
+const sortOptions = [
+  { value: "match" as const, label: "Best match" },
+  { value: "price-asc" as const, label: "Price (low to high)" },
+];
 
 interface ExploreFeedProps {
   listings: FlowListing[];
@@ -24,6 +26,14 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
   const [sortMode, setSortMode] = useState<SortMode>("match");
 
   const zones = Array.from(new Set(listings.map((listing) => listing.neighborhood)));
+
+  const zoneOptions = [
+    { value: ALL_ZONES, label: `All neighborhoods (${listings.length})` },
+    ...zones.map((zone) => ({
+      value: zone,
+      label: `${zone} (${listings.filter((listing) => listing.neighborhood === zone).length})`,
+    })),
+  ];
 
   const filtered = listings.filter((listing) => !activeZone || listing.neighborhood === activeZone);
 
@@ -45,36 +55,23 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
-        <label className={filterLabelClass}>
-          Neighborhood
-          <select
-            value={activeZone ?? ALL_ZONES}
-            onChange={(event) =>
-              setActiveZone(event.target.value === ALL_ZONES ? undefined : event.target.value)
-            }
-            className={filterSelectClass}
-          >
-            <option value={ALL_ZONES}>All neighborhoods ({listings.length})</option>
-            {zones.map((zone) => (
-              <option key={zone} value={zone}>
-                {zone} ({listings.filter((listing) => listing.neighborhood === zone).length})
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className={filterLabelClass}>
-          Sort by
-          <select
-            value={sortMode}
-            onChange={(event) => setSortMode(event.target.value as SortMode)}
-            className={filterSelectClass}
-          >
-            <option value="match">Best match</option>
-            <option value="price-asc">Price (low to high)</option>
-          </select>
-        </label>
+      <div className="flex items-center gap-2">
+        <FlowDropdown
+          label="Neighborhood"
+          className="min-w-0 flex-1 sm:max-w-xs"
+          value={activeZone ?? ALL_ZONES}
+          options={zoneOptions}
+          onChange={(zone) => setActiveZone(zone === ALL_ZONES ? undefined : zone)}
+        />
+        <FlowDropdown
+          label="Sort by"
+          compact
+          align="end"
+          icon={<ArrowUpDown size={16} aria-hidden />}
+          value={sortMode}
+          options={sortOptions}
+          onChange={setSortMode}
+        />
       </div>
 
       <CandidateCarousel
