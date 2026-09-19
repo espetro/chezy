@@ -74,6 +74,8 @@ const copySchema = v.object({
         approvalUser: nonEmpty,
         approvalAssistant: nonEmpty,
         dialing: nonEmpty,
+        dialingSub: nonEmpty,
+        speakers: v.object({ agent: nonEmpty, agency: nonEmpty }),
         transcript: v.pipe(v.array(transcriptLine), v.length(4)),
         agreed: nonEmpty,
         endedChip: nonEmpty,

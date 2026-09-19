@@ -78,6 +78,8 @@
         "approvalUser": "Book a viewing for the Eixample one.",
         "approvalAssistant": "Calling the agency now, in Spanish. I'll say I'm an AI assistant.",
         "dialing": "Dialing +34 6·· ··· ···",
+        "dialingSub": "Voice agent · line open",
+        "speakers": { "agent": "chezy voice agent", "agency": "agency" },
         "transcript": [
           {
             "who": "agent",
