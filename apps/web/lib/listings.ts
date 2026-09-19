@@ -1,6 +1,7 @@
 import {
   and,
   asc,
+  count,
   eq,
   gt,
   gte,
@@ -11,8 +12,12 @@ import {
 } from "drizzle-orm";
 import * as v from "valibot";
 
+import { PRICE_HEADROOM } from "@/lib/constants";
 import { db } from "@/lib/db/client";
 import { listing, type Listing } from "@/lib/db/schema";
+import { eur } from "@/lib/format";
+
+export { eur };
 
 // Loose parser for one line of chezy-mock-data/data/listings.jsonl — only the
 // fields we persist; everything else is ignored.
@@ -285,6 +290,82 @@ export async function searchListings(
   };
 }
 
+export interface CandidateFilter {
+  neighbourhoods?: string[];
+  maxPriceEur?: number;
+  minRooms?: number;
+  minM2?: number;
+}
+
+function rentCandidateFilters(
+  filter: CandidateFilter,
+  withHeadroom: boolean,
+): SQL[] {
+  const filters: SQL[] = [
+    eq(listing.operation, "rent"),
+    gt(listing.priceEur, 0),
+  ];
+  if (filter.maxPriceEur !== undefined) {
+    const cap = withHeadroom
+      ? filter.maxPriceEur * PRICE_HEADROOM
+      : filter.maxPriceEur;
+    filters.push(lte(listing.priceEur, cap));
+  }
+  if (filter.minRooms !== undefined) {
+    filters.push(gte(listing.rooms, filter.minRooms));
+  }
+  if (filter.minM2 !== undefined) {
+    filters.push(gte(listing.builtM2, filter.minM2));
+  }
+  if (filter.neighbourhoods && filter.neighbourhoods.length > 0) {
+    const places = filter.neighbourhoods
+      .map(
+        (n) =>
+          or(
+            ilike(listing.neighbourhood, `%${n}%`),
+            ilike(listing.district, `%${n}%`),
+          ) as SQL,
+      )
+      .filter((s): s is SQL => s !== undefined);
+    if (places.length > 0) {
+      filters.push(or(...places) as SQL);
+    }
+  }
+  return filters;
+}
+
+// Feed candidate pool: rents within budget headroom, ordered cheapest first.
+export async function listRentCandidates(
+  filter: CandidateFilter,
+): Promise<Listing[]> {
+  return db
+    .select()
+    .from(listing)
+    .where(and(...rentCandidateFilters(filter, true)))
+    .orderBy(asc(listing.priceEur))
+    .limit(120);
+}
+
+// Exact-match counter for the "N pisos coinciden" badge: same filters but
+// without the price headroom.
+export async function countRentCandidates(
+  filter: CandidateFilter,
+): Promise<number> {
+  const [row] = await db
+    .select({ value: count() })
+    .from(listing)
+    .where(and(...rentCandidateFilters(filter, false)));
+  return row?.value ?? 0;
+}
+
+// Full row for the listing detail page (media, lat/lon, floor, amenities).
+export async function getListingRowById(
+  id: string,
+): Promise<Listing | undefined> {
+  const rows = await db.select().from(listing).where(eq(listing.id, id));
+  return rows[0];
+}
+
 export async function getListingById(
   id: string,
 ): Promise<ListingSummary | undefined> {
@@ -293,14 +374,7 @@ export async function getListingById(
   return row ? toListingSummary(row) : undefined;
 }
 
-const eur = new Intl.NumberFormat("es-ES", {
-  style: "currency",
-  currency: "EUR",
-  maximumFractionDigits: 0,
-  // es-ES sets minimumGroupingDigits=2, so 4187 would render "4187 €"; force
-  // grouping so prices always read "4.187 €".
-  useGrouping: "always",
-});
+
 
 export function listingToCallVariables(
   summary: ListingSummary,

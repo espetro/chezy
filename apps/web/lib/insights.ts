@@ -50,7 +50,11 @@ export async function getListingInsights(
 }
 
 // lib/insights.ts -> apps/web -> repo root (has chezy-mock-data/).
-const REPO_ROOT = path.resolve(import.meta.dirname, "../../..");
+// import.meta.dirname is undefined under Turbopack; fall back to cwd (apps/web).
+const REPO_ROOT = path.resolve(
+  import.meta.dirname ?? path.join(process.cwd(), "lib"),
+  "../../..",
+);
 
 // Media items marked `photo` can actually be portal-embedded 3D-tour / viewer
 // links (plushglobalmedia, matterport, floorfy, inmovilla) that the provider

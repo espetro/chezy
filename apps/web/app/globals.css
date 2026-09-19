@@ -46,6 +46,24 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Chezy agent palette (design.md tokens). Literal values, independent of the
+   shadcn light/dark variables so (agent) pages render light always. */
+@theme {
+  --color-obsidian: #09090b;
+  --color-graphite: #18181b;
+  --color-slate: #27272a;
+  --color-iron: #3f3f46;
+  --color-steel: #52525b;
+  --color-fog: #71717a;
+  --color-ash: #a1a1aa;
+  --color-mist: #d4d4d8;
+  --color-cloud: #ececee;
+  --color-paper: #f4f4f5;
+  --color-snow: #ffffff;
+  --color-ember: #ff5a00;
+  --font-dm-sans: var(--font-dm-sans-var), ui-sans-serif, system-ui, sans-serif;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(0.985 0 0);

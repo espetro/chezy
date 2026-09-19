@@ -27,6 +27,13 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
   const input = parsed.output;
+  const to = input.agencyPhone ?? env.DEMO_AGENCY_PHONE;
+  if (!to) {
+    return Response.json(
+      { error: "no callee: pass agencyPhone or set DEMO_AGENCY_PHONE" },
+      { status: 400 },
+    );
+  }
 
   try {
     if (env.VIEWING_MODE === "slng") {
@@ -34,7 +41,7 @@ export async function POST(request: Request): Promise<Response> {
       // Stored insights only — extraction never runs on the call path.
       const insights = await getListingInsights(input.propertyRef);
       const result = await dispatchSlngCall({
-        to: input.agencyPhone,
+        to,
         variables: summary
           ? {
               ...listingToCallVariables(summary),
@@ -54,7 +61,7 @@ export async function POST(request: Request): Promise<Response> {
 
     if (env.VIEWING_MODE === "vonage") {
       const result = await placeVonageCall({
-        to: input.agencyPhone,
+        to,
         ncco: [
           {
             action: "talk",

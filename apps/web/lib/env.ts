@@ -27,6 +27,8 @@ const EnvSchema = v.object({
   // provider being configured.
   VIEWING_MODE: v.fallback(ViewingModeSchema, "mock"),
   CALENDAR_MODE: v.fallback(CalendarModeSchema, "mock"),
+  // Demo fallback callee for /api/viewing; the dataset has no agency phones.
+  DEMO_AGENCY_PHONE: v.optional(v.string()),
 
   GOOGLE_CALENDAR_ID: v.optional(v.string()),
   GOOGLE_SERVICE_ACCOUNT_JSON_PATH: v.optional(v.string()),

@@ -29,3 +29,10 @@ export const COVERAGE_CITY = "Barcelona";
 export const SLNG_AGENT_REGION = "eu-central";
 export const SLNG_AGENT_ORCHESTRATOR = "livekit";
 export const SLNG_API_BASE_URL = "https://api.agents.slng.ai";
+
+// Rough Barcelona metro pace incl. transfers; demo estimate, not routing.
+export const COMMUTE_MIN_PER_KM = 3.2;
+// Fixed leg overhead (walk to stop, wait, walk to door); demo estimate.
+export const COMMUTE_OVERHEAD_MIN = 6;
+// Feed candidates may exceed maxPrice by 15% so near-misses can still rank.
+export const PRICE_HEADROOM = 1.15;
