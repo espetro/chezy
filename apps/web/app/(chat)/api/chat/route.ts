@@ -22,6 +22,8 @@ import {
   getCapabilities,
   getModelAvailability,
 } from "~/lib/ai/models";
+import { EMBEDDING_MODEL_ID, embedText } from "~/lib/ai/embeddings";
+import { extractMemories, formatMemoryContext, isDuplicateMemory } from "~/lib/ai/memory";
 import { type RequestHints, systemPrompt } from "~/lib/ai/prompts";
 import { getLanguageModel } from "~/lib/ai/providers";
 import { createDocument } from "~/lib/ai/tools/create-document";
@@ -34,7 +36,12 @@ import { requestSuggestions } from "~/lib/ai/tools/request-suggestions";
 import { saveUserProfile } from "~/lib/ai/tools/save-user-profile";
 import { searchListingsTool } from "~/lib/ai/tools/search-listings";
 import { updateDocument } from "~/lib/ai/tools/update-document";
-import { isProductionEnvironment } from "~/lib/constants";
+import {
+  isProductionEnvironment,
+  MEMORY_COSINE_DEDUP_THRESHOLD,
+  MEMORY_RECALL_LIMIT,
+} from "~/lib/constants";
+import { findSimilarMemory, insertMemory, searchMemories } from "~/lib/db/memory-queries";
 import {
   createStreamId,
   deleteChatById,
@@ -60,6 +67,79 @@ const HEALTH_CHECK_DELAY_MS = 9000;
 
 const chatLogger = getLogger(["chezy", "chat"]);
 const chatAudit = createAuditLogger("chat");
+
+async function recallMemories(
+  userId: string,
+  latestUserMessage: ChatMessage | undefined,
+): Promise<string> {
+  if (!latestUserMessage) {
+    return "";
+  }
+
+  try {
+    const text = latestUserMessage.parts
+      .filter((part) => part.type === "text")
+      .map((part) => ("text" in part ? part.text : ""))
+      .join(" ")
+      .trim();
+
+    if (!text) {
+      return "";
+    }
+
+    const queryEmbedding = await embedText(text);
+    const memories = await searchMemories({
+      userId,
+      queryEmbedding,
+      limit: MEMORY_RECALL_LIMIT,
+    });
+
+    return formatMemoryContext(memories);
+  } catch (error) {
+    console.error("Memory recall failed, proceeding without memory:", error);
+    return "";
+  }
+}
+
+async function storeMemoriesFromTurn(
+  userId: string,
+  chatId: string,
+  finishedMessages: ChatMessage[],
+) {
+  try {
+    const facts = await extractMemories(
+      finishedMessages.flatMap((m) =>
+        m.parts
+          .filter((part) => part.type === "text")
+          .map((part) => ({ role: m.role, content: (part as { text: string }).text })),
+      ),
+    );
+
+    for (const fact of facts) {
+      const embedding = await embedText(fact);
+      const similar = await findSimilarMemory({
+        userId,
+        contentEmbedding: embedding,
+        threshold: MEMORY_COSINE_DEDUP_THRESHOLD,
+      });
+
+      if (similar) {
+        continue;
+      }
+
+      await insertMemory({
+        chatId,
+        content: fact,
+        embedding,
+        embeddingModel: EMBEDDING_MODEL_ID,
+        kind: "fact",
+        userId,
+      });
+    }
+  } catch (error) {
+    console.error("Memory write failed (non-fatal):", error);
+  }
+}
 
 function isModelStreamActivity(chunk: { type: string }) {
   return !["start", "start-step", "finish-step", "finish", "raw"].includes(chunk.type);
@@ -204,6 +284,11 @@ export async function POST(request: Request) {
       target: id,
     });
 
+    const latestUserMessage = uiMessages.findLast((m) => m.role === "user") as
+      | ChatMessage
+      | undefined;
+    const memoryContext = await recallMemories(session.user.id, latestUserMessage);
+
     const stream = createUIMessageStream({
       execute: async ({ writer: dataStream }) => {
         const modelName = modelConfig?.name ?? chatModel;
@@ -281,7 +366,11 @@ export async function POST(request: Request) {
                   "updateDocument",
                   "requestSuggestions",
                 ],
-          instructions: systemPrompt({ requestHints, supportsTools }),
+          instructions: systemPrompt({
+            memoryContext,
+            requestHints,
+            supportsTools,
+          }),
           messages: modelMessages,
           model: getLanguageModel(chatModel),
           onAbort() {
@@ -412,6 +501,8 @@ export async function POST(request: Request) {
             })),
           });
         }
+
+        await storeMemoriesFromTurn(session.user.id, id, finishedMessages);
       },
       onError: (error) => {
         chatLogger.error("chat stream failed: {error}", { error });
