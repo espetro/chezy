@@ -12,7 +12,9 @@ interface DateChipsProps {
 const chipClass = (isSelected: boolean) =>
   cn(
     "min-h-11 flex-1 rounded-[14px] px-3 py-2.5 text-center text-label-md transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
-    isSelected ? "bg-obsidian font-semibold text-snow" : "bg-paper text-graphite hover:text-obsidian",
+    isSelected
+      ? "bg-obsidian font-semibold text-snow"
+      : "bg-paper text-graphite hover:text-obsidian",
   );
 
 export const FlowDateChips = ({ value, onChange }: DateChipsProps) => {

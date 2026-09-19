@@ -52,7 +52,10 @@ const canSubmit = (id: OnboardingStepId, prefs: UserPreferences) => {
     case "routine":
       return prefs.zones.length > 0;
     case "moveIn":
-      return prefs.moveIn?.mode === "flexible" || (prefs.moveIn?.mode === "date" && prefs.moveIn.date !== "");
+      return (
+        prefs.moveIn?.mode === "flexible" ||
+        (prefs.moveIn?.mode === "date" && prefs.moveIn.date !== "")
+      );
     default:
       return true;
   }
@@ -67,19 +70,25 @@ const answerSummary = (id: OnboardingStepId, prefs: UserPreferences): string | u
       const zones = prefs.zones.map(zoneLabel).join(", ");
       const from = prefs.workAddress.trim();
       if (commute === undefined) return zones;
-      return from.length > 0 ? `${zones} · max ${commute} from ${from}` : `${zones} · max ${commute}`;
+      return from.length > 0
+        ? `${zones} · max ${commute} from ${from}`
+        : `${zones} · max ${commute}`;
     }
     case "budget":
       return `${formatEur(prefs.budgetMin)} — ${formatEur(prefs.budgetMax)} · ${prefs.rooms >= 3 ? "3+" : prefs.rooms} bd · +${prefs.sizeMin} m²`;
     case "moveIn":
       return prefs.moveIn?.mode === "flexible" ? "Flexible (±15 days)" : prefs.moveIn?.date;
     case "mustHaves": {
-      const labels = mustHaveOptions.filter((o) => prefs.mustHaves.includes(o.id)).map((o) => o.label);
+      const labels = mustHaveOptions
+        .filter((o) => prefs.mustHaves.includes(o.id))
+        .map((o) => o.label);
       return labels.length > 0 ? labels.join(", ") : "Nothing specific";
     }
     case "dealBreakers": {
       const count = dealBreakerOptions.filter((o) => prefs.dealBreakers.includes(o.id)).length;
-      return count > 0 ? `${count} of ${dealBreakerOptions.length} dealbreakers on` : "No dealbreakers";
+      return count > 0
+        ? `${count} of ${dealBreakerOptions.length} dealbreakers on`
+        : "No dealbreakers";
     }
     case "autonomy":
       return autonomyOptions.find((o) => o.level === prefs.autonomy)?.title;
@@ -179,7 +188,10 @@ export const OnboardingFlow = ({ initial, initialCount }: OnboardingFlowProps) =
     }
     setHistory((prev) => [
       ...prev,
-      { agentMessage: currentStep.agentMessage, userAnswer: answerSummary(currentStep.id, preferences) },
+      {
+        agentMessage: currentStep.agentMessage,
+        userAnswer: answerSummary(currentStep.id, preferences),
+      },
     ]);
     setStepIndex((index) => index + 1);
     think();

@@ -14,7 +14,9 @@ const FlowLandingPage = () => (
       <span className="text-[15px] font-semibold">Chezy</span>
       <div className="flex items-center gap-2">
         <Link className="hidden sm:inline-flex" href="/chat">
-          <FlowButton variant="ghost" size="sm">Talk to your agent</FlowButton>
+          <FlowButton variant="ghost" size="sm">
+            Talk to your agent
+          </FlowButton>
         </Link>
         <Link href="/onboarding">
           <FlowButton size="sm">Get started</FlowButton>
@@ -27,13 +29,13 @@ const FlowLandingPage = () => (
         <FlowPill variant="accent" className="w-fit">
           Rental agent
         </FlowPill>
-        <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-obsidian sm:text-4xl lg:text-5xl">
+        <h1 className="text-3xl leading-tight font-extrabold tracking-tight text-obsidian sm:text-4xl lg:text-5xl">
           Find your next home without chasing it yourself
         </h1>
         <p className="text-sm leading-relaxed text-fog sm:text-base">
-          Describe what you're looking for once. Chezy tracks inventory
-          from partner agencies, scores every listing against your profile,
-          and calls the agency itself the moment a match is strong enough.
+          Describe what you're looking for once. Chezy tracks inventory from partner agencies,
+          scores every listing against your profile, and calls the agency itself the moment a match
+          is strong enough.
         </p>
         <div className="flex w-full flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3">
           <Link className="w-full sm:w-auto" href="/onboarding">
@@ -48,9 +50,7 @@ const FlowLandingPage = () => (
       </div>
 
       <div className="rounded-cards border border-cloud bg-slate p-5 text-snow sm:p-7">
-        <p className="text-[13px] uppercase tracking-wide text-mist">
-          Without an agent
-        </p>
+        <p className="text-[13px] tracking-wide text-mist uppercase">Without an agent</p>
         <ul className="mt-4 flex flex-col gap-4">
           {painPoints.map((point) => (
             <li key={point} className="flex items-start gap-3 text-[15px] sm:text-[16px]">

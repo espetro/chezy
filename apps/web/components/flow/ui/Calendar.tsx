@@ -72,7 +72,7 @@ export const FlowCalendar = ({ value, onChange, min }: CalendarProps) => {
   return (
     <div className="flex flex-col gap-3 rounded-[14px] bg-paper p-3">
       <div className="flex items-center justify-between">
-        <span className="text-label-md font-semibold capitalize text-obsidian">
+        <span className="text-label-md font-semibold text-obsidian capitalize">
           {monthFormatter.format(new Date(view.year, view.month, 1))}
         </span>
         <div className="flex items-center gap-1">
@@ -80,7 +80,7 @@ export const FlowCalendar = ({ value, onChange, min }: CalendarProps) => {
             type="button"
             aria-label="Previous month"
             onClick={() => shiftMonth(-1)}
-            className="flex size-11 items-center justify-center rounded-full text-steel transition-colors hover:bg-snow hover:text-obsidian focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian"
+            className="flex size-11 items-center justify-center rounded-full text-steel transition-colors hover:bg-snow hover:text-obsidian focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none"
           >
             <ChevronLeft size={16} aria-hidden />
           </button>
@@ -88,7 +88,7 @@ export const FlowCalendar = ({ value, onChange, min }: CalendarProps) => {
             type="button"
             aria-label="Next month"
             onClick={() => shiftMonth(1)}
-            className="flex size-11 items-center justify-center rounded-full text-steel transition-colors hover:bg-snow hover:text-obsidian focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian"
+            className="flex size-11 items-center justify-center rounded-full text-steel transition-colors hover:bg-snow hover:text-obsidian focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none"
           >
             <ChevronRight size={16} aria-hidden />
           </button>
@@ -143,14 +143,14 @@ export const FlowCalendar = ({ value, onChange, min }: CalendarProps) => {
         <button
           type="button"
           onClick={() => onChange("")}
-          className="min-h-11 text-label-md text-steel transition-colors hover:text-obsidian focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian"
+          className="min-h-11 text-label-md text-steel transition-colors hover:text-obsidian focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none"
         >
           Clear
         </button>
         <button
           type="button"
           onClick={() => onChange(todayIso)}
-          className="min-h-11 text-label-md font-semibold text-ember transition-colors hover:text-ember-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian"
+          className="min-h-11 text-label-md font-semibold text-ember transition-colors hover:text-ember-deep focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none"
         >
           Today
         </button>
