@@ -2,6 +2,7 @@
 import type { UseChatHelpers } from "@ai-sdk/react";
 import { useCallback } from "react";
 import type { Vote } from "@/lib/db/schema";
+import type { ListingSummary } from "@/lib/listings";
 import type { ChatMessage } from "@/lib/types";
 import { cn, sanitizeText } from "@/lib/utils";
 import { MessageContent, MessageResponse } from "../ai-elements/message";
@@ -270,6 +271,75 @@ const PurePreviewMessage = ({
       );
     }
 
+    if (type === "tool-searchListings" || type === "tool-getListing") {
+      const { toolCallId, state } = part;
+      const widthClass = "w-[min(100%,450px)]";
+
+      const output = part.output;
+      const hasError =
+        output !== undefined &&
+        output !== null &&
+        typeof output === "object" &&
+        !Array.isArray(output) &&
+        "error" in output;
+
+      if (state === "output-available") {
+        if (hasError) {
+          return (
+            <div className={widthClass} key={toolCallId}>
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-500 dark:bg-red-950/50">
+                Error: {String(output.error)}
+              </div>
+            </div>
+          );
+        }
+
+        const listings = (
+          type === "tool-searchListings"
+            ? Array.isArray(output)
+              ? output
+              : []
+            : output
+              ? [output as ListingSummary]
+              : []
+        ).slice(0, 10);
+
+        return (
+          <div className={widthClass} key={toolCallId}>
+            <Tool className="w-full" defaultOpen={false}>
+              <ToolHeader
+                state={state}
+                title={
+                  type === "tool-searchListings"
+                    ? `Found ${listings.length} listings`
+                    : "Listing"
+                }
+                type={type}
+              />
+              <ToolContent>
+                <ul className="space-y-2">
+                  {listings.map((listing) => (
+                    <ListingRow key={listing.id} listing={listing} />
+                  ))}
+                </ul>
+              </ToolContent>
+            </Tool>
+          </div>
+        );
+      }
+
+      return (
+        <div className={widthClass} key={toolCallId}>
+          <Tool className="w-full" defaultOpen={false}>
+            <ToolHeader state={state} type={type} />
+            <ToolContent>
+              {state === "input-available" && <ToolInput input={part.input} />}
+            </ToolContent>
+          </Tool>
+        </div>
+      );
+    }
+
     if (type === "tool-createDocument") {
       const { toolCallId } = part;
 
@@ -427,3 +497,49 @@ export const ThinkingMessage = () => (
     </div>
   </div>
 );
+
+const priceFormatter = new Intl.NumberFormat("es-ES", {
+  currency: "EUR",
+  maximumFractionDigits: 0,
+  style: "currency",
+});
+
+const ListingRow = ({ listing }: { listing: ListingSummary }) => {
+  const price =
+    listing.priceEur != null
+      ? `${priceFormatter.format(listing.priceEur)}${listing.operation === "rent" ? "/mes" : ""}`
+      : undefined;
+  const details = [
+    listing.rooms != null ? `${listing.rooms} rooms` : undefined,
+    listing.builtM2 != null ? `${listing.builtM2} m²` : undefined,
+    listing.district,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  return (
+    <li className="flex items-center gap-3">
+      {listing.coverUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          alt={listing.title}
+          className="size-12 shrink-0 rounded object-cover"
+          src={listing.coverUrl}
+        />
+      )}
+      <div className="min-w-0 flex-1">
+        <a
+          className="block truncate font-medium text-sm hover:underline"
+          href={listing.url}
+          rel="noreferrer"
+          target="_blank"
+        >
+          {listing.title}
+        </a>
+        <div className="truncate text-muted-foreground text-xs">
+          {[price, details].filter(Boolean).join(" · ")}
+        </div>
+      </div>
+    </li>
+  );
+};
