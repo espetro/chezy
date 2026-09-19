@@ -4,13 +4,17 @@
 // is identical for any OpenAI-compatible gateway, so we keep the rest of
 // the upstream code intact.
 //
-// Env vars are read through lib/env.ts (the single process.env reader).
-import { env } from "~/lib/env";
+// Env vars:
+//   OPENAI_COMPATIBLE_BASE_URL  e.g. http://localhost:8317/v1
+//   OPENAI_COMPATIBLE_API_KEY   used as Bearer auth for the /v1/models fetch
 
-const PROVIDER_BASE_URL = env.OPENAI_COMPATIBLE_BASE_URL ?? "http://localhost:8317/v1";
+import { DEFAULT_CHAT_MODEL_ID, DEFAULT_PROVIDER_BASE_URL, FETCH_TIMEOUT_MS } from "../constants";
+import { env } from "../env";
+
+const PROVIDER_BASE_URL = env.OPENAI_COMPATIBLE_BASE_URL ?? DEFAULT_PROVIDER_BASE_URL;
 const PROVIDER_API_KEY = env.OPENAI_COMPATIBLE_API_KEY ?? "ollama";
 
-export const DEFAULT_CHAT_MODEL = env.CHEZY_MODEL_ID ?? "deepseek-ai/DeepSeek-V4.1-Flash";
+export const DEFAULT_CHAT_MODEL = env.CHEZY_MODEL_ID ?? DEFAULT_CHAT_MODEL_ID;
 
 export const titleModel: ChatModel = {
   description: "Fast model for title generation",
@@ -46,6 +50,7 @@ async function fetchBifrostModels(): Promise<BifrostModel[]> {
     const res = await fetch(`${PROVIDER_BASE_URL}/models`, {
       headers: PROVIDER_API_KEY ? { Authorization: `Bearer ${PROVIDER_API_KEY}` } : {},
       next: { revalidate: 60 },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
     if (!res.ok) return [];
     const json = (await res.json()) as { data?: BifrostModel[] };

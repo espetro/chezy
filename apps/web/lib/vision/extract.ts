@@ -3,6 +3,7 @@ import path from "node:path";
 
 import * as v from "valibot";
 
+import { VISION_FETCH_TIMEOUT_MS } from "~/lib/constants";
 import { env } from "~/lib/env";
 
 import { INSIGHTS_PROMPT_VERSION, LISTING_INSIGHTS_PROMPT } from "~/lib/vision/prompt";
@@ -57,6 +58,7 @@ async function callModel(
       chat_template_kwargs: { thinking: false },
       messages: [{ role: "user", content }],
     }),
+    signal: AbortSignal.timeout(VISION_FETCH_TIMEOUT_MS),
   });
   if (!res.ok) {
     throw new Error(`vision model request failed: ${res.status} ${await res.text()}`);

@@ -32,7 +32,7 @@ export function Preview() {
 
   const handleAction = useCallback(
     (query?: string) => {
-      const url = query ? `/?query=${encodeURIComponent(query)}` : "/";
+      const url = query ? `/chat?query=${encodeURIComponent(query)}` : "/chat";
       router.push(url);
     },
     [router],

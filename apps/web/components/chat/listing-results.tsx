@@ -3,6 +3,7 @@
 import { HouseIcon } from "lucide-react";
 
 import type { ListingSearchResult, ListingSummary } from "~/lib/listings";
+import { safeHttpUrl } from "~/lib/utils";
 
 const priceFormatter = new Intl.NumberFormat("es-ES", {
   currency: "EUR",
@@ -13,6 +14,7 @@ const priceFormatter = new Intl.NumberFormat("es-ES", {
 });
 
 export function ListingCard({ listing }: { listing: ListingSummary }) {
+  const listingUrl = safeHttpUrl(listing.url);
   const price =
     listing.priceEur != undefined
       ? `${priceFormatter.format(listing.priceEur)}${listing.operation === "rent" ? "/mes" : ""}`
@@ -47,14 +49,16 @@ export function ListingCard({ listing }: { listing: ListingSummary }) {
         <p className="line-clamp-2 text-xs text-muted-foreground">{listing.title}</p>
         <div className="flex items-center justify-between pt-1">
           <span className="font-mono text-[10px] text-muted-foreground">{listing.id}</span>
-          <a
-            className="text-xs text-primary hover:underline"
-            href={listing.url}
-            rel="noreferrer"
-            target="_blank"
-          >
-            Ver anuncio ↗
-          </a>
+          {listingUrl && (
+            <a
+              className="text-xs text-primary hover:underline"
+              href={listingUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Ver anuncio ↗
+            </a>
+          )}
         </div>
       </div>
     </article>

@@ -204,3 +204,30 @@ export const listingInsight = pgTable("ListingInsight", {
 });
 
 export type ListingInsight = InferSelectModel<typeof listingInsight>;
+
+export const searchProfile = pgTable("SearchProfile", {
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  userId: uuid("userId")
+    .notNull()
+    .unique()
+    .references(() => user.id),
+  workAddress: text("workAddress").notNull(),
+  workLat: doublePrecision("workLat"),
+  workLon: doublePrecision("workLon"),
+  maxCommuteMin: integer("maxCommuteMin").notNull(),
+  neighbourhoods: jsonb("neighbourhoods").$type<string[]>().notNull().default([]),
+  minPriceEur: integer("minPriceEur").notNull(),
+  maxPriceEur: integer("maxPriceEur").notNull(),
+  minRooms: integer("minRooms").notNull(),
+  minM2: integer("minM2").notNull(),
+  moveDate: text("moveDate"),
+  flexibleDays: integer("flexibleDays").notNull().default(0),
+  mustHaves: jsonb("mustHaves").$type<string[]>().notNull().default([]),
+  redLines: jsonb("redLines").$type<string[]>().notNull().default([]),
+  alertsEnabled: boolean("alertsEnabled").notNull().default(true),
+  verified: boolean("verified").notNull().default(false),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
+
+export type SearchProfile = InferSelectModel<typeof searchProfile>;

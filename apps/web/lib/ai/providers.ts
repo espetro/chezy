@@ -1,17 +1,18 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { customProvider } from "ai";
-import { env } from "~/lib/env";
-import { isTestEnvironment } from "../constants";
+import { DEFAULT_PROVIDER_BASE_URL, isTestEnvironment } from "../constants";
+import { env } from "../env";
 import { titleModel } from "./models";
 
 /**
  * chezy: replaced upstream's `gateway` (Vercel AI Gateway) with
  * `@ai-sdk/openai-compatible` so we can point at any OpenAI-shaped endpoint.
- * Default points at our local bifrost gateway at http://localhost:8317/v1.
- *
- * Env vars are read through lib/env.ts (the single process.env reader).
+ * Defaults to the local bifrost gateway (DEFAULT_PROVIDER_BASE_URL); config
+ * comes from the parsed env (lib/env.ts):
+ *   OPENAI_COMPATIBLE_BASE_URL  e.g. https://api.studio.nebius.com/v1
+ *   OPENAI_COMPATIBLE_API_KEY   provider key
  */
-const baseURL = env.OPENAI_COMPATIBLE_BASE_URL ?? "http://localhost:8317/v1";
+const baseURL = env.OPENAI_COMPATIBLE_BASE_URL ?? DEFAULT_PROVIDER_BASE_URL;
 const apiKey = env.OPENAI_COMPATIBLE_API_KEY ?? "ollama";
 
 const openaiCompatibleProvider = createOpenAICompatible({

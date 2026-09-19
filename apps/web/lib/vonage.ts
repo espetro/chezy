@@ -4,6 +4,7 @@
 import { createSign, randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 
+import { FETCH_TIMEOUT_MS } from "~/lib/constants";
 import { env } from "~/lib/env";
 
 export interface VonageCallResult {
@@ -60,6 +61,7 @@ export async function placeVonageCall(input: {
       from: { type: "phone", number: from.replace(/^\+/, "") },
       ncco: input.ncco,
     }),
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
 
   if (!response.ok) {

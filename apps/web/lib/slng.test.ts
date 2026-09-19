@@ -4,6 +4,16 @@ vi.mock("~/lib/env", () => ({
   env: { SLNG_API_KEY: "k", SLNG_AGENT_ID: "a" },
 }));
 
+const warnSpy = vi.hoisted(() => vi.fn());
+vi.mock("@chezy/observability", () => ({
+  getLogger: () => ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: warnSpy,
+    error: vi.fn(),
+  }),
+}));
+
 import { dispatchSlngCall, ensureSlngAgentPinned } from "~/lib/slng";
 
 const BASE = "https://api.agents.slng.ai";
@@ -23,6 +33,7 @@ function fetchMock(): ReturnType<typeof vi.fn> {
 
 beforeEach(() => {
   vi.unstubAllGlobals();
+  warnSpy.mockClear();
 });
 
 describe("dispatchSlngCall", () => {
@@ -125,6 +136,96 @@ describe("dispatchSlngCall", () => {
   });
 });
 
+describe("declared call arguments", () => {
+  const TEMPLATE_VARIABLES = {
+    property_title: { usage: "x", default: "", required: false },
+    property_location: { usage: "x", default: "", required: false },
+    property_price: { usage: "x", default: "", required: false },
+    property_rooms: { usage: "x", default: "", required: false },
+    property_m2: { usage: "x", default: "", required: false },
+    property_ref: { usage: "x", default: "", required: false },
+  };
+
+  test("drops undeclared variables and warns", async () => {
+    const mock = fetchMock();
+    mock
+      .mockResolvedValueOnce(
+        jsonResponse({
+          region: "eu-central",
+          orchestrator: "livekit",
+          sip_outbound_trunk_id: "t1",
+          template_variables: TEMPLATE_VARIABLES,
+        }),
+      )
+      .mockResolvedValueOnce(jsonResponse({ call_id: "c1", message: "ok" }));
+
+    const result = await dispatchSlngCall({
+      to: "+34600000000",
+      variables: {
+        property_title: "x",
+        property_ref: "r",
+        property_highlights: "h",
+      },
+    });
+
+    expect(result.callId).toBe("c1");
+    const body = JSON.parse(mock.mock.calls[1]?.[1]?.body as string);
+    expect(body.arguments).toEqual({
+      property_title: "x",
+      property_ref: "r",
+    });
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    const [message, props] = warnSpy.mock.calls[0] ?? [];
+    expect(`${message} ${JSON.stringify(props)}`).toContain("property_highlights");
+  });
+
+  test("passes variables through unchanged when template_variables is absent", async () => {
+    const mock = fetchMock();
+    mock
+      .mockResolvedValueOnce(
+        jsonResponse({
+          region: "eu-central",
+          orchestrator: "livekit",
+          sip_outbound_trunk_id: "t1",
+        }),
+      )
+      .mockResolvedValueOnce(jsonResponse({ call_id: "c1" }));
+
+    await dispatchSlngCall({
+      to: "+34600000000",
+      variables: { property_title: "x", property_highlights: "h" },
+    });
+
+    const body = JSON.parse(mock.mock.calls[1]?.[1]?.body as string);
+    expect(body.arguments).toEqual({
+      property_title: "x",
+      property_highlights: "h",
+    });
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
+
+  test("still rejects on a missing SIP trunk before filtering arguments", async () => {
+    const mock = fetchMock();
+    mock.mockResolvedValueOnce(
+      jsonResponse({
+        region: "eu-central",
+        orchestrator: "livekit",
+        sip_outbound_trunk_id: null,
+        template_variables: TEMPLATE_VARIABLES,
+      }),
+    );
+
+    await expect(
+      dispatchSlngCall({
+        to: "+34600000000",
+        variables: { property_title: "x" },
+      }),
+    ).rejects.toThrow(/trunk/i);
+    expect(mock).toHaveBeenCalledTimes(1);
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
+});
+
 describe("ensureSlngAgentPinned", () => {
   test("returns mapped snake_case state", async () => {
     const mock = fetchMock();
@@ -142,6 +243,7 @@ describe("ensureSlngAgentPinned", () => {
       orchestrator: "livekit",
       livekitDeployment: "default-eu",
       sipOutboundTrunkId: "t1",
+      declaredVariables: undefined,
     });
   });
 });

@@ -142,7 +142,11 @@ if (skippedNoScope) {
 // has typecheck/lint/test scripts and participates in the gate normally.
 const scopedForFilter = scopedPackages;
 const filterArgs =
-  skippedNoScope || scopedForFilter.length === 0 ? [] : ["-r", "--filter", ...scopedForFilter];
+  skippedNoScope || scopedForFilter.length === 0
+    ? []
+    : // `--filter` reads a bare `apps/web` as a package *name* pattern and
+      // matches nothing; `./apps/web` is the path form.
+      ["-r", ...scopedForFilter.flatMap((p) => ["--filter", `./${p}`])];
 
 const rootChanged = affected.has("root");
 

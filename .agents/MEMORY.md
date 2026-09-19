@@ -56,6 +56,13 @@
 - **Demo coverage is Barcelona city only** — listings dataset is Barcelona-only, so
   onboarding asks for neighborhoods, not cities. Governed by `COVERAGE_CITY` in
   `apps/web/lib/constants.ts`; referenced by `onboardingPrompt` in `lib/ai/prompts.ts`.
+- **UI language is English (decided 2026-09-19)** — but several Spanish surfaces remain,
+  explicitly un-fixed for now: `lib/match.ts` reasons and `lib/feed.ts`'s relaxation note
+  are Spanish strings rendered inside the English cards; the chat system prompts in
+  `lib/ai/prompts.ts` speak Spanish; `screens/radar.md` still says "keep the Spanish
+  locale". The SLNG voice agent is exempt — it calls Spanish agencies and stays Spanish.
+  Resolution path: translate `lib/match.ts`/`lib/feed.ts` and the chat prompts in a later
+  pass; voice agent exempt.
 
 ## Disk budget (multi-worktree)
 
@@ -72,6 +79,39 @@ Expected per-worktree footprint on macOS APFS:
 
 - **New worktree**: `mise run wt:init` — copies `.env`, runs `pnpm install` +
   `uv sync --all-packages`, then `db:start` (see `scripts/worktree-init.sh`).
+
+## `/` product surface — the flow (formerly `/flow`, promoted 2026-09-19)
+
+The product is the flow, rooted at `/` (`apps/web/app/(flow)/**`, `components/flow/**`,
+`lib/flow/**`): landing → `/onboarding` → `/explore` → `/explore/[id]`; chat lives at
+`/chat`. `/flow/*` URLs 307-redirect to the root equivalents via `next.config.ts`. All
+routes are session-gated by `proxy.ts` like everything else (guest auto-login). Its own
+design tokens (obsidian/ember, DM Sans) live in a clearly-delimited block at the bottom
+of `apps/web/app/globals.css`; none of them redefine the chat's shadcn tokens. See
+`.agents/docs/screens/flow-*.md` for per-screen specs and
+`.agents/plans/2026-09-19-port-to-main.md` for the port rationale.
+
+- **Real data, not mocks (2026-09-19)**: onboarding PUTs `SearchProfile` via
+  `/api/profile` (which also mirrors a coarse copy into `User.profile` for the chat);
+  `/explore` renders `buildFeed(profile)` ranked by `scoreListing`; detail pages load
+  `getListingRowById` + `scoreListing`. Mapping lives in `lib/flow/adapters.ts`
+  (`toSearchProfileInput`/`fromSearchProfile`/`toFlowListing`). The old mock listings,
+  mock matcher and simulated-call helper are deleted.
+- **Elevation rule ≠ chat rule**: the flow's surfaces are `bg-snow shadow-sm` with no
+  border and controls are recessed `bg-paper` (from the Stitch design, 2026-09-19). The
+  chat app keeps hairline borders. Don't "fix" one to match the other.
+- **Token naming caveat**: Stitch's `secondary`/`secondary-fixed` were added as
+  `ember-deep`/`ember-soft` because `--color-secondary` is a live shadcn token in the chat.
+  Any future Stitch export must be checked for name collisions the same way (`grep` the
+  `@theme inline` block in `apps/web/app/globals.css`) before adding tokens.
+
+- **Auto-call gate (2026-09-19)**: `AgentCallGate` calls the real `POST /api/viewing`
+  with `{ propertyRef }` (`VIEWING_MODE` picks mock/slng/vonage). At
+  `matchScore >= AUTO_CALL_MATCH_THRESHOLD` (95, `lib/flow/constants.ts`) it auto-dials
+  on mount — guarded by `localStorage["chezy:autocall:<listingId>"]` so a real phone
+  rings at most once per listing per browser. Below 95% there's a manual "Call the
+  agency now" override; failures show `detail` + "Try again". This overrides the
+  onboarding autonomy tier entirely, by design. See `.agents/docs/screens/flow-match.md`.
 
 ## Key references
 
@@ -93,3 +133,7 @@ Expected per-worktree footprint on macOS APFS:
 - `apps/web` re-alignment checklist (see `apps/web/AGENTS.md`): `@/*`→`~/*`, zod→valibot,
   next-auth keep/remove decision, `process.env`→`lib/env.ts`, `useEffect`→patterns, then
   drop `apps/web/**` from `.oxlintrc.json` ignorePatterns.
+- Norma compliance pass (2026-09-19): fixes, accepted register and defence in
+  `.agents/notes/2026-09-19-norma-compliance.md`. `next build` already fails on `main` at
+  `lib/vision/extract.ts` (`import.meta.dirname`); `lib/errors.ts` must not import the
+  `@chezy/observability` index (client bundle).

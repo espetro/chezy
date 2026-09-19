@@ -3,23 +3,37 @@ import type { NextConfig } from "next";
 
 const basePath = process.env.IS_DEMO === "1" ? "/demo" : "";
 
+// /flow was the prototype prefix; the routes now live at the root. Keep the
+// designer's bookmarks working.
+const flowRedirects = [
+  { source: "/flow", destination: "/", permanent: false },
+  { source: "/flow/onboarding", destination: "/onboarding", permanent: false },
+  { source: "/flow/explore", destination: "/explore", permanent: false },
+  { source: "/flow/explore/:id", destination: "/explore/:id", permanent: false },
+];
+
 const nextConfig: NextConfig = {
   ...(basePath
     ? {
         assetPrefix: "/demo-assets",
         basePath,
-        redirects: async () => [
-          {
-            basePath: false,
-            destination: basePath,
-            permanent: false,
-            source: "/",
-          },
-        ],
       }
     : {}),
   cacheComponents: true,
   devIndicators: false,
+  redirects: async () => [
+    ...(basePath
+      ? [
+          {
+            basePath: false as const,
+            destination: basePath,
+            permanent: false,
+            source: "/",
+          },
+        ]
+      : []),
+    ...flowRedirects,
+  ],
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
   },
@@ -49,7 +63,7 @@ const nextConfig: NextConfig = {
   },
   poweredByHeader: false,
   reactCompiler: true,
-  transpilePackages: ["@chezy/contract", "@chezy/observability"],
+  transpilePackages: ["@chezy/contract", "@chezy/observability", "@chezy/ui"],
 };
 
 export default withBotId(nextConfig);

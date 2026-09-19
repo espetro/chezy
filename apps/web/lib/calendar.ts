@@ -4,6 +4,7 @@
 import { createSign } from "node:crypto";
 import { readFileSync } from "node:fs";
 
+import { FETCH_TIMEOUT_MS } from "~/lib/constants";
 import { env } from "~/lib/env";
 
 export interface BookingInput {
@@ -70,6 +71,7 @@ async function googleAccessToken(sa: ServiceAccount): Promise<string> {
       grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
       assertion,
     }).toString(),
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
   if (!response.ok) {
     throw new Error(`Google token exchange failed: ${response.status}`);
@@ -108,6 +110,7 @@ export async function createGoogleEvent(input: BookingInput): Promise<CalendarEv
         start: { dateTime: input.slotIso },
         end: { dateTime: endIso },
       }),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     },
   );
   if (!response.ok) {

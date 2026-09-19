@@ -2,6 +2,7 @@
 // locally; in `slng` mode the SLNG agent places the outbound call; in
 // `vonage` mode Vonage places the call and plays a short line.
 import { ViewingRequestSchema, type ViewingResult } from "@chezy/contract";
+import { getLogger } from "@chezy/observability";
 import * as v from "valibot";
 
 import { nextSlotIso } from "~/lib/calendar";
@@ -10,6 +11,8 @@ import { getListingInsights, insightsToCallVariables } from "~/lib/insights";
 import { getListingById, listingToCallVariables } from "~/lib/listings";
 import { dispatchSlngCall } from "~/lib/slng";
 import { placeVonageCall } from "~/lib/vonage";
+
+const logger = getLogger(["chezy", "viewing"]);
 
 export async function POST(request: Request): Promise<Response> {
   let body: unknown;
@@ -27,6 +30,13 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
   const input = parsed.output;
+  const to = input.agencyPhone ?? env.DEMO_AGENCY_PHONE;
+  if (!to) {
+    return Response.json(
+      { error: "no callee: pass agencyPhone or set DEMO_AGENCY_PHONE" },
+      { status: 400 },
+    );
+  }
 
   try {
     if (env.VIEWING_MODE === "slng") {
@@ -34,7 +44,7 @@ export async function POST(request: Request): Promise<Response> {
       // Stored insights only — extraction never runs on the call path.
       const insights = await getListingInsights(input.propertyRef);
       const result = await dispatchSlngCall({
-        to: input.agencyPhone,
+        to,
         variables: summary
           ? {
               ...listingToCallVariables(summary),
@@ -54,7 +64,7 @@ export async function POST(request: Request): Promise<Response> {
 
     if (env.VIEWING_MODE === "vonage") {
       const result = await placeVonageCall({
-        to: input.agencyPhone,
+        to,
         ncco: [
           {
             action: "talk",
@@ -82,6 +92,11 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json(view);
   } catch (error) {
     const detail = error instanceof Error ? error.message : "unknown error";
+    logger.error("viewing dispatch failed ({channel}): {detail}", {
+      channel: env.VIEWING_MODE,
+      detail,
+      propertyRef: input.propertyRef,
+    });
     const view: ViewingResult = {
       status: "failed",
       channel: env.VIEWING_MODE,
