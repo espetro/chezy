@@ -45,6 +45,12 @@ catalogs:
 # Do NOT override `nodeLinker` — `isolated` (default) gives strict dep
 # isolation in the monorepo.
 
+# Force @ai-sdk/valibot (pinned at 3.0.38) onto the same @ai-sdk/provider-utils
+# copy the `ai@7` chain resolves — two copies mean two `schemaSymbol`s and the
+# tool inputSchema types stop being assignable (TS2769).
+overrides:
+  '@ai-sdk/valibot>@ai-sdk/provider-utils': '5.0.45'
+
 minimumReleaseAgeExclude:
   - '@ai-sdk/openai-compatible@3.0.53'
   - '@ai-sdk/provider-utils@5.0.45'
