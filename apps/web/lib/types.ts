@@ -4,8 +4,10 @@ import type { ArtifactKind } from "@/components/chat/artifact";
 import type { createDocument } from "./ai/tools/create-document";
 import type { getListingTool } from "./ai/tools/get-listing";
 import type { getWeather } from "./ai/tools/get-weather";
-import type { searchListingsTool } from "./ai/tools/search-listings";
+import type { identifyUser } from "./ai/tools/identify-user";
 import type { requestSuggestions } from "./ai/tools/request-suggestions";
+import type { saveUserProfile } from "./ai/tools/save-user-profile";
+import type { searchListingsTool } from "./ai/tools/search-listings";
 import type { updateDocument } from "./ai/tools/update-document";
 import type { Suggestion } from "./db/schema";
 
@@ -16,6 +18,8 @@ export const messageMetadataSchema = z.object({
 export type MessageMetadata = z.infer<typeof messageMetadataSchema>;
 
 type weatherTool = InferUITool<typeof getWeather>;
+type identifyUserTool = InferUITool<typeof identifyUser>;
+type saveUserProfileTool = InferUITool<typeof saveUserProfile>;
 type createDocumentTool = InferUITool<ReturnType<typeof createDocument>>;
 type updateDocumentTool = InferUITool<ReturnType<typeof updateDocument>>;
 type requestSuggestionsTool = InferUITool<
@@ -27,6 +31,8 @@ type getListingToolType = InferUITool<typeof getListingTool>;
 
 export type ChatTools = {
   getWeather: weatherTool;
+  identifyUser: identifyUserTool;
+  saveUserProfile: saveUserProfileTool;
   searchListings: searchListingsToolType;
   getListing: getListingToolType;
   createDocument: createDocumentTool;

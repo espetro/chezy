@@ -1,6 +1,6 @@
 import { getLogger, type Logger } from "@logtape/logtape";
 
-import { rootLogger } from "./logger.ts";
+import { rootLogger } from "./logger";
 
 /**
  * Every recordable event in chezy — auth, chat turn, scraper fetch,
@@ -31,11 +31,14 @@ export interface AuditLogger {
 function buildAuditLogger(logger: Logger): AuditLogger {
   const emit = (event: AuditEvent): void => {
     const { actor, action, target, outcome, ctx = {} } = event;
-    const payload = {
+    // LogTape renders `{placeholder}`s from the same properties record
+    // that lands in the JSONL sink, so the flat audit payload doubles
+    // as the template bindings.
+    const properties: Record<string, unknown> = {
       audit: true,
       actor,
       action,
-      ...(target !== undefined ? { target } : {}),
+      target: target ?? "n/a",
       outcome,
       ...ctx,
     };
@@ -43,23 +46,14 @@ function buildAuditLogger(logger: Logger): AuditLogger {
     // (which we escalate to warn so monitoring rules can fire without
     // parsing the ctx).
     if (outcome === "failure") {
-      logger.warn(payload, "{actor} {action} failed on {target}", {
-        actor,
-        action,
-        target: target ?? "n/a",
-      });
+      logger.warn("{actor} {action} failed on {target}", properties);
     } else {
-      logger.info(payload, "{actor} {action} {outcome} on {target}", {
-        actor,
-        action,
-        outcome,
-        target: target ?? "n/a",
-      });
+      logger.info("{actor} {action} {outcome} on {target}", properties);
     }
   };
 
   const child = (bindings: Record<string, unknown>): AuditLogger =>
-    buildAuditLogger(logger.child(bindings));
+    buildAuditLogger(logger.with(bindings));
 
   return { emit, child };
 }

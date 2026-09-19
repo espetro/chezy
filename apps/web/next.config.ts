@@ -49,7 +49,7 @@ const nextConfig: NextConfig = {
   },
   poweredByHeader: false,
   reactCompiler: true,
-  transpilePackages: ["@chezy/contract"],
+  transpilePackages: ["@chezy/contract", "@chezy/observability"],
 };
 
 export default withBotId(nextConfig);

@@ -1,6 +1,6 @@
 {
-  "id": "bc77f521-4454-4c19-b1e7-b27d2642db69",
-  "prevId": "9a22d3d0-87ae-48ae-b365-8d157085fed9",
+  "id": "96d689df-5ab1-4726-8d11-e5f307c3638f",
+  "prevId": "bc77f521-4454-4c19-b1e7-b27d2642db69",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -598,18 +598,38 @@
           "primaryKey": false,
           "notNull": false
         },
+        "profile": {
+          "name": "profile",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false
+        },
         "updatedAt": {
           "name": "updatedAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "username": {
+          "name": "username",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "User_username_unique": {
+          "name": "User_username_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "username"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

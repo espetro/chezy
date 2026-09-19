@@ -15,6 +15,7 @@ import {
 import type { ArtifactKind } from "@/components/chat/artifact";
 import type { VisibilityType } from "@/components/chat/visibility-selector";
 import { ChatbotError } from "../errors";
+import type { UserProfile } from "../user-profile";
 import { generateUUID } from "../utils";
 import {
   type Chat,
@@ -61,6 +62,65 @@ export async function createGuestUser() {
       email: user.email,
       id: user.id,
     });
+  } catch (error) {
+    throw new ChatbotError("bad_request:database", { cause: error });
+  }
+}
+
+export async function getUserByUsername(
+  username: string
+): Promise<User | null> {
+  try {
+    const [selectedUser] = await db
+      .select()
+      .from(user)
+      .where(eq(user.username, username));
+
+    if (!selectedUser) {
+      return null;
+    }
+
+    return selectedUser;
+  } catch (error) {
+    throw new ChatbotError("bad_request:database", { cause: error });
+  }
+}
+
+export async function createNamedUser(username: string) {
+  try {
+    const [createdUser] = await db
+      .insert(user)
+      .values({
+        email: `${username}@chezy.local`,
+        isAnonymous: false,
+        username,
+      })
+      .returning({
+        id: user.id,
+        username: user.username,
+      });
+
+    return createdUser;
+  } catch (error) {
+    throw new ChatbotError("bad_request:database", { cause: error });
+  }
+}
+
+export async function updateUserProfile({
+  userId,
+  profile,
+}: {
+  userId: string;
+  profile: UserProfile;
+}) {
+  try {
+    const [updatedUser] = await db
+      .update(user)
+      .set({ profile, updatedAt: new Date() })
+      .where(eq(user.id, userId))
+      .returning();
+
+    return updatedUser;
   } catch (error) {
     throw new ChatbotError("bad_request:database", { cause: error });
   }

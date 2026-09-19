@@ -1,3 +1,4 @@
+import type { UserProfile } from "@chezy/contract";
 import type { InferSelectModel } from "drizzle-orm";
 import {
   boolean,
@@ -23,7 +24,9 @@ export const user = pgTable("User", {
   isAnonymous: boolean("isAnonymous").notNull().default(false),
   name: text("name"),
   password: varchar("password", { length: 64 }),
+  profile: json("profile").$type<UserProfile>(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+  username: varchar("username", { length: 64 }).unique(),
 });
 
 export type User = InferSelectModel<typeof user>;
