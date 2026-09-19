@@ -14,6 +14,21 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// Scraped/API-sourced URLs must not reach an href unchecked: a javascript: or
+// data: URI would run script on click. Returns undefined for anything that is
+// not an absolute http(s) URL.
+export function safeHttpUrl(url: string | undefined): string | undefined {
+  if (!url) {
+    return undefined;
+  }
+  try {
+    const { protocol } = new URL(url);
+    return protocol === 'https:' || protocol === 'http:' ? url : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 function isTimeoutError(error: unknown): boolean {
   return error instanceof DOMException && error.name === 'TimeoutError';
 }

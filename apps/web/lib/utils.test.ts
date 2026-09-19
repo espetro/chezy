@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FETCH_TIMEOUT_MS } from "./constants";
 import { ChatbotError } from "./errors";
-import { fetcher, fetchWithErrorHandlers } from "./utils";
+import { fetcher, fetchWithErrorHandlers, safeHttpUrl } from "./utils";
 
 // A fetch that never answers until its signal aborts, like a stalled gateway.
 function stalledFetch(_input: unknown, init?: RequestInit): Promise<Response> {
@@ -72,5 +72,22 @@ describe("fetch deadlines", () => {
     });
     caller.abort();
     await assertion;
+  });
+});
+
+describe("safeHttpUrl", () => {
+  it("passes absolute http(s) URLs through", () => {
+    expect(safeHttpUrl("https://www.idealista.com/inmueble/1/")).toBe(
+      "https://www.idealista.com/inmueble/1/",
+    );
+    expect(safeHttpUrl("http://example.com")).toBe("http://example.com");
+  });
+
+  it("rejects script, data and malformed URLs", () => {
+    expect(safeHttpUrl("javascript:alert(1)")).toBeUndefined();
+    expect(safeHttpUrl("data:text/html,<script>1</script>")).toBeUndefined();
+    expect(safeHttpUrl("/relative/path")).toBeUndefined();
+    expect(safeHttpUrl("")).toBeUndefined();
+    expect(safeHttpUrl(undefined)).toBeUndefined();
   });
 });
