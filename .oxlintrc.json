@@ -64,6 +64,12 @@
       "rules": {
         "no-restricted-imports": "off"
       }
+    },
+    {
+      "files": ["apps/web/lib/env.ts"],
+      "rules": {
+        "no-restricted-syntax": "off"
+      }
     }
   ]
 }

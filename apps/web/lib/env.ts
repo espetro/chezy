@@ -1,12 +1,38 @@
-// Day-0 placeholder for the valibot env parser. Replaces the upstream
-// vercel/chatbot lib/env.ts (which uses zod). Banned: any direct process.env
-// read in apps/web. All env access goes through @chezy/config.
-//
-// When the first feature ships:
-//   import * as v from "valibot";
-//   export const env = v.parse(
-//     v.object({ DATABASE_URL: v.pipe(v.string(), v.url()) }),
-//     process.env,
-//   );
+// The single allowed reader of `process.env` in apps/web. `.oxlintrc.json`
+// exempts this file from the no-restricted-syntax `process.env` ban; every
+// other module imports the parsed `env` object instead. Valibot is the
+// validator (Zod is banned).
+import * as v from "valibot";
 
-export const PLACEHOLDER = "env parser lands in the config ticket";
+const ViewingModeSchema = v.picklist(["mock", "slng", "vonage"]);
+const CalendarModeSchema = v.picklist(["mock", "google"]);
+
+const EnvSchema = v.object({
+  POSTGRES_URL: v.optional(v.string()),
+  AUTH_SECRET: v.optional(v.string()),
+
+  // Vonage Voice API (server-side only).
+  VONAGE_API_KEY: v.optional(v.string()),
+  VONAGE_API_SECRET: v.optional(v.string()),
+  VONAGE_FROM_NUMBER: v.optional(v.string()),
+  VONAGE_APPLICATION_ID: v.optional(v.string()),
+  VONAGE_PRIVATE_KEY_PATH: v.optional(v.string()),
+  VONAGE_PRIVATE_KEY: v.optional(v.string()),
+
+  // SLNG Voice Agents API.
+  SLNG_API_KEY: v.optional(v.string()),
+  SLNG_AGENT_ID: v.optional(v.string()),
+
+  // Behaviour switches. Default to `mock` so the demo never blocks on a
+  // provider being configured.
+  VIEWING_MODE: v.fallback(ViewingModeSchema, "mock"),
+  CALENDAR_MODE: v.fallback(CalendarModeSchema, "mock"),
+
+  GOOGLE_CALENDAR_ID: v.optional(v.string()),
+  GOOGLE_SERVICE_ACCOUNT_JSON_PATH: v.optional(v.string()),
+
+  APP_BASE_URL: v.fallback(v.string(), "http://localhost:3000"),
+});
+
+export const env = v.parse(EnvSchema, process.env);
+export type Env = v.InferOutput<typeof EnvSchema>;
