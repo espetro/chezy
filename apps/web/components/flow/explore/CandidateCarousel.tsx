@@ -80,7 +80,7 @@ export const CandidateCarousel = ({ listings, label }: CandidateCarouselProps) =
             role="group"
             aria-roledescription="slide"
             aria-label={`${index + 1} of ${total}`}
-            className="w-[85%] shrink-0 snap-start sm:w-[380px]"
+            className="flex w-[85%] shrink-0 snap-start sm:w-[380px]"
           >
             <CandidateCard listing={listing} />
           </div>
