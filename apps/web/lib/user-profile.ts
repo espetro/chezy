@@ -13,9 +13,7 @@ export function normalizeUsername(raw: string): string {
     .slice(0, USERNAME_MAX_LENGTH);
 }
 
-export function missingProfileFields(
-  profile: UserProfile | null | undefined
-): string[] {
+export function missingProfileFields(profile: UserProfile | null | undefined): string[] {
   const missing: string[] = [];
 
   if (!profile?.areas || profile.areas.length === 0) {
@@ -31,15 +29,8 @@ export function missingProfileFields(
   return missing;
 }
 
-export function mergeUserProfile(
-  base: UserProfile,
-  patch: UserProfile
-): UserProfile {
-  const {
-    freeformRequirements,
-    onboardedAt: _onboardedAt,
-    ...scalars
-  } = patch;
+export function mergeUserProfile(base: UserProfile, patch: UserProfile): UserProfile {
+  const { freeformRequirements, onboardedAt: _onboardedAt, ...scalars } = patch;
 
   const merged: UserProfile = { ...base };
 
@@ -51,10 +42,7 @@ export function mergeUserProfile(
 
   if (freeformRequirements !== undefined) {
     merged.freeformRequirements = [
-      ...new Set([
-        ...(base.freeformRequirements ?? []),
-        ...freeformRequirements,
-      ]),
+      ...new Set([...(base.freeformRequirements ?? []), ...freeformRequirements]),
     ];
   }
 

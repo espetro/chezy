@@ -1,10 +1,5 @@
-import type {
-  AutonomyOption,
-  CommuteMax,
-  ListingTag,
-  UserPreferences,
-} from "@/lib/flow/types";
-import { DISTRICT_CHIPS } from "@/lib/neighbourhoods";
+import type { AutonomyOption, CommuteMax, ListingTag, UserPreferences } from "~/lib/flow/types";
+import { DISTRICT_CHIPS } from "~/lib/neighbourhoods";
 
 // Stored zones are the ilike-compatible district values; labels are what the chips show.
 export const zoneOptions = DISTRICT_CHIPS.map((chip) => ({
@@ -60,7 +55,11 @@ export interface DealBreakerOption {
 
 export const dealBreakerOptions: DealBreakerOption[] = [
   { id: "no-dark-interior", label: "No dark ground floors or interior-facing units", icon: "ban" },
-  { id: "no-excessive-deposit", label: "No agencies with excessive deposit (+2 months)", icon: "warning" },
+  {
+    id: "no-excessive-deposit",
+    label: "No agencies with excessive deposit (+2 months)",
+    icon: "warning",
+  },
   { id: "no-unknown-flatmates", label: "No unknown flatmates", icon: "user-x" },
 ];
 
@@ -136,7 +135,8 @@ export const onboardingSteps: OnboardingStep[] = [
   },
   {
     id: "dealBreakers",
-    agentMessage: "Now the opposite — what should I rule out entirely, no matter how good the rest looks?",
+    agentMessage:
+      "Now the opposite — what should I rule out entirely, no matter how good the rest looks?",
     sectionTitle: "Dealbreakers",
     cta: "Continue",
   },

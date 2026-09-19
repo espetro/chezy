@@ -1,8 +1,8 @@
 import { memo, type ReactNode, useCallback, useState } from "react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { cn } from "~/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { artifactDefinitions, type UIArtifact } from "./artifact";
+import { artifactDefinitions, type UIArtifact } from "./artifact-definitions";
 import type { ArtifactActionContext } from "./create-artifact";
 
 type ArtifactActionsProps = {
@@ -57,7 +57,7 @@ function ArtifactActionButton({
             "disabled:pointer-events-none disabled:opacity-30",
             {
               "text-foreground": isActive,
-            }
+            },
           )}
           disabled={disabled}
           onClick={handleClick}
@@ -85,7 +85,7 @@ function PureArtifactActions({
   const [isLoading, setIsLoading] = useState(false);
 
   const artifactDefinition = artifactDefinitions.find(
-    (definition) => definition.kind === artifact.kind
+    (definition) => definition.kind === artifact.kind,
   );
 
   if (!artifactDefinition) {
@@ -127,25 +127,22 @@ function PureArtifactActions({
   );
 }
 
-export const ArtifactActions = memo(
-  PureArtifactActions,
-  (prevProps, nextProps) => {
-    if (prevProps.artifact.status !== nextProps.artifact.status) {
-      return false;
-    }
-    if (prevProps.currentVersionIndex !== nextProps.currentVersionIndex) {
-      return false;
-    }
-    if (prevProps.isCurrentVersion !== nextProps.isCurrentVersion) {
-      return false;
-    }
-    if (prevProps.artifact.content !== nextProps.artifact.content) {
-      return false;
-    }
-    if (prevProps.mode !== nextProps.mode) {
-      return false;
-    }
-
-    return true;
+export const ArtifactActions = memo(PureArtifactActions, (prevProps, nextProps) => {
+  if (prevProps.artifact.status !== nextProps.artifact.status) {
+    return false;
   }
-);
+  if (prevProps.currentVersionIndex !== nextProps.currentVersionIndex) {
+    return false;
+  }
+  if (prevProps.isCurrentVersion !== nextProps.isCurrentVersion) {
+    return false;
+  }
+  if (prevProps.artifact.content !== nextProps.artifact.content) {
+    return false;
+  }
+  if (prevProps.mode !== nextProps.mode) {
+    return false;
+  }
+
+  return true;
+});

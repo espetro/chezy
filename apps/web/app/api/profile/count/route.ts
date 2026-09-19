@@ -1,7 +1,7 @@
 import * as v from "valibot";
 
-import { auth } from "@/app/(auth)/auth";
-import { countRentCandidates } from "@/lib/listings";
+import { auth } from "~/app/(auth)/auth";
+import { countRentCandidates } from "~/lib/listings";
 
 const CountQuerySchema = v.object({
   maxPriceEur: v.optional(v.pipe(v.string(), v.regex(/^\d+$/), v.transform(Number))),
@@ -19,10 +19,7 @@ export async function GET(request: Request): Promise<Response> {
   const params = Object.fromEntries(new URL(request.url).searchParams);
   const parsed = v.safeParse(CountQuerySchema, params);
   if (!parsed.success) {
-    return Response.json(
-      { error: "invalid count query", issues: parsed.issues },
-      { status: 400 },
-    );
+    return Response.json({ error: "invalid count query", issues: parsed.issues }, { status: 400 });
   }
   const { neighbourhoods, ...ints } = parsed.output;
   const count = await countRentCandidates({

@@ -6,8 +6,8 @@ import {
   useRef,
   useState,
 } from "react";
-import { useArtifactSelector } from "@/hooks/use-artifact";
-import { cn } from "@/lib/utils";
+import { useArtifactSelector } from "~/hooks/use-artifact";
+import { cn } from "~/lib/utils";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 import { CrossSmallIcon, TerminalWindowIcon } from "./icons";
@@ -54,7 +54,7 @@ export function Console({ consoleOutputs, setConsoleOutputs }: ConsoleProps) {
         }
       }
     },
-    [isResizing]
+    [isResizing],
   );
 
   const handleResizeKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -111,7 +111,7 @@ export function Console({ consoleOutputs, setConsoleOutputs }: ConsoleProps) {
       <div
         className={cn(
           "fixed bottom-0 z-40 flex w-full flex-col overflow-x-hidden overflow-y-auto border-t border-border/50 bg-background",
-          { "select-none": isResizing }
+          { "select-none": isResizing },
         )}
         ref={consoleContainerRef}
         style={{ height }}
@@ -140,18 +140,15 @@ export function Console({ consoleOutputs, setConsoleOutputs }: ConsoleProps) {
               <div
                 className={cn("w-10 shrink-0 tabular-nums", {
                   "text-emerald-500": consoleOutput.status === "completed",
-                  "text-muted-foreground": [
-                    "in_progress",
-                    "loading_packages",
-                  ].includes(consoleOutput.status),
+                  "text-muted-foreground": ["in_progress", "loading_packages"].includes(
+                    consoleOutput.status,
+                  ),
                   "text-red-400": consoleOutput.status === "failed",
                 })}
               >
                 [{consoleOutputs.length - index}]
               </div>
-              {["in_progress", "loading_packages"].includes(
-                consoleOutput.status
-              ) ? (
+              {["in_progress", "loading_packages"].includes(consoleOutput.status) ? (
                 <div className="flex items-center gap-2">
                   <Spinner className="size-3.5" />
                   <span className="text-muted-foreground">
@@ -159,32 +156,26 @@ export function Console({ consoleOutputs, setConsoleOutputs }: ConsoleProps) {
                       ? "Initializing..."
                       : consoleOutput.status === "loading_packages"
                         ? consoleOutput.contents.map((content) =>
-                            content.type === "text" ? content.value : null
+                            content.type === "text" ? content.value : undefined,
                           )
-                        : null}
+                        : undefined}
                   </span>
                 </div>
               ) : (
                 <div className="no-scrollbar flex w-full min-w-0 flex-col gap-2 overflow-x-auto text-foreground">
                   {consoleOutput.contents.map((content) =>
                     content.type === "image" ? (
-                      <picture
-                        key={`${consoleOutput.id}-img-${content.value.slice(0, 32)}`}
-                      >
-                        <img
-                          alt="output"
-                          className="max-w-full rounded-md"
-                          src={content.value}
-                        />
+                      <picture key={`${consoleOutput.id}-img-${content.value.slice(0, 32)}`}>
+                        <img alt="output" className="max-w-full rounded-md" src={content.value} />
                       </picture>
                     ) : (
                       <div
-                        className="w-full whitespace-pre-line break-words"
+                        className="w-full break-words whitespace-pre-line"
                         key={`${consoleOutput.id}-txt-${content.value.slice(0, 32)}`}
                       >
                         {content.value}
                       </div>
-                    )
+                    ),
                   )}
                 </div>
               )}
@@ -193,5 +184,5 @@ export function Console({ consoleOutputs, setConsoleOutputs }: ConsoleProps) {
         </div>
       </div>
     </>
-  ) : null;
+  ) : undefined;
 }

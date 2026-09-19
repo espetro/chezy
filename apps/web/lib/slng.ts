@@ -8,8 +8,8 @@ import {
   SLNG_AGENT_ORCHESTRATOR,
   SLNG_AGENT_REGION,
   SLNG_API_BASE_URL,
-} from "@/lib/constants";
-import { env } from "@/lib/env";
+} from "~/lib/constants";
+import { env } from "~/lib/env";
 
 const logger = getLogger(["chezy", "slng"]);
 
@@ -19,10 +19,10 @@ export interface SlngDispatchResult {
 }
 
 export interface SlngAgentState {
-  readonly region: string | null;
-  readonly orchestrator: string | null;
-  readonly livekitDeployment: string | null;
-  readonly sipOutboundTrunkId: string | null;
+  readonly region: string | undefined;
+  readonly orchestrator: string | undefined;
+  readonly livekitDeployment: string | undefined;
+  readonly sipOutboundTrunkId: string | undefined;
   // Keys of template_variables; undefined when the field is absent so a
   // response shape change never breaks dispatch.
   readonly declaredVariables: string[] | undefined;
@@ -62,14 +62,12 @@ async function slngFetch(
 
 function toAgentState(json: SlngAgentResponse): SlngAgentState {
   return {
-    region: json.region ?? null,
-    orchestrator: json.orchestrator ?? null,
-    livekitDeployment: json.livekit_deployment ?? null,
-    sipOutboundTrunkId: json.sip_outbound_trunk_id ?? null,
+    region: json.region ?? undefined,
+    orchestrator: json.orchestrator ?? undefined,
+    livekitDeployment: json.livekit_deployment ?? undefined,
+    sipOutboundTrunkId: json.sip_outbound_trunk_id ?? undefined,
     declaredVariables:
-      json.template_variables == null
-        ? undefined
-        : Object.keys(json.template_variables),
+      json.template_variables == undefined ? undefined : Object.keys(json.template_variables),
   };
 }
 
@@ -108,7 +106,7 @@ export async function dispatchSlngCall(input: {
   readonly variables?: Record<string, string>;
 }): Promise<SlngDispatchResult> {
   const state = await ensureSlngAgentPinned();
-  if (state.sipOutboundTrunkId === null) {
+  if (state.sipOutboundTrunkId === undefined) {
     throw new Error(
       "SLNG agent has no outbound SIP trunk attached; attach a connection in the SLNG dashboard (Telephony -> Outbound) or PATCH sip_outbound_trunk_id",
     );
@@ -129,10 +127,10 @@ export async function dispatchSlngCall(input: {
       }
     }
     if (dropped.length > 0) {
-      logger.warn(
-        "Dropping undeclared agent inputs {droppedKeys} for agent {agentId}",
-        { droppedKeys: dropped.join(", "), agentId },
-      );
+      logger.warn("Dropping undeclared agent inputs {droppedKeys} for agent {agentId}", {
+        droppedKeys: dropped.join(", "),
+        agentId,
+      });
     }
     args = kept;
   }

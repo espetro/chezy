@@ -1,7 +1,7 @@
 import { toast } from "sonner";
-import { Artifact } from "@/components/chat/create-artifact";
-import { CopyIcon, RedoIcon, UndoIcon } from "@/components/chat/icons";
-import { ImageEditor } from "@/components/chat/image-editor";
+import { Artifact } from "~/components/chat/create-artifact";
+import { CopyIcon, RedoIcon, UndoIcon } from "~/components/chat/icons";
+import { ImageEditor } from "~/components/chat/image-editor";
 
 export const imageArtifact = new Artifact({
   actions: [
@@ -48,9 +48,7 @@ export const imageArtifact = new Artifact({
           ctx?.drawImage(img, 0, 0);
           canvas.toBlob((blob) => {
             if (blob) {
-              navigator.clipboard.write([
-                new ClipboardItem({ "image/png": blob }),
-              ]);
+              navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
             }
           }, "image/png");
         };

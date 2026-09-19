@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import { auth } from "@/app/(auth)/auth";
-import { ExploreFeed } from "@/components/flow/explore/ExploreFeed";
-import { buildFeed } from "@/lib/feed";
-import { toFlowListing } from "@/lib/flow/adapters";
-import { getProfile } from "@/lib/profile";
+import { auth } from "~/app/(auth)/auth";
+import { ExploreFeed } from "~/components/flow/explore/ExploreFeed";
+import { buildFeed } from "~/lib/feed";
+import { toFlowListing } from "~/lib/flow/adapters";
+import { getProfile } from "~/lib/profile";
 
 export default function ExplorePage() {
   return (
@@ -27,9 +27,7 @@ async function Explore() {
   }
 
   const feed = await buildFeed(profile);
-  const listings = feed.items.map(({ listing, match }) =>
-    toFlowListing(listing, match, profile),
-  );
+  const listings = feed.items.map(({ listing, match }) => toFlowListing(listing, match, profile));
 
   return <ExploreFeed listings={listings} note={feed.note} />;
 }

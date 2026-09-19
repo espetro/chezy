@@ -1,8 +1,8 @@
 import { tool, type UIMessageStreamWriter } from "ai";
 import type { Session } from "next-auth";
 import { z } from "zod";
-import { getDocumentById, saveDocument } from "@/lib/db/queries";
-import type { ChatMessage } from "@/lib/types";
+import { getDocumentById, saveDocument } from "~/lib/db/queries";
+import type { ChatMessage } from "~/lib/types";
 
 type EditDocumentProps = {
   session: Session;
@@ -45,6 +45,8 @@ export const editDocument = ({ session, dataStream }: EditDocumentProps) =>
       });
 
       dataStream.write({
+        // AI SDK requires a null payload for this transient chunk.
+        // oxlint-disable-next-line unicorn/no-null
         data: null,
         transient: true,
         type: "data-clear",
@@ -70,6 +72,8 @@ export const editDocument = ({ session, dataStream }: EditDocumentProps) =>
         });
       }
 
+      // AI SDK requires a null payload for this transient chunk.
+      // oxlint-disable-next-line unicorn/no-null
       dataStream.write({ data: null, transient: true, type: "data-finish" });
 
       return {
@@ -87,14 +91,10 @@ export const editDocument = ({ session, dataStream }: EditDocumentProps) =>
       new_string: z.string().describe("Replacement string"),
       old_string: z
         .string()
-        .describe(
-          "Exact string to find. Include 3-5 surrounding lines for uniqueness."
-        ),
+        .describe("Exact string to find. Include 3-5 surrounding lines for uniqueness."),
       replace_all: z
         .boolean()
         .optional()
-        .describe(
-          "Replace all occurrences instead of just the first (default false)"
-        ),
+        .describe("Replace all occurrences instead of just the first (default false)"),
     }),
   });

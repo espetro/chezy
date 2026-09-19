@@ -6,7 +6,7 @@ import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView } from "@codemirror/view";
 import { basicSetup } from "codemirror";
 import { memo, useEffect, useRef } from "react";
-import type { Suggestion } from "@/lib/db/schema";
+import type { Suggestion } from "~/lib/db/schema";
 
 type EditorProps = {
   content: string;
@@ -38,6 +38,8 @@ function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
     return () => {
       if (editorRef.current) {
         editorRef.current.destroy();
+        // Ref typed EditorView | null by CodeMirror.
+        // oxlint-disable-next-line unicorn/no-null
         editorRef.current = null;
       }
     };
@@ -47,9 +49,7 @@ function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
     if (editorRef.current) {
       const updateListener = EditorView.updateListener.of((update) => {
         if (update.docChanged) {
-          const transaction = update.transactions.find(
-            (tr) => !tr.annotation(Transaction.remote)
-          );
+          const transaction = update.transactions.find((tr) => !tr.annotation(Transaction.remote));
 
           if (transaction) {
             const newContent = update.state.doc.toString();
@@ -67,8 +67,7 @@ function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
           if (!dom) {
             return;
           }
-          const atBottom =
-            dom.scrollHeight - dom.scrollTop - dom.clientHeight < 40;
+          const atBottom = dom.scrollHeight - dom.scrollTop - dom.clientHeight < 40;
           userScrolledRef.current = !atBottom;
         },
       });
@@ -77,13 +76,7 @@ function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
 
       const newState = EditorState.create({
         doc: editorRef.current.state.doc,
-        extensions: [
-          basicSetup,
-          python(),
-          oneDark,
-          updateListener,
-          scrollListener,
-        ],
+        extensions: [basicSetup, python(), oneDark, updateListener, scrollListener],
         selection: currentSelection,
       });
 
@@ -126,10 +119,7 @@ function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
   }, [content, status]);
 
   return (
-    <div
-      className="not-prose relative w-full min-h-[300px] pb-[calc(50dvh)]"
-      ref={containerRef}
-    />
+    <div className="not-prose relative min-h-[300px] w-full pb-[calc(50dvh)]" ref={containerRef} />
   );
 }
 

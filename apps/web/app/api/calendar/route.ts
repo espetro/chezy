@@ -5,8 +5,8 @@ import { BookingRequestSchema, type BookingResult } from "@chezy/contract";
 import { getLogger } from "@chezy/observability";
 import * as v from "valibot";
 
-import { createGoogleEvent, mockBooking } from "@/lib/calendar";
-import { env } from "@/lib/env";
+import { createGoogleEvent, mockBooking } from "~/lib/calendar";
+import { env } from "~/lib/env";
 
 const logger = getLogger(["chezy", "calendar"]);
 
@@ -35,8 +35,7 @@ export async function POST(request: Request): Promise<Response> {
         durationMinutes: input.durationMinutes,
         summary: input.summary ?? `Property viewing: ${input.propertyRef}`,
         description:
-          input.description ??
-          `Booked by the chezy voice agent for ${input.propertyRef}.`,
+          input.description ?? `Booked by the chezy voice agent for ${input.propertyRef}.`,
       });
       const view: BookingResult = {
         status: event.status,

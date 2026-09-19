@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn } from "~/lib/utils";
 
 interface SegmentedOption<T extends string | number> {
   value: T;
@@ -66,7 +66,9 @@ export const FlowSegmentedSelector = <T extends string | number>({
               onClick={() => onChange(option.value)}
               className={cn(
                 "min-h-11 rounded-[12px] px-1 py-2 text-center text-label-md transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
-                isSelected ? "bg-obsidian font-semibold text-snow" : "bg-paper text-steel hover:text-obsidian",
+                isSelected
+                  ? "bg-obsidian font-semibold text-snow"
+                  : "bg-paper text-steel hover:text-obsidian",
               )}
             >
               {option.label}

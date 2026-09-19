@@ -6,9 +6,9 @@ import { ChevronLeftIcon, ChevronRightIcon, DiffIcon } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
-import { useArtifact } from "@/hooks/use-artifact";
-import type { Document } from "@/lib/db/schema";
-import { cn, getDocumentTimestampByIndex } from "@/lib/utils";
+import { useArtifact } from "~/hooks/use-artifact";
+import type { Document } from "~/lib/db/schema";
+import { cn, getDocumentTimestampByIndex } from "~/lib/utils";
 import { LoaderIcon } from "./icons";
 
 type VersionFooterProps = {
@@ -32,9 +32,7 @@ export const VersionFooter = ({
   const [isMutating, setIsMutating] = useState(false);
 
   const isFirst = currentVersionIndex === 0;
-  const isLast = documents
-    ? currentVersionIndex === documents.length - 1
-    : true;
+  const isLast = documents ? currentVersionIndex === documents.length - 1 : true;
   const handlePrevious = useCallback(() => {
     handleVersionChange("prev");
   }, [handleVersionChange]);
@@ -60,11 +58,11 @@ export const VersionFooter = ({
         await fetch(
           `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/document?id=${artifact.documentId}&timestamp=${getDocumentTimestampByIndex(
             documents,
-            currentVersionIndex
+            currentVersionIndex,
           )}`,
           {
             method: "DELETE",
-          }
+          },
         ),
         {
           optimisticData: documents
@@ -72,17 +70,12 @@ export const VersionFooter = ({
                 ...documents.filter((document) =>
                   isAfter(
                     new Date(document.createdAt),
-                    new Date(
-                      getDocumentTimestampByIndex(
-                        documents,
-                        currentVersionIndex
-                      )
-                    )
-                  )
+                    new Date(getDocumentTimestampByIndex(documents, currentVersionIndex)),
+                  ),
                 ),
               ]
             : [],
-        }
+        },
       );
     } finally {
       setIsMutating(false);
@@ -95,7 +88,7 @@ export const VersionFooter = ({
   }, [handleVersionChange, setMode]);
 
   if (!documents) {
-    return null;
+    return undefined;
   }
 
   return (
@@ -116,7 +109,7 @@ export const VersionFooter = ({
           >
             <ChevronLeftIcon className="size-4" />
           </button>
-          <span className="min-w-[4rem] text-center text-xs tabular-nums text-muted-foreground">
+          <span className="min-w-[4rem] text-center text-xs text-muted-foreground tabular-nums">
             {currentVersionIndex + 1} of {documents.length}
           </span>
           <button
@@ -132,7 +125,7 @@ export const VersionFooter = ({
         <button
           className={cn(
             "flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
-            mode === "diff" && "bg-muted text-foreground"
+            mode === "diff" && "bg-muted text-foreground",
           )}
           onClick={handleToggleMode}
           title="Show changes"
@@ -154,7 +147,7 @@ export const VersionFooter = ({
             <div className="animate-spin">
               <LoaderIcon size={14} />
             </div>
-          ) : null}
+          ) : undefined}
         </button>
         <button
           className="inline-flex items-center justify-center rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition-all duration-150 hover:bg-muted active:scale-[0.98]"

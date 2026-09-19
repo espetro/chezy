@@ -10,6 +10,11 @@ const CalendarModeSchema = v.picklist(["mock", "google"]);
 const EnvSchema = v.object({
   POSTGRES_URL: v.optional(v.string()),
   AUTH_SECRET: v.optional(v.string()),
+  NEXT_PUBLIC_BASE_PATH: v.optional(v.string()),
+
+  // Upstash-style Redis for resumable streams + rate limiting. Absent =
+  // in-memory fallbacks.
+  REDIS_URL: v.optional(v.string()),
 
   // Vonage Voice API (server-side only).
   VONAGE_API_KEY: v.optional(v.string()),

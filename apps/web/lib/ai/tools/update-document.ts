@@ -1,9 +1,9 @@
 import { tool, type UIMessageStreamWriter } from "ai";
 import type { Session } from "next-auth";
 import { z } from "zod";
-import { documentHandlersByArtifactKind } from "@/lib/artifacts/server";
-import { getDocumentById } from "@/lib/db/queries";
-import type { ChatMessage } from "@/lib/types";
+import { documentHandlersByArtifactKind } from "~/lib/artifacts/server";
+import { getDocumentById } from "~/lib/db/queries";
+import type { ChatMessage } from "~/lib/types";
 
 type UpdateDocumentProps = {
   session: Session;
@@ -11,11 +11,7 @@ type UpdateDocumentProps = {
   modelId: string;
 };
 
-export const updateDocument = ({
-  session,
-  dataStream,
-  modelId,
-}: UpdateDocumentProps) =>
+export const updateDocument = ({ session, dataStream, modelId }: UpdateDocumentProps) =>
   tool({
     description:
       "Full rewrite of an existing artifact. Only use for major changes where most content needs replacing. Prefer editDocument for targeted changes.",
@@ -33,14 +29,15 @@ export const updateDocument = ({
       }
 
       dataStream.write({
+        // AI SDK requires a null payload for this transient chunk.
+        // oxlint-disable-next-line unicorn/no-null
         data: null,
         transient: true,
         type: "data-clear",
       });
 
       const documentHandler = documentHandlersByArtifactKind.find(
-        (documentHandlerByArtifactKind) =>
-          documentHandlerByArtifactKind.kind === document.kind
+        (documentHandlerByArtifactKind) => documentHandlerByArtifactKind.kind === document.kind,
       );
 
       if (!documentHandler) {
@@ -55,6 +52,8 @@ export const updateDocument = ({
         session,
       });
 
+      // AI SDK requires a null payload for this transient chunk.
+      // oxlint-disable-next-line unicorn/no-null
       dataStream.write({ data: null, transient: true, type: "data-finish" });
 
       return {

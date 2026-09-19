@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { AgentCallGate } from "@/components/flow/match/AgentCallGate";
-import { NeighborhoodProfile } from "@/components/flow/match/NeighborhoodProfile";
-import { FlowCard } from "@/components/flow/ui/Card";
-import { FlowPill } from "@/components/flow/ui/Pill";
-import { FlowScoreBadge } from "@/components/flow/ui/ScoreBadge";
-import type { FlowListing } from "@/lib/flow/types";
+import { AgentCallGate } from "~/components/flow/match/AgentCallGate";
+import { NeighborhoodProfile } from "~/components/flow/match/NeighborhoodProfile";
+import { FlowCard } from "~/components/flow/ui/Card";
+import { FlowPill } from "~/components/flow/ui/Pill";
+import { FlowScoreBadge } from "~/components/flow/ui/ScoreBadge";
+import type { FlowListing } from "~/lib/flow/types";
 
 interface MatchDetailProps {
   listing: FlowListing;
@@ -13,7 +13,10 @@ interface MatchDetailProps {
 export const MatchDetail = ({ listing }: MatchDetailProps) => {
   return (
     <div className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-10 md:max-w-[1000px]">
-      <Link href="/explore" className="inline-flex min-h-11 w-fit items-center text-[13px] text-fog hover:text-graphite">
+      <Link
+        href="/explore"
+        className="inline-flex min-h-11 w-fit items-center text-[13px] text-fog hover:text-graphite"
+      >
         ← Back to candidates
       </Link>
 
@@ -31,12 +34,12 @@ export const MatchDetail = ({ listing }: MatchDetailProps) => {
 
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold leading-tight tracking-tight text-obsidian sm:text-3xl">
+          <h1 className="text-2xl leading-tight font-semibold tracking-tight text-obsidian sm:text-3xl">
             {listing.title}
           </h1>
           <p className="mt-1 text-sm text-fog sm:text-[15px]">
-            {listing.neighborhood}, {listing.city} · {listing.sizeM2} m² ·{" "}
-            {listing.rooms} bd · available {listing.availableFrom}
+            {listing.neighborhood}, {listing.city} · {listing.sizeM2} m² · {listing.rooms} bd ·
+            available {listing.availableFrom}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {listing.tags.map((tag) => (
@@ -53,9 +56,7 @@ export const MatchDetail = ({ listing }: MatchDetailProps) => {
       </div>
 
       <FlowCard>
-        <h2 className="text-subheading font-semibold text-obsidian">
-          Why it's a match
-        </h2>
+        <h2 className="text-subheading font-semibold text-obsidian">Why it's a match</h2>
         <ul className="mt-4 flex flex-col gap-3">
           {listing.matchReasons.map((reason) => (
             <li key={reason.label} className="flex items-start gap-3">
@@ -70,9 +71,7 @@ export const MatchDetail = ({ listing }: MatchDetailProps) => {
       </FlowCard>
 
       <FlowCard>
-        <h2 className="text-subheading font-semibold text-obsidian">
-          Neighborhood profile
-        </h2>
+        <h2 className="text-subheading font-semibold text-obsidian">Neighborhood profile</h2>
         <div className="mt-4">
           <NeighborhoodProfile profile={listing.neighborhoodProfile} />
         </div>

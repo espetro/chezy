@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useActionState, useEffect, useState } from "react";
-import { AuthForm } from "@/components/chat/auth-form";
-import { SubmitButton } from "@/components/chat/submit-button";
-import { toast } from "@/components/chat/toast";
+import { AuthForm } from "~/components/chat/auth-form";
+import { SubmitButton } from "~/components/chat/submit-button";
+import { toast } from "~/components/chat/toast";
 import { type RegisterActionState, register } from "../actions";
 
 export default function Page() {
@@ -14,14 +14,13 @@ export default function Page() {
   const [email, setEmail] = useState("");
   const [isSuccessful, setIsSuccessful] = useState(false);
 
-  const [state, formAction] = useActionState<RegisterActionState, FormData>(
-    register,
-    { status: "idle" }
-  );
+  const [state, formAction] = useActionState<RegisterActionState, FormData>(register, {
+    status: "idle",
+  });
 
   const { update: updateSession } = useSession();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: router and updateSession are stable refs
+  // updateSession (next-auth useSession update) and router are stable refs.
   useEffect(() => {
     if (state.status === "user_exists") {
       toast({ description: "Account already exists!", type: "error" });
@@ -38,7 +37,7 @@ export default function Page() {
       updateSession();
       router.refresh();
     }
-  }, [state.status]);
+  }, [state.status, setIsSuccessful, updateSession, router]);
 
   const handleSubmit = (formData: FormData) => {
     setEmail(formData.get("email") as string);
@@ -47,16 +46,17 @@ export default function Page() {
 
   return (
     <>
-      <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">Create account</h1>
-      <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">Get started for free</p>
+      <h1 className="text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">
+        Create account
+      </h1>
+      <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
+        Get started for free
+      </p>
       <AuthForm action={handleSubmit} defaultEmail={email}>
         <SubmitButton isSuccessful={isSuccessful}>Sign up</SubmitButton>
         <p className="text-center text-[13px] text-muted-foreground">
           {"Have an account? "}
-          <Link
-            className="text-foreground underline-offset-4 hover:underline"
-            href="/login"
-          >
+          <Link className="text-foreground underline-offset-4 hover:underline" href="/login">
             Sign in
           </Link>
         </p>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "~/lib/utils";
 
 export interface ToggleChipOption {
   label: string;
@@ -23,9 +23,7 @@ export const FlowToggleChipGroup = ({
 }: ToggleChipGroupProps) => {
   const toggle = (value: string) => {
     onChange(
-      selected.includes(value)
-        ? selected.filter((item) => item !== value)
-        : [...selected, value],
+      selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value],
     );
   };
 

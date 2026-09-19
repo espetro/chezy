@@ -12,35 +12,36 @@ import {
 import { checkBotId } from "botid/server";
 import { after } from "next/server";
 import { createResumableStreamContext } from "resumable-stream";
-import { auth, type UserType } from "@/app/(auth)/auth";
-import { entitlementsByUserType } from "@/lib/ai/entitlements";
+import { auth, type UserType } from "~/app/(auth)/auth";
+import { env } from "~/lib/env";
+import { entitlementsByUserType } from "~/lib/ai/entitlements";
 import {
   allowedModelIds,
   chatModels,
   DEFAULT_CHAT_MODEL,
   getCapabilities,
   getModelAvailability,
-} from "@/lib/ai/models";
-import { EMBEDDING_MODEL_ID, embedText } from "@/lib/ai/embeddings";
-import { extractMemories, formatMemoryContext, isDuplicateMemory } from "@/lib/ai/memory";
-import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
-import { getLanguageModel } from "@/lib/ai/providers";
-import { createDocument } from "@/lib/ai/tools/create-document";
-import { editDocument } from "@/lib/ai/tools/edit-document";
-import { getListingInsightsTool } from "@/lib/ai/tools/get-listing-insights";
-import { getListingTool } from "@/lib/ai/tools/get-listing";
-import { getWeather } from "@/lib/ai/tools/get-weather";
-import { identifyUser } from "@/lib/ai/tools/identify-user";
-import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
-import { saveUserProfile } from "@/lib/ai/tools/save-user-profile";
-import { searchListingsTool } from "@/lib/ai/tools/search-listings";
-import { updateDocument } from "@/lib/ai/tools/update-document";
+} from "~/lib/ai/models";
+import { EMBEDDING_MODEL_ID, embedText } from "~/lib/ai/embeddings";
+import { extractMemories, formatMemoryContext, isDuplicateMemory } from "~/lib/ai/memory";
+import { type RequestHints, systemPrompt } from "~/lib/ai/prompts";
+import { getLanguageModel } from "~/lib/ai/providers";
+import { createDocument } from "~/lib/ai/tools/create-document";
+import { editDocument } from "~/lib/ai/tools/edit-document";
+import { getListingInsightsTool } from "~/lib/ai/tools/get-listing-insights";
+import { getListingTool } from "~/lib/ai/tools/get-listing";
+import { getWeather } from "~/lib/ai/tools/get-weather";
+import { identifyUser } from "~/lib/ai/tools/identify-user";
+import { requestSuggestions } from "~/lib/ai/tools/request-suggestions";
+import { saveUserProfile } from "~/lib/ai/tools/save-user-profile";
+import { searchListingsTool } from "~/lib/ai/tools/search-listings";
+import { updateDocument } from "~/lib/ai/tools/update-document";
 import {
   isProductionEnvironment,
   MEMORY_COSINE_DEDUP_THRESHOLD,
   MEMORY_RECALL_LIMIT,
-} from "@/lib/constants";
-import { findSimilarMemory, insertMemory, searchMemories } from "@/lib/db/memory-queries";
+} from "~/lib/constants";
+import { findSimilarMemory, insertMemory, searchMemories } from "~/lib/db/memory-queries";
 import {
   createStreamId,
   deleteChatById,
@@ -51,12 +52,12 @@ import {
   saveMessages,
   updateChatTitleById,
   updateMessage,
-} from "@/lib/db/queries";
-import type { DBMessage } from "@/lib/db/schema";
-import { ChatbotError } from "@/lib/errors";
-import { checkIpRateLimit } from "@/lib/ratelimit";
-import type { ChatMessage, WaitingStatusData } from "@/lib/types";
-import { convertToUIMessages, generateUUID } from "@/lib/utils";
+} from "~/lib/db/queries";
+import type { DBMessage } from "~/lib/db/schema";
+import { ChatbotError } from "~/lib/errors";
+import { checkIpRateLimit } from "~/lib/ratelimit";
+import type { ChatMessage, WaitingStatusData } from "~/lib/types";
+import { convertToUIMessages, generateUUID } from "~/lib/utils";
 import { generateTitleFromUserMessage } from "../../actions";
 import { type PostRequestBody, postRequestBodySchema } from "./schema";
 
@@ -148,7 +149,7 @@ function getStreamContext() {
   try {
     return createResumableStreamContext({ waitUntil: after });
   } catch {
-    return null;
+    return undefined;
   }
 }
 
@@ -167,7 +168,7 @@ export async function POST(request: Request) {
   try {
     const { id, message, messages, selectedChatModel, selectedVisibilityType } = requestBody;
 
-    const [botIdResult, session] = await Promise.all([checkBotId().catch(() => null), auth()]);
+    const [botIdResult, session] = await Promise.all([checkBotId().catch(() => undefined), auth()]);
 
     if (botIdResult?.isBot) {
       return new ChatbotError("forbidden:api").toResponse();
@@ -198,7 +199,7 @@ export async function POST(request: Request) {
 
     const chat = await getChatById({ id });
     let messagesFromDb: DBMessage[] = [];
-    let titlePromise: Promise<string> | null = null;
+    let titlePromise: Promise<string> | undefined = undefined;
 
     if (chat) {
       if (chat.userId !== session.user.id) {
@@ -520,7 +521,7 @@ export async function POST(request: Request) {
 
     return createUIMessageStreamResponse({
       async consumeSseStream({ stream: sseStream }) {
-        if (!process.env.REDIS_URL) {
+        if (!env.REDIS_URL) {
           return;
         }
         try {

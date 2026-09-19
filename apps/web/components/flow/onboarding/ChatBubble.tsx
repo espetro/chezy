@@ -1,4 +1,4 @@
-import { FlowAgentMark } from "@/components/flow/ui/AgentMark";
+import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
 
 interface ChatBubbleProps {
   from: "agent" | "user";

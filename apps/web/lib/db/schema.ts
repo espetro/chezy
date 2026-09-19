@@ -1,6 +1,6 @@
 import type { UserProfile } from "@chezy/contract";
 import type { InferSelectModel } from "drizzle-orm";
-import type { ListingInsights } from "@/lib/vision/schema";
+import type { ListingInsights } from "~/lib/vision/schema";
 import {
   boolean,
   customType,
@@ -241,7 +241,10 @@ export type Memory = InferSelectModel<typeof memory>;
 
 export const searchProfile = pgTable("SearchProfile", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
-  userId: uuid("userId").notNull().unique().references(() => user.id),
+  userId: uuid("userId")
+    .notNull()
+    .unique()
+    .references(() => user.id),
   workAddress: text("workAddress").notNull(),
   workLat: doublePrecision("workLat"),
   workLon: doublePrecision("workLon"),

@@ -1,16 +1,16 @@
 import type { SearchProfileInput } from "@chezy/contract";
 
-import type { Listing, SearchProfile } from "@/lib/db/schema";
-import { sentenceCase } from "@/lib/format";
-import type { MatchResult } from "@/lib/match";
-import { getDistrictProfile } from "@/lib/neighbourhoods";
+import type { Listing, SearchProfile } from "~/lib/db/schema";
+import { sentenceCase } from "~/lib/format";
+import type { MatchResult } from "~/lib/match";
+import { getDistrictProfile } from "~/lib/neighbourhoods";
 import type {
   CommuteMax,
   FlowListing,
   ListingTag,
   NeighborhoodProfile,
   UserPreferences,
-} from "@/lib/flow/types";
+} from "~/lib/flow/types";
 
 const MUST_HAVE_TO_SEARCH: Record<string, string> = {
   "natural-light": "exterior",
@@ -29,9 +29,7 @@ const RED_LINE_TO_SEARCH: Record<string, string> = {
 
 const commuteValues = new Set<number>([15, 25, 40]);
 
-export function toSearchProfileInput(
-  prefs: UserPreferences,
-): SearchProfileInput {
+export function toSearchProfileInput(prefs: UserPreferences): SearchProfileInput {
   return {
     workAddress: prefs.workAddress,
     maxCommuteMin: prefs.commuteMaxMin ?? 25,
@@ -40,6 +38,7 @@ export function toSearchProfileInput(
     maxPriceEur: prefs.budgetMax,
     minRooms: prefs.rooms,
     minM2: prefs.sizeMin,
+    // oxlint-disable-next-line unicorn/no-null
     moveDate: prefs.moveIn?.mode === "date" ? prefs.moveIn.date : null,
     flexibleDays: prefs.moveIn?.mode === "flexible" ? 15 : 0,
     mustHaves: prefs.mustHaves
@@ -118,9 +117,7 @@ export function toFlowListing(
 ): FlowListing {
   const neighborhood = row.neighbourhood ?? row.district ?? "Barcelona";
   const title = sentenceCase(row.title ?? "").slice(0, 80);
-  const tags = TAG_BY_AMENITY.filter(([amenity]) =>
-    row.amenities.includes(amenity),
-  )
+  const tags = TAG_BY_AMENITY.filter(([amenity]) => row.amenities.includes(amenity))
     .map(([, tag]) => tag)
     .filter((tag, index, all) => all.indexOf(tag) === index)
     .slice(0, 4);

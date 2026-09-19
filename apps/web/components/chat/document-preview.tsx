@@ -1,28 +1,15 @@
 "use client";
 
 import equal from "fast-deep-equal";
-import {
-  type MouseEvent,
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { type MouseEvent, memo, useCallback, useEffect, useMemo, useRef } from "react";
 import useSWR from "swr";
-import { useArtifact } from "@/hooks/use-artifact";
-import type { Document } from "@/lib/db/schema";
-import { cn, fetcher } from "@/lib/utils";
+import { useArtifact } from "~/hooks/use-artifact";
+import type { Document } from "~/lib/db/schema";
+import { cn, fetcher } from "~/lib/utils";
 import type { ArtifactKind, UIArtifact } from "./artifact";
 import { CodeEditor } from "./code-editor";
 import { InlineDocumentSkeleton } from "./document-skeleton";
-import {
-  CodeIcon,
-  FileIcon,
-  FullscreenIcon,
-  ImageIcon,
-  LoaderIcon,
-} from "./icons";
+import { CodeIcon, FileIcon, FullscreenIcon, ImageIcon, LoaderIcon } from "./icons";
 import { ImageEditor } from "./image-editor";
 import { SpreadsheetEditor } from "./sheet-editor";
 import { Editor } from "./text-editor";
@@ -40,20 +27,12 @@ type DocumentPreviewProps = {
   args?: Partial<DocumentToolOutput> & { isUpdate?: boolean };
 };
 
-export function DocumentPreview({
-  isReadonly: _isReadonly,
-  result,
-  args,
-}: DocumentPreviewProps) {
+export function DocumentPreview({ isReadonly: _isReadonly, result, args }: DocumentPreviewProps) {
   const { artifact, setArtifact } = useArtifact();
 
-  const { data: documents, isLoading: isDocumentsFetching } = useSWR<
-    Document[]
-  >(
-    result
-      ? `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/document?id=${result.id}`
-      : null,
-    fetcher
+  const { data: documents, isLoading: isDocumentsFetching } = useSWR<Document[]>(
+    result ? `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/document?id=${result.id}` : undefined,
+    fetcher,
   );
 
   const previewDocument = useMemo(() => documents?.[0], [documents]);
@@ -99,7 +78,7 @@ export function DocumentPreview({
     );
   }
 
-  const document: Document | null = previewDocument
+  const document: Document | undefined = previewDocument
     ? previewDocument
     : artifact.status === "streaming"
       ? {
@@ -110,7 +89,7 @@ export function DocumentPreview({
           title: artifact.title,
           userId: "noop",
         }
-      : null;
+      : undefined;
 
   if (!document) {
     return <LoadingSkeleton artifactKind={artifact.kind} />;
@@ -118,11 +97,7 @@ export function DocumentPreview({
 
   return (
     <div className="relative w-full max-w-[450px] cursor-pointer">
-      <HitboxLayer
-        hitboxRef={hitboxRef}
-        result={result}
-        setArtifact={setArtifact}
-      />
+      <HitboxLayer hitboxRef={hitboxRef} result={result} setArtifact={setArtifact} />
       <DocumentHeader
         isStreaming={artifact.status === "streaming"}
         kind={document.kind}
@@ -159,11 +134,9 @@ const PureHitboxLayer = ({
   result,
   setArtifact,
 }: {
-  hitboxRef: React.RefObject<HTMLDivElement>;
+  hitboxRef: React.RefObject<HTMLDivElement | null>;
   result?: Partial<DocumentToolOutput>;
-  setArtifact: (
-    updaterFn: UIArtifact | ((currentArtifact: UIArtifact) => UIArtifact)
-  ) => void;
+  setArtifact: (updaterFn: UIArtifact | ((currentArtifact: UIArtifact) => UIArtifact)) => void;
 }) => {
   const handleClick = useCallback(
     (event: MouseEvent<HTMLElement>) => {
@@ -183,7 +156,7 @@ const PureHitboxLayer = ({
         isVisible: true,
       }));
     },
-    [setArtifact, result]
+    [setArtifact, result],
   );
 
   return (
@@ -259,19 +232,19 @@ const DocumentContent = ({ document }: { document: Document }) => {
     {
       "p-0": document.kind === "code",
       "p-4 sm:px-10 sm:py-10": document.kind === "text",
-    }
+    },
   );
 
   const commonProps = {
     content: document.content ?? "",
     currentVersionIndex: 0,
     isCurrentVersion: true,
-    saveContent: () => null,
+    saveContent: () => undefined,
     status: artifact.status,
     suggestions: [],
   };
 
-  const handleSaveContent = () => null;
+  const handleSaveContent = () => undefined;
 
   return (
     <div className={cn(containerClassName, "relative")}>
@@ -298,7 +271,7 @@ const DocumentContent = ({ document }: { document: Document }) => {
           status={artifact.status}
           title={document.title}
         />
-      ) : null}
+      ) : undefined}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-muted to-transparent dark:from-muted" />
       {document.kind === "code" && (
         <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-muted to-transparent dark:from-muted" />
