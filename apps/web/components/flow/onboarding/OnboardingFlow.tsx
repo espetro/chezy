@@ -218,8 +218,8 @@ export const OnboardingFlow = ({ initial, initialCount }: OnboardingFlowProps) =
     ) : undefined;
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-xl flex-col px-4">
-      <div className="sticky top-0 z-10 -mx-4 bg-paper/90 px-4 pt-3 pb-2 backdrop-blur-md">
+    <div className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col px-4 sm:max-w-xl sm:px-6">
+      <div className="sticky top-0 z-10 -mx-4 bg-paper/90 px-4 pt-3 pb-2 backdrop-blur-md sm:-mx-6 sm:px-6">
         <FlowStepper step={stepIndex} total={progressStepCount} label={currentStep.sectionTitle} />
       </div>
 
