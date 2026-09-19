@@ -116,6 +116,9 @@ importers:
       '@chezy/observability':
         specifier: workspace:*
         version: link:../../packages/observability
+      '@chezy/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@codemirror/lang-python':
         specifier: ^6.2.1
         version: 6.2.1
