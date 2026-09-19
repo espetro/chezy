@@ -6,13 +6,15 @@ takes a `Settings` instead of touching `os.environ`.
     CHEZY_DATA_DIR      payloads, JSONL, cache   default: .data
     CHEZY_MEDIA_DIR     image mirror root        default: /Volumes/KeVagiBe/chezy/media
     CHEZY_CDP_URL       Chrome CDP endpoint      default: http://127.0.0.1:9222
+    CHEZY_IDEALISTA_RENT_URL / CHEZY_IDEALISTA_SALE_URL
+                        idealista search URLs (e.g. a `?shape=` polygon); default: whole city
     DATABASE_URL        pg0 connection string    default: local pg0
 """
 
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 _DEFAULT_DATABASE_URL = "postgresql://postgres:postgres@127.0.0.1:5432/postgres"
@@ -24,6 +26,7 @@ class Settings:
     media_root: Path
     database_url: str
     cdp_url: str
+    idealista_search_urls: dict[str, str] = field(default_factory=dict)
     # One request per 2-5 s per host, randomized.
     http_min_delay: float = 2.0
     http_max_delay: float = 5.0
@@ -40,6 +43,14 @@ class Settings:
             media_root=Path(os.environ.get("CHEZY_MEDIA_DIR", "/Volumes/KeVagiBe/chezy/media")),
             database_url=os.environ.get("DATABASE_URL", _DEFAULT_DATABASE_URL),
             cdp_url=os.environ.get("CHEZY_CDP_URL", "http://127.0.0.1:9222"),
+            idealista_search_urls={
+                op: url
+                for op, var in (
+                    ("rent", "CHEZY_IDEALISTA_RENT_URL"),
+                    ("sale", "CHEZY_IDEALISTA_SALE_URL"),
+                )
+                if (url := os.environ.get(var))
+            },
         )
 
     @property

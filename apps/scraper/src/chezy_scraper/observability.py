@@ -141,8 +141,10 @@ class _AuditChannel:
         actor: str,
         outcome: Literal["success", "failure", "pending"],
         target: str | None = None,
+        file_only: bool = False,
         **ctx: object,
     ) -> None:
+        # `file_only` keeps high-volume events (one per listing) out of stderr.
         # Failures escalate from info to warning so alerting rules can
         # fire on level alone, identical to the TS AuditLogger behavior.
         level = "warning" if outcome == "failure" else "info"
@@ -160,6 +162,8 @@ class _AuditChannel:
             **ctx,
         }
         logging.getLogger(_AUDIT_LOGGER).info(json.dumps(record, default=str))
+        if file_only:
+            return
         log = structlog.get_logger(_AUDIT_LOGGER)
         (log.warning if outcome == "failure" else log.info)(
             action, **{k: v for k, v in record.items() if k not in {"timestamp", "level", "action"}}

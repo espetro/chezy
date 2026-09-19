@@ -17,12 +17,16 @@ import typer
 
 from chezy_scraper.adapters.fotocasa import FotocasaAdapter
 from chezy_scraper.adapters.habitaclia import HabitacliaAdapter
+from chezy_scraper.adapters.idealista import IdealistaAdapter
 from chezy_scraper.config import Settings
+from chezy_scraper.fetch.browser import BrowserBlockedError, BrowserError, CdpBrowser
 from chezy_scraper.fetch.http import BlockedError, HttpFetcher
 from chezy_scraper.media import MediaRootUnavailableError, mirror, read_manifest, write_manifest
 from chezy_scraper.models import Listing, Operation, Platform
 from chezy_scraper.observability import audit, configure_logging
+from chezy_scraper.pipeline import ScrapeResult
 from chezy_scraper.pipeline import scrape as run_scrape
+from chezy_scraper.pipeline_browser import scrape_idealista
 from chezy_scraper.sinks import postgres
 from chezy_scraper.sinks.jsonl import read_listings
 from chezy_scraper.tiers import MEDIA_BY_DEFAULT, Tier
@@ -58,13 +62,15 @@ def scrape(
     """Scrape one platform x operation slice into the JSONL dataset."""
     settings = Settings.from_env()
     configure_logging()
+    now = datetime.now(UTC)
+    run_id = now.strftime("%Y%m%dT%H%M%SZ")
+    if platform == "idealista":
+        _scrape_idealista(settings, operation, tier, run_id=run_id, now=now)
+        return
     if platform not in _HTTP_ADAPTERS:
-        typer.echo(
-            f"{platform}: not available over plain HTTP; see the idealista command.", err=True
-        )
+        typer.echo(f"{platform}: no adapter yet.", err=True)
         raise typer.Exit(2)
     adapter = _HTTP_ADAPTERS[platform]()
-    now = datetime.now(UTC)
     fetcher = HttpFetcher(
         settings.cache_dir,
         min_delay=settings.http_min_delay,
@@ -78,7 +84,7 @@ def scrape(
             settings,
             operation,
             tier,
-            run_id=now.strftime("%Y%m%dT%H%M%SZ"),
+            run_id=run_id,
             scraped_at=now,
         )
     except BlockedError as exc:
@@ -86,11 +92,41 @@ def scrape(
         raise typer.Exit(3) from exc
     finally:
         fetcher.close()
-    audit.emit("cli.scrape", actor="user", outcome="success", target=platform, **result.__dict__)
+    _report(result)
+
+
+def _report(result: ScrapeResult) -> None:
+    audit.emit(
+        "cli.scrape", actor="user", outcome="success", target=result.platform, **result.__dict__
+    )
     typer.echo(
         f"{result.platform}/{result.operation}/{result.tier}: {result.tier_total} listings "
         f"({result.new_listings} new, {result.pages_fetched} pages, master {result.master_total})"
     )
+
+
+def _scrape_idealista(
+    settings: Settings, operation: Operation, tier: Tier, *, run_id: str, now: datetime
+) -> None:
+    """Needs the user's real Chrome with `--remote-debugging-port` (see fetch/browser.py)."""
+    adapter = IdealistaAdapter(settings.idealista_search_urls)
+    try:
+        with CdpBrowser(
+            settings.cdp_url,
+            min_delay=settings.browser_min_delay,
+            max_delay=settings.browser_max_delay,
+            page_budget=settings.browser_page_budget,
+        ) as browser:
+            result = scrape_idealista(
+                adapter, browser, settings, operation, tier, run_id=run_id, scraped_at=now
+            )
+    except BrowserBlockedError as exc:
+        typer.echo(f"BLOCKED by DataDome: {exc}. Stop; do not retry from this session.", err=True)
+        raise typer.Exit(3) from exc
+    except BrowserError as exc:
+        typer.echo(f"BROWSER: {exc}", err=True)
+        raise typer.Exit(6) from exc
+    _report(result)
 
 
 @app.command()

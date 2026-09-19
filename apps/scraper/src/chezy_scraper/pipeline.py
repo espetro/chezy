@@ -85,6 +85,7 @@ def scrape(  # noqa: PLR0913
                         actor="cli:scrape",
                         outcome="success",
                         target=f"{platform}:{listing.platform_id}",
+                        file_only=True,
                     )
                 if target is not None and len(known) >= target:
                     break
