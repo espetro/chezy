@@ -2,6 +2,7 @@
 
 uv run scraper scrape --platform fotocasa --operation rent --tier small
 uv run scraper media --tier small
+uv run scraper load --tier small
 uv run scraper stats
 """
 
@@ -11,16 +12,18 @@ import json
 from datetime import UTC, datetime
 from typing import Annotated
 
+import psycopg
 import typer
 
 from chezy_scraper.adapters.fotocasa import FotocasaAdapter
 from chezy_scraper.adapters.habitaclia import HabitacliaAdapter
 from chezy_scraper.config import Settings
 from chezy_scraper.fetch.http import BlockedError, HttpFetcher
-from chezy_scraper.media import MediaRootUnavailableError, mirror, write_manifest
+from chezy_scraper.media import MediaRootUnavailableError, mirror, read_manifest, write_manifest
 from chezy_scraper.models import Listing, Operation, Platform
 from chezy_scraper.observability import audit, configure_logging
 from chezy_scraper.pipeline import scrape as run_scrape
+from chezy_scraper.sinks import postgres
 from chezy_scraper.sinks.jsonl import read_listings
 from chezy_scraper.tiers import MEDIA_BY_DEFAULT, Tier
 
@@ -104,9 +107,7 @@ def media(
     if tier not in MEDIA_BY_DEFAULT and not with_media:
         typer.echo(f"{tier} images are opt-in; pass --with-media.", err=True)
         raise typer.Exit(2)
-    listings: list[Listing] = []
-    for path in sorted(settings.listings_dir.glob(f"*-{tier}.jsonl")):
-        listings.extend(read_listings(path))
+    listings = _tier_listings(settings, tier)
     if not listings:
         typer.echo(f"no {tier} datasets yet; run `scraper scrape --tier {tier}` first", err=True)
         raise typer.Exit(1)
@@ -124,6 +125,28 @@ def media(
 
 
 @app.command()
+def load(
+    tier: Annotated[Tier, typer.Option(help="Tier to load into Postgres.")] = "small",
+) -> None:
+    """Upsert a tier into pg0 Postgres (DATABASE_URL); safe to re-run."""
+    settings = Settings.from_env()
+    configure_logging()
+    listings = _tier_listings(settings, tier)
+    if not listings:
+        typer.echo(f"no {tier} datasets yet; run `scraper scrape --tier {tier}` first", err=True)
+        raise typer.Exit(1)
+    manifest = read_manifest(settings.media_root) if settings.media_root.exists() else {}
+    try:
+        with psycopg.connect(settings.database_url) as conn:
+            loaded = postgres.load(conn, listings, manifest)
+    except psycopg.OperationalError as exc:
+        typer.echo(f"DATABASE UNAVAILABLE: {exc}; try `mise run db:start`.", err=True)
+        raise typer.Exit(5) from exc
+    audit.emit("cli.load", actor="user", outcome="success", target=tier, loaded=loaded)
+    typer.echo(f"{tier}: {loaded} listings upserted")
+
+
+@app.command()
 def stats() -> None:
     """Per-file record counts and field coverage for every dataset file."""
     settings = Settings.from_env()
@@ -136,6 +159,13 @@ def stats() -> None:
         typer.echo(f"{path.name}: {len(listings)}")
         if listings:
             typer.echo("  " + json.dumps(_coverage(listings)))
+
+
+def _tier_listings(settings: Settings, tier: Tier) -> list[Listing]:
+    listings: list[Listing] = []
+    for path in sorted(settings.listings_dir.glob(f"*-{tier}.jsonl")):
+        listings.extend(read_listings(path))
+    return listings
 
 
 def _coverage(listings: list[Listing]) -> dict[str, str]:
