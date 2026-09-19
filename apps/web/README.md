@@ -1,18 +1,28 @@
 # apps/web
 
-Next.js 16 + React 19 + AI SDK 7 fork of [`vercel/chatbot`](https://github.com/vercel/chatbot),
-adapted for chezy:
+Next.js 16 + React 19 + AI SDK 7 **verbatim import** of
+[`vercel/chatbot`](https://github.com/vercel/chatbot) (PR #2). A pristine reference copy
+lives at `vendor/chatbot-template/` (excluded from tsconfig). Deliberate diffs so far:
 
-- **Auth removed**: the `(auth)` route group is gone. `next-auth` is not a dependency.
-- **Zod → Valibot**: `lib/env.ts` parses env with Valibot (see `../../.oxlintrc.json`
-  for the `no-restricted-imports` rule that bans the `zod` package).
-- **Biome → oxlint/oxfmt**: `biome.jsonc` is replaced by the monorepo-root
-  `.oxlintrc.json` + `.oxfmtrc.json`.
+- **Auth kept**: the `(auth)` route group is intact — NextAuth 5 with a `guest`
+  credentials provider. `/api/chat` returns `unauthorized:chat` without the session
+  cookie; `/` redirects to `/api/auth/guest` once to mint one.
 - **Neon → pg0**: the Drizzle client points at
-  `postgresql://postgres:postgres@127.0.0.1:5432/postgres` (started via
-  `mise run db:start`).
-- **Vercel Blob / AI Gateway**: kept on, but configurable via env so non-Vercel
-  deploys work (see `lib/env.ts` when it ships).
+  `postgresql://postgres:postgres@127.0.0.1:5432/postgres` via `POSTGRES_URL`
+  (started via `mise run db:start`).
+- **AI Gateway → OpenAI-compatible**: `@ai-sdk/openai-compatible`
+  (`lib/ai/providers.ts`, `lib/ai/models.ts`) replaces `@ai-sdk/gateway`. The project
+  provider is Nebius AI Studio; env vars are `OPENAI_COMPATIBLE_BASE_URL`,
+  `OPENAI_COMPATIBLE_API_KEY`, `CHEZY_MODEL_ID`, `CHEZY_TITLE_MODEL_ID` — see
+  `.env.example`. The code default is a local bifrost at `http://localhost:8317/v1`.
+- **Voice viewing flow**: `lib/slng.ts` (SLNG agent), `lib/vonage.ts` (Vonage Voice API),
+  `lib/calendar.ts`, plus `/api/viewing` and `/api/calendar`. `VIEWING_MODE` /
+  `CALENDAR_MODE` env switches default to `mock`.
+
+Still upstream, not yet chezy-aligned (see `AGENTS.md` manual-review checklist): zod,
+the `@/*` alias, `useEffect`, and direct `process.env` reads. `apps/web` ships no
+`biome.jsonc` (only `vendor/chatbot-template/` has one) and is linted by nothing today —
+the repo-root `.oxlintrc.json` excludes `apps/web/**` via `ignorePatterns`.
 
 ## Two-tier validation policy
 
@@ -26,18 +36,11 @@ Per `../../AGENTS.md` and the design notes:
 Use tier 2 first when iterating on a single component; graduate to tier 1 when
 the component composes into the wider app surface.
 
-## Day-0 scope
+## Environment
 
-- One page (`app/page.tsx`) that renders a placeholder.
-- One Vitest smoke test in `src/__tests__/smoke.test.ts` so the validate gate
-  exits 0 on an empty tree.
-- `lib/env.ts` is a placeholder; the Valibot parser lands with the first feature.
-
-## Future tickets
-
-- Wire `app/(chat)/page.tsx`, `app/api/chat/route.ts`, the AI Gateway registry,
-  the Valibot env parser, the Drizzle schema (in `packages/db`), the chat UI
-  components (likely `assistant-ui` for type-safe thread persistence), the
-  shadcn/ui theme via `tailwind-theme-builder` skill.
-- Wire `cosmos.config.ts` + `src/components/__cosmos__/` fixtures so every
-  component ships with a Cosmos fixture by default.
+Copy `.env.example` to `.env.local` and set `OPENAI_COMPATIBLE_API_KEY` to the Nebius
+key (provisioned as `NEBIUS_API_KEY`; the same key backs the future smart-KPI feature).
+Defaults point at Nebius AI Studio (`https://api.studio.nebius.com/v1`, chat model
+`Qwen/Qwen3-235B-A22B-Instruct-2507`, title model `Qwen/Qwen3-30B-A3B-Instruct-2507`).
+Then `mise run db:start` (from the repo root) and `pnpm db:migrate` here to create the
+chat tables.
