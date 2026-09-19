@@ -1,0 +1,32 @@
+{
+  "name": "@chezy/video",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "scripts": {
+    "lint": "oxlint .",
+    "typecheck": "tsc -b --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "format": "oxfmt \"src/**/*.{ts,tsx}\" \"scripts/**/*.ts\" \"*.ts\"",
+    "format:check": "oxfmt --check \"src/**/*.{ts,tsx}\" \"scripts/**/*.ts\" \"*.ts\"",
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts ChezyDemo out/chezy-demo.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.526",
+    "react": "catalog:default",
+    "react-dom": "catalog:default",
+    "remotion": "4.0.526",
+    "valibot": "catalog:default"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:default",
+    "@types/react": "catalog:default",
+    "@types/react-dom": "catalog:default",
+    "oxfmt": "catalog:default",
+    "oxlint": "catalog:default",
+    "typescript": "catalog:default",
+    "vitest": "catalog:default"
+  }
+}

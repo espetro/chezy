@@ -12,3 +12,6 @@
 *.json linguist-generated
 pnpm-lock.yaml linguist-generated
 uv.lock linguist-generated
+
+# Demo-video copy is hand-written prose; keep its diffs expanded in PRs.
+apps/video/src/copy/*.json -linguist-generated
