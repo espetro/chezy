@@ -13,12 +13,12 @@ import {
   PawPrint,
   Scaling,
   Shield,
+  ShieldAlert,
   Snowflake,
   Sofa,
   Sun,
   TriangleAlert,
   Umbrella,
-  UserX,
   Wallet,
 } from "lucide-react";
 import { FlowBadge } from "~/components/flow/ui/Badge";
@@ -68,7 +68,7 @@ const mustHaveIcons: Record<MustHaveIcon, React.ReactNode> = {
 const dealBreakerIcons: Record<DealBreakerIcon, React.ReactNode> = {
   ban: <Ban size={18} aria-hidden />,
   warning: <TriangleAlert size={18} aria-hidden />,
-  "user-x": <UserX size={18} aria-hidden />,
+  "shield-alert": <ShieldAlert size={18} aria-hidden />,
 };
 
 const toggleId = (list: string[], id: string) =>

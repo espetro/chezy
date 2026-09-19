@@ -10,7 +10,7 @@ export const MUST_HAVES = [
   "heating",
 ] as const;
 
-export const RED_LINES = ["no_interior", "no_high_deposit", "no_flatmates"] as const;
+export const RED_LINES = ["no_interior", "no_high_deposit", "no_suspicious_ads"] as const;
 
 export const SearchProfileInputSchema = v.object({
   workAddress: v.pipe(v.string(), v.maxLength(200)),

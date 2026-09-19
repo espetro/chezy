@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import type { Listing, SearchProfile } from "~/lib/db/schema";
-import type { MatchResult } from "~/lib/match";
-import type { UserPreferences } from "~/lib/flow/types";
-import { fromSearchProfile, toFlowListing, toSearchProfileInput } from "./adapters";
+import type { Listing, SearchProfile } from "@/lib/db/schema";
+import type { MatchResult } from "@/lib/match";
+import type { UserPreferences } from "@/lib/flow/types";
+import {
+  fromSearchProfile,
+  toFlowListing,
+  toSearchProfileInput,
+} from "./adapters";
 
 const fullPrefs: UserPreferences = {
   workAddress: "Diagonal 405",
@@ -66,8 +70,19 @@ describe("toSearchProfileInput", () => {
   it("maps every must-have and red-line id", () => {
     const input = toSearchProfileInput({
       ...minimalPrefs,
-      mustHaves: ["natural-light", "balcony", "elevator", "air-conditioning", "furnished", "pets"],
-      dealBreakers: ["no-dark-interior", "no-excessive-deposit", "no-unknown-flatmates"],
+      mustHaves: [
+        "natural-light",
+        "balcony",
+        "elevator",
+        "air-conditioning",
+        "furnished",
+        "pets",
+      ],
+      dealBreakers: [
+        "no-dark-interior",
+        "no-excessive-deposit",
+        "no-suspicious-ads",
+      ],
     });
     expect(input.mustHaves).toEqual([
       "exterior",
@@ -77,7 +92,11 @@ describe("toSearchProfileInput", () => {
       "furnished",
       "pets_allowed",
     ]);
-    expect(input.redLines).toEqual(["no_interior", "no_high_deposit", "no_flatmates"]);
+    expect(input.redLines).toEqual([
+      "no_interior",
+      "no_high_deposit",
+      "no_suspicious_ads",
+    ]);
   });
 
   it("drops unknown ids instead of sending them", () => {
@@ -106,7 +125,7 @@ const baseProfile: SearchProfile = {
   moveDate: "2026-10-01",
   flexibleDays: 0,
   mustHaves: ["exterior", "pets_allowed"],
-  redLines: ["no_interior", "no_flatmates"],
+  redLines: ["no_interior", "no_suspicious_ads"],
   alertsEnabled: true,
   verified: false,
   createdAt: new Date(0),
@@ -126,7 +145,7 @@ describe("fromSearchProfile", () => {
       sizeMin: 50,
       moveIn: { mode: "date", date: "2026-10-01" },
       mustHaves: ["natural-light", "pets"],
-      dealBreakers: ["no-dark-interior", "no-unknown-flatmates"],
+      dealBreakers: ["no-dark-interior", "no-suspicious-ads"],
       alerts: true,
       autonomy: "cowork",
     });
@@ -174,16 +193,16 @@ describe("toFlowListing", () => {
     expect(flow.imageUrl).toBe("https://cdn.example.com/cover.jpg");
     expect(flow.agency).toBe("Agència Pisos");
     expect(flow.matchScore).toBe(82);
-    expect(flow.matchReasons).toEqual([{ label: "Dentro de tu presupuesto", detail: "" }]);
+    expect(flow.matchReasons).toEqual([
+      { label: "Dentro de tu presupuesto", detail: "" },
+    ]);
     expect(flow.neighborhoodProfile.transitMinutesToWork).toBe(18);
     expect(flow.availableFrom).toBe("Now");
   });
 
   it("derives amenity tags with dedupe and a 4-tag cap", () => {
     const flow = toFlowListing(
-      makeRow({
-        amenities: ["furnished", "pets_allowed", "exterior", "elevator", "terrace", "balcony"],
-      }),
+      makeRow({ amenities: ["furnished", "pets_allowed", "exterior", "elevator", "terrace", "balcony"] }),
       match,
     );
     expect(flow.tags).toEqual(["Furnished", "Pets allowed", "Exterior-facing", "Elevator"]);
