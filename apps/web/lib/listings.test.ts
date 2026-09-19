@@ -5,6 +5,7 @@ import type { Listing } from "@/lib/db/schema";
 import {
   ListingRecordSchema,
   listingToCallVariables,
+  searchListings,
   toListingRow,
   toListingSummary,
 } from "@/lib/listings";
@@ -83,5 +84,175 @@ describe("listingToCallVariables", () => {
     expect(vars.property_price).toBe("450.000\u00a0\u20ac");
     expect(vars.property_location).toBe("Gracia");
     expect(vars.property_rooms).toBe("");
+  });
+});
+
+function row(partial: Partial<Listing> & Pick<Listing, "id">): Listing {
+  return {
+    platform: "fotocasa",
+    platformId: partial.id.split(":")[1] ?? "x",
+    url: `https://example.com/${partial.id}`,
+    operation: "rent",
+    priceEur: 1500,
+    pricePeriod: "month",
+    propertyType: "flat",
+    builtM2: 60,
+    rooms: 2,
+    bathrooms: 1,
+    floor: null,
+    lat: null,
+    lon: null,
+    street: null,
+    neighbourhood: null,
+    district: null,
+    municipality: "Barcelona",
+    postalCode: null,
+    amenities: [],
+    title: "Piso",
+    description: null,
+    publisherName: null,
+    publisherKind: null,
+    coverUrl: null,
+    media: [],
+    publishedAt: null,
+    createdAt: new Date(),
+    ...partial,
+  } as Listing;
+}
+
+const STOCK: Listing[] = [
+  // The same Gràcia 1-room flat cross-posted on two portals (dedupe target).
+  row({
+    id: "fotocasa:gr1",
+    platform: "fotocasa",
+    priceEur: 1672,
+    rooms: 1,
+    builtM2: 45,
+    district: "Gràcia",
+    title: "Piso en Gràcia",
+  }),
+  row({
+    id: "habitaclia:gr1",
+    platform: "habitaclia",
+    priceEur: 1672,
+    rooms: 1,
+    builtM2: 45,
+    district: "Gràcia",
+    title: "Piso en Gràcia",
+  }),
+  row({
+    id: "fotocasa:gr3",
+    priceEur: 4187,
+    rooms: 3,
+    builtM2: 95,
+    district: "Gràcia",
+    title: "Piso grande en Gràcia",
+  }),
+  row({
+    id: "idealista:ex3",
+    priceEur: 1800,
+    rooms: 3,
+    builtM2: 80,
+    district: "Eixample",
+    title: "Piso en Eixample",
+  }),
+  row({
+    id: "idealista:ex1",
+    priceEur: 1550,
+    rooms: 1,
+    builtM2: 50,
+    district: "Eixample",
+    title: "Estudio en Eixample",
+  }),
+  row({
+    id: "fotocasa:sa4",
+    priceEur: 9000,
+    rooms: 4,
+    builtM2: 200,
+    district: "Sarrià - Sant Gervasi",
+    neighbourhood: "Sarrià",
+    title: "Casa en Sarrià",
+  }),
+];
+
+// Mirrors the SQL: operation eq, query ILIKE on district/neighbourhood/title/
+// description, price bounds, rooms >=. Ordered by price asc.
+function fakeRun(search: import("@/lib/listings").ListingSearch) {
+  const q = search.query?.toLowerCase();
+  const rows = STOCK.filter(
+    (r) =>
+      (r.priceEur ?? 0) > 0 &&
+      (!search.operation || r.operation === search.operation) &&
+      (!q ||
+        [r.title, r.district, r.neighbourhood, r.description]
+          .filter((s): s is string => Boolean(s))
+          .some((s) => s.toLowerCase().includes(q))) &&
+      (search.minPriceEur === undefined ||
+        (r.priceEur ?? 0) >= search.minPriceEur) &&
+      (search.maxPriceEur === undefined ||
+        (r.priceEur ?? 0) <= search.maxPriceEur) &&
+      (search.minRooms === undefined || (r.rooms ?? 0) >= search.minRooms),
+  ).sort((a, b) => (a.priceEur ?? 0) - (b.priceEur ?? 0));
+  return Promise.resolve(rows);
+}
+
+describe("searchListings ladder", () => {
+  test("exact match returns results with no relaxations", async () => {
+    const res = await searchListings(
+      { operation: "rent", query: "Gràcia", maxPriceEur: 2000, minRooms: 1 },
+      fakeRun,
+    );
+    expect(res.relaxed).toEqual([]);
+    expect(res.note).toBeUndefined();
+    // The two cross-posted Gràcia 1-room flats dedupe to one.
+    expect(res.total).toBe(1);
+    expect(res.listings[0]?.id).toBe("fotocasa:gr1");
+  });
+
+  test("drops maxPriceEur first and reports the cheapest match", async () => {
+    const res = await searchListings(
+      { operation: "rent", query: "Gràcia", maxPriceEur: 2000, minRooms: 3 },
+      fakeRun,
+    );
+    expect(res.relaxed).toEqual([
+      { field: "maxPriceEur", from: 2000, to: 4187 },
+    ]);
+    expect(res.listings[0]?.id).toBe("fotocasa:gr3");
+    expect(res.note).toContain("4.187");
+  });
+
+  test("then drops minRooms, reporting the max available", async () => {
+    const res = await searchListings(
+      { operation: "rent", query: "Gràcia", maxPriceEur: 2000, minRooms: 5 },
+      fakeRun,
+    );
+    expect(res.relaxed.map((r) => r.field)).toEqual(["maxPriceEur", "minRooms"]);
+    expect(res.relaxed[1]).toEqual({ field: "minRooms", from: 5, to: 3 });
+    expect(res.listings.map((l) => l.id)).toContain("fotocasa:gr3");
+  });
+
+  test("finally drops query and shows other zones", async () => {
+    const res = await searchListings(
+      { operation: "rent", query: "Nowhere", maxPriceEur: 2000 },
+      fakeRun,
+    );
+    expect(res.relaxed.at(-1)?.field).toBe("query");
+    expect(res.listings.length).toBeGreaterThan(0);
+    expect(res.note).toContain("Nowhere");
+  });
+
+  test("dedupe removes the cross-posted duplicate from totals", async () => {
+    const res = await searchListings({ operation: "rent", minRooms: 1 }, fakeRun);
+    // 6 rows, deduped to 5 (the habitaclia repost collapses).
+    expect(res.total).toBe(5);
+    expect(res.relaxed).toEqual([]);
+  });
+
+  test("returns empty when nothing can match", async () => {
+    const res = await searchListings({ operation: "sale" }, fakeRun);
+    expect(res.listings).toEqual([]);
+    expect(res.total).toBe(0);
+    expect(res.relaxed).toEqual([]);
+    expect(res.note).toBeUndefined();
   });
 });

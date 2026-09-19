@@ -140,9 +140,24 @@ export interface ListingSearch {
   readonly limit?: number;
 }
 
-export async function searchListings(
-  search: ListingSearch,
-): Promise<ListingSummary[]> {
+export type RelaxableField = "maxPriceEur" | "minRooms" | "query";
+
+export interface RelaxedConstraint {
+  readonly field: RelaxableField;
+  readonly from: string | number;
+  readonly to: string | number | undefined;
+}
+
+export interface ListingSearchResult {
+  readonly listings: ListingSummary[];
+  // Matches for the final (possibly relaxed) filters before limit.
+  readonly total: number;
+  readonly relaxed: RelaxedConstraint[];
+  // Human-readable explanation when relaxed is non-empty.
+  readonly note?: string;
+}
+
+async function runListingQuery(search: ListingSearch): Promise<Listing[]> {
   const filters: SQL[] = [gt(listing.priceEur, 0)];
   if (search.operation) {
     filters.push(eq(listing.operation, search.operation));
@@ -167,13 +182,107 @@ export async function searchListings(
   if (search.minRooms !== undefined) {
     filters.push(gte(listing.rooms, search.minRooms));
   }
-  const rows = await db
+  return db
     .select()
     .from(listing)
     .where(and(...filters))
     .orderBy(asc(listing.priceEur))
-    .limit(Math.min(search.limit ?? 5, 10));
-  return rows.map(toListingSummary);
+    .limit(30);
+}
+
+export function dedupeListings(rows: Listing[]): Listing[] {
+  const seen = new Set<string>();
+  return rows.filter((row) => {
+    const key = `${row.operation}|${row.priceEur}|${row.rooms}|${row.builtM2}|${row.neighbourhood ?? row.district ?? ""}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+function priceText(amount: number, operation?: string): string {
+  return `${eur.format(amount)}${operation === "rent" ? "/mes" : ""}`;
+}
+
+export function describeRelaxation(
+  search: ListingSearch,
+  relaxed: RelaxedConstraint[],
+  listings: Listing[],
+): string | undefined {
+  if (relaxed.length === 0) {
+    return undefined;
+  }
+  const sentences = relaxed.map((r) => {
+    switch (r.field) {
+      case "maxPriceEur": {
+        const where = search.query ? ` en "${search.query}"` : "";
+        return `Sin resultados hasta ${priceText(Number(r.from), search.operation)}${where}; el más barato que cumple el resto es ${priceText(Number(r.to), search.operation)}.`;
+      }
+      case "minRooms":
+        return `No hay pisos de ${r.from}+ habitaciones; el máximo disponible es ${r.to}.`;
+      case "query":
+        return `Nada en "${r.from}"; mostrando otras zonas de Barcelona.`;
+    }
+  });
+  return sentences.join(" ");
+}
+
+export async function searchListings(
+  search: ListingSearch,
+  run: (s: ListingSearch) => Promise<Listing[]> = runListingQuery,
+): Promise<ListingSearchResult> {
+  const relaxed: RelaxedConstraint[] = [];
+  let rows = await run(search);
+  let effective = search;
+
+  if (rows.length === 0 && search.maxPriceEur !== undefined) {
+    effective = { ...effective, maxPriceEur: undefined };
+    relaxed.push({
+      field: "maxPriceEur",
+      from: search.maxPriceEur,
+      to: undefined,
+    });
+    rows = await run(effective);
+  }
+  if (rows.length === 0 && search.minRooms !== undefined) {
+    effective = { ...effective, minRooms: undefined };
+    relaxed.push({ field: "minRooms", from: search.minRooms, to: undefined });
+    rows = await run(effective);
+  }
+  if (rows.length === 0 && search.query) {
+    effective = { ...effective, query: undefined };
+    relaxed.push({ field: "query", from: search.query, to: undefined });
+    rows = await run(effective);
+  }
+
+  if (rows.length === 0) {
+    return { listings: [], total: 0, relaxed: [], note: undefined };
+  }
+
+  // Fill in the observed `to` values now that a step produced rows.
+  const resolved = relaxed.map((r) => {
+    if (r.field === "maxPriceEur") {
+      return { ...r, to: rows[0]?.priceEur ?? undefined };
+    }
+    if (r.field === "minRooms") {
+      return { ...r, to: Math.max(...rows.map((row) => row.rooms ?? 0)) };
+    }
+    return r;
+  });
+
+  const deduped = dedupeListings(rows);
+  const listings = deduped
+    .slice(0, Math.min(search.limit ?? 5, 10))
+    .map(toListingSummary);
+
+  return {
+    listings,
+    total: deduped.length,
+    relaxed: resolved,
+    note: describeRelaxation(search, resolved, deduped),
+  };
 }
 
 export async function getListingById(
@@ -188,6 +297,9 @@ const eur = new Intl.NumberFormat("es-ES", {
   style: "currency",
   currency: "EUR",
   maximumFractionDigits: 0,
+  // es-ES sets minimumGroupingDigits=2, so 4187 would render "4187 €"; force
+  // grouping so prices always read "4.187 €".
+  useGrouping: "always",
 });
 
 export function listingToCallVariables(
