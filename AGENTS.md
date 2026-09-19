@@ -9,6 +9,26 @@ bans below apply to `packages/*` and `scripts/` only until the re-alignment chec
 `@ai-sdk/openai-compatible` (Nebius AI Studio). Idealista scraping pipeline lives in
 `apps/scraper` (uv-managed Python CLI). Shared TS/UI primitives live in `packages/*`.
 
+## Layout
+
+Per-package rules live in each package's own `AGENTS.md` — this file is the
+repo-wide orientation, not a dump.
+
+- `apps/web/` — verbatim `vercel/chatbot` import (Next.js 16 + React 19).
+  See [`apps/web/AGENTS.md`](apps/web/AGENTS.md).
+- `apps/scraper/` — uv-managed Python CLI for idealista.com scraping.
+  See [`apps/scraper/AGENTS.md`](apps/scraper/AGENTS.md).
+- `packages/ui/` — shadcn/ui primitives, hooks, `useMountEffect` escape hatch.
+  See [`packages/ui/AGENTS.md`](packages/ui/AGENTS.md).
+- `packages/config/` — Valibot env parser (the `process.env` seam for chezy code).
+  See [`packages/config/AGENTS.md`](packages/config/AGENTS.md).
+- `packages/db/` — Drizzle schema + migrations over pg0.
+  See [`packages/db/AGENTS.md`](packages/db/AGENTS.md).
+- `packages/contract/` — Valibot schemas shared between apps and packages.
+  See [`packages/contract/AGENTS.md`](packages/contract/AGENTS.md).
+- `packages/observability/` — LogTape logger + JSONL audit facade.
+  See [`packages/observability/AGENTS.md`](packages/observability/AGENTS.md).
+
 ## Enforced
 
 Every line in this section is enforced by a `mise.toml` task or a repo-relative file path.
@@ -95,7 +115,7 @@ Non-gated, advisory. Lint-clean does not mean idiomatic.
   `http://localhost:8317/v1`. The repo commits `.env.example` (template only). Never
   commit `.env*` files with real values.
 - The Valibot schema for env lives in `apps/web/lib/env.ts`; import via
-  `import { env } from "~/lib/env"`. Oxlint enforces the single import path.
+  `import { env } from "@/lib/env"` (the template's `@/*` alias).
 - Hardcoded constants live in `apps/web/lib/constants.ts`, each with a short comment naming
   what governs the value. Product/ops changes via PR, not a secret.
 - `apps/scraper` is a uv workspace member; it owns its own deps and is independently
