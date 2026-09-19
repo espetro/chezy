@@ -6,7 +6,27 @@ python = "3.12"            # apps/scraper target; matches pyproject requires-pyt
 uv    = "latest"           # uv moves fast; lockfile pins actual versions
 
 # ── Runtime services ───────────────────────────────────────────────────────
-pg0   = "latest"           # Embedded Postgres 18 + pgvector; replaces Docker
+# pg0: vectorize-io/pg0 — embedded Postgres 18 + pgvector, replaces Docker.
+# Distributed only as GitHub release binaries (no crates.io, no npm, no brew).
+# The `http:` backend's per-platform table lets us pin the exact version
+# (matches the GitHub release tag `v0.15.2`) while letting `os()` / `arch()`
+# template variables pick the correct binary per machine. Checksums are
+# resolved by `mise sync` (see mise.lock) so version bumps don't require
+# manual sha256 lookups. Upstream install.sh handles the glibc/musl switch,
+# but we already know macOS hosts and the gnu Linux CI runner are our only
+# targets today; add the musl variants if Alpine shows up.
+[tools."http:pg0"]
+version = "0.15.2"
+url = "https://github.com/vectorize-io/pg0/releases/download/v{{ version }}/pg0-darwin-aarch64"
+bin = "pg0"
+
+[tools."http:pg0".platforms]
+macos-arm64 = { url = "https://github.com/vectorize-io/pg0/releases/download/v{{ version }}/pg0-darwin-aarch64" }
+macos-x64   = { url = "https://github.com/vectorize-io/pg0/releases/download/v{{ version }}/pg0-darwin-x86_64" }
+linux-x64   = { url = "https://github.com/vectorize-io/pg0/releases/download/v{{ version }}/pg0-linux-x86_64-gnu" }
+linux-arm64 = { url = "https://github.com/vectorize-io/pg0/releases/download/v{{ version }}/pg0-linux-aarch64-gnu" }
+windows-x64 = { url = "https://github.com/vectorize-io/pg0/releases/download/v{{ version }}/pg0-windows-x86_64.exe", bin = "pg0.exe" }
+
 ffmpeg = "latest"          # Screenshot/video capture for the AI SDK tests
 
 # ── Repo automation ────────────────────────────────────────────────────────
