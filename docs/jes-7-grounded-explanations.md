@@ -107,5 +107,6 @@ not a statistical benchmark, and never calls a provider. Provider tests use mock
 Live sponsor proof remains blocked until the parent supplies configured Nebius
 access. Then issue a bounded real request for a seeded listing via the authenticated
 endpoint and retain its redacted metadata and visible panel evidence. No real Nebius
-latency or token measurement is claimed here. Browser verification also remains
-pending approval and JES-10 mounting. Keep JES-7 In Progress until proof is complete.
+latency or token measurement is claimed here. An isolated browser harness verified
+pending, authenticated fallback and real HTTP 404 states. Integrated browser
+verification awaits JES-10 mounting. Keep JES-7 In Progress until proof is complete.
