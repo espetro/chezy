@@ -23,6 +23,8 @@ link-mode = "symlink"
 compile-bytecode = false
 # Keep uv-managed Python installations; don't reach for /usr/bin/python3.
 managed = true
+# The root is a virtual workspace, not a buildable package (no wheel contents).
+package = false
 
 [tool.uv.workspace]
 members = ["apps/scraper"]
