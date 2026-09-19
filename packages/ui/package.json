@@ -1,0 +1,30 @@
+{
+  "name": "@chezy/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./hooks/useMountEffect": "./src/hooks/useMountEffect.ts"
+  },
+  "scripts": {
+    "lint": "oxlint .",
+    "typecheck": "tsc -b --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "format": "oxfmt \"src/**/*.{ts,tsx}\"",
+    "format:check": "oxfmt --check \"src/**/*.{ts,tsx}\""
+  },
+  "peerDependencies": {
+    "react": "catalog:default",
+    "react-dom": "catalog:default"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:default",
+    "@types/react-dom": "catalog:default",
+    "oxlint": "catalog:default",
+    "oxfmt": "catalog:default",
+    "typescript": "catalog:default",
+    "vitest": "catalog:default"
+  }
+}

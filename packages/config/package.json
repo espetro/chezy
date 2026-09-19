@@ -1,0 +1,26 @@
+{
+  "name": "@chezy/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "oxlint .",
+    "typecheck": "tsc -b --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "format": "oxfmt \"src/**/*.{ts,tsx}\"",
+    "format:check": "oxfmt --check \"src/**/*.{ts,tsx}\""
+  },
+  "dependencies": {
+    "valibot": "catalog:default"
+  },
+  "devDependencies": {
+    "oxlint": "catalog:default",
+    "oxfmt": "catalog:default",
+    "typescript": "catalog:default",
+    "vitest": "catalog:default"
+  }
+}
