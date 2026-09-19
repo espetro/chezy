@@ -1,0 +1,65 @@
+{
+  "name": "chezy",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Chat-centric AI webapp — Next.js 16 fork of vercel/chatbot + Python scraper + pg0.",
+  "packageManager": "pnpm@12",
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=12"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter './apps/*' --filter './packages/*' build",
+    "lint": "pnpm -r --filter './apps/*' --filter './packages/*' lint && oxlint scripts",
+    "typecheck": "pnpm -r --filter './apps/*' --filter './packages/*' typecheck",
+    "test": "pnpm -r --filter './apps/*' --filter './packages/*' test",
+    "format": "oxfmt \"apps/*/src/**/*.{ts,tsx}\" \"apps/*/scripts/**/*.ts\" \"apps/*/*.ts\" \"packages/*/src/**/*.{ts,tsx}\" \"packages/*/*.ts\" \"scripts/**/*.ts\"",
+    "format:check": "oxfmt --check \"apps/*/src/**/*.{ts,tsx}\" \"apps/*/scripts/**/*.ts\" \"apps/*/*.ts\" \"packages/*/src/**/*.{ts,tsx}\" \"packages/*/*.ts\" \"scripts/**/*.ts\"",
+    "validate": "tsx scripts/validate.ts",
+    "validate:py": "python3 scripts/validate.py",
+    "validate:ts": "tsx scripts/validate.ts",
+    "prepare": "lefthook install",
+    "clean": "rm -rf apps/*/.next apps/*/.turbo apps/*/dist packages/*/dist"
+  },
+  "catalogs": {
+    "default": {
+      "typescript": "^7.0.0",
+      "oxlint": "1.77.0",
+      "oxlint-tsgolint": "^7.0.2001",
+      "oxfmt": "^0.60.0",
+      "vitest": "^4.1.10",
+      "type-fest": "^5.0.0",
+      "@types/node": "^24.0.0",
+      "@types/react": "^19.2.0",
+      "@types/react-dom": "^19.2.0",
+      "react": "^19.2.0",
+      "react-dom": "^19.2.0",
+      "next": "^16.2.0",
+      "valibot": "^1.0.0",
+      "ai": "^7.0.0",
+      "@ai-sdk/openai-compatible": "^3.0.0",
+      "drizzle-orm": "^0.45.0",
+      "drizzle-kit": "^0.31.0",
+      "postgres": "^3.4.9",
+      "tailwindcss": "^4.0.0",
+      "@tailwindcss/postcss": "^4.0.0"
+    }
+  },
+  "devDependencies": {
+    "lefthook": "^2.1.10",
+    "oxfmt": "catalog:default",
+    "oxlint": "catalog:default",
+    "oxlint-tsgolint": "catalog:default",
+    "tsx": "^4.20.0",
+    "type-fest": "catalog:default",
+    "typescript": "catalog:default"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "react": "19",
+        "react-dom": "19"
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  // Shared base for workspace tsconfigs. ES2024 unlocks Promise.withResolvers,
+  // Object.groupBy/Map.groupBy, toSorted, RegExp.escape. DOM/DOM.Iterable stay
+  // per-workspace (only browser workspaces declare them, via their own "lib",
+  // which replaces this base lib entirely).
+  //
+  // Strict TS 7 settings. Every workspace extends this base; per-workspace
+  // tsconfig.json only adds `extends`, `compilerOptions.paths`, `include`,
+  // `exclude`, and `references`.
+  "compilerOptions": {
+    "target": "ES2024",
+    "lib": ["ES2024"],
+    "incremental": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "exactOptionalPropertyTypes": true,
+    "useUnknownInCatchVariables": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "jsx": "preserve",
+    "paths": {
+      "~/*": ["./src/*"]
+    }
+  }
+}

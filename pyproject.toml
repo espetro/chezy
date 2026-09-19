@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "chezy-workspace"
+version = "0.0.0"
+description = "Chezy monorepo Python workspace (uv-managed). Day 0 holds apps/scraper; future packages may join."
+requires-python = ">=3.12"
+license = { text = "MIT" }
+
+# Intentionally no `dependencies` here — this is a workspace root, not a
+# deployable package. Members declare their own deps in apps/scraper/pyproject.toml.
+
+[tool.uv]
+# Matches UV_LINK_MODE = "symlink" in mise.toml [env]. Both are needed:
+# mise.toml handles top-level `uv run` invocations; [tool.uv] handles
+# project-level sync/run. Hardlink mode silently inflates disk on APFS
+# via CoW-materialize across mv/tar boundaries.
+link-mode = "symlink"
+# Skip .pyc compilation; saves ~100 MB per worktree. Python JIT-compiles on
+# first import anyway.
+compile-bytecode = false
+# Keep uv-managed Python installations; don't reach for /usr/bin/python3.
+managed = true
+
+[tool.uv.workspace]
+members = ["apps/scraper"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["**/.venv", "**/node_modules", "**/dist", "**/.next"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F", "I", "B", "SIM", "RUF", "C4", "UP", "BLE", "TRY", "ANN",
+    "ASYNC", "S", "PT", "DTZ", "PTH", "LOG", "G", "TID", "ERA", "FBT", "N",
+    "C90", "PL", "RET", "ARG", "EM", "ISC", "PIE", "SLF", "INP",
+]
+ignore = []
+
+[tool.ruff.lint.pylint]
+max-args = 6
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "PLR2004"]
+"scripts/**" = ["INP001"]
+
+[tool.basedpyright]
+include = ["apps", "tests", "scripts"]
+stubPath = "typings"
+typeCheckingMode = "strict"
+
+[tool.pytest.ini_options]
+filterwarnings = ["error::ResourceWarning"]
+testpaths = ["apps", "tests"]
+addopts = ["--strict-markers", "--strict-config"]

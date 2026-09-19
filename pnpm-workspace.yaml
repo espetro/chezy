@@ -1,0 +1,18 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# Lean installs: only build scripts for packages that need them. Every entry
+# below is reviewed; unlisted packages with postinstall scripts will fail
+# install with `ERR_PNPM_IGNORED_BUILDS` so the review is forced.
+allowBuilds:
+  esbuild: true
+  "@swc/core": true
+  sharp: true
+  "@parcel/watcher": true
+
+# We rely on the global pnpm store (default `~/Library/pnpm/store` on macOS).
+# Do NOT override `packageImportMethod` — `auto` picks `clonefile` (APFS CoW)
+# which is safe; `hardlink` silently mutates the global store on edit.
+# Do NOT override `nodeLinker` — `isolated` (default) gives strict dep
+# isolation in the monorepo.
