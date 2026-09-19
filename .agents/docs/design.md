@@ -125,13 +125,14 @@ yourself wanting to violate a rule for a design reason, write a plan in
 
 ---
 
-# `/flow` design system (Stitch "Chezy AI Rental Platform", 2026-09-19)
+# Flow design system (Stitch "Chezy AI Rental Platform", 2026-09-19)
 
-Everything above describes the chat app. The `/flow/*` UX exploration (onboarding /
-explore / match) uses a separate, isolated system derived from the Chezy style reference
-and the Stitch project's **Preferencias** screen. Tokens live in the delimited `/flow`
+Everything above describes the chat app. The product surface — `/`, `/onboarding`,
+`/explore`, `/explore/[id]` in `app/(flow)` (the `/flow/*` prototype, promoted to the root
+2026-09-19) — uses a separate system derived from the Chezy style reference
+and the Stitch project's **Preferencias** screen. Tokens live in the delimited flow
 `@theme` block at the bottom of `apps/web/app/globals.css`; every token there is a **new
-name** (never `--background`, `--primary`, `--secondary`, …) so `/flow` can't reskin the
+name** (never `--background`, `--primary`, `--secondary`, …) so the flow can't reskin the
 chat. Components live in `apps/web/components/flow/ui/` and are `Flow*`-prefixed.
 
 ## Palette
@@ -269,6 +270,6 @@ All keyboard-operable, `focus-visible:ring-2 ring-obsidian`, 200ms color transit
 ("Chezy AI · Personal agent"), `rounded-[24px] rounded-tl-sm shadow-sm`, optional meta
 row of pills. User side: obsidian, `rounded-tr-sm`, right-aligned.
 
-Live counter logic is not a component: `countMatches()` in `apps/web/lib/flow/matching.ts`
-is a pure function over the current `UserPreferences` and the mock listings, derived at
-render — no effect, no store.
+Live counter logic is not a component: `OnboardingFlow` debounces `updatePreferences`
+into `GET /api/profile/count` (300 ms, `useRef` timer — no effect, no store) and renders
+the result in the sticky bar.

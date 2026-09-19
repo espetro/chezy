@@ -14,12 +14,10 @@ the implementation exists. Each file follows the same format: intro,
 
 - [flow-landing.md](flow-landing.md), [flow-onboarding.md](flow-onboarding.md),
   [flow-explore.md](flow-explore.md), [flow-match.md](flow-match.md) — the
-  `/flow/*` UX exploration (2026-09-19): a chat-style onboarding, an explore
-  feed, and a match-detail screen with `AgentContactGate` (the reference
-  approve/edit/discard agentic gate implementation), ported from a standalone
-  prototype and deliberately namespaced under `/flow` — isolated route group,
-  isolated design tokens (`apps/web/app/globals.css`), excluded from the auth
-  proxy — so it doesn't collide with other in-flight work on `main`'s real
-  routes. See `.agents/plans/2026-09-19-port-to-main.md` for the full
-  portability rationale and what's still a known gap (onboarding answers
-  don't feed the feed's scoring; no real `sendEmail` call).
+  product surface at `/`, `/onboarding`, `/explore`, `/explore/[id]` (the
+  `/flow/*` prototype promoted to the root 2026-09-19): a chat-style
+  onboarding that persists `SearchProfile`, an explore feed ranked by
+  `scoreListing`, and a match-detail screen with `AgentCallGate` calling the
+  real `/api/viewing`. Own design tokens in `apps/web/app/globals.css`;
+  session-gated by `proxy.ts` like the rest of the app. See
+  `.agents/plans/2026-09-19-port-to-main.md` for the port rationale.

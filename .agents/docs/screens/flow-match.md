@@ -1,11 +1,12 @@
-# Screen: /flow match detail + agent call gate (`/flow/explore/[id]`)
+# Screen: match detail + agent call gate (`/explore/[id]`, formerly `/flow/explore/[id]`)
 
-Server component (`MatchDetail`, statically generated per listing via
-`generateStaticParams`) rendering listing detail, "why it's a match" reasons, and a
-neighborhood profile — with one client island, `AgentCallGate`: the reference
-implementation of this product's autonomous action, calling the agency. There is no
-email/draft step anymore (removed 2026-09-19) — calling is the only agentic action `/flow`
-demonstrates.
+Server page (`apps/web/app/(flow)/explore/[id]/page.tsx`) loading the real listing via
+`getListingRowById` (404 via `notFound()` when absent), scoring it with `scoreListing`
+against the session's `SearchProfile`, and rendering `MatchDetail`: listing detail, "why
+it's a match" reasons, and a neighborhood profile — with one client island,
+`AgentCallGate`: the reference implementation of this product's autonomous action,
+calling the agency. There is no email/draft step anymore (removed 2026-09-19) — calling
+is the only agentic action this surface demonstrates.
 
 ## ASCII mockup
 
@@ -98,21 +99,19 @@ State 3 — "Discard candidate" (either path): "Candidate discarded." with "Undo
   entirely**: a ≥95% match calls autonomously no matter what the user picked in onboarding
   (`assist`/`cowork`/`autopilot`); this was a deliberate product decision, not an oversight
   — see `.agents/plans/2026-09-19-port-to-main.md`'s later addendum.
-- State: `status: "idle" | "calling" | "booked" | "discarded"`. `isAutoCall =
+- State: `status: "idle" | "calling" | "booked" | "failed" | "discarded"`. `isAutoCall =
   listing.matchScore >= AUTO_CALL_MATCH_THRESHOLD` (95, `lib/flow/constants.ts`). When
-  `isAutoCall`, `status` initializes to `"calling"` directly (not `"idle"`) and
-  `useMountEffect` (from `@chezy/ui/hooks/useMountEffect`) starts the resolution timer on
-  mount — the same "one sanctioned effect" pattern already used by `OnboardingFlow`'s
-  thinking simulation.
-- The "calling" → "booked" transition is a `setTimeout` in
-  `CALL_DIALING_DELAY_MS` (1.2–2.2s, mirrors `AGENT_THINKING_DELAY_MS`'s shape) that calls
-  `nextVisitSlot()` (`apps/web/lib/flow/calling.ts` — pure, next business day, rounded to
-  the half hour, 10:00–19:00, 30-minute visit).
-- "Discard" is available from any non-discarded status; "Undo" returns to `"idle"` for
-  below-threshold listings or `"booked"` for auto-call listings (i.e. undo doesn't replay
-  the call — it restores whatever the terminal non-discarded state was expected to be).
-- `generateStaticParams` prebuilds all 5 mock listing pages at build time; an unknown `id`
-  calls `notFound()`.
+  `isAutoCall` and `localStorage["chezy:autocall:<listingId>"]` is unset,
+  `useMountEffect` (from `@chezy/ui/hooks/useMountEffect`) sets the key and fires
+  `startCall` on mount — the guard keeps a real phone from ringing on every page load.
+- `startCall` POSTs `/api/viewing` with `{ propertyRef: listing.id }`. On a non-failed
+  response it renders "Visit booked for {slot}" (slot formatted `Europe/Madrid`,
+  30 min); a `dispatched` status additionally shows "Live call in progress". A failed
+  response (or non-2xx) shows the server's `detail` and a "Try again" button that retries
+  `startCall`.
+- "Discard" is available from any non-discarded status; "Undo" returns to `"booked"` if a
+  visit was booked, else `"idle"` (i.e. undo doesn't replay the call — it restores
+  whatever the terminal non-discarded state was expected to be).
 
 ## Responsive
 
@@ -121,36 +120,25 @@ State 3 — "Discard candidate" (either path): "Candidate discarded." with "Undo
 ## Notes
 
 - Components: `apps/web/components/flow/match/{MatchDetail,NeighborhoodProfile,
-  AgentCallGate}.tsx`; call/booking helpers: `apps/web/lib/flow/calling.ts`.
-- **Not wired to the real call infra**: this repo already has a working
-  `POST /api/viewing` (`lib/slng.ts`/`lib/vonage.ts` → `ViewingResult`) →
-  `POST /api/calendar` (`lib/calendar.ts` → `BookingResult`) flow from the dropped
-  "radar" demo (see `.agents/docs/screens/radar.md`, types in
-  `packages/contract/src/index.ts`). `/flow` doesn't call either route: `apps/web/proxy.ts`
-  gates `"/api/:path*"` behind a session, and `/flow` is deliberately session-free (it's
-  excluded from that same proxy by pathname, not by exempting the API routes). Calling the
-  real routes from an unauthenticated `/flow` page would bounce through
-  `/api/auth/guest` and reintroduce the auth dependency `/flow` exists to avoid.
-  `lib/flow/calling.ts` mirrors the `ViewingResult`/`BookingResult` vocabulary (a booked
-  slot, a duration) without importing `@chezy/contract`, so the simulation stays
-  dependency-free. If `/flow`'s call feature ever graduates into the real product surface,
-  swap `calling.ts`'s local timer for the real two-POST sequence at that point.
+  AgentCallGate}.tsx`; the gate calls `POST /api/viewing` directly.
+- **Wired to the real call infra (2026-09-19)**: `startCall` POSTs `/api/viewing`
+  (`lib/slng.ts`/`lib/vonage.ts`/mock per `VIEWING_MODE` → `ViewingResult`). The old
+  simulated `lib/flow/calling.ts` helper is deleted — the session-free rationale went
+  away when `/flow` was promoted to the root and put behind `proxy.ts`'s guest auth.
 - Previously this screen had an email-draft gate (`AgentContactGate`, removed 2026-09-19)
   with an approve/edit/discard flow and a per-autonomy-tier copy table (`gateCopy`). That
   component and its draft builder (`lib/flow/agent-draft.ts`) are gone; don't recreate them
   — calling is the only agentic action this screen shows now.
-- No mock listing scored ≥95% before this change (max was Gràcia at 94%); it was bumped to
-  96% specifically so the auto-call path is reachable in the demo — see
-  `lib/flow/mock-listings.ts` and the corresponding `matching.test.ts` assertion.
 
 ## User flow checkpoints
 
 ```
-/flow/explore/[id] entry -> read match reasons + neighborhood profile
-  -> if matchScore >= 95%: gate auto-starts "Calling {agency}…" -> "Called · booked {slot}"
-     (no click required)
+/explore/[id] entry -> read match reasons + neighborhood profile
+  -> if matchScore >= 95%: gate auto-calls once per listing per browser
+     (localStorage guard) -> "Called · booked {slot}" (+ "Live call in progress" when
+     dispatched); failure -> detail + [Try again]
   -> if matchScore < 95%: gate shows "Not called yet." + [Call the agency now]
-     -> click -> "Calling {agency}…" -> "Called · booked {slot}" (same sequence, on demand)
+     -> click -> same sequence, on demand
   -> [Discard candidate] (either path) -> "Candidate discarded." -> [Undo] -> back to
-     idle (below threshold) or booked (auto-call)
+     idle or booked
 ```

@@ -1,9 +1,11 @@
-# Screen: /flow explore candidates feed (`/flow/explore`)
+# Screen: explore candidates feed (`/explore`, formerly `/flow/explore`)
 
 Client component (`ExploreFeed`) rendering an agent status banner, a zone-filter chip row
-+ sort dropdown, and a responsive grid of `CandidateCard`s over 5 fixed mock listings. No
-pagination, no live updates — everything is client-side `.filter()`/`.sort()` over a
-static array (`apps/web/lib/flow/mock-listings.ts`).
++ sort dropdown, and a responsive grid of `CandidateCard`s over real listings. The server
+page (`apps/web/app/(flow)/explore/page.tsx`) loads `buildFeed(profile)` — redirecting to
+`/onboarding` when no `SearchProfile` exists — and maps rows through
+`lib/flow/adapters.ts`'s `toFlowListing`. No pagination, no live updates — filtering and
+sorting are client-side `.filter()`/`.sort()` over the feed.
 
 ## ASCII mockup
 
@@ -31,7 +33,8 @@ static array (`apps/web/lib/flow/mock-listings.ts`).
 ```
 
 ^ `grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1`. Score badge overlays the photo,
-top-left. Card is a `<Link>` to `/flow/explore/[id]`.
+top-left. Card is a `<Link>` to `/explore/[id]` (id is `encodeURIComponent`'d — listing
+ids contain `:`).
 
 ## Behavior
 
@@ -49,17 +52,20 @@ top-left. Card is a `<Link>` to `/flow/explore/[id]`.
 ## Notes
 
 - Components: `apps/web/components/flow/explore/{ExploreFeed,CandidateCard}.tsx`; data:
-  `apps/web/lib/flow/mock-listings.ts`.
-- Photos are remote Unsplash stock images via `next/image`
-  (`images.unsplash.com` allow-listed in `apps/web/next.config.ts`) — not real listings.
-- Scoring is hand-authored per mock listing, not computed from onboarding answers.
+  `lib/feed.ts` (`buildFeed`) + `lib/flow/adapters.ts` (`toFlowListing`).
+- Photos are real cover URLs from the listing portals, rendered as plain `<img>` (portal
+  CDNs aren't in `next/image`'s allow-list); empty `coverUrl` renders a `bg-mist` block.
+- Scores and match reasons come from `lib/match.ts`'s `scoreListing` — currently Spanish
+  strings inside the English UI (known gap, see `.agents/MEMORY.md`).
+- When `buildFeed` had to relax constraints to fill the feed, `feed.note` renders as a
+  small amber line under the agent intro.
 
 ## User flow checkpoints
 
 ```
-entry (/flow/explore — from onboarding's "Start searching", or /flow's
-       "See an example match")
+entry (/explore — from onboarding's "Start searching", or /'s
+       "See an example match"; redirected to /onboarding without a profile)
   -> optional: click a neighborhood chip -> feed re-filters in place
   -> optional: change the sort dropdown -> feed re-sorts in place
-  -> click any card -> /flow/explore/[id] (match detail)
+  -> click any card -> /explore/[id] (match detail)
 ```

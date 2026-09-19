@@ -1,14 +1,14 @@
-# Screen: /flow onboarding (conversational, Stitch components) (`/flow/onboarding`)
+# Screen: onboarding (conversational, Stitch components) (`/onboarding`, formerly `/flow/onboarding`)
 
 One client component (`OnboardingFlow`) drives an 8-step script (welcome + 7) rendered as
 a chat transcript — agent bubble, then the step's **section card** with rich controls,
 then (on submit) a user-answer bubble — with a simulated "thinking" pause and fade-up
 entry animations. A sticky stepper on top and a sticky action bar at the bottom frame the
-thread; the bar carries the step's only CTA plus a **live match counter** computed against
-the 5 mock listings. UI language and components come from the Stitch "Preferencias"
-screen (see `.agents/docs/design.md` → "/flow design system"); the mechanic (one step at a
-time, agent thinking) is ours. No auth (`/flow` is excluded from `apps/web/proxy.ts`), no
-persistence.
+thread; the bar carries the step's only CTA plus a **live match counter** backed by
+`GET /api/profile/count`. UI language and components come from the Stitch "Preferencias"
+screen (see `.agents/docs/design.md` → "flow design system"); the mechanic (one step at a
+time, agent thinking) is ours. Session-gated like the rest of the app; the summary step
+persists via `PUT /api/profile` (SearchProfile) and prefills from an existing profile.
 
 ## ASCII mockup
 
@@ -103,20 +103,19 @@ Step cards (each `FlowSectionCard`, numbered, with the Stitch aside):
   `prefs` + `onChange(patch)`, no local draft), `isThinking`.
 - **Submit lives in the sticky bar**, not in the step: `submitStep()` pushes a history
   entry whose `userAnswer` is `answerSummary(stepId, prefs)` (e.g. "Gràcia, Eixample · max
-  25 min from Diagonal 405"), advances, and calls `think()`. On `summary` it
-  `router.push("/flow/explore")`. `canSubmit(stepId, prefs)` gates the button.
-- **Live counter**: `countMatches(preferences, mockListings)` from
-  `apps/web/lib/flow/matching.ts`, evaluated on every render (derived state). Rules: zones
-  ∋ neighborhood (if any picked) · `transitMinutesToWork ≤ commuteMaxMin` · price within
-  `[budgetMin, budgetMax]` · `rooms ≥` and `sizeM2 ≥` · every must-have's tag present
-  (Air conditioning has no tag → ignored) · dealbreakers: `no-dark-interior` requires
-  `Exterior-facing`, `no-excessive-deposit` requires `depositMonths ≤ 2`,
-  `no-unknown-flatmates` requires `!sharedFlat`. `bestScore` = max `matchScore` among
-  matches (0 → bar shows "—"). Unit-tested in `matching.test.ts`.
+  25 min from Diagonal 405"), advances, and calls `think()`. On `summary` it PUTs
+  `toSearchProfileInput(preferences)` to `/api/profile`, then `router.push("/explore")`
+  (a failed PUT shows an inline error in the bar instead of navigating).
+  `canSubmit(stepId, prefs)` gates the button.
+- **Live counter**: `GET /api/profile/count?maxPriceEur=&minRooms=&minM2=&neighbourhoods=`,
+  debounced 300 ms off `updatePreferences`; the server page passes `initialCount` (from
+  `countRentCandidates`) so the bar shows a real number on first render.
 - Thinking pause, fade-up animations, module-level `scrollIntoViewOnMount` ref callback,
   and `useMountEffect` (from `@chezy/ui`) are unchanged from the previous version.
-- Defaults (`initialPreferences`): budget 800–1,200, 2 bedrooms, +60 m², all 3
-  dealbreakers on, alerts on, autonomy `cowork`; address/commute/zones/moveIn empty.
+- Defaults (`defaultPreferences` in `onboarding-steps.ts`): budget 1,200–2,500, 2
+  bedrooms, +50 m², all 3 dealbreakers on, alerts on, autonomy `cowork`;
+  address/commute/zones/moveIn empty. An existing `SearchProfile` prefills via
+  `fromSearchProfile`.
 
 ## Responsive
 
@@ -137,14 +136,12 @@ Step cards (each `FlowSectionCard`, numbered, with the Stitch aside):
   match counter, the hardcoded "Paso 1 de 2" stepper, a Google-hosted image, and the
   `secondary` color names (see `.agents/plans/2026-09-19-port-to-main.md` addendum and the
   approved plan in `~/.claude/plans/dime-si-puedes-leer-floating-boot.md`).
-- Preferences still aren't persisted beyond this screen; `/flow/explore` keeps its static
-  scoring. The counter is the first place the answers drive matching.
 - The pre-existing "1 issue" dev badge is next-auth's missing `AUTH_SECRET`, app-wide.
 
 ## User flow checkpoints
 
 ```
-/flow/onboarding -> thinking -> welcome (+meta pills) -> [Let's go]
+/onboarding -> thinking -> welcome (+meta pills) -> [Let's go]
   -> thinking -> 1 Routine & area (address, commute, chips) -> [Continue]
   -> thinking -> 2 Budget & space (range slider, bedrooms, min m²) -> [Continue]
   -> thinking -> 3 When are you moving? (date | flexible) -> [Continue]
@@ -152,6 +149,6 @@ Step cards (each `FlowSectionCard`, numbered, with the Stitch aside):
   -> thinking -> 5 Dealbreakers (checkbox rows) -> [Continue]
   -> thinking -> 6 Agent autonomy (radio rows) -> [Confirm autonomy level]
   -> thinking -> 7 Review (dl + alerts switch) -> [Start searching]
-  -> router.push("/flow/explore")
+  -> PUT /api/profile -> router.push("/explore")
   (counter in the bar recomputes on every change; 0 matches never blocks the CTA)
 ```
