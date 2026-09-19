@@ -1,5 +1,6 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { customProvider } from "ai";
+import { env } from "~/lib/env";
 import { isTestEnvironment } from "../constants";
 import { titleModel } from "./models";
 
@@ -8,17 +9,10 @@ import { titleModel } from "./models";
  * `@ai-sdk/openai-compatible` so we can point at any OpenAI-shaped endpoint.
  * Default points at our local bifrost gateway at http://localhost:8317/v1.
  *
- * Env vars (read directly here; the canonical lib/env.ts bridge is for
- * chezy-owned app code, this file is part of the verbatim upstream surface):
- *   OPENAI_COMPATIBLE_BASE_URL  e.g. http://localhost:8317/v1 (bifrost)
- *   OPENAI_COMPATIBLE_API_KEY   bifrost virtual key
- *   CHEZY_MODEL_ID              default model id (e.g. "deepseek-ai/DeepSeek-V4.1-Flash")
+ * Env vars are read through lib/env.ts (the single process.env reader).
  */
-const baseURL =
-  process.env.OPENAI_COMPATIBLE_BASE_URL ?? "http://localhost:8317/v1";
-const apiKey = process.env.OPENAI_COMPATIBLE_API_KEY ?? "ollama";
-const defaultModelId =
-  process.env.CHEZY_MODEL_ID ?? "deepseek-ai/DeepSeek-V4.1-Flash";
+const baseURL = env.OPENAI_COMPATIBLE_BASE_URL ?? "http://localhost:8317/v1";
+const apiKey = env.OPENAI_COMPATIBLE_API_KEY ?? "ollama";
 
 const openaiCompatibleProvider = createOpenAICompatible({
   apiKey,

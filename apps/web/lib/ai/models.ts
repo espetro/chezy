@@ -4,21 +4,18 @@
 // is identical for any OpenAI-compatible gateway, so we keep the rest of
 // the upstream code intact.
 //
-// Env vars:
-//   OPENAI_COMPATIBLE_BASE_URL  e.g. http://localhost:8317/v1
-//   OPENAI_COMPATIBLE_API_KEY   used as Bearer auth for the /v1/models fetch
+// Env vars are read through lib/env.ts (the single process.env reader).
+import { env } from "~/lib/env";
 
-const PROVIDER_BASE_URL =
-  process.env.OPENAI_COMPATIBLE_BASE_URL ?? "http://localhost:8317/v1";
-const PROVIDER_API_KEY =
-  process.env.OPENAI_COMPATIBLE_API_KEY ?? "ollama";
+const PROVIDER_BASE_URL = env.OPENAI_COMPATIBLE_BASE_URL ?? "http://localhost:8317/v1";
+const PROVIDER_API_KEY = env.OPENAI_COMPATIBLE_API_KEY ?? "ollama";
 
 export const DEFAULT_CHAT_MODEL =
-  process.env.CHEZY_MODEL_ID ?? "deepseek-ai/DeepSeek-V4.1-Flash";
+  env.CHEZY_MODEL_ID ?? "deepseek-ai/DeepSeek-V4.1-Flash";
 
 export const titleModel: ChatModel = {
   description: "Fast model for title generation",
-  id: process.env.CHEZY_TITLE_MODEL_ID ?? DEFAULT_CHAT_MODEL,
+  id: env.CHEZY_TITLE_MODEL_ID ?? DEFAULT_CHAT_MODEL,
   name: "Default",
   provider: "bifrost",
 };
@@ -106,7 +103,7 @@ export const modelsByProvider = chatModels.reduce(
 
 export type ModelAvailability = "healthy" | "impacted" | "unknown";
 
-export const isDemo = process.env.IS_DEMO === "1";
+export const isDemo = env.IS_DEMO === "1";
 
 export type GatewayModelWithCapabilities = ChatModel & {
   capabilities: ModelCapabilities;

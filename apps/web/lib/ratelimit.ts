@@ -1,5 +1,6 @@
 import { createClient } from "redis";
 
+import { env } from "~/lib/env";
 import { isProductionEnvironment } from "~/lib/constants";
 import { ChatbotError } from "~/lib/errors";
 
@@ -9,8 +10,8 @@ const TTL_SECONDS = 60 * 60;
 let client: ReturnType<typeof createClient> | null = null;
 
 function getClient() {
-  if (!client && process.env.REDIS_URL) {
-    client = createClient({ url: process.env.REDIS_URL });
+  if (!client && env.REDIS_URL) {
+    client = createClient({ url: env.REDIS_URL });
     client.on("error", () => undefined);
     client.connect().catch(() => {
       client = null;

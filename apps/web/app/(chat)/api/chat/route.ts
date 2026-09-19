@@ -13,6 +13,7 @@ import { checkBotId } from "botid/server";
 import { after } from "next/server";
 import { createResumableStreamContext } from "resumable-stream";
 import { auth, type UserType } from "~/app/(auth)/auth";
+import { env } from "~/lib/env";
 import { entitlementsByUserType } from "~/lib/ai/entitlements";
 import {
   allowedModelIds,
@@ -450,7 +451,7 @@ export async function POST(request: Request) {
 
     return createUIMessageStreamResponse({
       async consumeSseStream({ stream: sseStream }) {
-        if (!process.env.REDIS_URL) {
+        if (!env.REDIS_URL) {
           return;
         }
         try {
