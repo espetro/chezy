@@ -44,7 +44,7 @@ const FlowLandingPage = () => (
           </Link>
           <Link className="w-full sm:w-auto" href="/explore">
             <FlowButton className="w-full sm:w-auto" variant="secondary">
-              See an example match
+              See a match in action
             </FlowButton>
           </Link>
         </div>
