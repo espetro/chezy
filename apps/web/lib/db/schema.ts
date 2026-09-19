@@ -1,9 +1,14 @@
+import type { UserProfile } from "@chezy/contract";
 import type { InferSelectModel } from "drizzle-orm";
+import type { ListingInsights } from "@/lib/vision/schema";
 import {
   boolean,
   customType,
+  doublePrecision,
   foreignKey,
+  integer,
   json,
+  jsonb,
   pgTable,
   primaryKey,
   text,
@@ -21,7 +26,9 @@ export const user = pgTable("User", {
   isAnonymous: boolean("isAnonymous").notNull().default(false),
   name: text("name"),
   password: varchar("password", { length: 64 }),
+  profile: json("profile").$type<UserProfile>(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+  username: varchar("username", { length: 64 }).unique(),
 });
 
 export type User = InferSelectModel<typeof user>;
@@ -135,6 +142,75 @@ export const stream = pgTable(
 );
 
 export type Stream = InferSelectModel<typeof stream>;
+
+export const listing = pgTable("Listing", {
+  id: text("id").primaryKey(),
+  platform: text("platform").notNull(),
+  platformId: text("platformId").notNull(),
+  url: text("url").notNull(),
+  operation: text("operation").notNull(),
+  priceEur: doublePrecision("priceEur"),
+  pricePeriod: text("pricePeriod"),
+  propertyType: text("propertyType"),
+  builtM2: doublePrecision("builtM2"),
+  rooms: integer("rooms"),
+  bathrooms: integer("bathrooms"),
+  floor: text("floor"),
+  lat: doublePrecision("lat"),
+  lon: doublePrecision("lon"),
+  street: text("street"),
+  neighbourhood: text("neighbourhood"),
+  district: text("district"),
+  municipality: text("municipality"),
+  postalCode: text("postalCode"),
+  amenities: jsonb("amenities").$type<string[]>().notNull().default([]),
+  title: text("title").notNull(),
+  description: text("description"),
+  publisherName: text("publisherName"),
+  publisherKind: text("publisherKind"),
+  coverUrl: text("coverUrl"),
+  media: jsonb("media")
+    .$type<Array<{ url: string; kind: string; roomType: string | null }>>()
+    .notNull()
+    .default([]),
+  publishedAt: timestamp("publishedAt"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+});
+
+export type Listing = InferSelectModel<typeof listing>;
+
+export const listingInsight = pgTable("ListingInsight", {
+  listingId: text("listingId")
+    .primaryKey()
+    .references(() => listing.id, { onDelete: "cascade" }),
+  insights: jsonb("insights").$type<ListingInsights>().notNull(),
+  model: text("model").notNull(),
+  promptVersion: integer("promptVersion").notNull(),
+  promptTokens: integer("promptTokens"),
+  completionTokens: integer("completionTokens"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  // Flattened from `insights` so search can filter without jsonb scans.
+  conditionScore: integer("conditionScore"),
+  flooringDominant: text("flooringDominant"),
+  flooringAll: jsonb("flooringAll").$type<string[]>().notNull().default([]),
+  ceilingFeatures: jsonb("ceilingFeatures")
+    .$type<string[]>()
+    .notNull()
+    .default([]),
+  windowSize: text("windowSize"),
+  lightNatural: text("lightNatural"),
+  facing: text("facing"),
+  outdoorSpaces: jsonb("outdoorSpaces")
+    .$type<string[]>()
+    .notNull()
+    .default([]),
+  furnished: text("furnished"),
+  style: text("style"),
+  acVisible: boolean("acVisible"),
+  virtualStaging: boolean("virtualStaging"),
+});
+
+export type ListingInsight = InferSelectModel<typeof listingInsight>;
 
 // pgvector column: fixed 4096 dims (Qwen3-embedding). toDriver serializes
 // number[] to the literal form pgvector accepts; fromDriver keeps the raw
