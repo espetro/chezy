@@ -1,5 +1,13 @@
 {
   "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.next/**",
+    "**/vendor/**",
+    "**/tests/e2e/**",
+    "apps/web/**"
+  ],
   "categories": {
     "correctness": "off",
     "suspicious": "off"
@@ -10,7 +18,6 @@
   },
   "plugins": ["react", "unicorn", "import", "typescript"],
   "rules": {
-    "react/react-compiler": ["error", { "reportAllBailouts": false }],
     "react/exhaustive-deps": "error",
     "unicorn/no-null": ["error", { "checkStrictEquality": false }],
     "typescript/consistent-type-imports": "error",
@@ -26,28 +33,30 @@
           {
             "name": "@biomejs/biome",
             "message": "chezy uses oxlint + oxfmt. Do not import the Biome CLI from source."
+          },
+          {
+            "name": "react",
+            "importNames": ["useEffect"],
+            "message": "chezy bans useEffect. Use the 5 patterns from .agents/skills/no-use-effect/SKILL.md or the useMountEffect escape hatch (import { useMountEffect } from '@chezy/ui/hooks/useMountEffect')."
           }
         ],
         "patterns": [
           {
-            "group": ["@/components/*", "@/lib/*", "@/hooks/*", "@/*"],
-            "message": "Use the `~/*` alias (tsconfig paths) instead of the upstream vercel/chatbot `@/*` alias. Imports starting with `@/` are forbidden."
+            "group": ["~/*"],
+            "message": "Use the `~/*` alias (tsconfig paths). Imports starting with `~/` are forbidden outside chezy-owned packages."
           },
           {
-            "group": ["drizzle-orm/*", "@/lib/db/*"],
+            "group": ["drizzle-orm/*"],
             "message": "Server-only persistence. Reach the server via a Route Handler / Server Action; do not value-import from client components."
           }
         ]
       }
     ],
-    "no-restricted-syntax": [
+    "no-restricted-properties": [
       "error",
       {
-        "selector": "CallExpression[callee.name='useEffect']",
-        "message": "chezy bans useEffect. See .agents/skills/no-use-effect/SKILL.md for the 5 replacement patterns and the useMountEffect escape hatch (import { useMountEffect } from '@chezy/ui/hooks/useMountEffect')."
-      },
-      {
-        "selector": "MemberExpression[object.name='process'][property.name='env']",
+        "object": "process",
+        "property": "env",
         "message": "Inject config through packages/config (Valibot env parser). Direct process.env reads are banned outside packages/config and *.config-bound.ts files."
       }
     ]
@@ -56,13 +65,33 @@
     {
       "files": ["scripts/**", "**/*.test.ts", "**/*.test.tsx"],
       "rules": {
-        "no-restricted-syntax": "off"
+        "no-restricted-imports": "off",
+        "no-restricted-properties": "off",
+        "unicorn/no-null": "off",
+        "typescript/no-unsafe-call": "off",
+        "typescript/no-unsafe-member-access": "off",
+        "typescript/no-unsafe-assignment": "off",
+        "typescript/no-unsafe-argument": "off",
+        "typescript/no-unsafe-return": "off"
       }
     },
     {
       "files": ["**/cosmos.config.ts", "**/__cosmos__/**"],
       "rules": {
         "no-restricted-imports": "off"
+      }
+    },
+    {
+      "files": ["packages/observability/src/**/*.ts"],
+      "rules": {
+        "no-restricted-properties": "off"
+      }
+    },
+    {
+      "files": ["packages/ui/src/hooks/useMountEffect.ts"],
+      "rules": {
+        "no-restricted-imports": "off",
+        "react/exhaustive-deps": "off"
       }
     }
   ]

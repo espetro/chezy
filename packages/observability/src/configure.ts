@@ -1,13 +1,9 @@
-import {
-  configure as configureLogtape,
-  getConsoleSink,
-  type LogLevel,
-} from "@logtape/logtape";
+import { configure as configureLogtape, getConsoleSink, type LogLevel } from "@logtape/logtape";
 import { getFileSink } from "@logtape/file";
-import {
-  getAnsiColorFormatter,
-  getJsonLinesFormatter,
-} from "@logtape/logtape";
+import { getAnsiColorFormatter, getJsonLinesFormatter } from "@logtape/logtape";
+
+import { mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 
 import { rootLogger } from "./logger.ts";
 
@@ -46,15 +42,17 @@ export interface ConfigureLoggerOptions {
  *
  *   CHEZY_LOG_LEVEL=debug mise run dev
  */
-export async function configureLogger(
-  options: ConfigureLoggerOptions,
-): Promise<void> {
+export async function configureLogger(options: ConfigureLoggerOptions): Promise<void> {
   const level: LogLevel =
-    options.level ??
-    ((process.env["CHEZY_LOG_LEVEL"] as LogLevel | undefined) ?? "info");
+    options.level ?? (process.env["CHEZY_LOG_LEVEL"] as LogLevel | undefined) ?? "info";
 
   const env = options.environment ?? process.env["NODE_ENV"] ?? "development";
   const isTty = process.stderr.isTTY === true;
+
+  const auditPath = options.auditFile ?? defaultAuditPath(options.service);
+  if (options.auditFile !== null) {
+    mkdirSync(dirname(auditPath), { recursive: true });
+  }
 
   const sinks = {
     stderr: getConsoleSink({
@@ -69,15 +67,12 @@ export async function configureLogger(
     }),
     ...(options.auditFile !== null
       ? {
-          audit: getFileSink(
-            options.auditFile ?? defaultAuditPath(options.service),
-            {
-              formatter: getJsonLinesFormatter({
-                timestamp: "date-time-tz",
-                categoryDelimiter: ".",
-              }),
-            },
-          ),
+          audit: getFileSink(auditPath, {
+            formatter: getJsonLinesFormatter({
+              timestamp: "date-time-tz",
+              categoryDelimiter: ".",
+            }),
+          }),
         }
       : {}),
   };
