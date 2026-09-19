@@ -93,6 +93,10 @@ run = "pg0 reset --port 5432"
 description = "Show pg0 instance status"
 run = "pg0 info"
 
+[tasks."db:seed"]
+description = "Load chezy-mock-data/data/listings.jsonl into the Listing table (idempotent upsert)"
+run = "cd apps/web && node --env-file-if-exists=.env.local --import=tsx scripts/seed-listings.ts"
+
 [tasks."slng:agent:sync"]
 description = "Pin the SLNG agent to eu-central/livekit and report its outbound trunk"
 # cd into apps/web so tsx picks up its tsconfig `@/*` paths.
