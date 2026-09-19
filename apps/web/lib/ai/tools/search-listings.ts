@@ -6,7 +6,7 @@ import { searchListings } from "@/lib/listings";
 
 export const searchListingsTool = tool({
   description:
-    "Search Barcelona rental and sale listings. Use it whenever the user describes what home they want (area, budget, rooms, rent vs buy). Returns up to 10 listings.",
+    "Search Barcelona rental and sale listings (all listings are in Barcelona). Call it ONCE per user request with structured filters (operation, maxPriceEur, minRooms) and optionally `query` for a specific neighbourhood/district name in Spanish/Catalan (e.g. 'Gràcia', 'Eixample') or a Spanish feature word ('terraza', 'ascensor') — never city names or English words. If nothing matches exactly, the tool automatically relaxes price, then rooms, then area, and reports what it relaxed in `relaxed` and `note`, so never retry yourself. Returns { listings, total, relaxed, note }.",
   inputSchema: valibotSchema(
     v.object({
       operation: v.optional(v.picklist(["rent", "sale"])),
@@ -17,5 +17,5 @@ export const searchListingsTool = tool({
       limit: v.optional(v.number()),
     })
   ),
-  execute: searchListings,
+  execute: (input) => searchListings(input),
 });

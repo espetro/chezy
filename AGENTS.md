@@ -109,10 +109,11 @@ Non-gated, advisory. Lint-clean does not mean idiomatic.
   `lib/ai/models.ts`); env vars are `OPENAI_COMPATIBLE_BASE_URL`,
   `OPENAI_COMPATIBLE_API_KEY`, `CHEZY_MODEL_ID`, `CHEZY_TITLE_MODEL_ID`, read from
   `.env.local`. The project provider is Nebius AI Studio
-  (`https://api.studio.nebius.com/v1`, default `Qwen/Qwen3-235B-A22B-Instruct-2507`); the
+  (`https://api.studio.nebius.com/v1`, default `deepseek-ai/DeepSeek-V4.1-Flash`); the
   key is `NEBIUS_API_KEY` (also stored as `OPENAI_COMPATIBLE_API_KEY` in GitHub Actions
-  secrets, for the future smart-KPI feature). The code default is a local bifrost at
-  `http://localhost:8317/v1`. The repo commits `.env.example` (template only). Never
+  secrets, for the future smart-KPI feature). The code default base URL is a local
+  bifrost at `http://localhost:8317/v1` and the code default model is
+  `deepseek-ai/DeepSeek-V4.1-Flash`. The repo commits `.env.example` (template only). Never
   commit `.env*` files with real values.
 - The Valibot schema for env lives in `apps/web/lib/env.ts`; import via
   `import { env } from "@/lib/env"` (the template's `@/*` alias).

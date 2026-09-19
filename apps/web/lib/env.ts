@@ -32,6 +32,13 @@ const EnvSchema = v.object({
   GOOGLE_SERVICE_ACCOUNT_JSON_PATH: v.optional(v.string()),
 
   APP_BASE_URL: v.fallback(v.string(), "http://localhost:3000"),
+
+  // OpenAI-compatible chat provider (Nebius AI Studio) — chat + VLM calls.
+  OPENAI_COMPATIBLE_BASE_URL: v.optional(v.string()),
+  OPENAI_COMPATIBLE_API_KEY: v.optional(v.string()),
+  // Vision model for photo insights. Kimi-K3 needs thinking off; gemma-3-27b
+  // is the cheap fallback.
+  VISION_MODEL_ID: v.fallback(v.string(), "moonshotai/Kimi-K3"),
 });
 
 export const env = v.parse(EnvSchema, process.env);

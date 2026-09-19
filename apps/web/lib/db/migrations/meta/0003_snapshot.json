@@ -1,6 +1,6 @@
 {
-  "id": "bc77f521-4454-4c19-b1e7-b27d2642db69",
-  "prevId": "9a22d3d0-87ae-48ae-b365-8d157085fed9",
+  "id": "25d6fea1-9895-4bb2-acce-d65a0b6d1334",
+  "prevId": "96d689df-5ab1-4726-8d11-e5f307c3638f",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -320,6 +320,151 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.ListingInsight": {
+      "name": "ListingInsight",
+      "schema": "",
+      "columns": {
+        "listingId": {
+          "name": "listingId",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "insights": {
+          "name": "insights",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "promptVersion": {
+          "name": "promptVersion",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "promptTokens": {
+          "name": "promptTokens",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "completionTokens": {
+          "name": "completionTokens",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "conditionScore": {
+          "name": "conditionScore",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "flooringDominant": {
+          "name": "flooringDominant",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "flooringAll": {
+          "name": "flooringAll",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "ceilingFeatures": {
+          "name": "ceilingFeatures",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "windowSize": {
+          "name": "windowSize",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lightNatural": {
+          "name": "lightNatural",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "facing": {
+          "name": "facing",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "outdoorSpaces": {
+          "name": "outdoorSpaces",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "furnished": {
+          "name": "furnished",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "style": {
+          "name": "style",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "acVisible": {
+          "name": "acVisible",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "virtualStaging": {
+          "name": "virtualStaging",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ListingInsight_listingId_Listing_id_fk": {
+          "name": "ListingInsight_listingId_Listing_id_fk",
+          "tableFrom": "ListingInsight",
+          "tableTo": "Listing",
+          "columnsFrom": [
+            "listingId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.Message_v2": {
       "name": "Message_v2",
       "schema": "",
@@ -598,18 +743,38 @@
           "primaryKey": false,
           "notNull": false
         },
+        "profile": {
+          "name": "profile",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false
+        },
         "updatedAt": {
           "name": "updatedAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "username": {
+          "name": "username",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "User_username_unique": {
+          "name": "User_username_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "username"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

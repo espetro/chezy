@@ -30,7 +30,7 @@
 - **LLM provider**: `@ai-sdk/openai-compatible` via env `OPENAI_COMPATIBLE_BASE_URL` /
   `OPENAI_COMPATIBLE_API_KEY` / `CHEZY_MODEL_ID` / `CHEZY_TITLE_MODEL_ID`. Provider is
   Nebius AI Studio (`https://api.studio.nebius.com/v1`, model
-  `Qwen/Qwen3-235B-A22B-Instruct-2507`, title model `Qwen/Qwen3-30B-A3B-Instruct-2507`);
+  `deepseek-ai/DeepSeek-V4.1-Flash`, title model `Qwen/Qwen3-30B-A3B-Instruct-2507`);
   key = `NEBIUS_API_KEY` in `apps/web/.env.local` + GH secrets/variables. Code default is
   local bifrost `http://localhost:8317/v1`. Model list fetched from `{base}/models`.
 - **Zod banned**: `.oxlintrc.json` enforces `no-restricted-imports` banning the `zod`
@@ -53,6 +53,9 @@
   `no-restricted-imports` patterns.
 - **DB env var is `POSTGRES_URL`** (not `DATABASE_URL`) — see `apps/web/drizzle.config.ts`
   and `apps/web/lib/db/`.
+- **Demo coverage is Barcelona city only** — listings dataset is Barcelona-only, so
+  onboarding asks for neighborhoods, not cities. Governed by `COVERAGE_CITY` in
+  `apps/web/lib/constants.ts`; referenced by `onboardingPrompt` in `lib/ai/prompts.ts`.
 
 ## Disk budget (multi-worktree)
 

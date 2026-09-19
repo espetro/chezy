@@ -14,6 +14,7 @@ import {
   ToolOutput,
 } from "../ai-elements/tool";
 import { useDataStream } from "./data-stream-provider";
+import { ListingCard, ListingResults } from "./listing-results";
 import { DocumentToolResult } from "./document";
 import { DocumentPreview } from "./document-preview";
 import { SparklesIcon } from "./icons";
@@ -270,6 +271,68 @@ const PurePreviewMessage = ({
       );
     }
 
+    if (type === "tool-searchListings" || type === "tool-getListing") {
+      const { toolCallId, state } = part;
+      const widthClass = "w-[min(100%,450px)]";
+
+      if (state === "output-available") {
+        if (
+          part.output !== undefined &&
+          part.output !== null &&
+          typeof part.output === "object" &&
+          !Array.isArray(part.output) &&
+          "error" in part.output
+        ) {
+          return (
+            <div className={widthClass} key={toolCallId}>
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-500 dark:bg-red-950/50">
+                Error: {String(part.output.error)}
+              </div>
+            </div>
+          );
+        }
+
+        if (part.type === "tool-searchListings" && part.output) {
+          return (
+            <div className="w-full max-w-2xl" key={toolCallId}>
+              <ListingResults result={part.output} />
+            </div>
+          );
+        }
+
+        if (
+          part.type === "tool-getListing" &&
+          part.output &&
+          !("error" in part.output)
+        ) {
+          return (
+            <div className="w-full max-w-sm" key={toolCallId}>
+              <ListingCard listing={part.output} />
+            </div>
+          );
+        }
+
+        return null;
+      }
+
+      return (
+        <div className={widthClass} key={toolCallId}>
+          <Tool className="w-full" defaultOpen={false}>
+            <ToolHeader
+              state={state}
+              title={
+                type === "tool-searchListings" ? "Buscando anuncios…" : undefined
+              }
+              type={type}
+            />
+            <ToolContent>
+              {state === "input-available" && <ToolInput input={part.input} />}
+            </ToolContent>
+          </Tool>
+        </div>
+      );
+    }
+
     if (type === "tool-createDocument") {
       const { toolCallId } = part;
 
@@ -427,3 +490,4 @@ export const ThinkingMessage = () => (
     </div>
   </div>
 );
+

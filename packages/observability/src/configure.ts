@@ -1,11 +1,20 @@
-import { configure as configureLogtape, getConsoleSink, type LogLevel } from "@logtape/logtape";
+import {
+  configure as configureLogtape,
+  getAnsiColorFormatter,
+  getConsoleSink,
+  getJsonLinesFormatter,
+  getTextFormatter,
+  type LogLevel,
+  type Sink,
+  type TextFormatterOptions,
+} from "@logtape/logtape";
 import { getFileSink } from "@logtape/file";
-import { getAnsiColorFormatter, getJsonLinesFormatter } from "@logtape/logtape";
 
+import { Console } from "node:console";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 
-import { rootLogger } from "./logger.ts";
+import { rootLogger } from "./logger";
 
 export interface ConfigureLoggerOptions {
   /**
@@ -54,28 +63,33 @@ export async function configureLogger(options: ConfigureLoggerOptions): Promise<
     mkdirSync(dirname(auditPath), { recursive: true });
   }
 
-  const sinks = {
+  // In dev (TTY) the pretty ANSI is readable; in prod (CI / no TTY)
+  // we still emit colors because most log shippers strip them. Piped
+  // dev output gets the plain text formatter instead.
+  const colorize = isTty || env !== "development";
+  const textOptions = {
+    timestamp: "date-time-tz",
+    level: "l",
+    category: ".",
+  } satisfies TextFormatterOptions;
+
+  const sinks: Record<string, Sink> = {
     stderr: getConsoleSink({
-      formatter: getAnsiColorFormatter({
-        timestamp: "date-time-tz",
-        level: "tiny",
-        category: "tiny",
-      }),
-      // In dev (TTY) the pretty ANSI is readable; in prod (CI / no TTY)
-      // we still emit colors because most log shippers strip them.
-      useColor: isTty || env !== "development",
+      formatter: colorize ? getAnsiColorFormatter(textOptions) : getTextFormatter(textOptions),
+      // Route every level to stderr so stdout stays clean for data output.
+      console: new Console({ stdout: process.stderr, stderr: process.stderr }),
     }),
-    ...(options.auditFile !== null
-      ? {
-          audit: getFileSink(auditPath, {
-            formatter: getJsonLinesFormatter({
-              timestamp: "date-time-tz",
-              categoryDelimiter: ".",
-            }),
-          }),
-        }
-      : {}),
   };
+  if (options.auditFile !== null) {
+    sinks["audit"] = getFileSink(auditPath, {
+      formatter: getJsonLinesFormatter({
+        categorySeparator: ".",
+        // Keep the jq-friendly flat shape: audit fields land at the
+        // record root instead of under a nested `properties` object.
+        properties: "flatten",
+      }),
+    });
+  }
 
   await configureLogtape({
     sinks,
@@ -83,7 +97,7 @@ export async function configureLogger(options: ConfigureLoggerOptions): Promise<
       {
         category: [...rootLogger.category],
         lowestLevel: level,
-        sinks: Object.keys(sinks) as ("stderr" | "audit")[],
+        sinks: Object.keys(sinks),
       },
     ],
     reset: true,

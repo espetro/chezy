@@ -58,7 +58,7 @@ The dev server starts on `http://localhost:3000` (Next.js). `pg0` listens on
 `postgresql://postgres:postgres@127.0.0.1:5432/postgres`; the Drizzle client reads
 `POSTGRES_URL` from `apps/web/.env.local`. The chat model comes from Nebius AI Studio —
 `OPENAI_COMPATIBLE_BASE_URL=https://api.studio.nebius.com/v1`, default model
-`Qwen/Qwen3-235B-A22B-Instruct-2507` (see `apps/web/.env.example` for all four
+`deepseek-ai/DeepSeek-V4.1-Flash` (see `apps/web/.env.example` for all four
 `OPENAI_COMPATIBLE_*`/`CHEZY_*` vars). On first load `/` redirects to `/api/auth/guest`
 to mint a guest session — that's the template's NextAuth flow, keep it.
 
