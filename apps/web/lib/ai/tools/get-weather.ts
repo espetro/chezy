@@ -55,11 +55,27 @@ export const getWeather = tool({
       };
     }
 
-    const response = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m&hourly=temperature_2m&daily=sunrise,sunset&timezone=auto`
-    );
+    let weatherData: any;
 
-    const weatherData = await response.json();
+    try {
+      const response = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m&hourly=temperature_2m&daily=sunrise,sunset&timezone=auto`
+      );
+
+      if (!response.ok) {
+        return {
+          error: `Weather service returned ${response.status}${response.status === 429 ? " (rate limited)" : ""}. Please try again in a moment.`,
+        };
+      }
+
+      weatherData = await response.json();
+    } catch {
+      return { error: "Could not reach the weather service." };
+    }
+
+    if (!weatherData.hourly || !weatherData.current) {
+      return { error: "Weather service returned an unexpected response." };
+    }
 
     if ("city" in input) {
       weatherData.cityName = input.city;
