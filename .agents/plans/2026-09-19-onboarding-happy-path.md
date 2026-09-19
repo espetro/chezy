@@ -1,5 +1,9 @@
 # Onboarding to call happy path (designer UI, Stitch export)
 
+> **Superseded 2026-09-19**: the `(agent)` routes described here (`/`, `/onboarding/*`,
+> `/feed`, `/listing/[id]`) were retired; the product surface is now `app/(flow)` at `/`,
+> `/onboarding`, `/explore`, `/explore/[id]`. Kept for history.
+
 Branch `feat/chezy-0-onboarding-happy-path`, worktree `~/.worktrees/chezy-0/onboarding-happy-path`.
 Source frames: `stitch_chezy_ai_rental_platform/*/{code.html,screen.png}` + `design.md` in the
 main checkout (untracked; not copied into the repo).

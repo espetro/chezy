@@ -529,10 +529,9 @@ textarea:focus-visible {
   --color-ember-soft: #ffdbcf;
   --color-magenta-spark: #fe45e2;
 
+  /* --font-dm-sans is injected by next/font on the (flow) layout div. */
   --font-flow: var(--font-dm-sans), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, sans-serif;
-  /* (agent) pages use the font-dm-sans utility backed by --font-dm-sans-var. */
-  --font-dm-sans: var(--font-dm-sans-var), ui-sans-serif, system-ui, sans-serif;
 
   /* Stitch "Preferencias" type scale (2026-09-19). New names only — main's
      shadcn scale is untouched. Used via text-label-sm, text-body-medium, ... */

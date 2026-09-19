@@ -18,12 +18,12 @@ export default function ExplorePage() {
 async function Explore() {
   const session = await auth();
   if (!session?.user?.id) {
-    redirect("/api/auth/guest?redirectUrl=/flow/explore");
+    redirect("/api/auth/guest?redirectUrl=/explore");
   }
 
   const profile = await getProfile(session.user.id);
   if (!profile) {
-    redirect("/flow/onboarding");
+    redirect("/onboarding");
   }
 
   const feed = await buildFeed(profile);

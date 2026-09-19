@@ -56,6 +56,13 @@
 - **Demo coverage is Barcelona city only** — listings dataset is Barcelona-only, so
   onboarding asks for neighborhoods, not cities. Governed by `COVERAGE_CITY` in
   `apps/web/lib/constants.ts`; referenced by `onboardingPrompt` in `lib/ai/prompts.ts`.
+- **UI language is English (decided 2026-09-19)** — but several Spanish surfaces remain,
+  explicitly un-fixed for now: `lib/match.ts` reasons and `lib/feed.ts`'s relaxation note
+  are Spanish strings rendered inside the English cards; the chat system prompts in
+  `lib/ai/prompts.ts` speak Spanish; `screens/radar.md` still says "keep the Spanish
+  locale". The SLNG voice agent is exempt — it calls Spanish agencies and stays Spanish.
+  Resolution path: translate `lib/match.ts`/`lib/feed.ts` and the chat prompts in a later
+  pass; voice agent exempt.
 
 ## Disk budget (multi-worktree)
 
@@ -73,35 +80,38 @@ Expected per-worktree footprint on macOS APFS:
 - **New worktree**: `mise run wt:init` — copies `.env`, runs `pnpm install` +
   `uv sync --all-packages`, then `db:start` (see `scripts/worktree-init.sh`).
 
-## `/flow` — isolated UX exploration (2026-09-19)
+## `/` product surface — the flow (formerly `/flow`, promoted 2026-09-19)
 
-Onboarding/explore/match screens live under `/flow/*` (`apps/web/app/flow/**`,
-`components/flow/**`, `lib/flow/**`), deliberately namespaced and excluded from
-`proxy.ts`'s auth gate — ported from a standalone prototype without colliding with
-in-flight work on the real routes. Its own design tokens (obsidian/ember, DM Sans) live
-in a clearly-delimited block at the bottom of `apps/web/app/globals.css`; none of them
-redefine the app's shadcn tokens. See `.agents/docs/screens/flow-*.md` for per-screen
-specs and `.agents/plans/2026-09-19-port-to-main.md` for the full rationale + exact
-deltas from the prototype (alias, naming, token collisions avoided, etc.).
+The product is the flow, rooted at `/` (`apps/web/app/(flow)/**`, `components/flow/**`,
+`lib/flow/**`): landing → `/onboarding` → `/explore` → `/explore/[id]`; chat lives at
+`/chat`. `/flow/*` URLs 307-redirect to the root equivalents via `next.config.ts`. All
+routes are session-gated by `proxy.ts` like everything else (guest auto-login). Its own
+design tokens (obsidian/ember, DM Sans) live in a clearly-delimited block at the bottom
+of `apps/web/app/globals.css`; none of them redefine the chat's shadcn tokens. See
+`.agents/docs/screens/flow-*.md` for per-screen specs and
+`.agents/plans/2026-09-19-port-to-main.md` for the port rationale.
 
-- **`/flow` elevation rule ≠ chat rule**: `/flow` surfaces are `bg-snow shadow-sm` with no
+- **Real data, not mocks (2026-09-19)**: onboarding PUTs `SearchProfile` via
+  `/api/profile` (which also mirrors a coarse copy into `User.profile` for the chat);
+  `/explore` renders `buildFeed(profile)` ranked by `scoreListing`; detail pages load
+  `getListingRowById` + `scoreListing`. Mapping lives in `lib/flow/adapters.ts`
+  (`toSearchProfileInput`/`fromSearchProfile`/`toFlowListing`). The old mock listings,
+  mock matcher and simulated-call helper are deleted.
+- **Elevation rule ≠ chat rule**: the flow's surfaces are `bg-snow shadow-sm` with no
   border and controls are recessed `bg-paper` (from the Stitch design, 2026-09-19). The
   chat app keeps hairline borders. Don't "fix" one to match the other.
-- **`/flow` token naming caveat**: Stitch's `secondary`/`secondary-fixed` were added as
+- **Token naming caveat**: Stitch's `secondary`/`secondary-fixed` were added as
   `ember-deep`/`ember-soft` because `--color-secondary` is a live shadcn token in the chat.
   Any future Stitch export must be checked for name collisions the same way (`grep` the
   `@theme inline` block in `apps/web/app/globals.css`) before adding tokens.
 
-- **Email-draft gate replaced by an auto-call gate (2026-09-19)**: `AgentContactGate`
-  (email approve/edit/discard) is gone. `AgentCallGate` now calls the agency
-  autonomously once `matchScore >= AUTO_CALL_MATCH_THRESHOLD` (95, in
-  `lib/flow/constants.ts`) — this overrides the onboarding autonomy tier entirely, by
-  design. Below 95% there's a manual "Call the agency now" override. It's fully
-  simulated (`lib/flow/calling.ts`) — **not** wired to the real `/api/viewing` +
-  `/api/calendar` call/booking flow that already exists in this repo (from the dropped
-  radar demo), because those routes sit behind `apps/web/proxy.ts`'s `"/api/:path*"`
-  auth matcher and `/flow` is deliberately session-free. See
-  `.agents/docs/screens/flow-match.md`.
+- **Auto-call gate (2026-09-19)**: `AgentCallGate` calls the real `POST /api/viewing`
+  with `{ propertyRef }` (`VIEWING_MODE` picks mock/slng/vonage). At
+  `matchScore >= AUTO_CALL_MATCH_THRESHOLD` (95, `lib/flow/constants.ts`) it auto-dials
+  on mount — guarded by `localStorage["chezy:autocall:<listingId>"]` so a real phone
+  rings at most once per listing per browser. Below 95% there's a manual "Call the
+  agency now" override; failures show `detail` + "Try again". This overrides the
+  onboarding autonomy tier entirely, by design. See `.agents/docs/screens/flow-match.md`.
 
 ## Key references
 

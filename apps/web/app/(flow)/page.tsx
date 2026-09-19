@@ -12,9 +12,14 @@ const FlowLandingPage = () => (
   <main className="mx-auto flex min-h-screen w-full max-w-[1200px] flex-col gap-20 px-6 py-16 md:px-8">
     <header className="flex items-center justify-between">
       <span className="text-[15px] font-semibold">chezMoi</span>
-      <Link href="/flow/onboarding">
-        <FlowButton size="sm">Get started</FlowButton>
-      </Link>
+      <div className="flex items-center gap-2">
+        <Link href="/chat">
+          <FlowButton variant="ghost" size="sm">Talk to your agent</FlowButton>
+        </Link>
+        <Link href="/onboarding">
+          <FlowButton size="sm">Get started</FlowButton>
+        </Link>
+      </div>
     </header>
 
     <section className="grid gap-10 md:grid-cols-2 md:items-center">
@@ -31,10 +36,10 @@ const FlowLandingPage = () => (
           and calls the agency itself the moment a match is strong enough.
         </p>
         <div className="flex flex-wrap gap-3">
-          <Link href="/flow/onboarding">
+          <Link href="/onboarding">
             <FlowButton>Find my home</FlowButton>
           </Link>
-          <Link href="/flow/explore">
+          <Link href="/explore">
             <FlowButton variant="secondary">See an example match</FlowButton>
           </Link>
         </div>
