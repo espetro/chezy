@@ -209,13 +209,9 @@ export const OnboardingFlow = ({ initial, initialCount }: OnboardingFlowProps) =
 
   const welcomeMeta =
     currentStep.id === "welcome" ? (
-      <>
-        <span className="rounded-full bg-paper px-2 py-0.5 text-label-sm font-normal text-fog">
-          Estimated time: 1 min
-        </span>
-        <span className="size-1 rounded-full bg-mist" />
-        <span className="text-label-sm font-medium text-ember">24/7 search active</span>
-      </>
+      <span className="rounded-full bg-paper px-2 py-0.5 text-label-sm font-normal text-fog">
+        Estimated time: 1 min
+      </span>
     ) : undefined;
 
   return (
