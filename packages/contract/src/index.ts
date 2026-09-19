@@ -27,10 +27,7 @@ export type ViewingResult = v.InferOutput<typeof ViewingResultSchema>;
 export const BookingRequestSchema = v.object({
   propertyRef: v.pipe(v.string(), v.minLength(1)),
   slotIso: v.pipe(v.string(), v.isoTimestamp()),
-  durationMinutes: v.fallback(
-    v.pipe(v.number(), v.integer(), v.minValue(5), v.maxValue(240)),
-    30,
-  ),
+  durationMinutes: v.fallback(v.pipe(v.number(), v.integer(), v.minValue(5), v.maxValue(240)), 30),
   summary: v.optional(v.string()),
   description: v.optional(v.string()),
 });

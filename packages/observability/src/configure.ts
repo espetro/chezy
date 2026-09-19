@@ -1,13 +1,6 @@
-import {
-  configure as configureLogtape,
-  getConsoleSink,
-  type LogLevel,
-} from "@logtape/logtape";
+import { configure as configureLogtape, getConsoleSink, type LogLevel } from "@logtape/logtape";
 import { getFileSink } from "@logtape/file";
-import {
-  getAnsiColorFormatter,
-  getJsonLinesFormatter,
-} from "@logtape/logtape";
+import { getAnsiColorFormatter, getJsonLinesFormatter } from "@logtape/logtape";
 
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
@@ -49,12 +42,9 @@ export interface ConfigureLoggerOptions {
  *
  *   CHEZY_LOG_LEVEL=debug mise run dev
  */
-export async function configureLogger(
-  options: ConfigureLoggerOptions,
-): Promise<void> {
+export async function configureLogger(options: ConfigureLoggerOptions): Promise<void> {
   const level: LogLevel =
-    options.level ??
-    ((process.env["CHEZY_LOG_LEVEL"] as LogLevel | undefined) ?? "info");
+    options.level ?? (process.env["CHEZY_LOG_LEVEL"] as LogLevel | undefined) ?? "info";
 
   const env = options.environment ?? process.env["NODE_ENV"] ?? "development";
   const isTty = process.stderr.isTTY === true;
