@@ -1,0 +1,44 @@
+{
+  "name": "@chezy/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "oxlint .",
+    "typecheck": "tsc -b --noEmit",
+    "format": "oxfmt \"src/**/*.{ts,tsx}\" \"scripts/**/*.ts\" \"*.ts\"",
+    "format:check": "oxfmt --check \"src/**/*.{ts,tsx}\" \"scripts/**/*.ts\" \"*.ts\"",
+    "test": "vitest run --passWithNoTests",
+    "cosmos": "cosmos",
+    "cosmos:export": "cosmos-export"
+  },
+  "dependencies": {
+    "@chezy/contract": "workspace:*",
+    "@chezy/db": "workspace:*",
+    "@chezy/ui": "workspace:*",
+    "ai": "catalog:default",
+    "@ai-sdk/react": "^4.0.0",
+    "next": "catalog:default",
+    "react": "catalog:default",
+    "react-dom": "catalog:default",
+    "valibot": "catalog:default",
+    "drizzle-orm": "catalog:default",
+    "postgres": "catalog:default",
+    "tailwindcss": "catalog:default"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:default",
+    "@types/react-dom": "catalog:default",
+    "@types/node": "catalog:default",
+    "react-cosmos": "^7.4.0",
+    "react-cosmos-plugin-next": "^7.4.0",
+    "drizzle-kit": "catalog:default",
+    "oxlint": "catalog:default",
+    "oxfmt": "catalog:default",
+    "typescript": "catalog:default",
+    "vitest": "catalog:default"
+  }
+}
