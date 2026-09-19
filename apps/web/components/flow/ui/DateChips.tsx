@@ -1,7 +1,7 @@
 "use client";
 
 import { Calendar } from "lucide-react";
-import { useId } from "react";
+import { FlowTextField } from "@/components/flow/ui/TextField";
 import type { MoveIn } from "@/lib/flow/types";
 import { cn } from "@/lib/utils";
 
@@ -16,8 +16,12 @@ const chipClass = (isSelected: boolean) =>
     isSelected ? "bg-obsidian font-semibold text-snow" : "bg-paper text-graphite hover:text-obsidian",
   );
 
+// The native picker button is stretched over the whole control and made invisible so the
+// field keeps the FlowTextField look while staying clickable end to end.
+const datePickerClass =
+  "[&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:m-0 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0";
+
 export const FlowDateChips = ({ value, onChange }: DateChipsProps) => {
-  const dateInputId = useId();
   const isDate = value?.mode === "date";
   const isFlexible = value?.mode === "flexible";
 
@@ -45,23 +49,14 @@ export const FlowDateChips = ({ value, onChange }: DateChipsProps) => {
       </div>
 
       {isDate ? (
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor={dateInputId} className="text-label-sm text-steel">
-            Ideal move-in date
-          </label>
-          <div className="relative flex items-center">
-            <span className="pointer-events-none absolute left-3.5 flex text-fog">
-              <Calendar size={18} aria-hidden />
-            </span>
-            <input
-              id={dateInputId}
-              type="date"
-              value={value.date}
-              onChange={(event) => onChange({ mode: "date", date: event.target.value })}
-              className="h-12 w-full rounded-[14px] bg-paper pl-10 pr-4 text-body-medium text-graphite outline-none transition-colors focus:bg-snow focus-visible:ring-2 focus-visible:ring-obsidian"
-            />
-          </div>
-        </div>
+        <FlowTextField
+          label="Ideal move-in date"
+          icon={<Calendar size={18} aria-hidden />}
+          type="date"
+          value={value.date}
+          onChange={(event) => onChange({ mode: "date", date: event.target.value })}
+          className={cn(datePickerClass, value.date === "" && "[&::-webkit-datetime-edit]:text-ash")}
+        />
       ) : undefined}
     </div>
   );
