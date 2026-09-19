@@ -87,14 +87,10 @@ export const editDocument = ({ session, dataStream }: EditDocumentProps) =>
       new_string: z.string().describe("Replacement string"),
       old_string: z
         .string()
-        .describe(
-          "Exact string to find. Include 3-5 surrounding lines for uniqueness."
-        ),
+        .describe("Exact string to find. Include 3-5 surrounding lines for uniqueness."),
       replace_all: z
         .boolean()
         .optional()
-        .describe(
-          "Replace all occurrences instead of just the first (default false)"
-        ),
+        .describe("Replace all occurrences instead of just the first (default false)"),
     }),
   });

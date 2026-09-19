@@ -5,10 +5,7 @@ import { useSWRConfig } from "swr";
 import { useCopyToClipboard } from "usehooks-ts";
 import type { Vote } from "~/lib/db/schema";
 import type { ChatMessage } from "~/lib/types";
-import {
-  MessageAction as Action,
-  MessageActions as Actions,
-} from "../ai-elements/message";
+import { MessageAction as Action, MessageActions as Actions } from "../ai-elements/message";
 import { CopyIcon, PencilEditIcon, ThumbDownIcon, ThumbUpIcon } from "./icons";
 
 export function PureMessageActions({
@@ -44,17 +41,14 @@ export function PureMessageActions({
   }, [copyToClipboard, textFromParts]);
 
   const handleUpvote = useCallback(() => {
-    const upvote = fetch(
-      `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/vote`,
-      {
-        body: JSON.stringify({
-          chatId,
-          messageId: message.id,
-          type: "up",
-        }),
-        method: "PATCH",
-      }
-    );
+    const upvote = fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/vote`, {
+      body: JSON.stringify({
+        chatId,
+        messageId: message.id,
+        type: "up",
+      }),
+      method: "PATCH",
+    });
 
     toast.promise(upvote, {
       error: "Failed to upvote response.",
@@ -68,7 +62,7 @@ export function PureMessageActions({
             }
 
             const votesWithoutCurrent = currentVotes.filter(
-              (currentVote) => currentVote.messageId !== message.id
+              (currentVote) => currentVote.messageId !== message.id,
             );
 
             return [
@@ -80,7 +74,7 @@ export function PureMessageActions({
               },
             ];
           },
-          { revalidate: false }
+          { revalidate: false },
         );
 
         return "Upvoted Response!";
@@ -89,17 +83,14 @@ export function PureMessageActions({
   }, [chatId, message.id, mutate]);
 
   const handleDownvote = useCallback(() => {
-    const downvote = fetch(
-      `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/vote`,
-      {
-        body: JSON.stringify({
-          chatId,
-          messageId: message.id,
-          type: "down",
-        }),
-        method: "PATCH",
-      }
-    );
+    const downvote = fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/vote`, {
+      body: JSON.stringify({
+        chatId,
+        messageId: message.id,
+        type: "down",
+      }),
+      method: "PATCH",
+    });
 
     toast.promise(downvote, {
       error: "Failed to downvote response.",
@@ -113,7 +104,7 @@ export function PureMessageActions({
             }
 
             const votesWithoutCurrent = currentVotes.filter(
-              (currentVote) => currentVote.messageId !== message.id
+              (currentVote) => currentVote.messageId !== message.id,
             );
 
             return [
@@ -125,7 +116,7 @@ export function PureMessageActions({
               },
             ];
           },
-          { revalidate: false }
+          { revalidate: false },
         );
 
         return "Downvoted Response!";
@@ -196,16 +187,13 @@ export function PureMessageActions({
   );
 }
 
-export const MessageActions = memo(
-  PureMessageActions,
-  (prevProps, nextProps) => {
-    if (!equal(prevProps.vote, nextProps.vote)) {
-      return false;
-    }
-    if (prevProps.isLoading !== nextProps.isLoading) {
-      return false;
-    }
-
-    return true;
+export const MessageActions = memo(PureMessageActions, (prevProps, nextProps) => {
+  if (!equal(prevProps.vote, nextProps.vote)) {
+    return false;
   }
-);
+  if (prevProps.isLoading !== nextProps.isLoading) {
+    return false;
+  }
+
+  return true;
+});

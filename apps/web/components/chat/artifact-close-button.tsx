@@ -11,7 +11,7 @@ function PureArtifactCloseButton() {
             ...currentArtifact,
             isVisible: false,
           }
-        : { ...initialArtifactData, status: "idle" }
+        : { ...initialArtifactData, status: "idle" },
     );
   }, [setArtifact]);
 

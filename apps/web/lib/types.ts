@@ -22,9 +22,7 @@ type identifyUserTool = InferUITool<typeof identifyUser>;
 type saveUserProfileTool = InferUITool<typeof saveUserProfile>;
 type createDocumentTool = InferUITool<ReturnType<typeof createDocument>>;
 type updateDocumentTool = InferUITool<ReturnType<typeof updateDocument>>;
-type requestSuggestionsTool = InferUITool<
-  ReturnType<typeof requestSuggestions>
->;
+type requestSuggestionsTool = InferUITool<ReturnType<typeof requestSuggestions>>;
 
 type searchListingsToolType = InferUITool<typeof searchListingsTool>;
 type getListingToolType = InferUITool<typeof getListingTool>;
@@ -63,11 +61,7 @@ export type CustomUIDataTypes = {
   "waiting-status": WaitingStatusData;
 };
 
-export type ChatMessage = UIMessage<
-  MessageMetadata,
-  CustomUIDataTypes,
-  ChatTools
->;
+export type ChatMessage = UIMessage<MessageMetadata, CustomUIDataTypes, ChatTools>;
 
 export type Attachment = {
   name: string;

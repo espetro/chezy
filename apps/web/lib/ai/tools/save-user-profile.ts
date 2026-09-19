@@ -1,16 +1,8 @@
 import { saveUserProfileInputSchema } from "@chezy/contract";
 import { tool } from "ai";
 import { valibotSchema } from "@ai-sdk/valibot";
-import {
-  createNamedUser,
-  getUserByUsername,
-  updateUserProfile,
-} from "~/lib/db/queries";
-import {
-  mergeUserProfile,
-  missingProfileFields,
-  normalizeUsername,
-} from "~/lib/user-profile";
+import { createNamedUser, getUserByUsername, updateUserProfile } from "~/lib/db/queries";
+import { mergeUserProfile, missingProfileFields, normalizeUsername } from "~/lib/user-profile";
 
 export const saveUserProfile = tool({
   description:
@@ -26,9 +18,7 @@ export const saveUserProfile = tool({
     }
 
     const existingUser = await getUserByUsername(username);
-    const userId = existingUser
-      ? existingUser.id
-      : (await createNamedUser(username)).id;
+    const userId = existingUser ? existingUser.id : (await createNamedUser(username)).id;
 
     const merged = mergeUserProfile(existingUser?.profile ?? {}, input.patch);
 

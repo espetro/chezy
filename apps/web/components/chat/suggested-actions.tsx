@@ -18,17 +18,13 @@ function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
   const suggestedActions = suggestions;
   const handleSuggestionClick = useCallback(
     (suggestion: string) => {
-      window.history.pushState(
-        {},
-        "",
-        `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/chat/${chatId}`
-      );
+      window.history.pushState({}, "", `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/chat/${chatId}`);
       sendMessage({
         parts: [{ text: suggestion, type: "text" }],
         role: "user",
       });
     },
-    [chatId, sendMessage]
+    [chatId, sendMessage],
   );
 
   return (
@@ -55,7 +51,7 @@ function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
           }}
         >
           <Suggestion
-            className="h-auto w-full whitespace-nowrap rounded-xl border border-border/50 bg-card/30 px-4 py-3 text-left text-[12px] leading-relaxed text-muted-foreground transition-all duration-200 sm:whitespace-normal sm:p-4 sm:text-[13px] hover:-translate-y-0.5 hover:bg-card/60 hover:text-foreground hover:shadow-[var(--shadow-card)]"
+            className="h-auto w-full rounded-xl border border-border/50 bg-card/30 px-4 py-3 text-left text-[12px] leading-relaxed whitespace-nowrap text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-card/60 hover:text-foreground hover:shadow-[var(--shadow-card)] sm:p-4 sm:text-[13px] sm:whitespace-normal"
             onClick={handleSuggestionClick}
             suggestion={suggestedAction}
           >
@@ -67,16 +63,13 @@ function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
   );
 }
 
-export const SuggestedActions = memo(
-  PureSuggestedActions,
-  (prevProps, nextProps) => {
-    if (prevProps.chatId !== nextProps.chatId) {
-      return false;
-    }
-    if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType) {
-      return false;
-    }
-
-    return true;
+export const SuggestedActions = memo(PureSuggestedActions, (prevProps, nextProps) => {
+  if (prevProps.chatId !== nextProps.chatId) {
+    return false;
   }
-);
+  if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType) {
+    return false;
+  }
+
+  return true;
+});

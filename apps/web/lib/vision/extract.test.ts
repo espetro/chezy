@@ -80,9 +80,9 @@ afterEach(() => {
 
 describe("extractListingInsights", () => {
   it("parses fenced JSON and validates it", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      okResponse(`\`\`\`json\n${JSON.stringify(FIXTURE)}\n\`\`\``),
-    );
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(okResponse(`\`\`\`json\n${JSON.stringify(FIXTURE)}\n\`\`\``));
     vi.stubGlobal("fetch", fetchMock);
 
     const result = await extractListingInsights({
@@ -109,9 +109,7 @@ describe("extractListingInsights", () => {
     const fetchMock = vi.fn().mockResolvedValue(okResponse("not json at all"));
     vi.stubGlobal("fetch", fetchMock);
 
-    await expect(
-      extractListingInsights({ listingId: "l1", photos: PHOTOS }),
-    ).rejects.toThrow();
+    await expect(extractListingInsights({ listingId: "l1", photos: PHOTOS })).rejects.toThrow();
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
@@ -123,9 +121,7 @@ describe("extractListingInsights", () => {
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
     expect(body.chat_template_kwargs).toEqual({ thinking: false });
     expect(
-      body.messages[0].content.filter(
-        (p: { type: string }) => p.type === "image_url",
-      ),
+      body.messages[0].content.filter((p: { type: string }) => p.type === "image_url"),
     ).toHaveLength(PHOTOS.length);
   });
 });

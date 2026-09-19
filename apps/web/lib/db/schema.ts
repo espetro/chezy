@@ -72,7 +72,7 @@ export const vote = pgTable(
   },
   (table) => ({
     pk: primaryKey({ columns: [table.chatId, table.messageId] }),
-  })
+  }),
 );
 
 export type Vote = InferSelectModel<typeof vote>;
@@ -93,7 +93,7 @@ export const document = pgTable(
   },
   (table) => ({
     pk: primaryKey({ columns: [table.id, table.createdAt] }),
-  })
+  }),
 );
 
 export type Document = InferSelectModel<typeof document>;
@@ -119,7 +119,7 @@ export const suggestion = pgTable(
       foreignColumns: [document.id, document.createdAt],
     }),
     pk: primaryKey({ columns: [table.id] }),
-  })
+  }),
 );
 
 export type Suggestion = InferSelectModel<typeof suggestion>;
@@ -137,7 +137,7 @@ export const stream = pgTable(
       foreignColumns: [chat.id],
     }),
     pk: primaryKey({ columns: [table.id] }),
-  })
+  }),
 );
 
 export type Stream = InferSelectModel<typeof stream>;
@@ -192,17 +192,11 @@ export const listingInsight = pgTable("ListingInsight", {
   conditionScore: integer("conditionScore"),
   flooringDominant: text("flooringDominant"),
   flooringAll: jsonb("flooringAll").$type<string[]>().notNull().default([]),
-  ceilingFeatures: jsonb("ceilingFeatures")
-    .$type<string[]>()
-    .notNull()
-    .default([]),
+  ceilingFeatures: jsonb("ceilingFeatures").$type<string[]>().notNull().default([]),
   windowSize: text("windowSize"),
   lightNatural: text("lightNatural"),
   facing: text("facing"),
-  outdoorSpaces: jsonb("outdoorSpaces")
-    .$type<string[]>()
-    .notNull()
-    .default([]),
+  outdoorSpaces: jsonb("outdoorSpaces").$type<string[]>().notNull().default([]),
   furnished: text("furnished"),
   style: text("style"),
   acVisible: boolean("acVisible"),

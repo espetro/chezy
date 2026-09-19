@@ -1,11 +1,7 @@
 // SLNG Voice Agents API. The agent places the outbound call; dispatch
 // requires an outbound connection to be attached to the agent first
 // (connection creation is dashboard-only in SLNG).
-import {
-  SLNG_AGENT_ORCHESTRATOR,
-  SLNG_AGENT_REGION,
-  SLNG_API_BASE_URL,
-} from "~/lib/constants";
+import { SLNG_AGENT_ORCHESTRATOR, SLNG_AGENT_REGION, SLNG_API_BASE_URL } from "~/lib/constants";
 import { env } from "~/lib/env";
 
 export interface SlngDispatchResult {

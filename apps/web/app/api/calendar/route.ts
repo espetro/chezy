@@ -32,8 +32,7 @@ export async function POST(request: Request): Promise<Response> {
         durationMinutes: input.durationMinutes,
         summary: input.summary ?? `Property viewing: ${input.propertyRef}`,
         description:
-          input.description ??
-          `Booked by the chezy voice agent for ${input.propertyRef}.`,
+          input.description ?? `Booked by the chezy voice agent for ${input.propertyRef}.`,
       });
       const view: BookingResult = {
         status: event.status,

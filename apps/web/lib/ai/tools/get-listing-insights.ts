@@ -20,9 +20,7 @@ export const getListingInsightsTool = tool({
     const row = rows[0];
     const photos = row ? await selectPhotos(row) : [];
     const urls = (indexes: number[]) =>
-      indexes
-        .map((i) => photos[i]?.url)
-        .filter((u): u is string => Boolean(u));
+      indexes.map((i) => photos[i]?.url).filter((u): u is string => Boolean(u));
     return {
       id,
       insights,

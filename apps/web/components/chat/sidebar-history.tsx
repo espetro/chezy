@@ -73,14 +73,11 @@ const groupChatsByDate = (chats: Chat[]): GroupedChats => {
       older: [],
       today: [],
       yesterday: [],
-    } as GroupedChats
+    } as GroupedChats,
   );
 };
 
-export function getChatHistoryPaginationKey(
-  pageIndex: number,
-  previousPageData: ChatHistory
-) {
+export function getChatHistoryPaginationKey(pageIndex: number, previousPageData: ChatHistory) {
   if (previousPageData && previousPageData.hasMore === false) {
     return null;
   }
@@ -109,11 +106,10 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
     isValidating,
     isLoading,
     mutate,
-  } = useSWRInfinite<ChatHistory>(
-    user ? getChatHistoryPaginationKey : () => null,
-    fetcher,
-    { fallbackData: [], revalidateOnFocus: false }
-  );
+  } = useSWRInfinite<ChatHistory>(user ? getChatHistoryPaginationKey : () => null, fetcher, {
+    fallbackData: [],
+    revalidateOnFocus: false,
+  });
 
   const router = useRouter();
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -146,10 +142,9 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
       }
     });
 
-    fetch(
-      `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/chat?id=${chatToDelete}`,
-      { method: "DELETE" }
-    );
+    fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/chat?id=${chatToDelete}`, {
+      method: "DELETE",
+    });
 
     toast.success("Chat deleted");
   }, [deleteId, mutate, pathname, router]);
@@ -180,16 +175,13 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
   if (isLoading) {
     return (
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-        <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/70">
+        <SidebarGroupLabel className="text-[10px] font-semibold tracking-[0.12em] text-sidebar-foreground/70 uppercase">
           History
         </SidebarGroupLabel>
         <SidebarGroupContent>
           <div className="flex flex-col gap-0.5 px-1">
             {[44, 32, 28, 64, 52].map((item) => (
-              <div
-                className="flex h-8 items-center gap-2 rounded-lg px-2"
-                key={item}
-              >
+              <div className="flex h-8 items-center gap-2 rounded-lg px-2" key={item}>
                 <div
                   className="h-3 max-w-(--skeleton-width) flex-1 animate-pulse rounded-md bg-sidebar-foreground/[0.06]"
                   style={
@@ -209,7 +201,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
   if (hasEmptyChatHistory) {
     return (
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-        <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/70">
+        <SidebarGroupLabel className="text-[10px] font-semibold tracking-[0.12em] text-sidebar-foreground/70 uppercase">
           History
         </SidebarGroupLabel>
         <SidebarGroupContent>
@@ -224,7 +216,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
   return (
     <>
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-        <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/70">
+        <SidebarGroupLabel className="text-[10px] font-semibold tracking-[0.12em] text-sidebar-foreground/70 uppercase">
           History
         </SidebarGroupLabel>
         <SidebarGroupContent>
@@ -232,7 +224,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
             {paginatedChatHistories
               ? (() => {
                   const chatsFromHistory = paginatedChatHistories.flatMap(
-                    (paginatedChatHistory) => paginatedChatHistory.chats
+                    (paginatedChatHistory) => paginatedChatHistory.chats,
                   );
 
                   const groupedChats = groupChatsByDate(chatsFromHistory);
@@ -241,7 +233,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
                     <div className="flex flex-col gap-4">
                       {groupedChats.today.length > 0 && (
                         <div>
-                          <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/70">
+                          <div className="px-2 py-1 text-[10px] font-semibold tracking-[0.12em] text-sidebar-foreground/70 uppercase">
                             Today
                           </div>
                           {groupedChats.today.map((chat) => (
@@ -258,7 +250,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
 
                       {groupedChats.yesterday.length > 0 && (
                         <div>
-                          <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/70">
+                          <div className="px-2 py-1 text-[10px] font-semibold tracking-[0.12em] text-sidebar-foreground/70 uppercase">
                             Yesterday
                           </div>
                           {groupedChats.yesterday.map((chat) => (
@@ -275,7 +267,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
 
                       {groupedChats.lastWeek.length > 0 && (
                         <div>
-                          <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/70">
+                          <div className="px-2 py-1 text-[10px] font-semibold tracking-[0.12em] text-sidebar-foreground/70 uppercase">
                             Last 7 days
                           </div>
                           {groupedChats.lastWeek.map((chat) => (
@@ -292,7 +284,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
 
                       {groupedChats.lastMonth.length > 0 && (
                         <div>
-                          <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/70">
+                          <div className="px-2 py-1 text-[10px] font-semibold tracking-[0.12em] text-sidebar-foreground/70 uppercase">
                             Last 30 days
                           </div>
                           {groupedChats.lastMonth.map((chat) => (
@@ -309,7 +301,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
 
                       {groupedChats.older.length > 0 && (
                         <div>
-                          <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/70">
+                          <div className="px-2 py-1 text-[10px] font-semibold tracking-[0.12em] text-sidebar-foreground/70 uppercase">
                             Older
                           </div>
                           {groupedChats.older.map((chat) => (
@@ -347,15 +339,13 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              chat and remove it from our servers.
+              This action cannot be undone. This will permanently delete your chat and remove it
+              from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>
-              Continue
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

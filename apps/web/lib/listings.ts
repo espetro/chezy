@@ -1,14 +1,4 @@
-import {
-  and,
-  asc,
-  eq,
-  gt,
-  gte,
-  ilike,
-  lte,
-  or,
-  type SQL,
-} from "drizzle-orm";
+import { and, asc, eq, gt, gte, ilike, lte, or, type SQL } from "drizzle-orm";
 import * as v from "valibot";
 
 import { db } from "~/lib/db/client";
@@ -44,18 +34,14 @@ export const ListingRecordSchema = v.object({
   amenities: v.optional(v.array(v.string()), []),
   title: v.nullable(v.string()),
   description: v.nullable(v.string()),
-  publisher: v.nullable(
-    v.object({ name: v.nullable(v.string()), kind: v.nullable(v.string()) }),
-  ),
+  publisher: v.nullable(v.object({ name: v.nullable(v.string()), kind: v.nullable(v.string()) })),
   media: v.optional(v.array(MediaItemSchema), []),
   published_at: v.nullable(v.string()),
 });
 
 export type ListingRecord = v.InferOutput<typeof ListingRecordSchema>;
 
-export function toListingRow(
-  record: ListingRecord,
-): typeof listing.$inferInsert {
+export function toListingRow(record: ListingRecord): typeof listing.$inferInsert {
   return {
     id: `${record.platform}:${record.platform_id}`,
     platform: record.platform,
@@ -79,15 +65,11 @@ export function toListingRow(
     amenities: record.amenities,
     // A third of the dataset has no title; fall back to the first line of the
     // description so the column can stay notNull.
-    title:
-      record.title ?? record.description?.split("\n", 1)[0]?.slice(0, 120) ?? "",
+    title: record.title ?? record.description?.split("\n", 1)[0]?.slice(0, 120) ?? "",
     description: record.description,
     publisherName: record.publisher?.name ?? null,
     publisherKind: record.publisher?.kind ?? null,
-    coverUrl:
-      record.media.find((m) => m.kind === "photo")?.url ??
-      record.media[0]?.url ??
-      null,
+    coverUrl: record.media.find((m) => m.kind === "photo")?.url ?? record.media[0]?.url ?? null,
     media: record.media.map((m) => ({
       url: m.url,
       kind: m.kind,
@@ -273,9 +255,7 @@ export async function searchListings(
   });
 
   const deduped = dedupeListings(rows);
-  const listings = deduped
-    .slice(0, Math.min(search.limit ?? 5, 10))
-    .map(toListingSummary);
+  const listings = deduped.slice(0, Math.min(search.limit ?? 5, 10)).map(toListingSummary);
 
   return {
     listings,
@@ -285,9 +265,7 @@ export async function searchListings(
   };
 }
 
-export async function getListingById(
-  id: string,
-): Promise<ListingSummary | undefined> {
+export async function getListingById(id: string): Promise<ListingSummary | undefined> {
   const rows = await db.select().from(listing).where(eq(listing.id, id));
   const row = rows[0];
   return row ? toListingSummary(row) : undefined;
@@ -302,9 +280,7 @@ const eur = new Intl.NumberFormat("es-ES", {
   useGrouping: "always",
 });
 
-export function listingToCallVariables(
-  summary: ListingSummary,
-): Record<string, string> {
+export function listingToCallVariables(summary: ListingSummary): Record<string, string> {
   const price =
     summary.priceEur === null
       ? ""

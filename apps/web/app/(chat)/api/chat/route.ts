@@ -62,9 +62,7 @@ const chatLogger = getLogger(["chezy", "chat"]);
 const chatAudit = createAuditLogger("chat");
 
 function isModelStreamActivity(chunk: { type: string }) {
-  return !["start", "start-step", "finish-step", "finish", "raw"].includes(
-    chunk.type
-  );
+  return !["start", "start-step", "finish-step", "finish", "raw"].includes(chunk.type);
 }
 
 function getStreamContext() {
@@ -88,13 +86,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { id, message, messages, selectedChatModel, selectedVisibilityType } =
-      requestBody;
+    const { id, message, messages, selectedChatModel, selectedVisibilityType } = requestBody;
 
-    const [botIdResult, session] = await Promise.all([
-      checkBotId().catch(() => null),
-      auth(),
-    ]);
+    const [botIdResult, session] = await Promise.all([checkBotId().catch(() => null), auth()]);
 
     if (botIdResult?.isBot) {
       return new ChatbotError("forbidden:api").toResponse();
@@ -152,32 +146,22 @@ export async function POST(request: Request) {
             m.parts
               ?.filter(
                 (p: Record<string, unknown>) =>
-                  p.state === "approval-responded" ||
-                  p.state === "output-denied"
+                  p.state === "approval-responded" || p.state === "output-denied",
               )
-              .map((p: Record<string, unknown>) => [
-                String(p.toolCallId ?? ""),
-                p,
-              ]) ?? []
-        )
+              .map((p: Record<string, unknown>) => [String(p.toolCallId ?? ""), p]) ?? [],
+        ),
       );
       uiMessages = dbMessages.map((msg) => ({
         ...msg,
         parts: msg.parts.map((part) => {
-          if (
-            "toolCallId" in part &&
-            approvalStates.has(String(part.toolCallId))
-          ) {
+          if ("toolCallId" in part && approvalStates.has(String(part.toolCallId))) {
             return { ...part, ...approvalStates.get(String(part.toolCallId)) };
           }
           return part;
         }),
       })) as ChatMessage[];
     } else {
-      uiMessages = [
-        ...convertToUIMessages(messagesFromDb),
-        message as ChatMessage,
-      ];
+      uiMessages = [...convertToUIMessages(messagesFromDb), message as ChatMessage];
     }
 
     const { longitude, latitude, city, country } = geolocation(request);
@@ -232,10 +216,7 @@ export async function POST(request: Request) {
           }
         };
 
-        const writeWaitingStatus = (
-          phase: WaitingStatusData["phase"],
-          messageText: string
-        ) => {
+        const writeWaitingStatus = (phase: WaitingStatusData["phase"], messageText: string) => {
           if (hasModelActivity && phase !== "thinking") {
             return;
           }
@@ -259,7 +240,7 @@ export async function POST(request: Request) {
               if (availability === "impacted") {
                 writeWaitingStatus(
                   "health",
-                  `${modelName} may be slow or unavailable right now...`
+                  `${modelName} may be slow or unavailable right now...`,
                 );
               } else {
                 writeWaitingStatus("still-waiting", "Still waiting...");
@@ -371,7 +352,7 @@ export async function POST(request: Request) {
           toUIMessageStream({
             sendReasoning: isReasoningModel,
             stream: result.stream,
-          })
+          }),
         );
 
         if (titlePromise) {
@@ -396,9 +377,7 @@ export async function POST(request: Request) {
         if (isToolApprovalFlow) {
           await Promise.all(
             finishedMessages.map(async (finishedMsg) => {
-              const existingMsg = uiMessages.find(
-                (m) => m.id === finishedMsg.id
-              );
+              const existingMsg = uiMessages.find((m) => m.id === finishedMsg.id);
               if (existingMsg) {
                 await updateMessage({
                   id: finishedMsg.id,
@@ -419,7 +398,7 @@ export async function POST(request: Request) {
                   },
                 ],
               });
-            })
+            }),
           );
         } else if (finishedMessages.length > 0) {
           await saveMessages({
@@ -439,7 +418,7 @@ export async function POST(request: Request) {
         if (
           error instanceof Error &&
           error.message?.includes(
-            "AI Gateway requires a valid credit card on file to service requests"
+            "AI Gateway requires a valid credit card on file to service requests",
           )
         ) {
           return "AI Gateway requires a valid credit card on file to service requests. Please visit https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%3Fmodal%3Dadd-credit-card to add a card and unlock your free credits.";
@@ -459,10 +438,7 @@ export async function POST(request: Request) {
           if (streamContext) {
             const streamId = generateId();
             await createStreamId({ chatId: id, streamId });
-            await streamContext.createNewResumableStream(
-              streamId,
-              () => sseStream
-            );
+            await streamContext.createNewResumableStream(streamId, () => sseStream);
           }
         } catch {
           /* non-critical */
@@ -479,9 +455,7 @@ export async function POST(request: Request) {
 
     if (
       error instanceof Error &&
-      error.message?.includes(
-        "AI Gateway requires a valid credit card on file to service requests"
-      )
+      error.message?.includes("AI Gateway requires a valid credit card on file to service requests")
     ) {
       return new ChatbotError("bad_request:activate_gateway").toResponse();
     }

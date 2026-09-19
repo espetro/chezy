@@ -5,10 +5,7 @@ import * as v from "valibot";
 
 import { env } from "~/lib/env";
 
-import {
-  INSIGHTS_PROMPT_VERSION,
-  LISTING_INSIGHTS_PROMPT,
-} from "~/lib/vision/prompt";
+import { INSIGHTS_PROMPT_VERSION, LISTING_INSIGHTS_PROMPT } from "~/lib/vision/prompt";
 import { type ListingInsights, ListingInsightsSchema } from "~/lib/vision/schema";
 
 const MAX_PHOTOS = 25;
@@ -89,9 +86,7 @@ export async function extractListingInsights(
 }> {
   const model = opts?.modelId ?? env.VISION_MODEL_ID;
   const photos = input.photos.slice(0, MAX_PHOTOS);
-  const parts: (TextPart | ImagePart)[] = [
-    { type: "text", text: LISTING_INSIGHTS_PROMPT },
-  ];
+  const parts: (TextPart | ImagePart)[] = [{ type: "text", text: LISTING_INSIGHTS_PROMPT }];
   for (const photo of photos) {
     const local = photo.localPath ? await dataUrl(photo.localPath) : undefined;
     parts.push({ type: "image_url", image_url: { url: local ?? photo.url } });

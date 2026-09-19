@@ -39,9 +39,7 @@ export function toInsightRow(
   };
 }
 
-export async function getListingInsights(
-  listingId: string,
-): Promise<ListingInsights | undefined> {
+export async function getListingInsights(listingId: string): Promise<ListingInsights | undefined> {
   const rows = await db
     .select()
     .from(listingInsight)
@@ -69,9 +67,7 @@ let localPathIndex: Map<string, Map<string, string>> | undefined;
 
 // Maps listingId -> (media url -> local_path) so the VLM gets the cheaper
 // local WebPs. Parsed lazily from the committed JSONL (300 rows).
-async function datasetLocalPaths(
-  listingId: string,
-): Promise<Map<string, string>> {
+async function datasetLocalPaths(listingId: string): Promise<Map<string, string>> {
   if (!localPathIndex) {
     localPathIndex = new Map();
     const rl = readline.createInterface({
@@ -114,10 +110,7 @@ export async function selectPhotos(row: {
       kind: m.kind,
       mediaIndex,
     }))
-    .filter(
-      (p) =>
-        p.kind === "photo" && (p.localPath !== null || isCdnImageUrl(p.url)),
-    )
+    .filter((p) => p.kind === "photo" && (p.localPath !== null || isCdnImageUrl(p.url)))
     .map(({ url, localPath, mediaIndex }) => ({ url, localPath, mediaIndex }));
 }
 
@@ -125,10 +118,7 @@ export async function ensureListingInsights(
   listingId: string,
   opts?: { force?: boolean; modelId?: string },
 ): Promise<ListingInsights> {
-  const rows = await db
-    .select()
-    .from(listing)
-    .where(eq(listing.id, listingId));
+  const rows = await db.select().from(listing).where(eq(listing.id, listingId));
   const row = rows[0];
   if (!row) {
     throw new Error(`listing not found: ${listingId}`);
@@ -139,11 +129,7 @@ export async function ensureListingInsights(
     .from(listingInsight)
     .where(eq(listingInsight.listingId, listingId));
   const current = stored[0];
-  if (
-    !opts?.force &&
-    current &&
-    current.promptVersion === INSIGHTS_PROMPT_VERSION
-  ) {
+  if (!opts?.force && current && current.promptVersion === INSIGHTS_PROMPT_VERSION) {
     return current.insights;
   }
 
@@ -180,18 +166,13 @@ export async function ensureListingInsights(
     }
   }
   if (dirty) {
-    await db
-      .update(listing)
-      .set({ media })
-      .where(eq(listing.id, listingId));
+    await db.update(listing).set({ media }).where(eq(listing.id, listingId));
   }
 
   return insights;
 }
 
-export function insightsToCallVariables(
-  insights: ListingInsights,
-): Record<string, string> {
+export function insightsToCallVariables(insights: ListingInsights): Record<string, string> {
   return {
     property_highlights: insights.highlights_es.slice(0, 3).join("; "),
     property_condition: String(insights.condition.score_1to5),

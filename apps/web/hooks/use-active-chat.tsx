@@ -83,19 +83,13 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
   const [showCreditCardAlert, setShowCreditCardAlert] = useState(false);
 
   const { data: chatData, isLoading } = useSWR(
-    isNewChat
-      ? null
-      : `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/messages?chatId=${chatId}`,
+    isNewChat ? null : `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/messages?chatId=${chatId}`,
     fetcher,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   );
 
-  const initialMessages: ChatMessage[] = isNewChat
-    ? []
-    : (chatData?.messages ?? []);
-  const visibility: VisibilityType = isNewChat
-    ? "private"
-    : (chatData?.visibility ?? "private");
+  const initialMessages: ChatMessage[] = isNewChat ? [] : (chatData?.messages ?? []);
+  const visibility: VisibilityType = isNewChat ? "private" : (chatData?.visibility ?? "private");
 
   const {
     messages,
@@ -140,7 +134,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
             "state" in part &&
             part.state === "approval-responded" &&
             "approval" in part &&
-            (part.approval as { approved?: boolean })?.approved === true
+            (part.approval as { approved?: boolean })?.approved === true,
         ) ?? false
       );
     },
@@ -154,10 +148,8 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
           request.messages.some((msg) =>
             msg.parts?.some((part) => {
               const { state } = part as { state?: string };
-              return (
-                state === "approval-responded" || state === "output-denied"
-              );
-            })
+              return state === "approval-responded" || state === "output-denied";
+            }),
           );
 
         return {
@@ -228,7 +220,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
       window.history.replaceState(
         {},
         "",
-        `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/chat/${chatId}`
+        `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/chat/${chatId}`,
       );
       sendMessage({
         parts: [{ text: query, type: "text" }],
@@ -251,7 +243,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
       ? `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/vote?chatId=${chatId}`
       : null,
     fetcher,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   );
 
   const value = useMemo<ActiveChatContextValue>(
@@ -292,14 +284,10 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
       votes,
       currentModelId,
       showCreditCardAlert,
-    ]
+    ],
   );
 
-  return (
-    <ActiveChatContext.Provider value={value}>
-      {children}
-    </ActiveChatContext.Provider>
-  );
+  return <ActiveChatContext.Provider value={value}>{children}</ActiveChatContext.Provider>;
 }
 
 export function useActiveChat() {

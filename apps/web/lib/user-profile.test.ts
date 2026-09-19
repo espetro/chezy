@@ -38,30 +38,18 @@ describe("normalizeUsername", () => {
 
 describe("missingProfileFields", () => {
   test("reports all required fields on an empty profile", () => {
-    expect(missingProfileFields({})).toEqual([
-      "areas",
-      "budgetMaxEur",
-      "bedroomsMin",
-    ]);
+    expect(missingProfileFields({})).toEqual(["areas", "budgetMaxEur", "bedroomsMin"]);
   });
 
   test("treats nullish profiles as empty", () => {
-    expect(missingProfileFields(null)).toEqual([
-      "areas",
-      "budgetMaxEur",
-      "bedroomsMin",
-    ]);
-    expect(missingProfileFields(undefined)).toEqual([
-      "areas",
-      "budgetMaxEur",
-      "bedroomsMin",
-    ]);
+    expect(missingProfileFields(null)).toEqual(["areas", "budgetMaxEur", "bedroomsMin"]);
+    expect(missingProfileFields(undefined)).toEqual(["areas", "budgetMaxEur", "bedroomsMin"]);
   });
 
   test("reports only the absent fields on a partial profile", () => {
-    expect(
-      missingProfileFields({ areas: ["gracia"], budgetMaxEur: 1500 })
-    ).toEqual(["bedroomsMin"]);
+    expect(missingProfileFields({ areas: ["gracia"], budgetMaxEur: 1500 })).toEqual([
+      "bedroomsMin",
+    ]);
   });
 
   test("treats an empty areas array as missing", () => {
@@ -70,7 +58,7 @@ describe("missingProfileFields", () => {
         areas: [],
         budgetMaxEur: 1500,
         bedroomsMin: 2,
-      })
+      }),
     ).toEqual(["areas"]);
   });
 
@@ -80,7 +68,7 @@ describe("missingProfileFields", () => {
         areas: ["gracia"],
         budgetMaxEur: 1500,
         bedroomsMin: 2,
-      })
+      }),
     ).toEqual([]);
   });
 });
@@ -100,10 +88,7 @@ describe("mergeUserProfile", () => {
       freeformRequirements: ["gym nearby", "pet friendly"],
     });
 
-    expect(merged.freeformRequirements).toEqual([
-      "gym nearby",
-      "pet friendly",
-    ]);
+    expect(merged.freeformRequirements).toEqual(["gym nearby", "pet friendly"]);
   });
 
   test("keeps existing freeformRequirements when the patch omits them", () => {
@@ -142,10 +127,7 @@ describe("mergeUserProfile", () => {
   });
 
   test("leaves onboardedAt unset when the base lacks it", () => {
-    const merged = mergeUserProfile(
-      {},
-      { onboardedAt: "2026-09-19T00:00:00.000Z" }
-    );
+    const merged = mergeUserProfile({}, { onboardedAt: "2026-09-19T00:00:00.000Z" });
 
     expect(merged.onboardedAt).toBeUndefined();
   });

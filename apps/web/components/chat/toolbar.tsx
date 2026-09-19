@@ -16,12 +16,7 @@ import {
   useState,
 } from "react";
 import { useOnClickOutside } from "usehooks-ts";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 import type { ChatMessage } from "~/lib/types";
 import { type ArtifactKind, artifactDefinitions } from "./artifact";
 import type { ArtifactToolbarItem } from "./create-artifact";
@@ -36,11 +31,7 @@ type ToolProps = {
   setIsToolbarVisible?: Dispatch<SetStateAction<boolean>>;
   isAnimating: boolean;
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
-  onClick: ({
-    sendMessage,
-  }: {
-    sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
-  }) => void;
+  onClick: ({ sendMessage }: { sendMessage: UseChatHelpers<ChatMessage>["sendMessage"] }) => void;
 };
 
 const READING_LEVELS = [
@@ -115,7 +106,7 @@ const Tool = ({
         handleSelect();
       }
     },
-    [handleSelect]
+    [handleSelect],
   );
 
   return (
@@ -139,11 +130,7 @@ const Tool = ({
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
         >
-          {selectedTool === description ? (
-            <ArrowUpIcon />
-          ) : isValidElement(icon) ? (
-            icon
-          ) : null}
+          {selectedTool === description ? <ArrowUpIcon /> : isValidElement(icon) ? icon : null}
         </motion.div>
       </TooltipTrigger>
       <TooltipContent
@@ -173,8 +160,7 @@ const ReadingLevelSelector = ({
   const yToLevel = useTransform(y, [0, -dragConstraints], [0, 5]);
 
   const [currentLevel, setCurrentLevel] = useState(2);
-  const [hasUserSelectedLevel, setHasUserSelectedLevel] =
-    useState<boolean>(false);
+  const [hasUserSelectedLevel, setHasUserSelectedLevel] = useState<boolean>(false);
 
   useEffect(() => {
     const unsubscribe = yToLevel.on("change", (latest) => {
@@ -237,7 +223,7 @@ const ReadingLevelSelector = ({
                 {
                   "bg-background text-foreground": currentLevel === 2,
                   "bg-primary text-primary-foreground": currentLevel !== 2,
-                }
+                },
               )}
               drag="y"
               dragConstraints={{ bottom: 0, top: -dragConstraints }}
@@ -255,7 +241,7 @@ const ReadingLevelSelector = ({
             </motion.div>
           </TooltipTrigger>
           <TooltipContent
-            className="rounded-2xl bg-foreground p-3 px-4 text-background text-sm"
+            className="rounded-2xl bg-foreground p-3 px-4 text-sm text-background"
             side="left"
             sideOffset={16}
           >
@@ -301,10 +287,7 @@ export const Tools = ({
   </motion.div>
 );
 
-const createFixErrorTool = (
-  consoleOutput: string,
-  documentId?: string
-): ArtifactToolbarItem => ({
+const createFixErrorTool = (consoleOutput: string, documentId?: string): ArtifactToolbarItem => ({
   description: "Fix error",
   icon: <WrenchIcon className="size-4" />,
   onClick: ({ sendMessage: send }) => {
@@ -379,7 +362,7 @@ const PureToolbar = ({
         clearTimeout(timeoutRef.current);
       }
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -419,7 +402,7 @@ const PureToolbar = ({
   }, [setMessages, stop]);
 
   const artifactDefinition = artifactDefinitions.find(
-    (definition) => definition.kind === artifactKind
+    (definition) => definition.kind === artifactKind,
   );
 
   if (!artifactDefinition) {
@@ -427,10 +410,7 @@ const PureToolbar = ({
   }
 
   const toolsByArtifactKind = consoleError
-    ? [
-        createFixErrorTool(consoleError, documentId),
-        ...artifactDefinition.toolbar.slice(1),
-      ]
+    ? [createFixErrorTool(consoleError, documentId), ...artifactDefinition.toolbar.slice(1)]
     : artifactDefinition.toolbar;
 
   if (toolsByArtifactKind.length === 0) {

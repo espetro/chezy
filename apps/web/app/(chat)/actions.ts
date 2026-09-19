@@ -20,11 +20,7 @@ export async function saveChatModelAsCookie(model: string) {
   cookieStore.set("chat-model", model);
 }
 
-export async function generateTitleFromUserMessage({
-  message,
-}: {
-  message: UIMessage;
-}) {
+export async function generateTitleFromUserMessage({ message }: { message: UIMessage }) {
   const { text } = await generateText({
     instructions: titlePrompt,
     model: getTitleModel(),

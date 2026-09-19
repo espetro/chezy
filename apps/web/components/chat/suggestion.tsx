@@ -22,7 +22,7 @@ export const SuggestionDialog = ({
         onClose();
       }
     },
-    [onClose]
+    [onClose],
   );
 
   return (
@@ -37,7 +37,7 @@ export const SuggestionDialog = ({
         />
         <motion.div
           animate={{ opacity: 1, scale: 1 }}
-          className="absolute left-1/2 top-1/2 z-50 flex w-[min(20rem,calc(100%-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-3 rounded-2xl border bg-background p-4 font-sans text-sm shadow-xl"
+          className="absolute top-1/2 left-1/2 z-50 flex w-[min(20rem,calc(100%-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-3 rounded-2xl border bg-background p-4 font-sans text-sm shadow-xl"
           exit={{ opacity: 0, scale: 0.95 }}
           initial={{ opacity: 0, scale: 0.95 }}
           key={suggestion.id}
@@ -58,22 +58,12 @@ export const SuggestionDialog = ({
               <CrossIcon size={12} />
             </button>
           </div>
-          <div className="text-muted-foreground leading-relaxed">
-            {suggestion.description}
-          </div>
+          <div className="leading-relaxed text-muted-foreground">{suggestion.description}</div>
           <div className="flex gap-2">
-            <Button
-              className="w-fit rounded-full px-3 py-1.5"
-              onClick={onApply}
-              variant="outline"
-            >
+            <Button className="w-fit rounded-full px-3 py-1.5" onClick={onApply} variant="outline">
               Apply
             </Button>
-            <Button
-              className="w-fit rounded-full px-3 py-1.5"
-              onClick={onClose}
-              variant="ghost"
-            >
+            <Button className="w-fit rounded-full px-3 py-1.5" onClick={onClose} variant="ghost">
               Dismiss
             </Button>
           </div>

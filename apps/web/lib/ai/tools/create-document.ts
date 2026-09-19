@@ -1,10 +1,7 @@
 import { tool, type UIMessageStreamWriter } from "ai";
 import type { Session } from "next-auth";
 import { z } from "zod";
-import {
-  artifactKinds,
-  documentHandlersByArtifactKind,
-} from "~/lib/artifacts/server";
+import { artifactKinds, documentHandlersByArtifactKind } from "~/lib/artifacts/server";
 import type { ChatMessage } from "~/lib/types";
 import { generateUUID } from "~/lib/utils";
 
@@ -14,11 +11,7 @@ type CreateDocumentProps = {
   modelId: string;
 };
 
-export const createDocument = ({
-  session,
-  dataStream,
-  modelId,
-}: CreateDocumentProps) =>
+export const createDocument = ({ session, dataStream, modelId }: CreateDocumentProps) =>
   tool({
     description:
       "Create an artifact. You MUST specify kind: use 'code' for any programming/algorithm request (creates a script), 'text' for essays/writing (creates a document), 'sheet' for spreadsheets/data.",
@@ -50,8 +43,7 @@ export const createDocument = ({
       });
 
       const documentHandler = documentHandlersByArtifactKind.find(
-        (documentHandlerByArtifactKind) =>
-          documentHandlerByArtifactKind.kind === kind
+        (documentHandlerByArtifactKind) => documentHandlerByArtifactKind.kind === kind,
       );
 
       if (!documentHandler) {
@@ -82,7 +74,7 @@ export const createDocument = ({
       kind: z
         .enum(artifactKinds)
         .describe(
-          "REQUIRED. 'code' for programming/algorithms, 'text' for essays/writing, 'sheet' for spreadsheets"
+          "REQUIRED. 'code' for programming/algorithms, 'text' for essays/writing, 'sheet' for spreadsheets",
         ),
       title: z.string().describe("The title of the artifact"),
     }),

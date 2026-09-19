@@ -1,11 +1,7 @@
 import { useCallback } from "react";
 import { toast } from "sonner";
 import { CodeEditor } from "~/components/chat/code-editor";
-import {
-  Console,
-  type ConsoleOutput,
-  type ConsoleOutputContent,
-} from "~/components/chat/console";
+import { Console, type ConsoleOutput, type ConsoleOutputContent } from "~/components/chat/console";
 import { Artifact } from "~/components/chat/create-artifact";
 import {
   CopyIcon,
@@ -67,30 +63,30 @@ type Metadata = {
   outputs: ConsoleOutput[];
 };
 
-const codeArtifactContent: Artifact<"code", Metadata>["content"] =
-  function CodeArtifactContent({ metadata, setMetadata, ...props }) {
-    const clearConsoleOutputs = useCallback(() => {
-      setMetadata((currentMetadata) => ({
-        ...currentMetadata,
-        outputs: [],
-      }));
-    }, [setMetadata]);
+const codeArtifactContent: Artifact<"code", Metadata>["content"] = function CodeArtifactContent({
+  metadata,
+  setMetadata,
+  ...props
+}) {
+  const clearConsoleOutputs = useCallback(() => {
+    setMetadata((currentMetadata) => ({
+      ...currentMetadata,
+      outputs: [],
+    }));
+  }, [setMetadata]);
 
-    return (
-      <>
-        <div className="relative min-h-[200px]">
-          <CodeEditor {...props} />
-        </div>
+  return (
+    <>
+      <div className="relative min-h-[200px]">
+        <CodeEditor {...props} />
+      </div>
 
-        {metadata?.outputs ? (
-          <Console
-            consoleOutputs={metadata.outputs}
-            setConsoleOutputs={clearConsoleOutputs}
-          />
-        ) : null}
-      </>
-    );
-  };
+      {metadata?.outputs ? (
+        <Console consoleOutputs={metadata.outputs} setConsoleOutputs={clearConsoleOutputs} />
+      ) : null}
+    </>
+  );
+};
 
 export const codeArtifact = new Artifact<"code", Metadata>({
   actions: [
@@ -123,9 +119,7 @@ export const codeArtifact = new Artifact<"code", Metadata>({
           currentPyodideInstance.setStdout({
             batched: (output: string) => {
               outputContent.push({
-                type: output.startsWith("data:image/png;base64")
-                  ? "image"
-                  : "text",
+                type: output.startsWith("data:image/png;base64") ? "image" : "text",
                 value: output,
               });
             },
@@ -148,26 +142,21 @@ export const codeArtifact = new Artifact<"code", Metadata>({
           });
 
           const requiredHandlers = detectRequiredHandlers(content);
-          await requiredHandlers.reduce<Promise<void>>(
-            async (previous, handler) => {
-              await previous;
+          await requiredHandlers.reduce<Promise<void>>(async (previous, handler) => {
+            await previous;
 
-              if (!OUTPUT_HANDLERS[handler as keyof typeof OUTPUT_HANDLERS]) {
-                return;
-              }
+            if (!OUTPUT_HANDLERS[handler as keyof typeof OUTPUT_HANDLERS]) {
+              return;
+            }
 
-              await currentPyodideInstance.runPythonAsync(
-                OUTPUT_HANDLERS[handler as keyof typeof OUTPUT_HANDLERS]
-              );
+            await currentPyodideInstance.runPythonAsync(
+              OUTPUT_HANDLERS[handler as keyof typeof OUTPUT_HANDLERS],
+            );
 
-              if (handler === "matplotlib") {
-                await currentPyodideInstance.runPythonAsync(
-                  "setup_matplotlib_output()"
-                );
-              }
-            },
-            Promise.resolve()
-          );
+            if (handler === "matplotlib") {
+              await currentPyodideInstance.runPythonAsync("setup_matplotlib_output()");
+            }
+          }, Promise.resolve());
 
           await currentPyodideInstance.runPythonAsync(content);
 
@@ -191,8 +180,7 @@ export const codeArtifact = new Artifact<"code", Metadata>({
                 contents: [
                   {
                     type: "text",
-                    value:
-                      error instanceof Error ? error.message : String(error),
+                    value: error instanceof Error ? error.message : String(error),
                   },
                 ],
                 id: runId,
@@ -241,8 +229,7 @@ export const codeArtifact = new Artifact<"code", Metadata>({
     },
   ],
   content: codeArtifactContent,
-  description:
-    "Useful for code generation; Code execution is only available for python code.",
+  description: "Useful for code generation; Code execution is only available for python code.",
   initialize: ({ setMetadata }) => {
     setMetadata({
       outputs: [],

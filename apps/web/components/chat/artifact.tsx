@@ -29,12 +29,7 @@ import { Toolbar } from "./toolbar";
 import { VersionFooter } from "./version-footer";
 import type { VisibilityType } from "./visibility-selector";
 
-export const artifactDefinitions = [
-  textArtifact,
-  codeArtifact,
-  imageArtifact,
-  sheetArtifact,
-];
+export const artifactDefinitions = [textArtifact, codeArtifact, imageArtifact, sheetArtifact];
 export type ArtifactKind = (typeof artifactDefinitions)[number]["kind"];
 
 export type UIArtifact = {
@@ -97,7 +92,7 @@ function PureArtifact({
     artifact.documentId !== "init" && artifact.status !== "streaming"
       ? `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/document?id=${artifact.documentId}`
       : null,
-    fetcher
+    fetcher,
   );
 
   const [mode, setMode] = useState<"edit" | "diff">("edit");
@@ -182,21 +177,19 @@ function PureArtifact({
                 title: artifact.title,
               }),
               method: "POST",
-            }
+            },
           );
 
           setIsContentDirty(false);
 
           return currentDocuments.map((doc, i) =>
-            i === currentDocuments.length - 1
-              ? { ...doc, content: updatedContent }
-              : doc
+            i === currentDocuments.length - 1 ? { ...doc, content: updatedContent } : doc,
           );
         },
-        { revalidate: false }
+        { revalidate: false },
       );
     },
-    [artifact, mutate]
+    [artifact, mutate],
   );
 
   const latestContentRef = useRef<string>("");
@@ -221,7 +214,7 @@ function PureArtifact({
         handleContentChange(updatedContent);
       }
     },
-    [handleContentChange]
+    [handleContentChange],
   );
 
   const getDocumentContentById = useCallback(
@@ -234,7 +227,7 @@ function PureArtifact({
       }
       return documents[index].content ?? "";
     },
-    [documents]
+    [documents],
   );
 
   const handleVersionChange = useCallback(
@@ -256,14 +249,11 @@ function PureArtifact({
         if (currentVersionIndex > 0) {
           setCurrentVersionIndex((index) => index - 1);
         }
-      } else if (
-        type === "next" &&
-        currentVersionIndex < documents.length - 1
-      ) {
+      } else if (type === "next" && currentVersionIndex < documents.length - 1) {
         setCurrentVersionIndex((index) => index + 1);
       }
     },
-    [currentVersionIndex, documents]
+    [currentVersionIndex, documents],
   );
 
   const handleArtifactScroll = useCallback(() => {
@@ -282,15 +272,13 @@ function PureArtifact({
   const [isToolbarVisible, setIsToolbarVisible] = useState(true);
 
   const isCurrentVersion =
-    documents && documents.length > 0
-      ? currentVersionIndex === documents.length - 1
-      : true;
+    documents && documents.length > 0 ? currentVersionIndex === documents.length - 1 : true;
 
   const { width: windowWidth, height: windowHeight } = useWindowSize();
   const isMobile = windowWidth ? windowWidth < 768 : false;
 
   const artifactDefinition = artifactDefinitions.find(
-    (definition) => definition.kind === artifact.kind
+    (definition) => definition.kind === artifact.kind,
   );
 
   if (!artifactDefinition) {
@@ -323,7 +311,7 @@ function PureArtifact({
     metadata?.outputs
       ?.filter((o: { status: string }) => o.status === "failed")
       .flatMap((o: { contents: { type: string; value: string }[] }) =>
-        o.contents.filter((c) => c.type === "text").map((c) => c.value)
+        o.contents.filter((c) => c.type === "text").map((c) => c.value),
       )
       .join("\n") || undefined;
 
@@ -334,7 +322,7 @@ function PureArtifact({
           <div className="flex items-center gap-3">
             <ArtifactCloseButton />
             <div className="flex flex-col gap-0.5">
-              <div className="text-sm font-semibold leading-tight tracking-tight">
+              <div className="text-sm leading-tight font-semibold tracking-tight">
                 {artifact.title}
               </div>
               <div className="flex items-center gap-2">
@@ -358,7 +346,7 @@ function PureArtifact({
                   <div className="h-3 w-24 animate-pulse rounded bg-muted-foreground/10" />
                 )}
                 {documents && documents.length > 1 && (
-                  <div className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground">
+                  <div className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground tabular-nums">
                     v{currentVersionIndex + 1}/{documents.length}
                   </div>
                 )}
@@ -375,9 +363,7 @@ function PureArtifact({
       >
         <artifactDefinition.content
           content={
-            isCurrentVersion
-              ? artifact.content
-              : getDocumentContentById(currentVersionIndex)
+            isCurrentVersion ? artifact.content : getDocumentContentById(currentVersionIndex)
           }
           currentVersionIndex={currentVersionIndex}
           getDocumentContentById={getDocumentContentById}

@@ -22,10 +22,7 @@ const openaiCompatibleProvider = createOpenAICompatible({
 
 export const myProvider = isTestEnvironment
   ? (() => {
-      const {
-        chatModel,
-        titleModel: mockTitleModel,
-      } = require("./models.mock");
+      const { chatModel, titleModel: mockTitleModel } = require("./models.mock");
       return customProvider({
         languageModels: {
           "chat-model": chatModel,

@@ -15,7 +15,7 @@ export const searchListingsTool = tool({
       maxPriceEur: v.optional(v.number()),
       minRooms: v.optional(v.number()),
       limit: v.optional(v.number()),
-    })
+    }),
   ),
   execute: (input) => searchListings(input),
 });

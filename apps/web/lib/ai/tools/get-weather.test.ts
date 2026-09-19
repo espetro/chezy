@@ -41,15 +41,13 @@ describe("getWeather", () => {
   test("returns weather data on success", async () => {
     const mock = vi.fn();
     vi.stubGlobal("fetch", mock);
-    mock
-      .mockResolvedValueOnce(jsonResponse(GEOCODE_BARCELONA))
-      .mockResolvedValueOnce(
-        jsonResponse({
-          current: { temperature_2m: 21.5 },
-          hourly: { temperature_2m: [1] },
-          daily: {},
-        })
-      );
+    mock.mockResolvedValueOnce(jsonResponse(GEOCODE_BARCELONA)).mockResolvedValueOnce(
+      jsonResponse({
+        current: { temperature_2m: 21.5 },
+        hourly: { temperature_2m: [1] },
+        daily: {},
+      }),
+    );
 
     const result = (await run({ city: "Barcelona" })) as {
       hourly?: unknown;

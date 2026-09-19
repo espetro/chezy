@@ -1,12 +1,10 @@
 import { tool } from "ai";
 import { z } from "zod";
 
-async function geocodeCity(
-  city: string
-): Promise<{ latitude: number; longitude: number } | null> {
+async function geocodeCity(city: string): Promise<{ latitude: number; longitude: number } | null> {
   try {
     const response = await fetch(
-      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
+      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`,
     );
 
     if (!response.ok) {
@@ -50,8 +48,7 @@ export const getWeather = tool({
       longitude = inputLongitude;
     } else {
       return {
-        error:
-          "Please provide either a city name or both latitude and longitude coordinates.",
+        error: "Please provide either a city name or both latitude and longitude coordinates.",
       };
     }
 
@@ -59,7 +56,7 @@ export const getWeather = tool({
 
     try {
       const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m&hourly=temperature_2m&daily=sunrise,sunset&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m&hourly=temperature_2m&daily=sunrise,sunset&timezone=auto`,
       );
 
       if (!response.ok) {
@@ -84,10 +81,7 @@ export const getWeather = tool({
     return weatherData;
   },
   inputSchema: z.object({
-    city: z
-      .string()
-      .describe("City name (e.g., 'San Francisco', 'New York', 'London')")
-      .optional(),
+    city: z.string().describe("City name (e.g., 'San Francisco', 'New York', 'London')").optional(),
     latitude: z.number().optional(),
     longitude: z.number().optional(),
   }),

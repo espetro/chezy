@@ -10,8 +10,7 @@ import { env } from "~/lib/env";
 const PROVIDER_BASE_URL = env.OPENAI_COMPATIBLE_BASE_URL ?? "http://localhost:8317/v1";
 const PROVIDER_API_KEY = env.OPENAI_COMPATIBLE_API_KEY ?? "ollama";
 
-export const DEFAULT_CHAT_MODEL =
-  env.CHEZY_MODEL_ID ?? "deepseek-ai/DeepSeek-V4.1-Flash";
+export const DEFAULT_CHAT_MODEL = env.CHEZY_MODEL_ID ?? "deepseek-ai/DeepSeek-V4.1-Flash";
 
 export const titleModel: ChatModel = {
   description: "Fast model for title generation",
@@ -45,9 +44,7 @@ type BifrostModel = {
 async function fetchBifrostModels(): Promise<BifrostModel[]> {
   try {
     const res = await fetch(`${PROVIDER_BASE_URL}/models`, {
-      headers: PROVIDER_API_KEY
-        ? { Authorization: `Bearer ${PROVIDER_API_KEY}` }
-        : {},
+      headers: PROVIDER_API_KEY ? { Authorization: `Bearer ${PROVIDER_API_KEY}` } : {},
       next: { revalidate: 60 },
     });
     if (!res.ok) return [];
@@ -98,7 +95,7 @@ export const modelsByProvider = chatModels.reduce(
     acc[model.provider].push(model);
     return acc;
   },
-  {} as Record<string, ChatModel[]>
+  {} as Record<string, ChatModel[]>,
 );
 
 export type ModelAvailability = "healthy" | "impacted" | "unknown";
@@ -115,9 +112,7 @@ export type GatewayModelWithCapabilities = ChatModel & {
  * `/v1/models` doesn't expose per-model capability metadata. The
  * model-selector UI uses these to decide which features to surface.
  */
-export async function getAllGatewayModels(): Promise<
-  GatewayModelWithCapabilities[]
-> {
+export async function getAllGatewayModels(): Promise<GatewayModelWithCapabilities[]> {
   const models = await getActiveModels();
   return models.map((m) => ({
     ...m,
@@ -131,21 +126,14 @@ export async function getAllGatewayModels(): Promise<
  * shape. Reasoning capability is opt-in (the upstream feature relied
  * on Vercel's gateway metadata that we don't have here).
  */
-export async function getCapabilities(): Promise<
-  Record<string, ModelCapabilities>
-> {
+export async function getCapabilities(): Promise<Record<string, ModelCapabilities>> {
   const models = await getActiveModels();
   return Object.fromEntries(
-    models.map((m) => [
-      m.id,
-      { reasoning: false, tools: true, vision: false },
-    ])
+    models.map((m) => [m.id, { reasoning: false, tools: true, vision: false }]),
   );
 }
 
-export async function getModelAvailability(
-  modelId: string
-): Promise<ModelAvailability> {
+export async function getModelAvailability(modelId: string): Promise<ModelAvailability> {
   const models = await getActiveModels();
   if (!models.find((m) => m.id === modelId)) return "unknown";
   // Bifrost doesn't expose uptime/latency per model — everything is healthy.

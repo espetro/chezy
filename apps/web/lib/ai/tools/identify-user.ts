@@ -6,7 +6,7 @@ import { missingProfileFields, normalizeUsername } from "~/lib/user-profile";
 
 export const identifyUser = tool({
   description:
-    "Resolve the user's identity. You MUST call this immediately when the user names or identifies themselves (e.g. \"I'm user X\", \"I'm X\", \"my name is X\"), before doing anything else. Finds or creates the user and returns their saved profile plus which required fields are still missing.",
+    'Resolve the user\'s identity. You MUST call this immediately when the user names or identifies themselves (e.g. "I\'m user X", "I\'m X", "my name is X"), before doing anything else. Finds or creates the user and returns their saved profile plus which required fields are still missing.',
   execute: async (input) => {
     const username = normalizeUsername(input.username);
 
