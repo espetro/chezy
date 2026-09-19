@@ -18,6 +18,7 @@
   "dependencies": {
     "@chezy/contract": "workspace:*",
     "@chezy/db": "workspace:*",
+    "@chezy/observability": "workspace:*",
     "@chezy/ui": "workspace:*",
     "ai": "catalog:default",
     "@ai-sdk/react": "^4.0.0",

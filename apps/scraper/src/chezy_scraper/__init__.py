@@ -8,5 +8,9 @@ Day-0 scope: a hello-world CLI. Future tickets add:
 
 Run via `uv run scraper` (after `uv sync --all-packages`).
 """
+from chezy_scraper.observability import audit, configure_logging
 
 __version__ = "0.0.0"
+
+__all__ = ["__version__", "audit", "configure_logging"]
+
