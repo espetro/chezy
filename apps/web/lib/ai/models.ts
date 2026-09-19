@@ -8,6 +8,8 @@
 //   OPENAI_COMPATIBLE_BASE_URL  e.g. http://localhost:8317/v1
 //   OPENAI_COMPATIBLE_API_KEY   used as Bearer auth for the /v1/models fetch
 
+import { FETCH_TIMEOUT_MS } from "../constants";
+
 const PROVIDER_BASE_URL =
   process.env.OPENAI_COMPATIBLE_BASE_URL ?? "http://localhost:8317/v1";
 const PROVIDER_API_KEY =
@@ -52,6 +54,7 @@ async function fetchBifrostModels(): Promise<BifrostModel[]> {
         ? { Authorization: `Bearer ${PROVIDER_API_KEY}` }
         : {},
       next: { revalidate: 60 },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
     if (!res.ok) return [];
     const json = (await res.json()) as { data?: BifrostModel[] };

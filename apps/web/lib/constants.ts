@@ -36,3 +36,11 @@ export const COMMUTE_MIN_PER_KM = 3.2;
 export const COMMUTE_OVERHEAD_MIN = 6;
 // Feed candidates may exceed maxPrice by 15% so near-misses can still rank.
 export const PRICE_HEADROOM = 1.15;
+
+// Deadline for outbound HTTP calls (client transport + third-party APIs);
+// bounds a stalled gateway/provider so requests fail instead of hanging.
+export const FETCH_TIMEOUT_MS = 10_000;
+
+// The VLM call reads several photos and can legitimately take much longer
+// than a plain API round trip.
+export const VISION_FETCH_TIMEOUT_MS = 60_000;
