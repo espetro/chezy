@@ -21,9 +21,8 @@ import {
   getCapabilities,
   getModelAvailability,
 } from "@/lib/ai/models";
-import { embedText } from "@/lib/ai/embeddings";
+import { EMBEDDING_MODEL_ID, embedText } from "@/lib/ai/embeddings";
 import { extractMemories, formatMemoryContext, isDuplicateMemory } from "@/lib/ai/memory";
-import { EMBEDDING_MODEL_ID } from "@/lib/ai/embeddings";
 import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
 import { getLanguageModel } from "@/lib/ai/providers";
 import { createDocument } from "@/lib/ai/tools/create-document";

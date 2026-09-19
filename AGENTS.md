@@ -40,8 +40,16 @@ Any change to one of these requires updating the corresponding gate marker.
   `git push --no-verify` to bypass. The gate validates the push, not your diff. [gate:
   lefthook.yml]
 - `mise run validate` is the fast merge gate (TS typecheck + lint + format + pyright + ruff +
-  format + testmon). It runs via the lefthook pre-push hook; no `.github/workflows/` CI
-  exists yet. [gate: validate]
+  format + testmon). It runs via the lefthook pre-push hook and as the `.github/workflows/`
+  CI suite on every push. [gate: validate, .github/workflows/]
+- `.github/workflows/betterleaks.yml` runs [betterleaks](https://github.com/betterleaks/betterleaks)
+  (gitleaks' successor, same default ruleset + TOML schema) on push to `main`, on PRs, weekly
+  on Monday 06:00 UTC, and on manual dispatch. Permissions are `contents:read` +
+  `security-events:write` only. SARIF is uploaded to Code Scanning on push/schedule and the
+  full report is uploaded as a workflow artifact (`betterleaks-report`) with 14-day retention.
+  Config: `.betterleaks.toml` extends the default rule pack and allowlists `apps/web/vendor/`,
+  `apps/web/tests/`, the two `.env.example` files, `chezy-mock-data/`, `.agents/`, and `docs/`.
+  Never commit `betterleaks-report.sarif`. [gate: .betterleaks.toml, .github/workflows/betterleaks.yml]
 - `mise run validate:quick` is the in-loop fast tier (~10s, no tests). Use during iteration.
   [gate: validate:quick]
 - `pnpm install` uses the global content-addressable store at `~/Library/pnpm/store`. Do not
@@ -135,6 +143,10 @@ Non-gated, advisory. Lint-clean does not mean idiomatic.
   `.agents/docs/screens/radar.md`. Voice viewing flow (SLNG / Vonage, `VIEWING_MODE`,
   `CALENDAR_MODE`) lives in `apps/web/lib/{slng,vonage,calendar}.ts` with `/api/viewing`
   and `/api/calendar` routes.
+- Route map (2026-09-19): the product surface is `app/(flow)` — `/` landing →
+  `/onboarding` → `/explore` → `/explore/[id]`; chat at `/chat`, `/chat/[id]`; APIs
+  `/api/profile`, `/api/profile/count`, `/api/viewing`, `/api/calendar`. Legacy `/flow/*`
+  URLs redirect to the root equivalents.
 
 ## Stack reference
 

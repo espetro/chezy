@@ -5,7 +5,6 @@ const baseUrl = (env.OPENAI_COMPATIBLE_BASE_URL ?? "http://localhost:8317/v1").r
 const apiKey = env.OPENAI_COMPATIBLE_API_KEY ?? "ollama";
 
 export const EMBEDDING_MODEL_ID = env.CHEZY_EMBEDDING_MODEL_ID;
-export const EMBEDDING_DIMS = 4096;
 
 /**
  * Embed a single text via the OpenAI-compatible `/embeddings` endpoint.

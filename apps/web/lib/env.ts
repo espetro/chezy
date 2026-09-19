@@ -27,6 +27,8 @@ const EnvSchema = v.object({
   // provider being configured.
   VIEWING_MODE: v.fallback(ViewingModeSchema, "mock"),
   CALENDAR_MODE: v.fallback(CalendarModeSchema, "mock"),
+  // Demo fallback callee for /api/viewing; the dataset has no agency phones.
+  DEMO_AGENCY_PHONE: v.optional(v.string()),
 
   GOOGLE_CALENDAR_ID: v.optional(v.string()),
   GOOGLE_SERVICE_ACCOUNT_JSON_PATH: v.optional(v.string()),
@@ -37,11 +39,15 @@ const EnvSchema = v.object({
   // (lib/ai/embeddings.ts) + VLM calls.
   OPENAI_COMPATIBLE_BASE_URL: v.optional(v.string()),
   OPENAI_COMPATIBLE_API_KEY: v.optional(v.string()),
+  // Chat + title model ids; unset falls back in lib/ai/models.ts.
+  CHEZY_MODEL_ID: v.optional(v.string()),
+  CHEZY_TITLE_MODEL_ID: v.optional(v.string()),
+  // Template flag: "1" hides model choice in the demo deployment.
+  IS_DEMO: v.optional(v.string()),
   // Vision model for photo insights. Kimi-K3 needs thinking off; gemma-3-27b
   // is the cheap fallback.
   VISION_MODEL_ID: v.fallback(v.string(), "moonshotai/Kimi-K3"),
   CHEZY_EMBEDDING_MODEL_ID: v.fallback(v.string(), "Qwen/Qwen3-Embedding-8B"),
-  CHEZY_MEMORY_RECALL_LIMIT: v.fallback(v.pipe(v.string(), v.transform(Number)), 8),
 });
 
 export const env = v.parse(EnvSchema, process.env);

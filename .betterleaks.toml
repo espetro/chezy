@@ -1,0 +1,102 @@
+# Betterleaks config for chezy.
+#
+# Betterleaks is the successor to Gitleaks (same author; same default ruleset,
+# same TOML schema). We extend the default rule pack so the built-in provider
+# coverage (AWS, GitHub, Stripe, OpenAI, Nebius, OpenRouter, etc.) still
+# applies — this file only adds chezy-specific suppressions.
+#
+# Reference precedence (when betterleaks is invoked):
+#   1. --config flag (or the `config` input on the GitHub Action)
+#   2. $BETTERLEAKS_CONFIG env var
+#   3. .betterleaks.toml in the target directory  ← we are here
+#   4. .gitleaks.toml (backward-compatible fallback)
+#   5. Built-in default rules
+#
+# Why `[[allowlists]]` (plural, array of tables) instead of the newer Expr
+# `filter` / `prefilter` keys: with `[extend].useDefault = true`, our top-level
+# `filter` / `prefilter` Expr blocks are silently replaced by the upstream
+# defaults (no merge). The legacy `[[allowlists]]` syntax, however, *does*
+# compose: each entry's `paths` regex is OR-ed with the upstream prefilter at
+# load time, so chezy-specific path exclusions layer on top of the default
+# asset/lockfile exclusions. Both upstream and our filters then run during a
+# scan. See https://github.com/betterleaks/betterleaks/blob/main/config/betterleaks.toml
+# for the upstream default we are extending.
+
+title = "chezy"
+
+[extend]
+useDefault = true
+
+# ─── Path allowlist (composes with upstream prefilter) ───────────────────────
+# Files matched here never have any rule's regex applied — the cost is one
+# boolean eval per fragment. Chezy-specific exclusions:
+#
+#   • apps/web/vendor/   — verbatim import of vercel/chatbot (tracked for diff
+#     visibility, excluded from build). Carries its own .env.example and
+#     placeholder tokens that aren't chezy secrets.
+#   • apps/web/tests/    — Playwright e2e + fixtures; deterministic placeholder
+#     credentials by design (see apps/web/tests/helpers.ts).
+#   • .env.example       — checked-in template only; values are commented-out,
+#     dev-localhost URLs, or literal "dev-secret-change-me".
+#   • chezy-mock-data/   — public-domain listing dataset; URLs and IDs are real
+#     Idealista URLs by design (open-data scrape).
+#   • .agents/ + docs/   — design notes, plans, session notes; agents quote
+#     example secrets when documenting patterns.
+#   • *.md at the repo root and under apps/web/ — README + AGENTS.md + CLAUDE.md
+#     document the pg0 dev-default Postgres URL
+#     (postgresql://postgres:postgres@127.0.0.1:5432/postgres), which the
+#     generic-credential-uri rule flags at low confidence. README prose is
+#     documentation, not configuration.
+#   • .github/           — workflow definitions; intentional echo of env names
+#     and example references.
+#
+# Add new entries here, not at the top-level `filter` field — top-level filter
+# is overridden by the upstream default when `[extend].useDefault = true`.
+[[allowlists]]
+paths = [
+  '''(?i)(^|/)vendor/.*$''',
+  '''(?i)(^|/)\.env\.example$''',
+  '''(?i)(^|/)\.env\.example\.local$''',
+  '''(?i)(^|/)tests/.*$''',
+  '''(?i)(^|/)testdata/.*$''',
+  '''(?i)(^|/)__tests__/.*$''',
+  '''(?i)(^|/)chezy-mock-data/.*$''',
+  '''(?i)(^|/)\.agents/.*$''',
+  '''(?i)(^|/)docs/.*$''',
+  '''(?i)(^|/)(README|readme)\.md$''',
+  '''(?i)(^|/)apps/web/(README|readme)\.md$''',
+  '''(?i)(^|/)AGENTS\.md$''',
+  '''(?i)(^|/)CLAUDE\.md$''',
+  '''(?i)(^|/)\.github/.*$''',
+]
+
+# ─── Finding-level allowlist (composes with upstream filter) ─────────────────
+# Runs after regex matching per finding. Each entry's `stopwords` is matched
+# against the candidate's `secret` field (the captured credential value, not
+# the surrounding context). Substring match.
+#
+# Today this only suppresses the pg0 dev-default URL — the local-only
+# `postgres:postgres@127.0.0.1:5432/postgres` pattern that's documented in
+# AGENTS.md, README.md, apps/web/README.md, and the scraper config. Confidence
+# on the upstream `generic-credential-uri` rule is `low` here, but we'd rather
+# have a clean CI signal than a perpetually-red scan against our own docs.
+#
+# The `regex` field below uses `regexTarget = "match"` because the `secret`
+# field (with `--redact`) is just the password value, not the URI; matching
+# against the full match line catches the URL pattern in code comments and
+# string assignments.
+#
+# Keep narrow. Each entry is a regex against the candidate's match — a too-
+# broad list defeats the scanner.
+[[allowlists]]
+stopwords = [
+  "postgresql://postgres:postgres@127.0.0.1",
+  "postgres://postgres:postgres@127.0.0.1",
+]
+
+[[allowlists]]
+description = "pg0 dev default URL — local-only, no real credential"
+regexTarget = "match"
+regexes = [
+  '''(?:^|["'\s=(])postgresql?://postgres:postgres@127\.0\.0\.1(?::5432)?(?:/postgres)?(?:["'\s)]|$)''',
+]

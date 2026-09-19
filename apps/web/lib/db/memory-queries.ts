@@ -1,10 +1,8 @@
 import "server-only";
 
-import postgres from "postgres";
 import { ChatbotError } from "../errors";
+import { client } from "./client";
 import type { MemoryKind } from "./schema";
-
-const client = postgres(process.env.POSTGRES_URL ?? "");
 
 export type MemoryRow = {
   id: string;

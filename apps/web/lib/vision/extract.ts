@@ -3,24 +3,29 @@ import path from "node:path";
 
 import * as v from "valibot";
 
+import { VISION_FETCH_TIMEOUT_MS } from "@/lib/constants";
 import { env } from "@/lib/env";
 
-import { INSIGHTS_PROMPT_VERSION, LISTING_INSIGHTS_PROMPT } from "@/lib/vision/prompt";
+import {
+  INSIGHTS_PROMPT_VERSION,
+  LISTING_INSIGHTS_PROMPT,
+} from "@/lib/vision/prompt";
 import { type ListingInsights, ListingInsightsSchema } from "@/lib/vision/schema";
 
 const MAX_PHOTOS = 25;
 const MAX_TOKENS = 5000;
 
 // lib/vision/extract.ts -> apps/web -> repo root (has chezy-mock-data/).
-// import.meta.dirname is undefined in next build's module-evaluation context
-// (page-data collection), so resolve lazily from cwd: next always runs with
-// the app dir as cwd in dev/start/build.
-const REPO_ROOT = () => path.resolve(process.cwd(), "../..");
+// import.meta.dirname is undefined under Turbopack; fall back to cwd (apps/web).
+const REPO_ROOT = path.resolve(
+  import.meta.dirname ?? path.join(process.cwd(), "lib", "vision"),
+  "../../../..",
+);
 
 async function dataUrl(localPath: string): Promise<string | undefined> {
   try {
     // Dataset `local_path` already starts with `media/`.
-    const buf = await readFile(path.join(REPO_ROOT(), "chezy-mock-data", localPath));
+    const buf = await readFile(path.join(REPO_ROOT, "chezy-mock-data", localPath));
     return `data:image/webp;base64,${buf.toString("base64")}`;
   } catch {
     return undefined;
@@ -56,6 +61,7 @@ async function callModel(
       chat_template_kwargs: { thinking: false },
       messages: [{ role: "user", content }],
     }),
+    signal: AbortSignal.timeout(VISION_FETCH_TIMEOUT_MS),
   });
   if (!res.ok) {
     throw new Error(`vision model request failed: ${res.status} ${await res.text()}`);
@@ -89,7 +95,9 @@ export async function extractListingInsights(
 }> {
   const model = opts?.modelId ?? env.VISION_MODEL_ID;
   const photos = input.photos.slice(0, MAX_PHOTOS);
-  const parts: (TextPart | ImagePart)[] = [{ type: "text", text: LISTING_INSIGHTS_PROMPT }];
+  const parts: (TextPart | ImagePart)[] = [
+    { type: "text", text: LISTING_INSIGHTS_PROMPT },
+  ];
   for (const photo of photos) {
     const local = photo.localPath ? await dataUrl(photo.localPath) : undefined;
     parts.push({ type: "image_url", image_url: { url: local ?? photo.url } });
