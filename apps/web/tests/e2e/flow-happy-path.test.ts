@@ -41,10 +41,10 @@ test.describe("flow happy path", () => {
       }
     });
 
-    // 1. /flow landing → "Find my home".
-    await page.goto("/flow");
+    // 1. / landing → "Find my home".
+    await page.goto("/");
     await page.getByRole("link", { name: "Find my home" }).click();
-    await expect(page).toHaveURL(/\/flow\/onboarding/);
+    await expect(page).toHaveURL(/\/onboarding/);
 
     // 2. Welcome step → "Let's go".
     await page.getByRole("button", { name: "Let's go" }).click();
@@ -82,13 +82,13 @@ test.describe("flow happy path", () => {
     await page.getByRole("button", { name: /Start searching/ }).click();
 
     // 9. Explore: at least one candidate card.
-    await expect(page).toHaveURL(/\/flow\/explore$/, { timeout: 15_000 });
-    const firstCard = page.locator("a[href^='/flow/explore/']").first();
+    await expect(page).toHaveURL(/\/explore$/, { timeout: 15_000 });
+    const firstCard = page.locator("a[href^='/explore/']").first();
     await expect(firstCard).toBeVisible({ timeout: 15_000 });
 
     // 10. Detail: match reasoning visible.
     await firstCard.click();
-    await expect(page).toHaveURL(/\/flow\/explore\/.+/);
+    await expect(page).toHaveURL(/\/explore\/.+/);
     await expect(page.getByText("Why it's a match")).toBeVisible();
 
     // 11. Call gate: either it auto-called (≥95%) or we click the button.

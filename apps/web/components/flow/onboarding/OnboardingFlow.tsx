@@ -162,7 +162,7 @@ export const OnboardingFlow = ({ initial, initialCount }: OnboardingFlowProps) =
         setSubmitting(false);
         return;
       }
-      router.push("/flow/explore");
+      router.push("/explore");
     } catch {
       setSubmitError("Couldn't save your search — please try again.");
       setSubmitting(false);

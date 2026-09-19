@@ -9,7 +9,7 @@ interface CandidateCardProps {
 
 export const CandidateCard = ({ listing }: CandidateCardProps) => (
   <Link
-    href={`/flow/explore/${encodeURIComponent(listing.id)}`}
+    href={`/explore/${encodeURIComponent(listing.id)}`}
     className="group flex flex-col overflow-hidden rounded-cards bg-snow shadow-sm transition-shadow hover:shadow-md"
   >
     <div className="relative h-48 w-full">

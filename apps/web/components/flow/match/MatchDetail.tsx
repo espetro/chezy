@@ -13,7 +13,7 @@ interface MatchDetailProps {
 export const MatchDetail = ({ listing }: MatchDetailProps) => {
   return (
     <div className="mx-auto flex w-full max-w-[1000px] flex-col gap-8 px-6 py-10 md:px-8">
-      <Link href="/flow/explore" className="text-[13px] text-fog hover:text-graphite">
+      <Link href="/explore" className="text-[13px] text-fog hover:text-graphite">
         ← Back to candidates
       </Link>
 

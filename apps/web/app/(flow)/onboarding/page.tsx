@@ -19,7 +19,7 @@ export default function OnboardingPage() {
 async function Onboarding() {
   const session = await auth();
   if (!session?.user?.id) {
-    redirect("/api/auth/guest?redirectUrl=/flow/onboarding");
+    redirect("/api/auth/guest?redirectUrl=/onboarding");
   }
 
   const profile = await getProfile(session.user.id);

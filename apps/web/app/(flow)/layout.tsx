@@ -17,11 +17,11 @@ interface FlowLayoutProps {
   children: React.ReactNode;
 }
 
-// Isolated UX exploration (onboarding/explore/match), namespaced under /flow so it never
-// collides with the real app's routes while it's being validated — see
-// .agents/plans/2026-09-19-port-to-main.md. `bg-paper`/`text-obsidian`/`font-flow` are new
-// tokens declared in globals.css; they don't touch `--background`/`--foreground` etc., so
-// nothing outside this subtree is affected.
+// The product surface (formerly the /flow prototype — see
+// .agents/plans/2026-09-19-port-to-main.md): landing → onboarding → explore/match at the
+// root routes. `bg-paper`/`text-obsidian`/`font-flow` are flow tokens declared in
+// globals.css; they don't touch `--background`/`--foreground` etc., so the (chat) subtree
+// is unaffected.
 const FlowLayout = ({ children }: FlowLayoutProps) => (
   <div className={`${dmSans.variable} min-h-screen bg-paper font-flow text-obsidian`}>
     {children}

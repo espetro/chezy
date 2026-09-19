@@ -23,7 +23,7 @@ export default function ExploreDetailPage({ params }: ExploreDetailPageProps) {
 async function Detail({ params }: ExploreDetailPageProps) {
   const session = await auth();
   if (!session?.user?.id) {
-    redirect("/api/auth/guest?redirectUrl=/flow/explore");
+    redirect("/api/auth/guest?redirectUrl=/explore");
   }
 
   const { id } = await params;
