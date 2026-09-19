@@ -1,12 +1,16 @@
 // SLNG Voice Agents API. The agent places the outbound call; dispatch
 // requires an outbound connection to be attached to the agent first
 // (connection creation is dashboard-only in SLNG).
+import { getLogger } from "@chezy/observability";
+
 import {
   SLNG_AGENT_ORCHESTRATOR,
   SLNG_AGENT_REGION,
   SLNG_API_BASE_URL,
 } from "@/lib/constants";
 import { env } from "@/lib/env";
+
+const logger = getLogger(["chezy", "slng"]);
 
 export interface SlngDispatchResult {
   readonly callId: string;
@@ -18,6 +22,9 @@ export interface SlngAgentState {
   readonly orchestrator: string | null;
   readonly livekitDeployment: string | null;
   readonly sipOutboundTrunkId: string | null;
+  // Keys of template_variables; undefined when the field is absent so a
+  // response shape change never breaks dispatch.
+  readonly declaredVariables: string[] | undefined;
 }
 
 interface SlngAgentResponse {
@@ -25,6 +32,7 @@ interface SlngAgentResponse {
   readonly orchestrator?: string | null;
   readonly livekit_deployment?: string | null;
   readonly sip_outbound_trunk_id?: string | null;
+  readonly template_variables?: Record<string, unknown> | null;
 }
 
 function slngCredentials(): { apiKey: string; agentId: string } {
@@ -56,6 +64,10 @@ function toAgentState(json: SlngAgentResponse): SlngAgentState {
     orchestrator: json.orchestrator ?? null,
     livekitDeployment: json.livekit_deployment ?? null,
     sipOutboundTrunkId: json.sip_outbound_trunk_id ?? null,
+    declaredVariables:
+      json.template_variables == null
+        ? undefined
+        : Object.keys(json.template_variables),
   };
 }
 
@@ -101,12 +113,34 @@ export async function dispatchSlngCall(input: {
   }
   const { apiKey, agentId } = slngCredentials();
 
+  // SLNG rejects call arguments the agent template does not declare.
+  let args = input.variables ?? {};
+  if (state.declaredVariables !== undefined) {
+    const declared = new Set(state.declaredVariables);
+    const dropped: string[] = [];
+    const kept: Record<string, string> = {};
+    for (const [key, value] of Object.entries(args)) {
+      if (declared.has(key)) {
+        kept[key] = value;
+      } else {
+        dropped.push(key);
+      }
+    }
+    if (dropped.length > 0) {
+      logger.warn(
+        "Dropping undeclared agent inputs {droppedKeys} for agent {agentId}",
+        { droppedKeys: dropped.join(", "), agentId },
+      );
+    }
+    args = kept;
+  }
+
   const response = await slngFetch(`/v1/agents/${agentId}/calls`, {
     method: "POST",
     apiKey,
     body: {
       phone_number: input.to,
-      arguments: input.variables ?? {},
+      arguments: args,
     },
   });
 
