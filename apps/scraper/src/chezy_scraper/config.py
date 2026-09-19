@@ -6,6 +6,8 @@ takes a `Settings` instead of touching `os.environ`.
     CHEZY_DATA_DIR      payloads, JSONL, cache   default: .data
     CHEZY_MEDIA_DIR     image mirror root        default: /Volumes/KeVagiBe/chezy/media
     CHEZY_CDP_URL       Chrome CDP endpoint      default: http://127.0.0.1:9222
+    CHEZY_CHROME_PROFILE_DIR
+                        Chrome profile dir holding DevToolsActivePort (default macOS Chrome)
     CHEZY_IDEALISTA_RENT_URL / CHEZY_IDEALISTA_SALE_URL
                         idealista search URLs (e.g. a `?shape=` polygon); default: whole city
     DATABASE_URL        pg0 connection string    default: local pg0
@@ -26,6 +28,7 @@ class Settings:
     media_root: Path
     database_url: str
     cdp_url: str
+    chrome_profile_dir: Path
     idealista_search_urls: dict[str, str] = field(default_factory=dict)
     # One request per 2-5 s per host, randomized.
     http_min_delay: float = 2.0
@@ -43,6 +46,12 @@ class Settings:
             media_root=Path(os.environ.get("CHEZY_MEDIA_DIR", "/Volumes/KeVagiBe/chezy/media")),
             database_url=os.environ.get("DATABASE_URL", _DEFAULT_DATABASE_URL),
             cdp_url=os.environ.get("CHEZY_CDP_URL", "http://127.0.0.1:9222"),
+            chrome_profile_dir=Path(
+                os.environ.get(
+                    "CHEZY_CHROME_PROFILE_DIR",
+                    str(Path.home() / "Library/Application Support/Google/Chrome"),
+                )
+            ),
             idealista_search_urls={
                 op: url
                 for op, var in (

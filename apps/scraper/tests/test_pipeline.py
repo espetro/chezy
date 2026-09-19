@@ -26,6 +26,7 @@ def _settings(tmp_path: Path) -> Settings:
         media_root=tmp_path / "media",
         database_url="postgresql://unused",
         cdp_url="http://127.0.0.1:0",
+        chrome_profile_dir=tmp_path / "chrome",
     )
 
 

@@ -121,6 +121,7 @@ def _scrape_idealista(
             min_delay=settings.browser_min_delay,
             max_delay=settings.browser_max_delay,
             page_budget=settings.browser_page_budget,
+            active_port_file=settings.chrome_profile_dir / "DevToolsActivePort",
         ) as browser:
             result = scrape_idealista(
                 adapter, browser, settings, operation, tier, run_id=run_id, scraped_at=now

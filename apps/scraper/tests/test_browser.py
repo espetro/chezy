@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable
+from pathlib import Path
 
 import httpx
 import pytest
 from chezy_scraper.fetch.browser import (
     BrowserBlockedError,
+    BrowserError,
     CdpBrowser,
     PageBudgetExceededError,
 )
@@ -68,7 +70,11 @@ def _open(
     chrome: FakeChrome, monkeypatch: pytest.MonkeyPatch, *, budget: int = 60
 ) -> tuple[CdpBrowser, list[float]]:
     def fake_get(*_args: object, **_kwargs: object) -> httpx.Response:
-        return httpx.Response(200, json={"webSocketDebuggerUrl": "ws://x/devtools/browser/1"})
+        return httpx.Response(
+            200,
+            json={"webSocketDebuggerUrl": "ws://x/devtools/browser/1"},
+            request=httpx.Request("GET", "http://x"),
+        )
 
     monkeypatch.setattr(httpx, "get", fake_get)
     sleeps: list[float] = []
@@ -119,3 +125,38 @@ def test_datadome_challenge_stops_the_run(monkeypatch: pytest.MonkeyPatch) -> No
     with browser, pytest.raises(BrowserBlockedError):
         browser.load("https://www.idealista.com/x")
     assert chrome.methods[-1] == "Target.closeTarget"
+
+
+def test_falls_back_to_devtools_active_port(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """chrome://inspect mode: /json/version is a 404, the ws path lives in DevToolsActivePort."""
+
+    def not_found(*_args: object, **_kwargs: object) -> httpx.Response:
+        return httpx.Response(404, request=httpx.Request("GET", "http://x"))
+
+    monkeypatch.setattr(httpx, "get", not_found)
+    port_file = tmp_path / "DevToolsActivePort"
+    port_file.write_text("9222\n/devtools/browser/abc-123", encoding="utf-8")
+    chrome = FakeChrome(REAL_HTML)
+    urls: list[str] = []
+
+    def connect(url: str) -> FakeChrome:
+        urls.append(url)
+        return chrome
+
+    with CdpBrowser("http://127.0.0.1:9222", active_port_file=port_file, connect=connect):
+        pass
+    assert urls == ["ws://127.0.0.1:9222/devtools/browser/abc-123"]
+
+
+def test_no_endpoint_at_all_is_a_clear_error(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    def not_found(*_args: object, **_kwargs: object) -> httpx.Response:
+        return httpx.Response(404, request=httpx.Request("GET", "http://x"))
+
+    monkeypatch.setattr(httpx, "get", not_found)
+    browser = CdpBrowser("http://127.0.0.1:9222", active_port_file=tmp_path / "missing")
+    with pytest.raises(BrowserError, match="chrome://inspect"), browser:
+        pass

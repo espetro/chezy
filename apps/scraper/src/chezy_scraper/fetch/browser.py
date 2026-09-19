@@ -11,6 +11,9 @@ Start Chrome yourself first:
 
     open -a "Google Chrome" --args --remote-debugging-port=9222 \\
         --user-data-dir="$HOME/Library/Application Support/Google/Chrome-cdp"
+
+or, on the default profile, switch on chrome://inspect/#remote-debugging (Chrome then
+asks you to allow each connection; the websocket path is read from DevToolsActivePort).
 """
 
 from __future__ import annotations
@@ -28,11 +31,13 @@ from chezy_scraper.jsonx import JsonObj, obj, text
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from pathlib import Path
     from types import TracebackType
 
 _LOAD_TIMEOUT_S: Final = 45.0
 _POLL_S: Final = 0.5
 _CMD_TIMEOUT_S: Final = 30.0
+_ACTIVE_PORT_LINES: Final = 2
 _MIN_REAL_PAGE_CHARS: Final = 5_000
 _BLOCK_MARKERS: Final = ("captcha-delivery.com", "geo.captcha", "datadome")
 
@@ -77,6 +82,7 @@ class CdpBrowser:
         min_delay: float = 5.0,
         max_delay: float = 12.0,
         page_budget: int = 60,
+        active_port_file: Path | None = None,
         connect: Callable[[str], Connection] = _default_connect,
         sleep: Callable[[float], None] = time.sleep,
         rng: random.Random | None = None,
@@ -85,6 +91,7 @@ class CdpBrowser:
         self._min_delay = min_delay
         self._max_delay = max_delay
         self._budget = page_budget
+        self._active_port_file = active_port_file
         self._connect = connect
         self._sleep = sleep
         self._rng = rng or random.Random()  # noqa: S311
@@ -103,15 +110,7 @@ class CdpBrowser:
         return self._budget - self._loaded
 
     def __enter__(self) -> Self:
-        try:
-            version = httpx.get(f"{self._cdp_url}/json/version", timeout=5).json()
-        except (httpx.HTTPError, ValueError) as exc:
-            msg = f"no Chrome with remote debugging at {self._cdp_url}: {exc}"
-            raise BrowserError(msg) from exc
-        ws_url = text(obj(version).get("webSocketDebuggerUrl"))
-        if ws_url is None:
-            msg = "Chrome did not advertise a webSocketDebuggerUrl"
-            raise BrowserError(msg)
+        ws_url = self._discover_ws_url()
         self._conn = self._connect(ws_url)
         created = self._command("Target.createTarget", {"url": "about:blank"})
         self._target = text(created.get("targetId"))
@@ -160,6 +159,35 @@ class CdpBrowser:
         return RenderedPage(url=url, html=html_text, globals=globals_)
 
     # -- internals ---------------------------------------------------------
+
+    def _discover_ws_url(self) -> str:
+        """Classic `--remote-debugging-port` serves /json/version; the chrome://inspect
+        toggle (default profile) serves only a websocket whose path is in DevToolsActivePort.
+        """
+        try:
+            response = httpx.get(f"{self._cdp_url}/json/version", timeout=5)
+            response.raise_for_status()
+            url = text(obj(response.json()).get("webSocketDebuggerUrl"))
+            if url:
+                return url
+        except (httpx.HTTPError, ValueError):
+            pass
+        url = self._ws_from_active_port()
+        if url is None:
+            msg = (
+                f"no Chrome remote debugging at {self._cdp_url} (no /json/version and no "
+                "readable DevToolsActivePort); enable it at chrome://inspect/#remote-debugging"
+            )
+            raise BrowserError(msg)
+        return url
+
+    def _ws_from_active_port(self) -> str | None:
+        if self._active_port_file is None or not self._active_port_file.exists():
+            return None
+        lines = self._active_port_file.read_text(encoding="utf-8").splitlines()
+        if len(lines) < _ACTIVE_PORT_LINES or not lines[0].strip().isdigit():
+            return None
+        return f"ws://127.0.0.1:{lines[0].strip()}{lines[1].strip()}"
 
     @staticmethod
     def _is_blocked(html: str, title: str) -> bool:
