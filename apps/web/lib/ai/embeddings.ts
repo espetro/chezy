@@ -1,4 +1,4 @@
-import { env } from "@/lib/env";
+import { env } from "~/lib/env";
 
 const baseUrl = (env.OPENAI_COMPATIBLE_BASE_URL ?? "http://localhost:8317/v1").replace(/\/+$/, "");
 

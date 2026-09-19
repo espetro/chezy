@@ -5,15 +5,15 @@ vi.mock("ai", () => ({
   generateText: vi.fn(),
 }));
 
-vi.mock("@/lib/ai/providers", () => ({
+vi.mock("~/lib/ai/providers", () => ({
   getTitleModel: vi.fn(() => ({ modelId: "mock-title-model" })),
 }));
 
-vi.mock("@/lib/ai/models", () => ({
+vi.mock("~/lib/ai/models", () => ({
   titleModel: { id: "mock-title-model", gatewayOrder: undefined },
 }));
 
-vi.mock("@/lib/constants", () => ({
+vi.mock("~/lib/constants", () => ({
   MEMORY_MAX_CONTENT_CHARS: 500,
   MEMORY_COSINE_DEDUP_THRESHOLD: 0.15,
 }));

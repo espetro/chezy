@@ -32,6 +32,8 @@ function mapRow(row: Record<string, unknown>): MemoryRow {
   return {
     id: row.id as string,
     userId: row.userId as string,
+    // DB seam: the column is nullable and the row shape mirrors it.
+    // oxlint-disable-next-line unicorn/no-null
     chatId: (row.chatId as string | null) ?? null,
     kind: row.kind as MemoryKind,
     content: row.content as string,

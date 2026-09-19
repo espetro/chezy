@@ -1,7 +1,7 @@
 import { generateText, type ModelMessage } from "ai";
-import { MEMORY_COSINE_DEDUP_THRESHOLD, MEMORY_MAX_CONTENT_CHARS } from "@/lib/constants";
-import { titleModel } from "@/lib/ai/models";
-import { getTitleModel } from "@/lib/ai/providers";
+import { MEMORY_COSINE_DEDUP_THRESHOLD, MEMORY_MAX_CONTENT_CHARS } from "~/lib/constants";
+import { titleModel } from "~/lib/ai/models";
+import { getTitleModel } from "~/lib/ai/providers";
 
 const MEMORY_EXTRACTION_MAX = 3;
 
