@@ -2,7 +2,6 @@
 import type { UseChatHelpers } from "@ai-sdk/react";
 import { useCallback } from "react";
 import type { Vote } from "@/lib/db/schema";
-import type { ListingSummary } from "@/lib/listings";
 import type { ChatMessage } from "@/lib/types";
 import { cn, sanitizeText } from "@/lib/utils";
 import { MessageContent, MessageResponse } from "../ai-elements/message";
@@ -15,6 +14,7 @@ import {
   ToolOutput,
 } from "../ai-elements/tool";
 import { useDataStream } from "./data-stream-provider";
+import { ListingCard, ListingResults } from "./listing-results";
 import { DocumentToolResult } from "./document";
 import { DocumentPreview } from "./document-preview";
 import { SparklesIcon } from "./icons";
@@ -275,63 +275,56 @@ const PurePreviewMessage = ({
       const { toolCallId, state } = part;
       const widthClass = "w-[min(100%,450px)]";
 
-      const output = part.output;
-      const hasError =
-        output !== undefined &&
-        output !== null &&
-        typeof output === "object" &&
-        !Array.isArray(output) &&
-        "error" in output;
-
       if (state === "output-available") {
-        if (hasError) {
+        if (
+          part.output !== undefined &&
+          part.output !== null &&
+          typeof part.output === "object" &&
+          !Array.isArray(part.output) &&
+          "error" in part.output
+        ) {
           return (
             <div className={widthClass} key={toolCallId}>
               <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-500 dark:bg-red-950/50">
-                Error: {String(output.error)}
+                Error: {String(part.output.error)}
               </div>
             </div>
           );
         }
 
-        const listings = (
-          type === "tool-searchListings"
-            ? Array.isArray(output)
-              ? output
-              : []
-            : output
-              ? [output as ListingSummary]
-              : []
-        ).slice(0, 10);
+        if (part.type === "tool-searchListings" && part.output) {
+          return (
+            <div className="w-full max-w-2xl" key={toolCallId}>
+              <ListingResults result={part.output} />
+            </div>
+          );
+        }
 
-        return (
-          <div className={widthClass} key={toolCallId}>
-            <Tool className="w-full" defaultOpen={listings.length > 0}>
-              <ToolHeader
-                state={state}
-                title={
-                  type === "tool-searchListings"
-                    ? `Found ${listings.length} listings`
-                    : "Listing"
-                }
-                type={type}
-              />
-              <ToolContent>
-                <ul className="space-y-2">
-                  {listings.map((listing) => (
-                    <ListingRow key={listing.id} listing={listing} />
-                  ))}
-                </ul>
-              </ToolContent>
-            </Tool>
-          </div>
-        );
+        if (
+          part.type === "tool-getListing" &&
+          part.output &&
+          !("error" in part.output)
+        ) {
+          return (
+            <div className="w-full max-w-sm" key={toolCallId}>
+              <ListingCard listing={part.output} />
+            </div>
+          );
+        }
+
+        return null;
       }
 
       return (
         <div className={widthClass} key={toolCallId}>
           <Tool className="w-full" defaultOpen={false}>
-            <ToolHeader state={state} type={type} />
+            <ToolHeader
+              state={state}
+              title={
+                type === "tool-searchListings" ? "Buscando anuncios…" : undefined
+              }
+              type={type}
+            />
             <ToolContent>
               {state === "input-available" && <ToolInput input={part.input} />}
             </ToolContent>
@@ -498,51 +491,3 @@ export const ThinkingMessage = () => (
   </div>
 );
 
-const priceFormatter = new Intl.NumberFormat("es-ES", {
-  currency: "EUR",
-  maximumFractionDigits: 0,
-  style: "currency",
-});
-
-const ListingRow = ({ listing }: { listing: ListingSummary }) => {
-  const price =
-    listing.priceEur != null
-      ? `${priceFormatter.format(listing.priceEur)}${listing.operation === "rent" ? "/mes" : ""}`
-      : undefined;
-  const details = [
-    listing.rooms != null ? `${listing.rooms} rooms` : undefined,
-    listing.builtM2 != null ? `${listing.builtM2} m²` : undefined,
-    listing.district,
-  ]
-    .filter(Boolean)
-    .join(" · ");
-
-  return (
-    <li className="flex items-center gap-3 rounded-md border p-2">
-      {listing.coverUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          alt={listing.title}
-          className="size-16 shrink-0 rounded object-cover"
-          src={listing.coverUrl}
-        />
-      )}
-      <div className="min-w-0 flex-1">
-        <a
-          className="block truncate font-medium text-sm hover:underline"
-          href={listing.url}
-          rel="noreferrer"
-          target="_blank"
-        >
-          {listing.title}
-        </a>
-        <div className="truncate text-muted-foreground text-xs">
-          {[price, details].filter(Boolean).join(" · ")}{" "}
-          <span className="font-mono text-[11px] text-muted-foreground">
-            {listing.id}
-          </span>
-        </div>
-      </div>
-    </li>
-  );
-};
