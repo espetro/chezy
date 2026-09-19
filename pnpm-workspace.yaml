@@ -10,9 +10,41 @@ allowBuilds:
   "@swc/core": true
   sharp: true
   "@parcel/watcher": true
+  next: true
+  "@biomejs/biome": true
+  "@tailwindcss/oxide": true
+  lefthook: true
+
+# Pin shared dev tooling so every workspace package resolves the same version.
+# Mirror of root package.json `catalogs.default`.
+catalogs:
+  default:
+    typescript: "^5.6.3"
+    oxlint: "^1.0.0"
+    oxlint-tsgolint: "^7.0.2001"
+    oxfmt: "^0.60.0"
+    vitest: "^4.0.0"
+    type-fest: "^5.0.0"
+    "@types/node": "^24.0.0"
+    "@types/react": "^19.0.0"
+    "@types/react-dom": "^19.0.0"
+    "@logtape/logtape": "^2.0.0"
+    "@logtape/file": "^2.0.0"
+    "@logtape/config": "^2.0.0"
+    react: "^19.0.0"
+    react-dom: "^19.0.0"
+    next: "^16.0.0"
+    valibot: "^1.0.0"
+    drizzle-orm: "^0.45.0"
+    drizzle-kit: "^0.31.0"
+    postgres: "^3.4.9"
 
 # We rely on the global pnpm store (default `~/Library/pnpm/store` on macOS).
 # Do NOT override `packageImportMethod` — `auto` picks `clonefile` (APFS CoW)
 # which is safe; `hardlink` silently mutates the global store on edit.
 # Do NOT override `nodeLinker` — `isolated` (default) gives strict dep
 # isolation in the monorepo.
+
+minimumReleaseAgeExclude:
+  - '@ai-sdk/openai-compatible@3.0.53'
+  - '@ai-sdk/provider-utils@5.0.45'
