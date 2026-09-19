@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "chezy-scraper"
+version = "0.0.0"
+description = "Idealista.com data extraction pipeline (CLI)."
+requires-python = ">=3.12"
+license = { text = "MIT" }
+readme = "README.md"
+
+dependencies = []
+
+[project.scripts]
+# `uv run scraper` will (eventually) invoke this entry point. Day 0 only
+# prints a hello message; feature tickets add real scraping pipelines.
+scraper = "chezy_scraper.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/chezy_scraper"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-randomly>=3.15",
+    "ruff>=0.16",
+    "basedpyright>=1.40.1",
+]
