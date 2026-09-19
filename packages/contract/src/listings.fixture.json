@@ -1,0 +1,198 @@
+[
+  {
+    "platform": "habitaclia",
+    "platform_id": "10636002656060",
+    "url": "https://www.habitaclia.com/i10636002656060.htm",
+    "scraped_at": "2026-09-19T15:40:39.864152Z",
+    "published_at": null,
+    "updated_at": "2026-09-17T00:00:19.185068+02:00",
+    "operation": "rent",
+    "price_eur": 6900.0,
+    "price_period": "month",
+    "price_per_m2": 29.24,
+    "price_drop_eur": 1000.0,
+    "deposit": null,
+    "is_temporary_rental": null,
+    "property_type": "flat",
+    "property_subtype": "penthouse",
+    "built_m2": 236.0,
+    "usable_m2": null,
+    "rooms": 7,
+    "bathrooms": 4,
+    "floor": "penthouse",
+    "orientation": null,
+    "year_built": null,
+    "condition": "renovated",
+    "furnished": null,
+    "heating": null,
+    "energy_consumption_label": "E",
+    "energy_consumption_value": 134.0,
+    "energy_emissions_label": "D",
+    "energy_emissions_value": 23.0,
+    "lat": 41.403515450732,
+    "lon": 2.1411799532534,
+    "street": "FERRAN VALLS I TABERNER",
+    "street_number": "14",
+    "neighbourhood": "Sant Gervasi- Galvany",
+    "district": "Sarrià - Sant Gervasi",
+    "municipality": "Barcelona Capital",
+    "postal_code": null,
+    "location_accuracy": "zone",
+    "amenities": [
+      "elevator",
+      "parking",
+      "parquet",
+      "exterior",
+      "fireplace"
+    ],
+    "raw_features": {
+      "has": [
+        "ELEVATOR",
+        "PRIVATE_PARKING",
+        "PARQUET",
+        "NEARBY_PUBLIC_TRANSPORT"
+      ],
+      "has_not": [],
+      "dynamic_features": [
+        "IS_EXTERIOR",
+        "HAS_A_FIREPLACE"
+      ],
+      "hot_water": null
+    },
+    "media": [
+      {
+        "url": "https://static.fotocasa.es/images/ads/c5f7785f-7966-46ef-af8e-126055cc3506?rule=original",
+        "kind": "photo",
+        "room_type": null,
+        "width": null,
+        "height": null,
+        "local_path": null
+      },
+      {
+        "url": "https://static.fotocasa.es/images/ads/5690ba1e-e4b2-45e2-b7cf-f0d39f35cdda?rule=original",
+        "kind": "photo",
+        "room_type": null,
+        "width": null,
+        "height": null,
+        "local_path": null
+      }
+    ],
+    "publisher": {
+      "name": "JUMBO MAR",
+      "kind": null,
+      "phone": "+34936394509",
+      "email": "i.remaxjumbomar.3996.3@crmremax.com",
+      "profile_url": "https://www.habitaclia.com/inmobiliaria/jumbo-mar"
+    },
+    "title": "Espectacular ÁticoDúplex de 236m2 con Vistas Panorámicas en Sant GervasiGalvany",
+    "description": "Espectacular Ático-Dúplex de 236m2 con Vistas Panorámicas en Sant Gervasi-Galvany\n\n¡Listo para entrar a vivir! Se alquila exclusivo ático-dúplex recién reformado integralmente, ubicado en el prestigioso y tranquilo barrio residencial de Sant Gervasi-Galvany. Una vivienda única que destaca por su luminosidad, su amplitud y 3 fantásticas terrazas con vistas espectaculares a toda Barcelona.\n\n· Distribución Inteligente en Dos Plantas\nPlanta Baja (Zona de día y descanso):\n\n- Gran salón-comedor muy luminoso con chimenea y con acceso directo a la terraza principal y vistas panorámicas de la ciudad.\n\n- Cocina independiente totalmente equipada, con acceso a zona de lavadero y área de servicio.\n\n- 4 Habitaciones : 2 de ellas tipo suite con baño privado (una con salida a terraza privada). Las otras 2 habitaciones comparten un baño completo con plato de ducha.\n\n- Pasillo distribuidor con armarios empotrados de gran capacidad.\n\n· Primera Planta (Espacio polivalente o zona máster):\n\n- 1 Habitación principal de gran tamaño con salida a una tercera terraza de ensueño y vistas despejadas.\n\n- 2 Habitaciones adicionales que comparten un baño completo con plato de ducha.\n\n- Pasillo con armarios empotrados adicionales.\n\n* Calidades y Acabados Premium\n- Reforma integral a estrenar con materiales de alta calidad.\n\n- Suelos de elegante parquet en todas las estancias.\n\n- Cerramientos de aluminio con doble cristal (aislamiento térmico y acústico total).\n\n- Sistema de climatización por bomba de aire frío/calor.\n\n· Seguridad y servicios\nEl edificio posee servicio de conserjería de lunes a viernes y portero fines de semana y festivos; y servicio de vigilancia las 24hs.\n\n· Ubicación e Inmejorable Conectividad\nSituado en una de las zonas más exclusivas de Barcelona, rodeado de zonas verdes, prestigiosos centros médicos y los mejores colegios internacionales y nacionales de la ciudad. Cuenta con todo tipo de comercios y servicios a pie de calle.\n\n· Transporte público: Excelente conexión con Ferrocarriles de la Generalitat (FGC), Metro y múltiples líneas de autobús.\n\n· Conexión en coche: Acceso rápido y directo a la Ronda de Dalt (B-20) y Ronda del General Mitre.\n\nQuieres vivir en una de las mejores propiedades de Barcelona?\nNo dejes escapar esta oportunidad única. \nLlámame hoy mismo y concertamos una visita!\nEn cumplimiento del art. 20 de la Ley General para la defensa de los consumidores y usuarios (modificado por la Ley 10/2025), se informa que el PRECIO MENSUAL OFERTADO DE RENTA DE LA VIVIENDA es: 832 €, no incluye gastos e impuestos inherentes a la formalización del contrato de arrendamiento de vivienda para uso estable y permanente, correspondiendo al inquilino/arrendatario:\n\n(I) IMPUESTOS: Actualmente, el inquilino de vivienda para uso estable y permanente está exento de pagar el impuesto sobre transmisiones patrimoniales y actos jurídicos documentados, modalidad transmisiones patrimoniales onerosas. Se trata de una operación sujeta y exenta de pago (código de exención 145) y, por tanto, existe la obligación de presentar la autoliquidación del modelo 600. Para una información más exhaustiva sobre este punto, pueden consultarnos o consultar el portal oficial de la Agencia Tributaria de Cataluña.\n\n(II) GASTOS: Arrendador y arrendatario podrán pactar que los gastos generales para el adecuado sostenimiento del inmueble, sus servicios, tributos, cargas y responsabilidades que no sean susceptibles de individualización y que correspondan a la vivienda arrendada o a sus accesorios, sean a cargo del arrendatario. Este pacto constará por escrito y determinará el importe anual de dichos gastos. Los que se individualizan por aparatos contadores serán del arrendatario.\n\n(III) Honorarios de la agencia inmobiliaria: No cobramos comisión al inquilino. En caso de pacto de honorarios profesionales a cargo del inquilino, se suscribirá el correspondiente documento",
+    "raw_html_excerpt": null,
+    "source_raw": {}
+  },
+  {
+    "platform": "fotocasa",
+    "platform_id": "185791683",
+    "url": "https://www.fotocasa.es/es/comprar/vivienda/barcelona-capital/aire-acondicionado-calefaccion-parking-terraza-ascensor-no-amueblado/185791683/d",
+    "scraped_at": "2026-09-19T15:40:45.002213Z",
+    "published_at": "2025-03-01T08:05:18.500000Z",
+    "updated_at": "2025-03-01T08:05:18.500000Z",
+    "operation": "sale",
+    "price_eur": 1240000.0,
+    "price_period": "total",
+    "price_per_m2": 4492.75,
+    "price_drop_eur": 100000.0,
+    "deposit": null,
+    "is_temporary_rental": false,
+    "property_type": "flat",
+    "property_subtype": "penthouse",
+    "built_m2": 276.0,
+    "usable_m2": null,
+    "rooms": 7,
+    "bathrooms": 3,
+    "floor": null,
+    "orientation": null,
+    "year_built": null,
+    "condition": null,
+    "furnished": false,
+    "heating": null,
+    "energy_consumption_label": null,
+    "energy_consumption_value": null,
+    "energy_emissions_label": null,
+    "energy_emissions_value": null,
+    "lat": 41.404454663398774,
+    "lon": 2.1673014314289847,
+    "street": null,
+    "street_number": null,
+    "neighbourhood": "El Camp d'en Grassot i Gràcia Nova",
+    "district": "Gràcia",
+    "municipality": "Barcelona",
+    "postal_code": "08025",
+    "location_accuracy": "zone",
+    "amenities": [
+      "air_conditioning",
+      "wardrobes",
+      "heating",
+      "parking",
+      "terrace",
+      "elevator",
+      "balcony",
+      "fireplace",
+      "sea_view",
+      "exterior"
+    ],
+    "raw_features": {
+      "features": {
+        "air_conditioner": 1,
+        "cabinets": 2,
+        "heating": 3,
+        "parking": 5,
+        "terrace": 10,
+        "elevator": 13,
+        "balcony": 32,
+        "not_furnished": 130,
+        "antiquity": 6,
+        "bathrooms": 3,
+        "conservationStatus": 4,
+        "floor": 11,
+        "orientation": 4,
+        "rooms": 7,
+        "surface": 276
+      },
+      "dynamic_features": [
+        "HAS_A_FIREPLACE",
+        "HAS_VIEW_TO_BEACH",
+        "IS_EXTERIOR",
+        "IS_LUXURY"
+      ]
+    },
+    "media": [
+      {
+        "url": "https://static.fotocasa.es/images/ads/1d6eaf29-9455-4de3-9eaf-355110372b63?rule=original",
+        "kind": "photo",
+        "room_type": "living room",
+        "width": null,
+        "height": null,
+        "local_path": null
+      },
+      {
+        "url": "https://static.fotocasa.es/images/ads/da911fc4-949b-4969-92d3-c102a93acfff?rule=original",
+        "kind": "photo",
+        "room_type": "living room",
+        "width": null,
+        "height": null,
+        "local_path": null
+      }
+    ],
+    "publisher": {
+      "name": "ENGEL & VOELKERS",
+      "kind": "professional",
+      "phone": "+34935154444",
+      "email": null,
+      "profile_url": "https://www.fotocasa.es/es/pro/engel-voelkers/"
+    },
+    "title": null,
+    "description": "Encontramos este amplio ático dúplex en el barrio de Camp d'en Grassot. Se distribuye en siete dormitorios, tres baños, cocina independiente con paso al gran salón-comedor con chimenea, grandes ventanales y tres balcones orientados al sur, que prometen luz natural todo el día. Una escalera interior conduce a una terraza de 74m² con barbacoa y cerramiento, que permite disfrutar de ella todo el año. La terraza ofrece vistas despejadas desde el mar hasta la montaña. Aunque la propiedad está bien mantenida y en buenas condiciones, es una oportunidad para cualquiera que quiera crear la casa de sus sueños.\n\nEl edificio fue construido en 1989 y cuenta con ascensor y un garaje subterráneo que proporciona seguridad y comodidad. El precio incluye una plaza para coche y otra para moto. También existe la opción de dos plazas de coche más.\n\nEste piso en Barcelona representa una oportunidad excepcional para adquirir una propiedad con gran potencial en una ubicación privilegiada. Con una visión creativa y una inversión estratégica, puede transformar este espacio en una residencia de lujo sin igual, que refleje su estilo y eleve su experiencia de vida en la vibrante ciudad de Barcelona.\nLa vivienda se encuentra en Camp d'en Grassot, un barrio situado en el punto medio entre el Eixample, la Sagrada Familia y la Vila de Gràcia, zonas muy demandadas y en creciente mejora urbanística. \nA poca distancia encontraremos Passeig Sant Joan, el Mercado de la Abacería, la Avenida Diagonal, el Templo de la Sagrada Familia y el Hospital de Sant Pau. \nLa zona está muy bien comunicada por transporte público, a sólo 5 minutos de las líneas de metro L2, L4 y L5; Joanic, Verdaguer y Sagrada Familia, así como varias líneas de autobús. \nEn el barrio se encuentran varios colegios de renombre, gimnasios de prestigio y todo tipo de servicios, tanto de ocio como gastronómicos y culturales, que en conjunto hacen de este barrio la ubicación perfecta.",
+    "raw_html_excerpt": null,
+    "source_raw": {}
+  }
+]
