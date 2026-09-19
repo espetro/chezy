@@ -1,5 +1,6 @@
 import { saveUserProfileInputSchema } from "@chezy/contract";
 import { tool } from "ai";
+import { valibotSchema } from "@/lib/ai/valibot-schema";
 import {
   createNamedUser,
   getUserByUsername,
@@ -46,5 +47,5 @@ export const saveUserProfile = tool({
       missingFields,
     };
   },
-  inputSchema: saveUserProfileInputSchema,
+  inputSchema: valibotSchema(saveUserProfileInputSchema),
 });

@@ -1,5 +1,6 @@
 import { identifyUserInputSchema } from "@chezy/contract";
 import { tool } from "ai";
+import { valibotSchema } from "@/lib/ai/valibot-schema";
 import { createNamedUser, getUserByUsername } from "@/lib/db/queries";
 import { missingProfileFields, normalizeUsername } from "@/lib/user-profile";
 
@@ -38,5 +39,5 @@ export const identifyUser = tool({
       isNewUser: true,
     };
   },
-  inputSchema: identifyUserInputSchema,
+  inputSchema: valibotSchema(identifyUserInputSchema),
 });
