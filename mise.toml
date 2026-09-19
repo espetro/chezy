@@ -249,7 +249,7 @@ description = "Render out/chezy-demo.mp4 (1920x1080 30fps h264 + aac, concurrenc
 run = "cd apps/video && pnpm exec remotion render src/index.ts ChezyDemo out/chezy-demo.mp4 --codec h264 --audio-codec aac --audio-bitrate 192k --concurrency 2"
 
 [tasks."video:music"]
-description = "Generate the ambient music bed via audiocpp (Stable Audio 3 Small, Metal) -> public/audio/music/bed.wav"
+description = "Generate the ambient music bed via audiocpp (Stable Audio 3 Medium default, MUSIC_MODEL=small for the lighter model, Metal) -> public/audio/music/bed.wav. See apps/video/docs/music.md"
 run = "bash apps/video/scripts/music.sh"
 
 [tasks."video:all"]
