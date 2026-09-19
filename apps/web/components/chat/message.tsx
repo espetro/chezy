@@ -198,6 +198,21 @@ const PurePreviewMessage = ({
             false);
       const widthClass = "w-[min(100%,450px)]";
 
+      if (
+        state === "output-available" &&
+        part.output &&
+        typeof part.output === "object" &&
+        "error" in part.output
+      ) {
+        return (
+          <div className={widthClass} key={toolCallId}>
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-500 dark:bg-red-950/50">
+              Error: {String(part.output.error)}
+            </div>
+          </div>
+        );
+      }
+
       if (state === "output-available") {
         return (
           <div className={widthClass} key={toolCallId}>
