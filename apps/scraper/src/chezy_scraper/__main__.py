@@ -3,6 +3,7 @@
 uv run scraper scrape --platform fotocasa --operation rent --tier small
 uv run scraper media --tier small
 uv run scraper load --tier small
+uv run scraper package --tier small
 uv run scraper stats
 """
 
@@ -10,7 +11,8 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
-from typing import Annotated
+from pathlib import Path
+from typing import Annotated, Final
 
 import psycopg
 import typer
@@ -25,6 +27,7 @@ from chezy_scraper.fetch.http import BlockedError, HttpFetcher
 from chezy_scraper.media import MediaRootUnavailableError, mirror, read_manifest, write_manifest
 from chezy_scraper.models import Listing, Operation, Platform
 from chezy_scraper.observability import audit, configure_logging
+from chezy_scraper.package import Pii, build_bundle
 from chezy_scraper.pipeline import ScrapeResult
 from chezy_scraper.pipeline import scrape as run_scrape
 from chezy_scraper.pipeline_browser import scrape_idealista
@@ -39,6 +42,9 @@ _HTTP_ADAPTERS = {
     "habitaclia": HabitacliaAdapter,
     "milanuncios": MilanunciosAdapter,
 }
+
+# Idealista is browser only and a shared bundle should not depend on it, so it is opt in.
+_BUNDLE_PLATFORMS: Final[tuple[Platform, ...]] = ("fotocasa", "habitaclia", "milanuncios")
 
 # Fields whose fill rate `stats` reports; these are the ones LLM queries lean on.
 _MIN_PHOTOS = 10
@@ -163,6 +169,56 @@ def media(
     typer.echo(
         f"{tier}: {result.listings} listings, {result.downloaded} downloaded, "
         f"{result.skipped_existing} existing, {result.failed} failed"
+    )
+
+
+@app.command()
+def package(
+    tier: Annotated[Tier, typer.Option(help="Tier to bundle.")] = "small",
+    platform: Annotated[
+        list[Platform] | None,
+        typer.Option(help="Platforms to include (repeatable). Default: all but idealista."),
+    ] = None,
+    release: Annotated[str | None, typer.Option(help="Release label, default today.")] = None,
+    out: Annotated[
+        Path | None, typer.Option(help="Output folder, default <media root>/../datasets.")
+    ] = None,
+    pii: Annotated[Pii, typer.Option(help="scrub (default) or keep contact details.")] = "scrub",
+) -> None:
+    """Mirror images, then write a checksummed `chezy-<tier>-<release>.tar.gz` bundle."""
+    settings = Settings.from_env()
+    configure_logging()
+    wanted = set(platform or _BUNDLE_PLATFORMS)
+    listings = [x for x in _tier_listings(settings, tier) if x.platform in wanted]
+    if not listings:
+        typer.echo(f"no {tier} datasets for {sorted(wanted)}; run `scraper scrape` first", err=True)
+        raise typer.Exit(1)
+    try:
+        manifest, stats = mirror(listings, settings.media_root)
+    except MediaRootUnavailableError as exc:
+        typer.echo(f"MEDIA VOLUME MISSING: {exc}", err=True)
+        raise typer.Exit(4) from exc
+    write_manifest(settings.media_root, manifest)
+    label = release or datetime.now(UTC).strftime("%Y-%m-%d")
+    target = out or settings.media_root.parent / "datasets"
+    target.mkdir(parents=True, exist_ok=True)
+    result = build_bundle(
+        listings,
+        manifest,
+        media_root=settings.media_root,
+        out_root=target,
+        tier=tier,
+        release=label,
+        pii=pii,
+    )
+    audit.emit(
+        "cli.package", actor="user", outcome="success", target=tier,
+        listings=result.listings, images=result.images, missing=result.missing_images,
+    )  # fmt: skip
+    typer.echo(
+        f"{result.listings} listings, {result.images} images ({stats.downloaded} newly downloaded, "
+        f"{result.missing_images} missing) -> {result.archive} "
+        f"({result.archive_bytes / 1e6:.0f} MB)"
     )
 
 
