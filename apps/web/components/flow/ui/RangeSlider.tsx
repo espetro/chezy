@@ -13,8 +13,9 @@ interface RangeSliderProps {
   scaleLabels: [string, string, string];
 }
 
+// Thumb is a 44px transparent disk (touch target) painting a 21px knob in its centre.
 const thumbClass =
-  "pointer-events-none absolute inset-0 h-5 w-full appearance-none bg-transparent outline-none [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:size-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[radial-gradient(circle,#ff5a00_0_4px,#ffffff_4.5px)] [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:active:scale-110 [&::-moz-range-track]:bg-transparent [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:size-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-[radial-gradient(circle,#ff5a00_0_4px,#ffffff_4.5px)] [&::-moz-range-thumb]:shadow-md focus-visible:[&::-webkit-slider-thumb]:ring-2 focus-visible:[&::-webkit-slider-thumb]:ring-obsidian focus-visible:[&::-moz-range-thumb]:ring-2 focus-visible:[&::-moz-range-thumb]:ring-obsidian";
+  "pointer-events-none absolute inset-0 h-11 w-full appearance-none bg-transparent outline-none [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:size-11 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[radial-gradient(circle,#ff5a00_0_4px,#ffffff_4.5px_9.5px,#d4d4d8_10px_10.5px,transparent_11px)] [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:active:scale-110 [&::-moz-range-track]:bg-transparent [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:size-11 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-[radial-gradient(circle,#ff5a00_0_4px,#ffffff_4.5px_9.5px,#d4d4d8_10px_10.5px,transparent_11px)] focus-visible:[&::-webkit-slider-thumb]:ring-2 focus-visible:[&::-webkit-slider-thumb]:ring-obsidian focus-visible:[&::-moz-range-thumb]:ring-2 focus-visible:[&::-moz-range-thumb]:ring-obsidian";
 
 export const FlowRangeSlider = ({
   label,
@@ -41,7 +42,7 @@ export const FlowRangeSlider = ({
         </span>
       </div>
 
-      <div className="relative flex h-5 w-full items-center py-2">
+      <div className="relative flex h-11 w-full items-center">
         <div className="relative h-1.5 w-full rounded-full bg-cloud">
           <div
             className="absolute h-full rounded-full bg-ember"
