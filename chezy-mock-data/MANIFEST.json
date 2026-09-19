@@ -1,0 +1,17 @@
+{
+  "name": "chezy-small-2026-09-19",
+  "tier": "small",
+  "release": "2026-09-19",
+  "created_at": "2026-09-19T18:25:56.485511+02:00",
+  "pii": "scrub",
+  "listings": {
+    "fotocasa rent": 50,
+    "fotocasa sale": 50,
+    "habitaclia rent": 50,
+    "habitaclia sale": 50,
+    "milanuncios rent": 50,
+    "milanuncios sale": 50
+  },
+  "images": 6530,
+  "images_missing": 19
+}

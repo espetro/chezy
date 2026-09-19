@@ -72,3 +72,7 @@ scratch/
 
 # Next.js
 next-env.d.ts
+
+# Dataset photos are 437 MB of WebP; the UI hotlinks media[].url at the source
+# CDN instead. Keep the tables (data/, schema/, docs) tracked.
+chezy-mock-data/media/

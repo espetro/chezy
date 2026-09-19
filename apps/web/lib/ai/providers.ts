@@ -12,13 +12,13 @@ import { titleModel } from "./models";
  * chezy-owned app code, this file is part of the verbatim upstream surface):
  *   OPENAI_COMPATIBLE_BASE_URL  e.g. http://localhost:8317/v1 (bifrost)
  *   OPENAI_COMPATIBLE_API_KEY   bifrost virtual key
- *   CHEZY_MODEL_ID              default model id (e.g. "minimax-coding-plan/MiniMax-M3")
+ *   CHEZY_MODEL_ID              default model id (e.g. "deepseek-ai/DeepSeek-V4.1-Flash")
  */
 const baseURL =
   process.env.OPENAI_COMPATIBLE_BASE_URL ?? "http://localhost:8317/v1";
 const apiKey = process.env.OPENAI_COMPATIBLE_API_KEY ?? "ollama";
 const defaultModelId =
-  process.env.CHEZY_MODEL_ID ?? "minimax-coding-plan/MiniMax-M3";
+  process.env.CHEZY_MODEL_ID ?? "deepseek-ai/DeepSeek-V4.1-Flash";
 
 const openaiCompatibleProvider = createOpenAICompatible({
   apiKey,

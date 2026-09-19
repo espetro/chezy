@@ -2,10 +2,12 @@ import type { InferUITool, UIMessage } from "ai";
 import { z } from "zod";
 import type { ArtifactKind } from "@/components/chat/artifact";
 import type { createDocument } from "./ai/tools/create-document";
+import type { getListingTool } from "./ai/tools/get-listing";
 import type { getWeather } from "./ai/tools/get-weather";
 import type { identifyUser } from "./ai/tools/identify-user";
 import type { requestSuggestions } from "./ai/tools/request-suggestions";
 import type { saveUserProfile } from "./ai/tools/save-user-profile";
+import type { searchListingsTool } from "./ai/tools/search-listings";
 import type { updateDocument } from "./ai/tools/update-document";
 import type { Suggestion } from "./db/schema";
 
@@ -24,10 +26,15 @@ type requestSuggestionsTool = InferUITool<
   ReturnType<typeof requestSuggestions>
 >;
 
+type searchListingsToolType = InferUITool<typeof searchListingsTool>;
+type getListingToolType = InferUITool<typeof getListingTool>;
+
 export type ChatTools = {
   getWeather: weatherTool;
   identifyUser: identifyUserTool;
   saveUserProfile: saveUserProfileTool;
+  searchListings: searchListingsToolType;
+  getListing: getListingToolType;
   createDocument: createDocumentTool;
   updateDocument: updateDocumentTool;
   requestSuggestions: requestSuggestionsTool;

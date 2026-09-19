@@ -25,10 +25,12 @@ import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
 import { getLanguageModel } from "@/lib/ai/providers";
 import { createDocument } from "@/lib/ai/tools/create-document";
 import { editDocument } from "@/lib/ai/tools/edit-document";
+import { getListingTool } from "@/lib/ai/tools/get-listing";
 import { getWeather } from "@/lib/ai/tools/get-weather";
 import { identifyUser } from "@/lib/ai/tools/identify-user";
 import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
 import { saveUserProfile } from "@/lib/ai/tools/save-user-profile";
+import { searchListingsTool } from "@/lib/ai/tools/search-listings";
 import { updateDocument } from "@/lib/ai/tools/update-document";
 import { isProductionEnvironment } from "@/lib/constants";
 import {
@@ -288,6 +290,8 @@ export async function POST(request: Request) {
                   "getWeather",
                   "identifyUser",
                   "saveUserProfile",
+                  "searchListings",
+                  "getListing",
                   "createDocument",
                   "editDocument",
                   "updateDocument",
@@ -343,6 +347,8 @@ export async function POST(request: Request) {
             editDocument: editDocument({ dataStream, session }),
             getWeather,
             identifyUser,
+            searchListings: searchListingsTool,
+            getListing: getListingTool,
             requestSuggestions: requestSuggestions({
               dataStream,
               modelId: chatModel,

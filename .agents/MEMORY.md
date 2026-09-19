@@ -30,7 +30,7 @@
 - **LLM provider**: `@ai-sdk/openai-compatible` via env `OPENAI_COMPATIBLE_BASE_URL` /
   `OPENAI_COMPATIBLE_API_KEY` / `CHEZY_MODEL_ID` / `CHEZY_TITLE_MODEL_ID`. Provider is
   Nebius AI Studio (`https://api.studio.nebius.com/v1`, model
-  `Qwen/Qwen3-235B-A22B-Instruct-2507`, title model `Qwen/Qwen3-30B-A3B-Instruct-2507`);
+  `deepseek-ai/DeepSeek-V4.1-Flash`, title model `Qwen/Qwen3-30B-A3B-Instruct-2507`);
   key = `NEBIUS_API_KEY` in `apps/web/.env.local` + GH secrets/variables. Code default is
   local bifrost `http://localhost:8317/v1`. Model list fetched from `{base}/models`.
 - **Zod banned**: `.oxlintrc.json` enforces `no-restricted-imports` banning the `zod`

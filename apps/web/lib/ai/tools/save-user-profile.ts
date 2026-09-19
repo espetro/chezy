@@ -1,6 +1,6 @@
 import { saveUserProfileInputSchema } from "@chezy/contract";
 import { tool } from "ai";
-import { valibotSchema } from "@/lib/ai/valibot-schema";
+import { valibotSchema } from "@ai-sdk/valibot";
 import {
   createNamedUser,
   getUserByUsername,

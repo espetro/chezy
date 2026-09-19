@@ -6,6 +6,7 @@ import * as v from "valibot";
 
 import { nextSlotIso } from "@/lib/calendar";
 import { env } from "@/lib/env";
+import { getListingById, listingToCallVariables } from "@/lib/listings";
 import { dispatchSlngCall } from "@/lib/slng";
 import { placeVonageCall } from "@/lib/vonage";
 
@@ -28,9 +29,12 @@ export async function POST(request: Request): Promise<Response> {
 
   try {
     if (env.VIEWING_MODE === "slng") {
+      const summary = await getListingById(input.propertyRef);
       const result = await dispatchSlngCall({
         to: input.agencyPhone,
-        variables: { property_ref: input.propertyRef },
+        variables: summary
+          ? listingToCallVariables(summary)
+          : { property_ref: input.propertyRef },
       });
       const view: ViewingResult = {
         status: "dispatched",

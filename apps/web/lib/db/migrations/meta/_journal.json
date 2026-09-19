@@ -12,8 +12,15 @@
     {
       "idx": 1,
       "version": "7",
-      "when": 1789839901769,
-      "tag": "0001_amazing_ironclad",
+      "when": 1789837902973,
+      "tag": "0001_lush_paibok",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789842301575,
+      "tag": "0002_colossal_vermin",
       "breakpoints": true
     }
   ]

@@ -2,8 +2,11 @@ import type { UserProfile } from "@chezy/contract";
 import type { InferSelectModel } from "drizzle-orm";
 import {
   boolean,
+  doublePrecision,
   foreignKey,
+  integer,
   json,
+  jsonb,
   pgTable,
   primaryKey,
   text,
@@ -137,3 +140,39 @@ export const stream = pgTable(
 );
 
 export type Stream = InferSelectModel<typeof stream>;
+
+export const listing = pgTable("Listing", {
+  id: text("id").primaryKey(),
+  platform: text("platform").notNull(),
+  platformId: text("platformId").notNull(),
+  url: text("url").notNull(),
+  operation: text("operation").notNull(),
+  priceEur: doublePrecision("priceEur"),
+  pricePeriod: text("pricePeriod"),
+  propertyType: text("propertyType"),
+  builtM2: doublePrecision("builtM2"),
+  rooms: integer("rooms"),
+  bathrooms: integer("bathrooms"),
+  floor: text("floor"),
+  lat: doublePrecision("lat"),
+  lon: doublePrecision("lon"),
+  street: text("street"),
+  neighbourhood: text("neighbourhood"),
+  district: text("district"),
+  municipality: text("municipality"),
+  postalCode: text("postalCode"),
+  amenities: jsonb("amenities").$type<string[]>().notNull().default([]),
+  title: text("title").notNull(),
+  description: text("description"),
+  publisherName: text("publisherName"),
+  publisherKind: text("publisherKind"),
+  coverUrl: text("coverUrl"),
+  media: jsonb("media")
+    .$type<Array<{ url: string; kind: string; roomType: string | null }>>()
+    .notNull()
+    .default([]),
+  publishedAt: timestamp("publishedAt"),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+});
+
+export type Listing = InferSelectModel<typeof listing>;
