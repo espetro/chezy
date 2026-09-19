@@ -23,6 +23,7 @@
     "@opentelemetry/api": "^1.9.1",
     "@opentelemetry/api-logs": "^0.200.0",
     "@ai-sdk/openai-compatible": "^3.0.53",
+    "@chezy/contract": "workspace:*",
     "@radix-ui/react-use-controllable-state": "^1.2.3",
     "@streamdown/cjk": "^1.0.3",
     "@streamdown/code": "^1.0.3",
@@ -79,6 +80,7 @@
     "tailwindcss-animate": "^1.0.7",
     "use-stick-to-bottom": "^1.1.6",
     "usehooks-ts": "^3.1.1",
+    "valibot": "catalog:default",
     "zod": "^4.4.3"
   },
   "devDependencies": {
