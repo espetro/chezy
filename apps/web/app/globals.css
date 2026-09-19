@@ -498,3 +498,137 @@ textarea:focus-visible {
 [data-testid="artifact"] {
   isolation: isolate;
 }
+
+/* ============================================================================
+ * /flow — isolated design tokens (2026-09-19)
+ *
+ * Ported from the standalone chezMoi/chezy prototype (onboarding/explore/match
+ * screens, see /flow's own README + .agents/docs/screens/). Every token below
+ * is a NEW name — none of them redefine `--background`, `--foreground`,
+ * `--card`, `--border`, `--muted-foreground`, or any other shadcn semantic
+ * token above, on purpose: /flow must not reskin the chat UI or any teammate
+ * route. Only `apps/web/app/flow/**` components reference these tokens
+ * (via bg-obsidian, text-fog, font-flow, rounded-cards, etc.) — nothing
+ * outside /flow should import them. See .agents/plans/2026-09-19-port-to-main.md.
+ * ========================================================================= */
+@theme {
+  --color-obsidian: #09090b;
+  --color-graphite: #18181b;
+  --color-slate: #27272a;
+  --color-iron: #3f3f46;
+  --color-steel: #52525b;
+  --color-fog: #71717a;
+  --color-ash: #a1a1aa;
+  --color-mist: #d4d4d8;
+  --color-cloud: #ececee;
+  --color-paper: #f4f4f5;
+  --color-snow: #ffffff;
+  --color-card-subtle: #fafafa;
+  --color-ember: #ff5a00;
+  --color-ember-deep: #a83900;
+  --color-ember-soft: #ffdbcf;
+  --color-magenta-spark: #fe45e2;
+
+  --font-flow: var(--font-dm-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+
+  /* Stitch "Preferencias" type scale (2026-09-19). New names only — main's
+     shadcn scale is untouched. Used via text-label-sm, text-body-medium, ... */
+  --text-label-sm: 11px;
+  --text-label-sm--line-height: 16px;
+  --text-label-sm--letter-spacing: 0.04em;
+  --text-label-sm--font-weight: 600;
+  --text-label-md: 13px;
+  --text-label-md--line-height: 18px;
+  --text-label-md--font-weight: 500;
+  --text-body-default: 14px;
+  --text-body-default--line-height: 20px;
+  --text-body-default--font-weight: 400;
+  --text-body-medium: 14px;
+  --text-body-medium--line-height: 20px;
+  --text-body-medium--font-weight: 500;
+  --text-headline-sm: 18px;
+  --text-headline-sm--line-height: 26px;
+  --text-headline-sm--letter-spacing: -0.01em;
+  --text-headline-sm--font-weight: 600;
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 32px;
+  --text-headline-md--letter-spacing: -0.015em;
+  --text-headline-md--font-weight: 600;
+
+  --radius-badges: 12px;
+  --radius-inputs: 14px;
+  --radius-buttons: 14px;
+  --radius-cards: 36px;
+  --radius-pills: 10000px;
+
+  --shadow-btn-primary: inset 0 0.5px 0 0 rgba(255, 255, 255, 0.5),
+    inset 0 9px 14px -5px rgba(117, 123, 133, 0.4), 0 0 0 1.5px rgb(44, 46, 52),
+    0 4px 6px 0 rgba(0, 0, 0, 0.14);
+
+  --animate-fade-up: fade-up 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-dot-pulse: dot-pulse 1.2s ease-in-out infinite;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes dot-pulse {
+    0%,
+    80%,
+    100% {
+      opacity: 0.3;
+      transform: translateY(0);
+    }
+    40% {
+      opacity: 1;
+      transform: translateY(-3px);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-dot-pulse {
+    animation: none;
+  }
+}
+
+/* Type-scale utilities /flow uses that fall outside Tailwind's default steps. */
+@layer utilities {
+  .text-display {
+    font-size: 64px;
+    line-height: 1.12;
+  }
+  .text-heading-lg {
+    font-size: 56px;
+    line-height: 1.28;
+  }
+  .text-heading {
+    font-size: 40px;
+    line-height: 1.28;
+  }
+  .text-heading-sm {
+    font-size: 32px;
+    line-height: 1.5;
+  }
+  .text-subheading {
+    font-size: 20px;
+    line-height: 1.5;
+  }
+  .text-body-lg {
+    font-size: 18px;
+    line-height: 1.45;
+  }
+  .text-caption {
+    font-size: 12px;
+    line-height: 1.64;
+  }
+}
