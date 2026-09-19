@@ -15,7 +15,7 @@ import * as v from "valibot";
 import { PRICE_HEADROOM } from "@/lib/constants";
 import { db } from "@/lib/db/client";
 import { listing, type Listing } from "@/lib/db/schema";
-import { eur } from "@/lib/format";
+import { esInt, eur, sentenceCase, speechText, streetCase } from "@/lib/format";
 
 export { eur };
 
@@ -113,6 +113,7 @@ export interface ListingSummary {
   readonly builtM2: number | null;
   readonly district: string | null;
   readonly neighbourhood: string | null;
+  readonly street: string | null;
   readonly url: string;
   readonly coverUrl: string | null;
   readonly description: string;
@@ -130,6 +131,7 @@ export function toListingSummary(row: Listing): ListingSummary {
     builtM2: row.builtM2,
     district: row.district,
     neighbourhood: row.neighbourhood,
+    street: row.street,
     url: row.url,
     coverUrl: row.coverUrl,
     description: (row.description ?? "").slice(0, 300),
@@ -376,23 +378,72 @@ export async function getListingById(
 
 
 
+// Street names that already carry a thoroughfare prefix don't get "calle ".
+const STREET_PREFIX =
+  /^(carrer|calle|avinguda|avenida|passeig|paseo|plaça|plaza|rambla|via|vía|travessera|ronda)\b/i;
+
+// Spoken price: no € glyph, "al mes" spelled out for rents.
+function speechPrice(summary: ListingSummary): string {
+  if (summary.priceEur === null) {
+    return "";
+  }
+  const amount = esInt.format(summary.priceEur);
+  return summary.operation === "rent"
+    ? `${amount} euros al mes`
+    : `${amount} euros`;
+}
+
+function speechLocation(summary: ListingSummary): string {
+  if (summary.street) {
+    const street = streetCase(summary.street);
+    const place = summary.neighbourhood ?? summary.district ?? "Barcelona";
+    const streetPart = STREET_PREFIX.test(street) ? street : `calle ${street}`;
+    return speechText(
+      `${streetPart}, ${place}${place === "Barcelona" ? "" : ", Barcelona"}`,
+    );
+  }
+  return speechText(
+    [summary.neighbourhood, summary.district]
+      .filter((part): part is string => Boolean(part))
+      .join(", "),
+  );
+}
+
+function speechSummary(summary: ListingSummary): string {
+  const parts: string[] = [];
+  if (summary.rooms !== null) {
+    parts.push(
+      summary.rooms === 1 ? "1 habitación" : `${summary.rooms} habitaciones`,
+    );
+  }
+  if (summary.builtM2 !== null) {
+    parts.push(`${Math.round(summary.builtM2)} metros cuadrados`);
+  }
+  const street = summary.street ? streetCase(summary.street) : undefined;
+  const place = street
+    ? `${STREET_PREFIX.test(street) ? `el ${street}` : `la calle ${street}`}, en ${summary.neighbourhood ?? summary.district ?? "Barcelona"}`
+    : (summary.neighbourhood ?? summary.district ?? "Barcelona");
+  const price = speechPrice(summary);
+  return speechText(
+    `piso ${parts.length > 0 ? `de ${parts.join(" y ")} ` : ""}en ${place}${
+      price ? `, por ${price}` : ""
+    }`,
+  );
+}
+
+// Variables the SLNG voice agent reads aloud: speech-ready text (no €, no
+// straight apostrophes, no ALL-CAPS).
 export function listingToCallVariables(
   summary: ListingSummary,
 ): Record<string, string> {
-  const price =
-    summary.priceEur === null
-      ? ""
-      : summary.operation === "rent"
-        ? `${eur.format(summary.priceEur)}/mes`
-        : eur.format(summary.priceEur);
   return {
     property_ref: summary.id,
-    property_title: summary.title,
-    property_price: price,
-    property_location: [summary.neighbourhood, summary.district]
-      .filter((part): part is string => Boolean(part))
-      .join(", "),
+    property_title: sentenceCase(summary.title).slice(0, 90),
+    property_price: speechPrice(summary),
+    property_location: speechLocation(summary),
     property_rooms: summary.rooms?.toString() ?? "",
-    property_m2: summary.builtM2?.toString() ?? "",
+    property_m2:
+      summary.builtM2 === null ? "" : Math.round(summary.builtM2).toString(),
+    property_summary: speechSummary(summary),
   };
 }
