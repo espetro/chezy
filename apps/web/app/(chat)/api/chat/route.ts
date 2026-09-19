@@ -12,28 +12,28 @@ import {
 import { checkBotId } from "botid/server";
 import { after } from "next/server";
 import { createResumableStreamContext } from "resumable-stream";
-import { auth, type UserType } from "@/app/(auth)/auth";
-import { entitlementsByUserType } from "@/lib/ai/entitlements";
+import { auth, type UserType } from "~/app/(auth)/auth";
+import { entitlementsByUserType } from "~/lib/ai/entitlements";
 import {
   allowedModelIds,
   chatModels,
   DEFAULT_CHAT_MODEL,
   getCapabilities,
   getModelAvailability,
-} from "@/lib/ai/models";
-import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
-import { getLanguageModel } from "@/lib/ai/providers";
-import { createDocument } from "@/lib/ai/tools/create-document";
-import { editDocument } from "@/lib/ai/tools/edit-document";
-import { getListingInsightsTool } from "@/lib/ai/tools/get-listing-insights";
-import { getListingTool } from "@/lib/ai/tools/get-listing";
-import { getWeather } from "@/lib/ai/tools/get-weather";
-import { identifyUser } from "@/lib/ai/tools/identify-user";
-import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
-import { saveUserProfile } from "@/lib/ai/tools/save-user-profile";
-import { searchListingsTool } from "@/lib/ai/tools/search-listings";
-import { updateDocument } from "@/lib/ai/tools/update-document";
-import { isProductionEnvironment } from "@/lib/constants";
+} from "~/lib/ai/models";
+import { type RequestHints, systemPrompt } from "~/lib/ai/prompts";
+import { getLanguageModel } from "~/lib/ai/providers";
+import { createDocument } from "~/lib/ai/tools/create-document";
+import { editDocument } from "~/lib/ai/tools/edit-document";
+import { getListingInsightsTool } from "~/lib/ai/tools/get-listing-insights";
+import { getListingTool } from "~/lib/ai/tools/get-listing";
+import { getWeather } from "~/lib/ai/tools/get-weather";
+import { identifyUser } from "~/lib/ai/tools/identify-user";
+import { requestSuggestions } from "~/lib/ai/tools/request-suggestions";
+import { saveUserProfile } from "~/lib/ai/tools/save-user-profile";
+import { searchListingsTool } from "~/lib/ai/tools/search-listings";
+import { updateDocument } from "~/lib/ai/tools/update-document";
+import { isProductionEnvironment } from "~/lib/constants";
 import {
   createStreamId,
   deleteChatById,
@@ -44,12 +44,12 @@ import {
   saveMessages,
   updateChatTitleById,
   updateMessage,
-} from "@/lib/db/queries";
-import type { DBMessage } from "@/lib/db/schema";
-import { ChatbotError } from "@/lib/errors";
-import { checkIpRateLimit } from "@/lib/ratelimit";
-import type { ChatMessage, WaitingStatusData } from "@/lib/types";
-import { convertToUIMessages, generateUUID } from "@/lib/utils";
+} from "~/lib/db/queries";
+import type { DBMessage } from "~/lib/db/schema";
+import { ChatbotError } from "~/lib/errors";
+import { checkIpRateLimit } from "~/lib/ratelimit";
+import type { ChatMessage, WaitingStatusData } from "~/lib/types";
+import { convertToUIMessages, generateUUID } from "~/lib/utils";
 import { generateTitleFromUserMessage } from "../../actions";
 import { type PostRequestBody, postRequestBodySchema } from "./schema";
 

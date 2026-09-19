@@ -4,11 +4,11 @@ import readline from "node:readline";
 
 import { eq } from "drizzle-orm";
 
-import { db } from "@/lib/db/client";
-import { listing, listingInsight } from "@/lib/db/schema";
-import { extractListingInsights } from "@/lib/vision/extract";
-import { INSIGHTS_PROMPT_VERSION } from "@/lib/vision/prompt";
-import type { ListingInsights } from "@/lib/vision/schema";
+import { db } from "~/lib/db/client";
+import { listing, listingInsight } from "~/lib/db/schema";
+import { extractListingInsights } from "~/lib/vision/extract";
+import { INSIGHTS_PROMPT_VERSION } from "~/lib/vision/prompt";
+import type { ListingInsights } from "~/lib/vision/schema";
 
 type Extraction = Awaited<ReturnType<typeof extractListingInsights>>;
 

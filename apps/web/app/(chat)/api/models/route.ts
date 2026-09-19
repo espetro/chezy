@@ -1,4 +1,4 @@
-import { getAllGatewayModels, getCapabilities, isDemo } from "@/lib/ai/models";
+import { getAllGatewayModels, getCapabilities, isDemo } from "~/lib/ai/models";
 
 export async function GET() {
   const headers = {

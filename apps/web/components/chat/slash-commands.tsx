@@ -10,7 +10,7 @@ import {
   XIcon,
 } from "lucide-react";
 import { type ReactNode, useCallback, useEffect, useRef } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "~/lib/utils";
 
 export type SlashCommand = {
   name: string;

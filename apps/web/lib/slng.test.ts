@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock("@/lib/env", () => ({
+vi.mock("~/lib/env", () => ({
   env: { SLNG_API_KEY: "k", SLNG_AGENT_ID: "a" },
 }));
 
-import { dispatchSlngCall, ensureSlngAgentPinned } from "@/lib/slng";
+import { dispatchSlngCall, ensureSlngAgentPinned } from "~/lib/slng";
 
 const BASE = "https://api.agents.slng.ai";
 

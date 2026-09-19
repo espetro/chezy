@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/env", () => ({
+vi.mock("~/lib/env", () => ({
   env: {
     OPENAI_COMPATIBLE_BASE_URL: "https://llm.test/v1",
     OPENAI_COMPATIBLE_API_KEY: "k",
@@ -8,7 +8,7 @@ vi.mock("@/lib/env", () => ({
   },
 }));
 
-import { extractListingInsights } from "@/lib/vision/extract";
+import { extractListingInsights } from "~/lib/vision/extract";
 
 const FIXTURE = {
   per_image: [

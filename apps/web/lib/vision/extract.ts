@@ -3,13 +3,13 @@ import path from "node:path";
 
 import * as v from "valibot";
 
-import { env } from "@/lib/env";
+import { env } from "~/lib/env";
 
 import {
   INSIGHTS_PROMPT_VERSION,
   LISTING_INSIGHTS_PROMPT,
-} from "@/lib/vision/prompt";
-import { type ListingInsights, ListingInsightsSchema } from "@/lib/vision/schema";
+} from "~/lib/vision/prompt";
+import { type ListingInsights, ListingInsightsSchema } from "~/lib/vision/schema";
 
 const MAX_PHOTOS = 25;
 const MAX_TOKENS = 5000;

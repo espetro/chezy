@@ -5,7 +5,7 @@ import {
   missingProfileFields,
   normalizeUsername,
   type UserProfile,
-} from "@/lib/user-profile";
+} from "~/lib/user-profile";
 
 describe("normalizeUsername", () => {
   test("lowercases and trims", () => {

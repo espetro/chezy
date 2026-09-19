@@ -16,8 +16,8 @@ import { unstable_serialize } from "swr/infinite";
 import {
   getChatHistoryPaginationKey,
   SidebarHistory,
-} from "@/components/chat/sidebar-history";
-import { SidebarUserNav } from "@/components/chat/sidebar-user-nav";
+} from "~/components/chat/sidebar-history";
+import { SidebarUserNav } from "~/components/chat/sidebar-user-nav";
 import {
   Sidebar,
   SidebarContent,
@@ -31,7 +31,7 @@ import {
   SidebarRail,
   SidebarTrigger,
   useSidebar,
-} from "@/components/ui/sidebar";
+} from "~/components/ui/sidebar";
 import {
   AlertDialog,
   AlertDialogAction,

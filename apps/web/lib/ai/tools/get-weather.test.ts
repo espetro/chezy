@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { getWeather } from "@/lib/ai/tools/get-weather";
+import { getWeather } from "~/lib/ai/tools/get-weather";
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {

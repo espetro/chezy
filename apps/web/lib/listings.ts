@@ -11,8 +11,8 @@ import {
 } from "drizzle-orm";
 import * as v from "valibot";
 
-import { db } from "@/lib/db/client";
-import { listing, type Listing } from "@/lib/db/schema";
+import { db } from "~/lib/db/client";
+import { listing, type Listing } from "~/lib/db/schema";
 
 // Loose parser for one line of chezy-mock-data/data/listings.jsonl — only the
 // fields we persist; everything else is ignored.

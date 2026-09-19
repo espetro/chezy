@@ -12,13 +12,13 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "~/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { guestRegex } from "@/lib/constants";
+} from "~/components/ui/sidebar";
+import { guestRegex } from "~/lib/constants";
 import { LoaderIcon } from "./icons";
 import { toast } from "./toast";
 

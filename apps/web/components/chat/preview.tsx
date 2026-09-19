@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
-import { suggestions } from "@/lib/constants";
+import { suggestions } from "~/lib/constants";
 import { SparklesIcon } from "./icons";
 
 function PreviewSuggestionButton({

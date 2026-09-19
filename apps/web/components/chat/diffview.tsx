@@ -12,8 +12,8 @@ import { EditorView } from "prosemirror-view";
 import { useEffect, useRef } from "react";
 import { renderToString } from "react-dom/server";
 
-import { MessageResponse } from "@/components/ai-elements/message";
-import { DiffType, diffEditor } from "@/lib/editor/diff";
+import { MessageResponse } from "~/components/ai-elements/message";
+import { DiffType, diffEditor } from "~/lib/editor/diff";
 
 const diffSchema = new Schema({
   marks: OrderedMap.from({

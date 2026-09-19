@@ -2,18 +2,18 @@
 
 import { generateText, type UIMessage } from "ai";
 import { cookies } from "next/headers";
-import { auth } from "@/app/(auth)/auth";
-import type { VisibilityType } from "@/components/chat/visibility-selector";
-import { titleModel } from "@/lib/ai/models";
-import { titlePrompt } from "@/lib/ai/prompts";
-import { getTitleModel } from "@/lib/ai/providers";
+import { auth } from "~/app/(auth)/auth";
+import type { VisibilityType } from "~/components/chat/visibility-selector";
+import { titleModel } from "~/lib/ai/models";
+import { titlePrompt } from "~/lib/ai/prompts";
+import { getTitleModel } from "~/lib/ai/providers";
 import {
   deleteMessagesByChatIdAfterTimestamp,
   getChatById,
   getMessageById,
   updateChatVisibilityById,
-} from "@/lib/db/queries";
-import { getTextFromMessage } from "@/lib/utils";
+} from "~/lib/db/queries";
+import { getTextFromMessage } from "~/lib/utils";
 
 export async function saveChatModelAsCookie(model: string) {
   const cookieStore = await cookies();

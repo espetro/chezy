@@ -5,12 +5,12 @@ import {
   createNamedUser,
   getUserByUsername,
   updateUserProfile,
-} from "@/lib/db/queries";
+} from "~/lib/db/queries";
 import {
   mergeUserProfile,
   missingProfileFields,
   normalizeUsername,
-} from "@/lib/user-profile";
+} from "~/lib/user-profile";
 
 export const saveUserProfile = tool({
   description:

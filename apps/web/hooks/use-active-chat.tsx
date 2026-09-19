@@ -17,16 +17,16 @@ import {
 } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
-import { useDataStream } from "@/components/chat/data-stream-provider";
-import { getChatHistoryPaginationKey } from "@/components/chat/sidebar-history";
-import { toast } from "@/components/chat/toast";
-import type { VisibilityType } from "@/components/chat/visibility-selector";
-import { useAutoResume } from "@/hooks/use-auto-resume";
-import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
-import type { Vote } from "@/lib/db/schema";
-import { ChatbotError } from "@/lib/errors";
-import type { ChatMessage } from "@/lib/types";
-import { fetcher, fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
+import { useDataStream } from "~/components/chat/data-stream-provider";
+import { getChatHistoryPaginationKey } from "~/components/chat/sidebar-history";
+import { toast } from "~/components/chat/toast";
+import type { VisibilityType } from "~/components/chat/visibility-selector";
+import { useAutoResume } from "~/hooks/use-auto-resume";
+import { DEFAULT_CHAT_MODEL } from "~/lib/ai/models";
+import type { Vote } from "~/lib/db/schema";
+import { ChatbotError } from "~/lib/errors";
+import type { ChatMessage } from "~/lib/types";
+import { fetcher, fetchWithErrorHandlers, generateUUID } from "~/lib/utils";
 
 type ActiveChatContextValue = {
   chatId: string;

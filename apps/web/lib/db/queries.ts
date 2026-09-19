@@ -12,8 +12,8 @@ import {
   lt,
   type SQL,
 } from "drizzle-orm";
-import type { ArtifactKind } from "@/components/chat/artifact";
-import type { VisibilityType } from "@/components/chat/visibility-selector";
+import type { ArtifactKind } from "~/components/chat/artifact";
+import type { VisibilityType } from "~/components/chat/visibility-selector";
 import { ChatbotError } from "../errors";
 import type { UserProfile } from "../user-profile";
 import { generateUUID } from "../utils";

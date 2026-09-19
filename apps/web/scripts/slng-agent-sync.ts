@@ -1,7 +1,7 @@
 // Pins the SLNG agent to the region/orchestrator pair that owns the
 // chezy-vonage LiveKit project, then prints the resulting state. Run via
 // `mise run slng:agent:sync` (loads apps/web/.env.local via --env-file).
-import { ensureSlngAgentPinned } from "@/lib/slng";
+import { ensureSlngAgentPinned } from "~/lib/slng";
 
 const state = await ensureSlngAgentPinned();
 console.log(JSON.stringify(state, null, 2));

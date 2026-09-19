@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { Attachment } from "@/lib/types";
+import type { Attachment } from "~/lib/types";
 import { Spinner } from "../ui/spinner";
 import { CrossSmallIcon } from "./icons";
 

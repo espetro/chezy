@@ -43,7 +43,11 @@
         "patterns": [
           {
             "group": ["~/*"],
-            "message": "Use the `~/*` alias (tsconfig paths). Imports starting with `~/` are forbidden outside chezy-owned packages."
+            "message": "Use the `~/*` alias (tsconfig paths). Imports starting with `~/` are forbidden outside chezy-owned packages and apps/web (which owns the alias)."
+          },
+          {
+            "group": ["@/*"],
+            "message": "chezy uses the `~/*` alias (tsconfig paths), not the upstream `@/*`."
           },
           {
             "group": ["drizzle-orm/*"],

@@ -5,8 +5,8 @@ import {
   SLNG_AGENT_ORCHESTRATOR,
   SLNG_AGENT_REGION,
   SLNG_API_BASE_URL,
-} from "@/lib/constants";
-import { env } from "@/lib/env";
+} from "~/lib/constants";
+import { env } from "~/lib/env";
 
 export interface SlngDispatchResult {
   readonly callId: string;

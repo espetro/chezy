@@ -2,8 +2,8 @@
 
 import type { UseChatHelpers } from "@ai-sdk/react";
 import { useEffect } from "react";
-import { useDataStream } from "@/components/chat/data-stream-provider";
-import type { ChatMessage } from "@/lib/types";
+import { useDataStream } from "~/components/chat/data-stream-provider";
+import type { ChatMessage } from "~/lib/types";
 
 export type UseAutoResumeParams = {
   autoResume: boolean;

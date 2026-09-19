@@ -2,7 +2,7 @@
 
 import { HouseIcon } from "lucide-react";
 
-import type { ListingSearchResult, ListingSummary } from "@/lib/listings";
+import type { ListingSearchResult, ListingSummary } from "~/lib/listings";
 
 const priceFormatter = new Intl.NumberFormat("es-ES", {
   currency: "EUR",

@@ -4,7 +4,7 @@
 import { createSign, randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 
-import { env } from "@/lib/env";
+import { env } from "~/lib/env";
 
 export interface VonageCallResult {
   readonly uuid: string;

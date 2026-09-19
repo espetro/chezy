@@ -36,15 +36,15 @@ import {
   ModelSelectorLogo,
   ModelSelectorName,
   ModelSelectorTrigger,
-} from "@/components/ai-elements/model-selector";
+} from "~/components/ai-elements/model-selector";
 import {
   type ChatModel,
   chatModels,
   DEFAULT_CHAT_MODEL,
   type ModelCapabilities,
-} from "@/lib/ai/models";
-import type { Attachment, ChatMessage } from "@/lib/types";
-import { cn } from "@/lib/utils";
+} from "~/lib/ai/models";
+import type { Attachment, ChatMessage } from "~/lib/types";
+import { cn } from "~/lib/utils";
 import {
   PromptInput,
   PromptInputFooter,

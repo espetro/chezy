@@ -1,8 +1,8 @@
 import { identifyUserInputSchema } from "@chezy/contract";
 import { tool } from "ai";
 import { valibotSchema } from "@ai-sdk/valibot";
-import { createNamedUser, getUserByUsername } from "@/lib/db/queries";
-import { missingProfileFields, normalizeUsername } from "@/lib/user-profile";
+import { createNamedUser, getUserByUsername } from "~/lib/db/queries";
+import { missingProfileFields, normalizeUsername } from "~/lib/user-profile";
 
 export const identifyUser = tool({
   description:

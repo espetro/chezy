@@ -7,23 +7,23 @@ import { type Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import type { Suggestion } from "@/lib/db/schema";
+import type { Suggestion } from "~/lib/db/schema";
 import {
   documentSchema,
   handleTransaction,
   headingRule,
-} from "@/lib/editor/config";
+} from "~/lib/editor/config";
 import {
   buildContentFromDocument,
   buildDocumentFromContent,
   createDecorations,
-} from "@/lib/editor/functions";
+} from "~/lib/editor/functions";
 import {
   projectWithPositions,
   suggestionsPlugin,
   suggestionsPluginKey,
   type UISuggestion,
-} from "@/lib/editor/suggestions";
+} from "~/lib/editor/suggestions";
 import { SuggestionDialog } from "./suggestion";
 
 type EditorProps = {

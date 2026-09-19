@@ -2,7 +2,7 @@ import { valibotSchema } from "@ai-sdk/valibot";
 import { tool } from "ai";
 import * as v from "valibot";
 
-import { searchListings } from "@/lib/listings";
+import { searchListings } from "~/lib/listings";
 
 export const searchListingsTool = tool({
   description:

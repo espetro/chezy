@@ -1,13 +1,13 @@
 import { z } from "zod";
-import { auth } from "@/app/(auth)/auth";
-import type { ArtifactKind } from "@/components/chat/artifact";
+import { auth } from "~/app/(auth)/auth";
+import type { ArtifactKind } from "~/components/chat/artifact";
 import {
   deleteDocumentsByIdAfterTimestamp,
   getDocumentsById,
   saveDocument,
   updateDocumentContent,
-} from "@/lib/db/queries";
-import { ChatbotError } from "@/lib/errors";
+} from "~/lib/db/queries";
+import { ChatbotError } from "~/lib/errors";
 
 const documentSchema = z.object({
   content: z.string(),

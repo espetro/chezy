@@ -1,6 +1,6 @@
 import type { UserProfile } from "@chezy/contract";
 import type { InferSelectModel } from "drizzle-orm";
-import type { ListingInsights } from "@/lib/vision/schema";
+import type { ListingInsights } from "~/lib/vision/schema";
 import {
   boolean,
   doublePrecision,

@@ -9,14 +9,14 @@ import {
   CommandList,
   CommandSeparator,
   CommandShortcut,
-} from "@/components/ui/command";
+} from "~/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "~/components/ui/popover";
 import type { Popover as PopoverPrimitive } from "radix-ui";
-import { cn } from "@/lib/utils";
+import { cn } from "~/lib/utils";
 
 export type ModelSelectorProps = React.ComponentProps<typeof PopoverPrimitive.Root>;
 

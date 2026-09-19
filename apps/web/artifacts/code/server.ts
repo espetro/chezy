@@ -1,7 +1,7 @@
 import { streamText } from "ai";
-import { codePrompt, updateDocumentPrompt } from "@/lib/ai/prompts";
-import { getLanguageModel } from "@/lib/ai/providers";
-import { createDocumentHandler } from "@/lib/artifacts/server";
+import { codePrompt, updateDocumentPrompt } from "~/lib/ai/prompts";
+import { getLanguageModel } from "~/lib/ai/providers";
+import { createDocumentHandler } from "~/lib/artifacts/server";
 
 function stripFences(code: string): string {
   return code

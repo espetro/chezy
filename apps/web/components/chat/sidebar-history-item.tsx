@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { memo, useCallback } from "react";
-import { useChatVisibility } from "@/hooks/use-chat-visibility";
-import type { Chat } from "@/lib/db/schema";
+import { useChatVisibility } from "~/hooks/use-chat-visibility";
+import type { Chat } from "~/lib/db/schema";
 import {
   DropdownMenu,
   DropdownMenuContent,

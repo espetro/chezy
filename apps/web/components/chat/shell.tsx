@@ -10,15 +10,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useActiveChat } from "@/hooks/use-active-chat";
+} from "~/components/ui/alert-dialog";
+import { useActiveChat } from "~/hooks/use-active-chat";
 import {
   initialArtifactData,
   useArtifact,
   useArtifactSelector,
-} from "@/hooks/use-artifact";
-import type { Attachment, ChatMessage } from "@/lib/types";
-import { cn } from "@/lib/utils";
+} from "~/hooks/use-artifact";
+import type { Attachment, ChatMessage } from "~/lib/types";
+import { cn } from "~/lib/utils";
 import { Artifact } from "./artifact";
 import { ChatHeader } from "./chat-header";
 import { DataStreamHandler } from "./data-stream-handler";

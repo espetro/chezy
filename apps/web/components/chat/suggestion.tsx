@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback } from "react";
 
-import type { UISuggestion } from "@/lib/editor/suggestions";
+import type { UISuggestion } from "~/lib/editor/suggestions";
 import { Button } from "../ui/button";
 import { CrossIcon, SparklesIcon } from "./icons";
 
