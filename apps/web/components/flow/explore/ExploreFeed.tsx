@@ -3,13 +3,11 @@
 import { ArrowUpDown } from "lucide-react";
 import { useState } from "react";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
-import { FlowDropdown } from "~/components/flow/ui/Dropdown";
+import { FlowDropdown, FlowMultiDropdown } from "~/components/flow/ui/Dropdown";
 import { CandidateCarousel } from "~/components/flow/explore/CandidateCarousel";
 import type { FlowListing } from "~/lib/flow/types";
 
 type SortMode = "match" | "price-asc";
-
-const ALL_ZONES = "all";
 
 const sortOptions = [
   { value: "match" as const, label: "Best match" },
@@ -22,20 +20,19 @@ interface ExploreFeedProps {
 }
 
 export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
-  const [activeZone, setActiveZone] = useState<string | undefined>();
+  const [activeZones, setActiveZones] = useState<string[]>([]);
   const [sortMode, setSortMode] = useState<SortMode>("match");
 
   const zones = Array.from(new Set(listings.map((listing) => listing.neighborhood)));
 
-  const zoneOptions = [
-    { value: ALL_ZONES, label: `All neighborhoods (${listings.length})` },
-    ...zones.map((zone) => ({
-      value: zone,
-      label: `${zone} (${listings.filter((listing) => listing.neighborhood === zone).length})`,
-    })),
-  ];
+  const zoneOptions = zones.map((zone) => ({
+    value: zone,
+    label: `${zone} (${listings.filter((listing) => listing.neighborhood === zone).length})`,
+  }));
 
-  const filtered = listings.filter((listing) => !activeZone || listing.neighborhood === activeZone);
+  const filtered = listings.filter(
+    (listing) => activeZones.length === 0 || activeZones.includes(listing.neighborhood),
+  );
 
   const sorted = [...filtered].sort((a, b) =>
     sortMode === "match" ? b.matchScore - a.matchScore : a.price - b.price,
@@ -56,12 +53,14 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
       </div>
 
       <div className="flex items-center gap-2">
-        <FlowDropdown
-          label="Neighborhood"
+        <FlowMultiDropdown
+          label="Neighborhoods"
           className="min-w-0 flex-1 sm:max-w-xs"
-          value={activeZone ?? ALL_ZONES}
+          values={activeZones}
           options={zoneOptions}
-          onChange={(zone) => setActiveZone(zone === ALL_ZONES ? undefined : zone)}
+          onChange={setActiveZones}
+          emptyLabel={`All neighborhoods (${listings.length})`}
+          selectionLabel={(count) => `${count} neighborhoods`}
         />
         <FlowDropdown
           label="Sort by"
@@ -75,7 +74,7 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
       </div>
 
       <CandidateCarousel
-        key={`${activeZone ?? "all"}-${sortMode}`}
+        key={`${activeZones.join(",") || "all"}-${sortMode}`}
         listings={sorted}
         label="Candidate matches"
       />
