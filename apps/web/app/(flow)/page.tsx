@@ -1,11 +1,12 @@
+import { CircleCheck } from "lucide-react";
 import Link from "next/link";
 import { FlowButton } from "~/components/flow/ui/Button";
 import { FlowPill } from "~/components/flow/ui/Pill";
 
-const painPoints = [
-  "No more endless scrolling on listing sites — the agent filters for you",
-  "Once a match clears 95%, the agent calls the agency on its own",
-  "You're always one click from calling sooner, or discarding a candidate",
+const highlights = [
+  "No more endless scrolling — Chezy filters partner listings for you",
+  "Once a match clears 95%, Chezy calls the agency automatically",
+  "Want it sooner? Call now with one tap — or discard a candidate just as easily",
 ];
 
 const FlowLandingPage = () => (
@@ -50,12 +51,12 @@ const FlowLandingPage = () => (
       </div>
 
       <div className="rounded-cards border border-cloud bg-slate p-5 text-snow sm:p-7">
-        <p className="text-[13px] tracking-wide text-mist uppercase">Without an agent</p>
+        <p className="text-[13px] tracking-wide text-mist uppercase">How Chezy works</p>
         <ul className="mt-4 flex flex-col gap-4">
-          {painPoints.map((point) => (
-            <li key={point} className="flex items-start gap-3 text-[15px] sm:text-[16px]">
-              <span className="mt-1 text-ember">→</span>
-              <span>{point}</span>
+          {highlights.map((highlight) => (
+            <li key={highlight} className="flex items-start gap-3 text-[15px] sm:text-[16px]">
+              <CircleCheck size={18} aria-hidden className="mt-1 shrink-0 text-ember" />
+              <span>{highlight}</span>
             </li>
           ))}
         </ul>
