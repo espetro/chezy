@@ -125,10 +125,10 @@ def scrape_idealista(  # noqa: PLR0913
     target = TIER_SIZES[tier]
     path = state_path(settings, operation)
     state = load_state(path)
-    new_total = 0
+    before = len(known)
     try:
         _harvest(run, state, path, target)
-        new_total = _fetch_details(run, state, master, known, target)
+        _fetch_details(run, state, master, known, target)
     except PageBudgetExceededError:
         run.emit("scrape.budget", f"{_PLATFORM}:{operation}", pages=browser.pages_loaded)
     except BrowserBlockedError as exc:
@@ -140,8 +140,8 @@ def scrape_idealista(  # noqa: PLR0913
         operation=operation,
         tier=tier,
         pages_fetched=browser.pages_loaded,
-        new_listings=new_total,
-        master_total=len(known) + new_total,
+        new_listings=len(known) - before,
+        master_total=len(known),
         tier_total=tier_total,
     )
 
@@ -173,10 +173,9 @@ def _harvest(run: _Run, state: IdState, path: Path, target: int | None) -> None:
 
 def _fetch_details(
     run: _Run, state: IdState, master: Path, known: set[str], target: int | None
-) -> int:
-    """Phase 2: one detail page per id still missing from the master."""
+) -> None:
+    """Phase 2: one detail page per id still missing from the master; grows `known`."""
     wanted = state.ids if target is None else state.ids[:target]
-    fresh = 0
     for platform_id in wanted:
         if platform_id in known:
             continue
@@ -189,11 +188,9 @@ def _fetch_details(
         )
         append_listings(master, [listing])
         known.add(platform_id)
-        fresh += 1
         run.emit(
             "scrape.listing",
             f"{_PLATFORM}:{platform_id}",
             file_only=True,
             title=text(listing.title),
         )
-    return fresh

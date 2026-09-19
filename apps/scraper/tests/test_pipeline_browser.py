@@ -17,6 +17,7 @@ from chezy_scraper.fetch.browser import (
     RenderedPage,
 )
 from chezy_scraper.jsonx import JsonObj
+from chezy_scraper.pipeline import ScrapeResult
 from chezy_scraper.pipeline_browser import load_state, scrape_idealista, state_path
 from chezy_scraper.sinks.jsonl import master_path, read_listings
 from chezy_scraper.tiers import Tier
@@ -68,8 +69,8 @@ def settings(tmp_path: Path) -> Settings:
     return replace(Settings.from_env(), data_dir=tmp_path)
 
 
-def _run(settings: Settings, browser: FakeBrowser, tier: str = "small") -> int:
-    result = scrape_idealista(
+def _scrape(settings: Settings, browser: FakeBrowser, tier: str = "small") -> ScrapeResult:
+    return scrape_idealista(
         IdealistaAdapter(),
         cast("CdpBrowser", browser),
         settings,
@@ -78,7 +79,10 @@ def _run(settings: Settings, browser: FakeBrowser, tier: str = "small") -> int:
         run_id="r1",
         scraped_at=NOW,
     )
-    return result.tier_total
+
+
+def _run(settings: Settings, browser: FakeBrowser, tier: str = "small") -> int:
+    return _scrape(settings, browser, tier).tier_total
 
 
 def test_small_tier_walks_two_list_pages_then_fifty_details(settings: Settings) -> None:
@@ -117,3 +121,10 @@ def test_budget_stops_cleanly_and_next_run_resumes(settings: Settings) -> None:
 def test_block_is_reraised(settings: Settings) -> None:
     with pytest.raises(BrowserBlockedError):
         _run(settings, FakeBrowser(block_on_detail=True))
+
+
+def test_counts_are_not_double_counted_and_survive_a_budget_stop(settings: Settings) -> None:
+    stopped = _scrape(settings, FakeBrowser(budget=10))
+    assert (stopped.new_listings, stopped.master_total) == (8, 8)
+    resumed = _scrape(settings, FakeBrowser(budget=60))
+    assert (resumed.new_listings, resumed.master_total) == (42, 50)
