@@ -16,9 +16,9 @@ export const CandidateCard = ({ listing }: CandidateCardProps) => {
   return (
     <Link
       href={`/explore/${encodeURIComponent(listing.id)}`}
-      className="group flex h-full w-full flex-col overflow-hidden rounded-cards bg-snow shadow-sm transition-shadow hover:shadow-md"
+      className="group flex h-full w-full flex-col overflow-hidden rounded-cards bg-snow shadow-sm transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-obsidian"
     >
-      <div className="relative h-48 w-full shrink-0">
+      <div className="relative h-48 w-full shrink-0 bg-mist">
         {listing.imageUrl ? (
           <img
             src={listing.imageUrl}
@@ -37,7 +37,7 @@ export const CandidateCard = ({ listing }: CandidateCardProps) => {
 
       <div className="flex flex-1 flex-col gap-3 p-5 sm:p-7">
         <div>
-          <h3 className="text-subheading line-clamp-2 font-semibold text-obsidian">
+          <h3 className="text-subheading line-clamp-2 min-h-12 font-semibold text-obsidian">
             {listing.title}
           </h3>
           <p className="mt-1 line-clamp-1 text-[14px] text-fog">
@@ -49,13 +49,11 @@ export const CandidateCard = ({ listing }: CandidateCardProps) => {
           €{listing.price} <span className="text-[13px] font-normal text-fog">/month</span>
         </p>
 
-        {listing.matchReasons[0] ? (
-          <p className="line-clamp-2 rounded-[14px] bg-card-subtle px-3 py-2 text-[13px] text-iron">
-            {listing.matchReasons[0].label}
-          </p>
-        ) : undefined}
+        <p className="line-clamp-2 min-h-14 rounded-[14px] bg-card-subtle px-3 py-2 text-[13px] text-iron">
+          {listing.matchReasons[0]?.label ?? "Open this home to review known facts and unknowns."}
+        </p>
 
-        <div className="mt-auto flex flex-wrap gap-2">
+        <div className="mt-auto flex min-h-16 flex-wrap content-start gap-2">
           {visibleTags.map((tag) => (
             <FlowPill key={tag}>{tag}</FlowPill>
           ))}
