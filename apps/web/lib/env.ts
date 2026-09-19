@@ -31,8 +31,9 @@ const EnvSchema = v.object({
   // Behaviour switches. Default to `mock` so the demo never blocks on a
   // provider being configured.
   VIEWING_MODE: v.fallback(ViewingModeSchema, "mock"),
+  VIEWING_LIVE_ENABLED: v.optional(v.picklist(["true", "false"]), "false"),
   CALENDAR_MODE: v.fallback(CalendarModeSchema, "mock"),
-  // Demo fallback callee for /api/viewing; the dataset has no agency phones.
+  // Only permitted live callee: an explicitly authorized team test number.
   DEMO_AGENCY_PHONE: v.optional(v.string()),
 
   GOOGLE_CALENDAR_ID: v.optional(v.string()),

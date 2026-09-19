@@ -10,6 +10,7 @@ import {
   SLNG_API_BASE_URL,
 } from "~/lib/constants";
 import { env } from "~/lib/env";
+import { CallDispatchError } from "~/lib/viewing-dispatch";
 
 const logger = getLogger(["chezy", "slng"]);
 
@@ -77,7 +78,7 @@ export async function ensureSlngAgentPinned(): Promise<SlngAgentState> {
 
   const getResponse = await slngFetch(path, { method: "GET", apiKey });
   if (!getResponse.ok) {
-    throw new Error(`SLNG agent fetch failed: ${getResponse.status} ${await getResponse.text()}`);
+    throw new CallDispatchError(`SLNG agent fetch failed: ${getResponse.status}`, true);
   }
   let state = toAgentState((await getResponse.json()) as SlngAgentResponse);
 
@@ -91,9 +92,7 @@ export async function ensureSlngAgentPinned(): Promise<SlngAgentState> {
       },
     });
     if (!patchResponse.ok) {
-      throw new Error(
-        `SLNG agent update failed: ${patchResponse.status} ${await patchResponse.text()}`,
-      );
+      throw new CallDispatchError(`SLNG agent update failed: ${patchResponse.status}`, true);
     }
     state = toAgentState((await patchResponse.json()) as SlngAgentResponse);
   }
@@ -105,10 +104,14 @@ export async function dispatchSlngCall(input: {
   readonly to: string;
   readonly variables?: Record<string, string>;
 }): Promise<SlngDispatchResult> {
-  const state = await ensureSlngAgentPinned();
+  const state = await ensureSlngAgentPinned().catch((error: unknown) => {
+    if (error instanceof CallDispatchError) throw error;
+    throw new CallDispatchError("SLNG agent preflight failed", true);
+  });
   if (state.sipOutboundTrunkId === undefined) {
-    throw new Error(
+    throw new CallDispatchError(
       "SLNG agent has no outbound SIP trunk attached; attach a connection in the SLNG dashboard (Telephony -> Outbound) or PATCH sip_outbound_trunk_id",
+      true,
     );
   }
   const { apiKey, agentId } = slngCredentials();
@@ -145,7 +148,10 @@ export async function dispatchSlngCall(input: {
   });
 
   if (!response.ok) {
-    throw new Error(`SLNG dispatch failed: ${response.status} ${await response.text()}`);
+    throw new CallDispatchError(
+      `SLNG dispatch failed: ${response.status}`,
+      [400, 401, 402, 403, 404, 422, 429].includes(response.status),
+    );
   }
   const json = (await response.json()) as { call_id?: string; message?: string };
   if (!json.call_id) {
