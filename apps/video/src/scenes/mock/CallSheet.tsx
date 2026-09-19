@@ -36,10 +36,7 @@ export const CallSheet = ({
   // Line i speaks during its slot of the span (last 12% reserved for the
   // agreed footer).
   const lineSpan = Math.max(1, Math.floor((span * 0.88) / transcript.length));
-  const activeLine = Math.min(
-    transcript.length - 1,
-    Math.floor(local / lineSpan),
-  );
+  const activeLine = Math.min(transcript.length - 1, Math.floor(local / lineSpan));
   const speaking = local < lineSpan * transcript.length;
 
   return (
@@ -69,11 +66,7 @@ export const CallSheet = ({
         {Array.from({ length: BARS }, (_, i) => {
           const wave = speaking
             ? 0.35 +
-              0.65 *
-                Math.abs(
-                  Math.sin(frame * 0.32 + i * 0.9) *
-                    Math.sin(frame * 0.11 + i * 0.5),
-                )
+              0.65 * Math.abs(Math.sin(frame * 0.32 + i * 0.9) * Math.sin(frame * 0.11 + i * 0.5))
             : 0.12;
           return (
             <div
@@ -82,8 +75,7 @@ export const CallSheet = ({
                 flex: 1,
                 height: Math.max(3, wave * 34),
                 borderRadius: 2,
-                background:
-                  speaking && i % 4 === 0 ? theme.accent : theme.faint,
+                background: speaking && i % 4 === 0 ? theme.accent : theme.faint,
               }}
             />
           );

@@ -51,9 +51,7 @@ export const InsightCard = ({
         {title}
       </div>
       {summary && (
-        <div style={{ fontSize: 13.5, lineHeight: 1.4, color: theme.text }}>
-          {summary}
-        </div>
+        <div style={{ fontSize: 13.5, lineHeight: 1.4, color: theme.text }}>{summary}</div>
       )}
       {bullets && (
         <ul

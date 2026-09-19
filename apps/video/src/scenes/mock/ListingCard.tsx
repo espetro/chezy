@@ -59,12 +59,8 @@ export const ListingCard = ({
           gap: 3,
         }}
       >
-        <div style={{ fontSize: compact ? 15 : 17, fontWeight: 700 }}>
-          {card.price}
-        </div>
-        {!compact && (
-          <div style={{ fontSize: 13, color: theme.muted }}>{card.specs}</div>
-        )}
+        <div style={{ fontSize: compact ? 15 : 17, fontWeight: 700 }}>{card.price}</div>
+        {!compact && <div style={{ fontSize: 13, color: theme.muted }}>{card.specs}</div>}
         <div style={{ fontSize: 13, color: theme.muted }}>{card.zone}</div>
         <div
           style={{

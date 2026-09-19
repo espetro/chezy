@@ -15,13 +15,7 @@ export const chunkWords = (text: string, wordsPerChunk = 5): string[] => {
 // Word-chunked captions timed across the VO frames of the segment, rendered at
 // the bottom of the left zone (Q10/Q25). Sized for a phone-sized YouTube
 // player (>= 40px).
-export const Captions = ({
-  text,
-  voFrames,
-}: {
-  text: string;
-  voFrames: number;
-}) => {
+export const Captions = ({ text, voFrames }: { text: string; voFrames: number }) => {
   const frame = useCurrentFrame();
   const chunks = chunkWords(text);
   const index = Math.min(

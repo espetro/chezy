@@ -4,13 +4,7 @@ import { theme } from "../theme";
 
 // A sponsor/tech badge: the extracted logo at a fixed height when
 // `badge.logo` is set (file under public/badges/), otherwise a text chip.
-export const Badge = ({
-  badge,
-  height = 40,
-}: {
-  badge: BadgeSpec;
-  height?: number;
-}) => {
+export const Badge = ({ badge, height = 40 }: { badge: BadgeSpec; height?: number }) => {
   if (badge.logo) {
     return (
       <Img

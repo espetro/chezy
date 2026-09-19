@@ -18,12 +18,7 @@ export const Shortlist = ({ frames, showMockTag }: SceneProps) => {
         <ChatBubble who="user" text={s.user} at={at(0.06)} typeIn />
         <ChatBubble who="assistant" text={s.assistant} at={at(0.3)} />
         {s.cards.map((card, i) => (
-          <ListingCard
-            key={card.zone}
-            card={card}
-            index={i}
-            at={at(0.42) + i * stagger}
-          />
+          <ListingCard key={card.zone} card={card} index={i} at={at(0.42) + i * stagger} />
         ))}
       </ChatColumn>
     </div>

@@ -49,9 +49,7 @@ export const CalendarCard = ({
           justifyContent: "center",
         }}
       >
-        <span style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>
-          {day}
-        </span>
+        <span style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>{day}</span>
         <span
           style={{
             fontSize: 10.5,

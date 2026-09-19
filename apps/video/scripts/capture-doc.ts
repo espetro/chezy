@@ -23,7 +23,7 @@ const lines: string[] = [
   "Every checkpoint is currently a Remotion-native placeholder. To swap in a",
   "real capture: record the flow below, drop the file at",
   "`apps/video/public/clips/<id>.webm` (or `.mp4`), set the checkpoint's",
-  "`source` to `{ kind: \"clip\", file }` in `demo.config.ts`, then re-render.",
+  '`source` to `{ kind: "clip", file }` in `demo.config.ts`, then re-render.',
   "Short clips hold the last frame; long clips are trimmed to the VO",
   "(`trimStartSec` optional).",
   "",

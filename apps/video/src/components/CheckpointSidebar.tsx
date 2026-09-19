@@ -70,8 +70,7 @@ export const CheckpointSidebar = ({
         }}
       >
         {checkpoints.map((cp, i) => {
-          const state =
-            i < activeIndex ? "done" : i === activeIndex ? "active" : "todo";
+          const state = i < activeIndex ? "done" : i === activeIndex ? "active" : "todo";
           const text = copy.checkpoints[cp.id];
           return (
             <li
@@ -81,8 +80,7 @@ export const CheckpointSidebar = ({
                 gridTemplateColumns: "30px 1fr",
                 gap: 16,
                 opacity: state === "todo" ? 0.4 : 1,
-                transform:
-                  state === "active" ? `translateX(${slide}px)` : undefined,
+                transform: state === "active" ? `translateX(${slide}px)` : undefined,
               }}
             >
               <span
@@ -90,24 +88,14 @@ export const CheckpointSidebar = ({
                   fontSize: 24,
                   fontWeight: 700,
                   color:
-                    state === "done"
-                      ? theme.green
-                      : state === "todo"
-                        ? theme.faint
-                        : theme.accent,
+                    state === "done" ? theme.green : state === "todo" ? theme.faint : theme.accent,
                 }}
               >
                 {state === "done" ? "✓" : String(i + 1)}
               </span>
               <div>
-                <div style={{ fontSize: 26, fontWeight: 600 }}>
-                  {text.label}
-                </div>
-                <div
-                  style={{ fontSize: 19, color: theme.muted, marginTop: 4 }}
-                >
-                  {text.subtext}
-                </div>
+                <div style={{ fontSize: 26, fontWeight: 600 }}>{text.label}</div>
+                <div style={{ fontSize: 19, color: theme.muted, marginTop: 4 }}>{text.subtext}</div>
                 {state === "active" && cp.badges.length > 0 && (
                   <div style={{ marginTop: 12 }}>
                     <BadgeRow badges={cp.badges} height={30} gap={8} />
@@ -129,9 +117,7 @@ export const CheckpointSidebar = ({
           textAlign: "center",
         }}
       >
-        <div style={{ fontSize: 24, fontWeight: 600 }}>
-          {copy.footer.tagline}
-        </div>
+        <div style={{ fontSize: 24, fontWeight: 600 }}>{copy.footer.tagline}</div>
         <BadgeRow badges={sponsors} height={40} gap={14} justify="center" />
         <div
           style={{

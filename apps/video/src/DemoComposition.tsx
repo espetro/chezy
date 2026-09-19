@@ -20,12 +20,7 @@ export const DemoComposition = ({ config }: { config: DemoConfig }) => {
         </Series.Sequence>
         {config.checkpoints.map((cp, i) => (
           <Series.Sequence key={cp.id} durationInFrames={t.frames[cp.id]}>
-            <SplitScreenDemo
-              config={config}
-              checkpoint={cp}
-              index={i}
-              timeline={t}
-            />
+            <SplitScreenDemo config={config} checkpoint={cp} index={i} timeline={t} />
             <Audio src={staticFile(`audio/vo/${cp.id}.wav`)} />
           </Series.Sequence>
         ))}

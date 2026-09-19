@@ -53,9 +53,7 @@ export const SplitScreenDemo = ({
           {checkpoint.source.kind === "clip" ? (
             <OffthreadVideo
               src={staticFile(`clips/${checkpoint.source.file}`)}
-              startFrom={Math.round(
-                (checkpoint.source.trimStartSec ?? 0) * config.fps,
-              )}
+              startFrom={Math.round((checkpoint.source.trimStartSec ?? 0) * config.fps)}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
           ) : (

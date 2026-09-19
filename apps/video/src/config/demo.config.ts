@@ -3,12 +3,7 @@
 // The prose fields below are the handoff contract for real captures; they are
 // rendered into CAPTURE.md by scripts/capture-doc.ts, never on screen.
 
-export type CheckpointId =
-  | "brief"
-  | "shortlist"
-  | "forensic"
-  | "call"
-  | "booked";
+export type CheckpointId = "brief" | "shortlist" | "forensic" | "call" | "booked";
 export type SegmentId = "intro" | CheckpointId;
 
 export type Badge = {
@@ -77,8 +72,7 @@ export const demoConfig: DemoConfig = {
       id: "brief",
       badges: [{ label: "Nebius", logo: "nebius.png" }],
       mustShow: ["identity line", "three profile fields", "confirmation"],
-      startState:
-        'Empty chat, greeting "What flat are you looking for?", composer focused.',
+      startState: 'Empty chat, greeting "What flat are you looking for?", composer focused.',
       actions: [
         'User bubble "Hi, I\'m Jessie" types in (40 ms/char).',
         "Assistant asks for neighbourhoods, monthly budget, bedrooms.",
@@ -86,34 +80,27 @@ export const demoConfig: DemoConfig = {
         "Assistant confirms the saved profile and asks what else matters.",
       ],
       endState: "Four bubbles visible, profile confirmation last.",
-      transition:
-        "Chat scrolls up 300 ms ease-out, next user bubble appears.",
+      transition: "Chat scrolls up 300 ms ease-out, next user bubble appears.",
       source: { kind: "placeholder" },
     },
     {
       id: "shortlist",
       badges: [{ label: "Nebius", logo: "nebius.png" }],
       mustShow: ["query bubble", "3 cards", "price/m² vs average on each"],
-      startState:
-        "Previous chat scrolled so the last confirmation is at the top.",
+      startState: "Previous chat scrolled so the last confirmation is at the top.",
       actions: [
         'User asks "Find me a bright 2-bed in Gràcia under €1,800."',
         'Assistant replies "Three candidates."',
         "Three ListingCard-shaped cards stagger in 80 ms apart: photo block, price, specs, zone, price/m² line with barrio average.",
       ],
       endState: "Three cards visible, card 1 top.",
-      transition:
-        "Cards 1 and 2 stay, card 3 fades; insight cards attach beneath 1 and 2.",
+      transition: "Cards 1 and 2 stay, card 3 fades; insight cards attach beneath 1 and 2.",
       source: { kind: "placeholder" },
     },
     {
       id: "forensic",
       badges: [{ label: "Nebius", logo: "nebius.png" }],
-      mustShow: [
-        "amber warning with the three facts",
-        "green pass",
-        "both cards",
-      ],
+      mustShow: ["amber warning with the three facts", "green pass", "both cards"],
       startState: "Cards 1 and 2 visible.",
       actions: [
         'Assistant says "I checked both."',
@@ -127,33 +114,26 @@ export const demoConfig: DemoConfig = {
     },
     {
       id: "call",
-      badges: [{ label: "SLNG", logo: "slng.png" }, { label: "Vonage", logo: "vonage.png" }],
-      mustShow: [
-        "approval bubble",
-        "dialing state",
-        "AI disclosure line",
-        "agreed slot",
+      badges: [
+        { label: "SLNG", logo: "slng.png" },
+        { label: "Vonage", logo: "vonage.png" },
       ],
+      mustShow: ["approval bubble", "dialing state", "AI disclosure line", "agreed slot"],
       startState: "Forensic end state.",
       actions: [
         'User asks "Book a viewing for the Eixample one." (0 to ~10 s)',
-        'Assistant: "Calling the agency now, in Spanish. I\'ll say I\'m an AI assistant."',
+        "Assistant: \"Calling the agency now, in Spanish. I'll say I'm an AI assistant.\"",
         "Dialing card: phone icon, masked +34 number, pulsing dot, badges from config.",
         "Dialing card expands to a call sheet (~10 s to end): synthetic waveform keyed to transcript lines; four es/en transcript lines appear in sync with the VO; footer line shows the agreed slot.",
       ],
       endState: "Call sheet with four lines and the agreed slot.",
-      transition:
-        'Call sheet collapses into a "Call ended · 1:12" chip, chat continues.',
+      transition: 'Call sheet collapses into a "Call ended · 1:12" chip, chat continues.',
       source: { kind: "placeholder" },
     },
     {
       id: "booked",
       badges: [],
-      mustShow: [
-        "booked message with the slot",
-        "calendar card",
-        "all five sidebar items checked",
-      ],
+      mustShow: ["booked message with the slot", "calendar card", "all five sidebar items checked"],
       startState: "Chat with the call-ended chip.",
       actions: [
         'Assistant: "Viewing booked: Tuesday 22 September, 18:30. Added to your calendar."',

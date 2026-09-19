@@ -8,13 +8,7 @@ const RAMP_FRAMES = 15;
 // segment plays +0.5 s padding; swellDb (-14) in the first 1.5 s, in gaps and
 // over the last 6 s; 15-frame ramps. Mounts only when config.music.file is set
 // (music.file: undefined = fallback, no bed).
-export const MusicBed = ({
-  config,
-  timeline,
-}: {
-  config: DemoConfig;
-  timeline: Timeline;
-}) => {
+export const MusicBed = ({ config, timeline }: { config: DemoConfig; timeline: Timeline }) => {
   const file = config.music.file;
   if (file === undefined) return undefined;
 
@@ -51,7 +45,5 @@ export const MusicBed = ({
     return swell + (duck - swell) * t;
   };
 
-  return (
-    <Audio src={staticFile(`audio/music/${file}`)} loop volume={volume} />
-  );
+  return <Audio src={staticFile(`audio/music/${file}`)} loop volume={volume} />;
 };

@@ -19,10 +19,7 @@ export type Timeline = {
   segments: SegmentTiming[];
 };
 
-export const buildTimeline = (
-  config: DemoConfig,
-  durations: Record<string, number>,
-): Timeline => {
+export const buildTimeline = (config: DemoConfig, durations: Record<string, number>): Timeline => {
   const { fps } = config;
   const frames = {} as Record<SegmentId, number>;
   const segments: SegmentTiming[] = [];

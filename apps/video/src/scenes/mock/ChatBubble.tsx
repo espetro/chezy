@@ -25,9 +25,7 @@ export const ChatBubble = ({
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const shown = typeIn
-    ? text.slice(0, Math.floor(local / 1.2))
-    : text;
+  const shown = typeIn ? text.slice(0, Math.floor(local / 1.2)) : text;
   const isUser = who === "user";
 
   return (
@@ -48,9 +46,7 @@ export const ChatBubble = ({
       }}
     >
       {shown}
-      {typeIn && shown.length < text.length && (
-        <span style={{ opacity: 0.6 }}>▍</span>
-      )}
+      {typeIn && shown.length < text.length && <span style={{ opacity: 0.6 }}>▍</span>}
     </div>
   );
 };

@@ -15,5 +15,4 @@ const placeholders: Record<CheckpointId, ComponentType<SceneProps>> = {
   booked: Booked,
 };
 
-export const placeholderFor = (id: CheckpointId): ComponentType<SceneProps> =>
-  placeholders[id];
+export const placeholderFor = (id: CheckpointId): ComponentType<SceneProps> => placeholders[id];
