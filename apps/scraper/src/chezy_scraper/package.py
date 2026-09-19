@@ -25,6 +25,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, Literal
 
+from chezy_scraper.media import MAX_PHOTOS, select_media
 from chezy_scraper.models import Listing
 from chezy_scraper.tables import write_tables
 
@@ -120,7 +121,9 @@ attributes, coordinates and photos, meant for developing and testing agentic wor
 |---|---|
 {table}
 
-Images: {images} WebP files ({missing} could not be downloaded and have no path).
+Images: {images} WebP files. Per listing, the first {MAX_PHOTOS} photos and all floor plans are
+included ({missing} of those failed to download). Further photos, videos and 3D tours are listed
+in `media.parquet` with a null `path` and only their source url.
 Each platform and operation slice is the first N listings of the portal's default ranking, so
 this is a convenient sample, not a random sample of the market.
 
@@ -172,21 +175,25 @@ Scraped from public listing pages for internal development. Respect each portal'
 
 
 def _copy_images(prepared: list[Listing], *, media_root: Path, root: Path) -> tuple[int, int]:
-    """Copy mirrored files into the bundle; clear `local_path` where the file is absent."""
-    copied = missing = 0
+    """Copy mirrored files into the bundle; returns (copied, failed).
+
+    `failed` counts only images that should exist (the photo cap and floor plans) but do not.
+    Extra photos, videos and tours are never mirrored and keep a null `local_path`.
+    """
+    copied = 0
     for listing in prepared:
         for media in listing.media:
             relative = media.local_path
             source = media_root / relative.removeprefix(_MEDIA_PREFIX) if relative else None
             if relative is None or source is None or not source.exists():
-                missing += 1
                 media.local_path = None
                 continue
             target = root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source, target)
             copied += 1
-    return copied, missing
+    failed = sum(1 for x in prepared for m in select_media(x) if m.local_path is None)
+    return copied, failed
 
 
 def build_bundle(  # noqa: PLR0913
