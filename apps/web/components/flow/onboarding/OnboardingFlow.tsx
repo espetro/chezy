@@ -3,7 +3,7 @@
 import { useMountEffect } from "@chezy/ui/hooks/useMountEffect";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { ChatBubble } from "@/components/flow/onboarding/ChatBubble";
+import { ChatBubble } from "~/components/flow/onboarding/ChatBubble";
 import {
   AutonomyStep,
   BudgetStep,
@@ -13,12 +13,12 @@ import {
   RoutineStep,
   SummaryStep,
   formatEur,
-} from "@/components/flow/onboarding/OnboardingSteps";
-import { ThinkingBubble } from "@/components/flow/onboarding/ThinkingBubble";
-import { FlowStepper } from "@/components/flow/ui/Stepper";
-import { FlowStickyActionBar } from "@/components/flow/ui/StickyActionBar";
-import { toSearchProfileInput } from "@/lib/flow/adapters";
-import { AGENT_THINKING_DELAY_MS } from "@/lib/flow/constants";
+} from "~/components/flow/onboarding/OnboardingSteps";
+import { ThinkingBubble } from "~/components/flow/onboarding/ThinkingBubble";
+import { FlowStepper } from "~/components/flow/ui/Stepper";
+import { FlowStickyActionBar } from "~/components/flow/ui/StickyActionBar";
+import { toSearchProfileInput } from "~/lib/flow/adapters";
+import { AGENT_THINKING_DELAY_MS } from "~/lib/flow/constants";
 import {
   autonomyOptions,
   commuteOptions,
@@ -29,8 +29,8 @@ import {
   progressStepCount,
   zoneLabel,
   type OnboardingStepId,
-} from "@/lib/flow/onboarding-steps";
-import type { UserPreferences } from "@/lib/flow/types";
+} from "~/lib/flow/onboarding-steps";
+import type { UserPreferences } from "~/lib/flow/types";
 
 interface HistoryEntry {
   agentMessage: string;
@@ -50,9 +50,16 @@ const scrollIntoViewOnMount = (element: HTMLDivElement | null) => {
 const canSubmit = (id: OnboardingStepId, prefs: UserPreferences) => {
   switch (id) {
     case "routine":
-      return prefs.workAddress.trim().length > 0 && prefs.commuteMaxMin !== undefined && prefs.zones.length > 0;
+      return (
+        prefs.workAddress.trim().length > 0 &&
+        prefs.commuteMaxMin !== undefined &&
+        prefs.zones.length > 0
+      );
     case "moveIn":
-      return prefs.moveIn?.mode === "flexible" || (prefs.moveIn?.mode === "date" && prefs.moveIn.date !== "");
+      return (
+        prefs.moveIn?.mode === "flexible" ||
+        (prefs.moveIn?.mode === "date" && prefs.moveIn.date !== "")
+      );
     default:
       return true;
   }
@@ -71,12 +78,16 @@ const answerSummary = (id: OnboardingStepId, prefs: UserPreferences): string | u
     case "moveIn":
       return prefs.moveIn?.mode === "flexible" ? "Flexible (±15 days)" : prefs.moveIn?.date;
     case "mustHaves": {
-      const labels = mustHaveOptions.filter((o) => prefs.mustHaves.includes(o.id)).map((o) => o.label);
+      const labels = mustHaveOptions
+        .filter((o) => prefs.mustHaves.includes(o.id))
+        .map((o) => o.label);
       return labels.length > 0 ? labels.join(", ") : "Nothing specific";
     }
     case "dealBreakers": {
       const count = dealBreakerOptions.filter((o) => prefs.dealBreakers.includes(o.id)).length;
-      return count > 0 ? `${count} of ${dealBreakerOptions.length} dealbreakers on` : "No dealbreakers";
+      return count > 0
+        ? `${count} of ${dealBreakerOptions.length} dealbreakers on`
+        : "No dealbreakers";
     }
     case "autonomy":
       return autonomyOptions.find((o) => o.level === prefs.autonomy)?.title;
@@ -176,7 +187,10 @@ export const OnboardingFlow = ({ initial, initialCount }: OnboardingFlowProps) =
     }
     setHistory((prev) => [
       ...prev,
-      { agentMessage: currentStep.agentMessage, userAnswer: answerSummary(currentStep.id, preferences) },
+      {
+        agentMessage: currentStep.agentMessage,
+        userAnswer: answerSummary(currentStep.id, preferences),
+      },
     ]);
     setStepIndex((index) => index + 1);
     think();

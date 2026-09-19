@@ -19,7 +19,7 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "~/*": ["./*"]
     },
     "strictNullChecks": true
   },
@@ -31,5 +31,5 @@
     "next.config.js",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "vendor"]
+  "exclude": ["node_modules"]
 }

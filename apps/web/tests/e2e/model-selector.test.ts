@@ -24,9 +24,7 @@ test.describe("Model Selector", () => {
     const searchInput = page.getByPlaceholder("Search models...");
     await searchInput.fill("DeepSeek");
 
-    await expect(
-      page.getByRole("option", { name: /DeepSeek V3\.2/ })
-    ).toBeVisible();
+    await expect(page.getByRole("option", { name: /DeepSeek V3\.2/ })).toBeVisible();
   });
 
   test("can close model selector by clicking outside", async ({ page }) => {
@@ -46,12 +44,8 @@ test.describe("Model Selector", () => {
 
     const availableModels = page.getByRole("group", { name: "Available" });
     await expect(availableModels).toBeVisible();
-    await expect(
-      availableModels.getByRole("option", { name: /DeepSeek V3\.2/ })
-    ).toBeVisible();
-    await expect(
-      availableModels.getByRole("option", { name: /Kimi K2\.5/ })
-    ).toBeVisible();
+    await expect(availableModels.getByRole("option", { name: /DeepSeek V3\.2/ })).toBeVisible();
+    await expect(availableModels.getByRole("option", { name: /Kimi K2\.5/ })).toBeVisible();
   });
 
   test("can select a different model", async ({ page }) => {

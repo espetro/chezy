@@ -1,12 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import type { Listing, SearchProfile } from "@/lib/db/schema";
-import {
-  estimateCommuteMin,
-  haversineKm,
-  rankListings,
-  scoreListing,
-} from "./match";
+import type { Listing, SearchProfile } from "~/lib/db/schema";
+import { estimateCommuteMin, haversineKm, rankListings, scoreListing } from "./match";
 
 const baseProfile: SearchProfile = {
   id: "p1",
@@ -99,9 +94,7 @@ describe("scoreListing must-have coverage", () => {
     expect(scoreListing(p, makeListing({ amenities: ["balcony"] })).score).toBe(
       30 + 25 + 25 + 10 + 10,
     );
-    expect(scoreListing(p, makeListing({ amenities: [] })).score).toBe(
-      30 + 25 + 0 + 10 + 10,
-    );
+    expect(scoreListing(p, makeListing({ amenities: [] })).score).toBe(30 + 25 + 0 + 10 + 10);
   });
 });
 
@@ -143,10 +136,7 @@ describe("scoreListing barrio", () => {
 });
 
 it("empty preferences score 100 with reasons", () => {
-  const result = scoreListing(
-    baseProfile,
-    makeListing({ priceEur: 1000 }),
-  );
+  const result = scoreListing(baseProfile, makeListing({ priceEur: 1000 }));
   expect(result.score).toBe(100);
   expect(result.reasons.length).toBeGreaterThan(0);
 });
@@ -159,9 +149,7 @@ describe("rankListings red lines", () => {
 
   it("drops interior rows only when no_interior is set", () => {
     const withRedLine = { ...baseProfile, redLines: ["no_interior"] };
-    expect(
-      rankListings(withRedLine, rows).map((r) => r.listing.id),
-    ).toEqual(["exterior"]);
+    expect(rankListings(withRedLine, rows).map((r) => r.listing.id)).toEqual(["exterior"]);
     expect(rankListings(baseProfile, rows)).toHaveLength(2);
   });
 });

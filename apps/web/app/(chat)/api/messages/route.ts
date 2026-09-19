@@ -1,6 +1,6 @@
-import { auth } from "@/app/(auth)/auth";
-import { getChatById, getMessagesByChatId } from "@/lib/db/queries";
-import { convertToUIMessages } from "@/lib/utils";
+import { auth } from "~/app/(auth)/auth";
+import { getChatById, getMessagesByChatId } from "~/lib/db/queries";
+import { convertToUIMessages } from "~/lib/utils";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -20,15 +20,12 @@ export async function GET(request: Request) {
     return Response.json({
       isReadonly: false,
       messages: [],
-      userId: null,
+      userId: undefined,
       visibility: "private",
     });
   }
 
-  if (
-    chat.visibility === "private" &&
-    (!session?.user || session.user.id !== chat.userId)
-  ) {
+  if (chat.visibility === "private" && (!session?.user || session.user.id !== chat.userId)) {
     return Response.json({ error: "forbidden" }, { status: 403 });
   }
 

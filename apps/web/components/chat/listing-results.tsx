@@ -25,9 +25,7 @@ export function ListingCard({ listing }: { listing: ListingSummary }) {
   ]
     .filter(Boolean)
     .join(" · ");
-  const location = [listing.neighbourhood, listing.district]
-    .filter(Boolean)
-    .join(", ");
+  const location = [listing.neighbourhood, listing.district].filter(Boolean).join(", ");
 
   return (
     <article className="overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm">
@@ -44,21 +42,15 @@ export function ListingCard({ listing }: { listing: ListingSummary }) {
         </div>
       )}
       <div className="space-y-1 p-3">
-        {price && <p className="font-semibold text-base">{price}</p>}
-        {headline && <p className="font-medium text-sm">{headline}</p>}
-        {location && (
-          <p className="text-muted-foreground text-xs">{location}</p>
-        )}
-        <p className="line-clamp-2 text-muted-foreground text-xs">
-          {listing.title}
-        </p>
+        {price && <p className="text-base font-semibold">{price}</p>}
+        {headline && <p className="text-sm font-medium">{headline}</p>}
+        {location && <p className="text-xs text-muted-foreground">{location}</p>}
+        <p className="line-clamp-2 text-xs text-muted-foreground">{listing.title}</p>
         <div className="flex items-center justify-between pt-1">
-          <span className="font-mono text-[10px] text-muted-foreground">
-            {listing.id}
-          </span>
+          <span className="font-mono text-[10px] text-muted-foreground">{listing.id}</span>
           {safeHttpUrl(listing.url) && (
             <a
-              className="text-primary text-xs hover:underline"
+              className="text-xs text-primary hover:underline"
               href={safeHttpUrl(listing.url)}
               rel="noreferrer"
               target="_blank"
@@ -73,25 +65,22 @@ export function ListingCard({ listing }: { listing: ListingSummary }) {
 }
 
 export function ListingResults({ result }: { result: ListingSearchResult }) {
-  const districts = new Set(
-    result.listings.map((l) => l.district).filter(Boolean)
-  );
-  const sharedDistrict =
-    districts.size === 1 ? [...districts][0] : undefined;
+  const districts = new Set(result.listings.map((l) => l.district).filter(Boolean));
+  const sharedDistrict = districts.size === 1 ? [...districts][0] : undefined;
 
   return (
     <div className="space-y-3">
-      <p className="font-medium text-sm">
+      <p className="text-sm font-medium">
         {result.total} {result.total === 1 ? "anuncio" : "anuncios"}
         {sharedDistrict ? ` · ${sharedDistrict}` : " en Barcelona"}
       </p>
       {result.relaxed.length > 0 && (
-        <div className="rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-amber-900 text-xs dark:bg-amber-950/40 dark:text-amber-200">
+        <div className="rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
           {result.note}
         </div>
       )}
       {result.listings.length === 0 ? (
-        <div className="rounded-xl border bg-muted/50 p-4 text-muted-foreground text-sm">
+        <div className="rounded-xl border bg-muted/50 p-4 text-sm text-muted-foreground">
           No hay anuncios que encajen.
         </div>
       ) : (

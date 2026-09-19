@@ -37,54 +37,26 @@ const flooringKind = v.fallback(
 );
 
 const ceilingFeature = v.fallback(
-  v.picklist([
-    "high_ceilings",
-    "catalan_vault",
-    "exposed_beams",
-    "mouldings",
-    "false_ceiling",
-  ]),
+  v.picklist(["high_ceilings", "catalan_vault", "exposed_beams", "mouldings", "false_ceiling"]),
   "false_ceiling",
 );
 
-const windowFrame = v.fallback(
-  v.picklist(["aluminum", "pvc", "wood", "unknown"]),
-  "unknown",
-);
+const windowFrame = v.fallback(v.picklist(["aluminum", "pvc", "wood", "unknown"]), "unknown");
 const windowSize = v.fallback(
   v.picklist(["floor_to_ceiling", "large", "standard", "small"]),
   "standard",
 );
 const lightNatural = v.fallback(v.picklist(["low", "medium", "high"]), "medium");
-const facing = v.fallback(
-  v.picklist(["exterior", "interior", "mixed", "unknown"]),
-  "unknown",
-);
+const facing = v.fallback(v.picklist(["exterior", "interior", "mixed", "unknown"]), "unknown");
 const outdoorSpace = v.fallback(
   v.picklist(["balcony", "terrace", "patio", "pool", "garden"]),
   "patio",
 );
-const view = v.fallback(
-  v.picklist(["sea", "city", "street", "courtyard", "mountain"]),
-  "street",
-);
-const kitchenLayout = v.fallback(
-  v.picklist(["open", "closed", "unknown"]),
-  "unknown",
-);
-const furnished = v.fallback(
-  v.picklist(["full", "partial", "none", "unknown"]),
-  "unknown",
-);
+const view = v.fallback(v.picklist(["sea", "city", "street", "courtyard", "mountain"]), "street");
+const kitchenLayout = v.fallback(v.picklist(["open", "closed", "unknown"]), "unknown");
+const furnished = v.fallback(v.picklist(["full", "partial", "none", "unknown"]), "unknown");
 const style = v.fallback(
-  v.picklist([
-    "modern",
-    "classic_modernista",
-    "rustic",
-    "industrial",
-    "nordic",
-    "mixed",
-  ]),
+  v.picklist(["modern", "classic_modernista", "rustic", "industrial", "nordic", "mixed"]),
   "mixed",
 );
 

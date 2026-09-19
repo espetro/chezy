@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "~/components/theme-provider";
+import { TooltipProvider } from "~/components/ui/tooltip";
 
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
@@ -54,11 +54,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      className={`${geist.variable} ${geistMono.variable}`}
-      lang="en"
-      suppressHydrationWarning
-    >
+    <html className={`${geist.variable} ${geistMono.variable}`} lang="en" suppressHydrationWarning>
       <head>
         <script
           // biome-ignore lint/security/noDangerouslySetInnerHtml: "Required"
@@ -74,9 +70,7 @@ export default function RootLayout({
           disableTransitionOnChange
           enableSystem
         >
-          <SessionProvider
-            basePath={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/auth`}
-          >
+          <SessionProvider basePath={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/auth`}>
             <TooltipProvider>{children}</TooltipProvider>
           </SessionProvider>
         </ThemeProvider>

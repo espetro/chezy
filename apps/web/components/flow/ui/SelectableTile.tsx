@@ -1,7 +1,7 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "~/lib/utils";
 
 interface SelectableTileProps {
   label: string;
@@ -15,7 +15,7 @@ export const FlowSelectableTile = ({ label, icon, selected, onToggle }: Selectab
     type="button"
     aria-pressed={selected}
     onClick={onToggle}
-    className="flex min-h-11 items-center justify-between gap-2 rounded-[18px] bg-paper p-3 text-left transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian"
+    className="flex min-h-11 items-center justify-between gap-2 rounded-[18px] bg-paper p-3 text-left transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none"
   >
     <div className="flex min-w-0 items-center gap-2.5">
       <span

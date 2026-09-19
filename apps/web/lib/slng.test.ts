@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock("@/lib/env", () => ({
+vi.mock("~/lib/env", () => ({
   env: { SLNG_API_KEY: "k", SLNG_AGENT_ID: "a" },
 }));
 
@@ -14,7 +14,7 @@ vi.mock("@chezy/observability", () => ({
   }),
 }));
 
-import { dispatchSlngCall, ensureSlngAgentPinned } from "@/lib/slng";
+import { dispatchSlngCall, ensureSlngAgentPinned } from "~/lib/slng";
 
 const BASE = "https://api.agents.slng.ai";
 
@@ -176,9 +176,7 @@ describe("declared call arguments", () => {
     });
     expect(warnSpy).toHaveBeenCalledTimes(1);
     const [message, props] = warnSpy.mock.calls[0] ?? [];
-    expect(`${message} ${JSON.stringify(props)}`).toContain(
-      "property_highlights",
-    );
+    expect(`${message} ${JSON.stringify(props)}`).toContain("property_highlights");
   });
 
   test("passes variables through unchanged when template_variables is absent", async () => {

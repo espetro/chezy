@@ -5,7 +5,7 @@ const mockEnv = vi.hoisted(() => ({
   DEMO_AGENCY_PHONE: undefined as string | undefined,
 }));
 
-vi.mock("@/lib/env", () => ({ env: mockEnv }));
+vi.mock("~/lib/env", () => ({ env: mockEnv }));
 
 import { POST } from "./route";
 

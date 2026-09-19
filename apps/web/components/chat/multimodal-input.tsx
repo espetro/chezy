@@ -3,13 +3,7 @@
 import type { UseChatHelpers } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
 import equal from "fast-deep-equal";
-import {
-  ArrowUpIcon,
-  BrainIcon,
-  EyeIcon,
-  LockIcon,
-  WrenchIcon,
-} from "lucide-react";
+import { ArrowUpIcon, BrainIcon, EyeIcon, LockIcon, WrenchIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import {
@@ -36,15 +30,15 @@ import {
   ModelSelectorLogo,
   ModelSelectorName,
   ModelSelectorTrigger,
-} from "@/components/ai-elements/model-selector";
+} from "~/components/ai-elements/model-selector";
 import {
   type ChatModel,
   chatModels,
   DEFAULT_CHAT_MODEL,
   type ModelCapabilities,
-} from "@/lib/ai/models";
-import type { Attachment, ChatMessage } from "@/lib/types";
-import { cn } from "@/lib/utils";
+} from "~/lib/ai/models";
+import type { Attachment, ChatMessage } from "~/lib/types";
+import { cn } from "~/lib/utils";
 import {
   PromptInput,
   PromptInputFooter,
@@ -56,11 +50,7 @@ import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { PaperclipIcon, StopIcon } from "./icons";
 import { PreviewAttachment } from "./preview-attachment";
-import {
-  type SlashCommand,
-  SlashCommandMenu,
-  slashCommands,
-} from "./slash-commands";
+import { type SlashCommand, SlashCommandMenu, slashCommands } from "./slash-commands";
 import { SuggestedActions } from "./suggested-actions";
 import type { VisibilityType } from "./visibility-selector";
 
@@ -98,9 +88,7 @@ function PureMultimodalInput({
   setAttachments: Dispatch<SetStateAction<Attachment[]>>;
   messages: UIMessage[];
   setMessages: UseChatHelpers<ChatMessage>["setMessages"];
-  sendMessage:
-    | UseChatHelpers<ChatMessage>["sendMessage"]
-    | (() => Promise<void>);
+  sendMessage: UseChatHelpers<ChatMessage>["sendMessage"] | (() => Promise<void>);
   className?: string;
   selectedVisibilityType: VisibilityType;
   selectedModelId: string;
@@ -124,10 +112,7 @@ function PureMultimodalInput({
     }
   }, [width]);
 
-  const [localStorageInput, setLocalStorageInput] = useLocalStorage(
-    "input",
-    ""
-  );
+  const [localStorageInput, setLocalStorageInput] = useLocalStorage("input", "");
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -160,7 +145,7 @@ function PureMultimodalInput({
         setSlashOpen(false);
       }
     },
-    [setInput]
+    [setInput],
   );
 
   const handleSlashSelect = useCallback(
@@ -179,7 +164,7 @@ function PureMultimodalInput({
           break;
         case "model": {
           const modelBtn = document.querySelector<HTMLButtonElement>(
-            "[data-testid='model-selector']"
+            "[data-testid='model-selector']",
           );
           modelBtn?.click();
           break;
@@ -192,10 +177,9 @@ function PureMultimodalInput({
             action: {
               label: "Delete",
               onClick: () => {
-                fetch(
-                  `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/chat?id=${chatId}`,
-                  { method: "DELETE" }
-                );
+                fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/chat?id=${chatId}`, {
+                  method: "DELETE",
+                });
                 router.push("/chat");
                 toast.success("Chat deleted");
               },
@@ -207,12 +191,9 @@ function PureMultimodalInput({
             action: {
               label: "Delete all",
               onClick: () => {
-                fetch(
-                  `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/history`,
-                  {
-                    method: "DELETE",
-                  }
-                );
+                fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/history`, {
+                  method: "DELETE",
+                });
                 router.push("/chat");
                 toast.success("All chats deleted");
               },
@@ -223,15 +204,11 @@ function PureMultimodalInput({
           break;
       }
     },
-    [chatId, resolvedTheme, router, setInput, setMessages, setTheme]
+    [chatId, resolvedTheme, router, setInput, setMessages, setTheme],
   );
 
   const submitForm = useCallback(() => {
-    window.history.pushState(
-      {},
-      "",
-      `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/chat/${chatId}`
-    );
+    window.history.pushState({}, "", `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/chat/${chatId}`);
 
     sendMessage({
       parts: [
@@ -272,13 +249,10 @@ function PureMultimodalInput({
     formData.append("file", file);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/files/upload`,
-        {
-          body: formData,
-          method: "POST",
-        }
-      );
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/files/upload`, {
+        body: formData,
+        method: "POST",
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -307,7 +281,7 @@ function PureMultimodalInput({
         const uploadPromises = files.map((file) => uploadFile(file));
         const uploadedAttachments = await Promise.all(uploadPromises);
         const successfullyUploadedAttachments = uploadedAttachments.filter(
-          (attachment) => attachment !== undefined
+          (attachment) => attachment !== undefined,
         );
 
         setAttachments((currentAttachments) => [
@@ -320,7 +294,7 @@ function PureMultimodalInput({
         setUploadQueue([]);
       }
     },
-    [setAttachments, uploadFile]
+    [setAttachments, uploadFile],
   );
 
   const handlePaste = useCallback(
@@ -330,9 +304,7 @@ function PureMultimodalInput({
         return;
       }
 
-      const imageItems = Array.from(items).filter((item) =>
-        item.type.startsWith("image/")
-      );
+      const imageItems = Array.from(items).filter((item) => item.type.startsWith("image/"));
 
       if (imageItems.length === 0) {
         return;
@@ -353,20 +325,17 @@ function PureMultimodalInput({
           (attachment) =>
             attachment !== undefined &&
             attachment.url !== undefined &&
-            attachment.contentType !== undefined
+            attachment.contentType !== undefined,
         );
 
-        setAttachments((curr) => [
-          ...curr,
-          ...(successfullyUploadedAttachments as Attachment[]),
-        ]);
+        setAttachments((curr) => [...curr, ...(successfullyUploadedAttachments as Attachment[])]);
       } catch {
         toast.error("Failed to upload pasted image(s)");
       } finally {
         setUploadQueue([]);
       }
     },
-    [setAttachments, uploadFile]
+    [setAttachments, uploadFile],
   );
 
   useEffect(() => {
@@ -384,7 +353,7 @@ function PureMultimodalInput({
       e.preventDefault();
       onCancelEdit?.();
     },
-    [onCancelEdit]
+    [onCancelEdit],
   );
 
   const handleSlashClose = useCallback(() => {
@@ -414,7 +383,7 @@ function PureMultimodalInput({
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (slashOpen) {
         const filtered = slashCommands.filter((cmd) =>
-          cmd.name.startsWith(slashQuery.toLowerCase())
+          cmd.name.startsWith(slashQuery.toLowerCase()),
         );
         if (e.key === "ArrowDown") {
           e.preventDefault();
@@ -444,14 +413,7 @@ function PureMultimodalInput({
         onCancelEdit();
       }
     },
-    [
-      editingMessage,
-      handleSlashSelect,
-      onCancelEdit,
-      slashIndex,
-      slashOpen,
-      slashQuery,
-    ]
+    [editingMessage, handleSlashSelect, onCancelEdit, slashIndex, slashOpen, slashQuery],
   );
 
   return (
@@ -467,7 +429,7 @@ function PureMultimodalInput({
             Cancel
           </button>
         </div>
-      ) : null}
+      ) : undefined}
 
       {!editingMessage &&
         !isLoading &&
@@ -498,7 +460,7 @@ function PureMultimodalInput({
             query={slashQuery}
             selectedIndex={slashIndex}
           />
-        ) : null}
+        ) : undefined}
       </div>
 
       <PromptInput
@@ -507,7 +469,7 @@ function PureMultimodalInput({
       >
         {(attachments.length > 0 || uploadQueue.length > 0) && (
           <div
-            className="flex w-full self-start flex-row gap-2 overflow-x-auto px-3 pt-3 no-scrollbar"
+            className="no-scrollbar flex w-full flex-row gap-2 self-start overflow-x-auto px-3 pt-3"
             data-testid="attachments-preview"
           >
             {attachments.map((attachment) => (
@@ -533,13 +495,11 @@ function PureMultimodalInput({
           </div>
         )}
         <PromptInputTextarea
-          className="min-h-24 text-[13px] leading-relaxed px-4 pt-3.5 pb-1.5 placeholder:text-muted-foreground/35"
+          className="min-h-24 px-4 pt-3.5 pb-1.5 text-[13px] leading-relaxed placeholder:text-muted-foreground/35"
           data-testid="multimodal-input"
           onChange={handleInput}
           onKeyDown={handleTextareaKeyDown}
-          placeholder={
-            editingMessage ? "Edit your message..." : "Ask anything..."
-          }
+          placeholder={editingMessage ? "Edit your message..." : "Ask anything..."}
           ref={textareaRef}
           value={input}
         />
@@ -550,10 +510,7 @@ function PureMultimodalInput({
               selectedModelId={selectedModelId}
               status={status}
             />
-            <ModelSelectorCompact
-              onModelChange={onModelChange}
-              selectedModelId={selectedModelId}
-            />
+            <ModelSelectorCompact onModelChange={onModelChange} selectedModelId={selectedModelId} />
           </PromptInputTools>
 
           {status === "submitted" ? (
@@ -564,7 +521,7 @@ function PureMultimodalInput({
                 "h-7 w-7 rounded-xl transition-all duration-200",
                 input.trim()
                   ? "bg-foreground text-background hover:opacity-85 active:scale-95"
-                  : "bg-muted text-muted-foreground/25 cursor-not-allowed"
+                  : "bg-muted text-muted-foreground/25 cursor-not-allowed",
               )}
               data-testid="send-button"
               disabled={!input.trim() || uploadQueue.length > 0}
@@ -580,37 +537,34 @@ function PureMultimodalInput({
   );
 }
 
-export const MultimodalInput = memo(
-  PureMultimodalInput,
-  (prevProps, nextProps) => {
-    if (prevProps.input !== nextProps.input) {
-      return false;
-    }
-    if (prevProps.status !== nextProps.status) {
-      return false;
-    }
-    if (!equal(prevProps.attachments, nextProps.attachments)) {
-      return false;
-    }
-    if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType) {
-      return false;
-    }
-    if (prevProps.selectedModelId !== nextProps.selectedModelId) {
-      return false;
-    }
-    if (prevProps.editingMessage !== nextProps.editingMessage) {
-      return false;
-    }
-    if (prevProps.isLoading !== nextProps.isLoading) {
-      return false;
-    }
-    if (prevProps.messages.length !== nextProps.messages.length) {
-      return false;
-    }
-
-    return true;
+export const MultimodalInput = memo(PureMultimodalInput, (prevProps, nextProps) => {
+  if (prevProps.input !== nextProps.input) {
+    return false;
   }
-);
+  if (prevProps.status !== nextProps.status) {
+    return false;
+  }
+  if (!equal(prevProps.attachments, nextProps.attachments)) {
+    return false;
+  }
+  if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType) {
+    return false;
+  }
+  if (prevProps.selectedModelId !== nextProps.selectedModelId) {
+    return false;
+  }
+  if (prevProps.editingMessage !== nextProps.editingMessage) {
+    return false;
+  }
+  if (prevProps.isLoading !== nextProps.isLoading) {
+    return false;
+  }
+  if (prevProps.messages.length !== nextProps.messages.length) {
+    return false;
+  }
+
+  return true;
+});
 
 function PureAttachmentPreviewItem({
   attachment,
@@ -623,7 +577,7 @@ function PureAttachmentPreviewItem({
 }) {
   const handleRemove = useCallback(() => {
     setAttachments((currentAttachments) =>
-      currentAttachments.filter((a) => a.url !== attachment.url)
+      currentAttachments.filter((a) => a.url !== attachment.url),
     );
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -647,7 +601,7 @@ function PureAttachmentsButton({
   const { data: modelsResponse } = useSWR(
     `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/models`,
     (url: string) => fetch(url).then((r) => r.json()),
-    { dedupingInterval: 3_600_000, revalidateOnFocus: false }
+    { dedupingInterval: 3_600_000, revalidateOnFocus: false },
   );
 
   const caps: Record<string, ModelCapabilities> | undefined =
@@ -658,7 +612,7 @@ function PureAttachmentsButton({
       event.preventDefault();
       fileInputRef.current?.click();
     },
-    [fileInputRef]
+    [fileInputRef],
   );
 
   return (
@@ -667,7 +621,7 @@ function PureAttachmentsButton({
         "h-7 w-7 rounded-lg border border-border/40 p-1 transition-colors",
         hasVision
           ? "text-foreground hover:border-border hover:text-foreground"
-          : "text-muted-foreground/30 cursor-not-allowed"
+          : "text-muted-foreground/30 cursor-not-allowed",
       )}
       data-testid="attachments-button"
       disabled={status !== "ready" || !hasVision}
@@ -721,9 +675,7 @@ function ModelSelectorOption({
     setCookie("chat-model", model.id);
     setOpen(false);
     setTimeout(() => {
-      document
-        .querySelector<HTMLTextAreaElement>("[data-testid='multimodal-input']")
-        ?.focus();
+      document.querySelector<HTMLTextAreaElement>("[data-testid='multimodal-input']")?.focus();
     }, 50);
   }, [curated, model.id, onModelChange, setOpen]);
 
@@ -732,11 +684,10 @@ function ModelSelectorOption({
       aria-disabled={!curated}
       className={cn(
         "flex w-full transition-colors",
-        model.id === selectedModelId &&
-          "border-b border-dashed border-foreground/50",
+        model.id === selectedModelId && "border-b border-dashed border-foreground/50",
         curated
           ? "data-[selected=true]:bg-muted data-[selected=true]:text-foreground"
-          : "cursor-not-allowed opacity-40 data-[selected=true]:bg-transparent data-[selected=true]:opacity-60 data-[selected=true]:ring-1 data-[selected=true]:ring-muted-foreground/30 data-[selected=true]:ring-inset"
+          : "cursor-not-allowed opacity-40 data-[selected=true]:bg-transparent data-[selected=true]:opacity-60 data-[selected=true]:ring-1 data-[selected=true]:ring-muted-foreground/30 data-[selected=true]:ring-inset",
       )}
       onSelect={handleSelect}
       value={model.id}
@@ -745,23 +696,14 @@ function ModelSelectorOption({
       <ModelSelectorName>{model.name}</ModelSelectorName>
       <div className="ml-auto flex items-center gap-2 text-foreground/70">
         {capabilities?.[model.id]?.tools
-          ? maybeWithTooltip(
-              <WrenchIcon className="size-3.5" />,
-              "Supports tool use"
-            )
-          : null}
+          ? maybeWithTooltip(<WrenchIcon className="size-3.5" />, "Supports tool use")
+          : undefined}
         {capabilities?.[model.id]?.vision
-          ? maybeWithTooltip(
-              <EyeIcon className="size-3.5" />,
-              "Supports vision"
-            )
-          : null}
+          ? maybeWithTooltip(<EyeIcon className="size-3.5" />, "Supports vision")
+          : undefined}
         {capabilities?.[model.id]?.reasoning
-          ? maybeWithTooltip(
-              <BrainIcon className="size-3.5" />,
-              "Supports reasoning"
-            )
-          : null}
+          ? maybeWithTooltip(<BrainIcon className="size-3.5" />, "Supports reasoning")
+          : undefined}
         {!curated && <LockIcon className="size-3 text-muted-foreground/50" />}
       </div>
     </ModelSelectorItem>
@@ -794,7 +736,7 @@ function PureModelSelectorCompact({
   const { data: modelsData } = useSWR(
     `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/models`,
     (url: string) => fetch(url).then((r) => r.json()),
-    { dedupingInterval: 3_600_000, revalidateOnFocus: false }
+    { dedupingInterval: 3_600_000, revalidateOnFocus: false },
   );
 
   const capabilities: Record<string, ModelCapabilities> | undefined =
@@ -816,7 +758,7 @@ function PureModelSelectorCompact({
           data-testid="model-selector"
           variant="ghost"
         >
-          {provider ? <ModelSelectorLogo provider={provider} /> : null}
+          {provider ? <ModelSelectorLogo provider={provider} /> : undefined}
           <ModelSelectorName>{selectedModel.name}</ModelSelectorName>
         </Button>
       </ModelSelectorTrigger>
@@ -826,20 +768,12 @@ function PureModelSelectorCompact({
           {(() => {
             const curatedIds = new Set(chatModels.map((m) => m.id));
             const allModels = dynamicModels
-              ? [
-                  ...chatModels,
-                  ...dynamicModels.filter((m) => !curatedIds.has(m.id)),
-                ]
+              ? [...chatModels, ...dynamicModels.filter((m) => !curatedIds.has(m.id))]
               : chatModels;
 
-            const grouped: Record<
-              string,
-              { model: ChatModel; curated: boolean }[]
-            > = {};
+            const grouped: Record<string, { model: ChatModel; curated: boolean }[]> = {};
             for (const model of allModels) {
-              const key = curatedIds.has(model.id)
-                ? "_available"
-                : model.provider;
+              const key = curatedIds.has(model.id) ? "_available" : model.provider;
               if (!grouped[key]) {
                 grouped[key] = [];
               }
@@ -883,11 +817,7 @@ function PureModelSelectorCompact({
 
             return sortedKeys.map((key) => (
               <ModelSelectorGroup
-                heading={
-                  key === "_available"
-                    ? "Available"
-                    : (providerNames[key] ?? key)
-                }
+                heading={key === "_available" ? "Available" : (providerNames[key] ?? key)}
                 key={key}
               >
                 {grouped[key].map(({ model, curated }) => (
@@ -925,12 +855,12 @@ function PureStopButton({
       stop();
       setMessages((messages) => messages);
     },
-    [setMessages, stop]
+    [setMessages, stop],
   );
 
   return (
     <Button
-      className="h-7 w-7 rounded-xl bg-foreground p-1 text-background transition-all duration-200 hover:opacity-85 active:scale-95 disabled:bg-muted disabled:text-muted-foreground/25 disabled:cursor-not-allowed"
+      className="h-7 w-7 rounded-xl bg-foreground p-1 text-background transition-all duration-200 hover:opacity-85 active:scale-95 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground/25"
       data-testid="stop-button"
       onClick={handleClick}
     >

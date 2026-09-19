@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "~/lib/utils";
 
 interface StickyActionBarProps {
   matchCount: number;
@@ -18,7 +18,7 @@ export const FlowStickyActionBar = ({
   error,
   onAction,
 }: StickyActionBarProps) => (
-  <div className="sticky bottom-0 z-10 -mx-4 bg-snow/90 p-4 backdrop-blur-md [padding-bottom:max(1rem,env(safe-area-inset-bottom))] sm:-mx-6 sm:px-6">
+  <div className="sticky bottom-0 z-10 -mx-4 bg-snow/90 p-4 [padding-bottom:max(1rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:-mx-6 sm:px-6">
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-1.5">

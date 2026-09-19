@@ -1,12 +1,12 @@
 import { identifyUserInputSchema } from "@chezy/contract";
 import { tool } from "ai";
 import { valibotSchema } from "@ai-sdk/valibot";
-import { createNamedUser, getUserByUsername } from "@/lib/db/queries";
-import { missingProfileFields, normalizeUsername } from "@/lib/user-profile";
+import { createNamedUser, getUserByUsername } from "~/lib/db/queries";
+import { missingProfileFields, normalizeUsername } from "~/lib/user-profile";
 
 export const identifyUser = tool({
   description:
-    "Resolve the user's identity. You MUST call this immediately when the user names or identifies themselves (e.g. \"I'm user X\", \"I'm X\", \"my name is X\"), before doing anything else. Finds or creates the user and returns their saved profile plus which required fields are still missing.",
+    'Resolve the user\'s identity. You MUST call this immediately when the user names or identifies themselves (e.g. "I\'m user X", "I\'m X", "my name is X"), before doing anything else. Finds or creates the user and returns their saved profile plus which required fields are still missing.',
   execute: async (input) => {
     const username = normalizeUsername(input.username);
 
@@ -34,8 +34,8 @@ export const identifyUser = tool({
     return {
       userId: createdUser.id,
       username,
-      profile: null,
-      missingFields: missingProfileFields(null),
+      profile: undefined,
+      missingFields: missingProfileFields(undefined),
       isNewUser: true,
     };
   },

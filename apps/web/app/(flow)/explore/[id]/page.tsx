@@ -1,12 +1,12 @@
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import { auth } from "@/app/(auth)/auth";
-import { MatchDetail } from "@/components/flow/match/MatchDetail";
-import { toFlowListing } from "@/lib/flow/adapters";
-import { getListingRowById } from "@/lib/listings";
-import { scoreListing } from "@/lib/match";
-import { getProfile } from "@/lib/profile";
+import { auth } from "~/app/(auth)/auth";
+import { MatchDetail } from "~/components/flow/match/MatchDetail";
+import { toFlowListing } from "~/lib/flow/adapters";
+import { getListingRowById } from "~/lib/listings";
+import { scoreListing } from "~/lib/match";
+import { getProfile } from "~/lib/profile";
 
 interface ExploreDetailPageProps {
   params: Promise<{ id: string }>;

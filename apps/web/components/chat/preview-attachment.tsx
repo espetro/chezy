@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { Attachment } from "@/lib/types";
+import type { Attachment } from "~/lib/types";
 import { Spinner } from "../ui/spinner";
 import { CrossSmallIcon } from "./icons";
 
@@ -28,7 +28,7 @@ export const PreviewAttachment = ({
           width={96}
         />
       ) : (
-        <div className="flex size-full items-center justify-center text-muted-foreground text-xs">
+        <div className="flex size-full items-center justify-center text-xs text-muted-foreground">
           File
         </div>
       )}
@@ -40,11 +40,11 @@ export const PreviewAttachment = ({
         >
           <Spinner className="size-5" />
         </div>
-      ) : null}
+      ) : undefined}
 
       {onRemove && !isUploading && (
         <button
-          className="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-black/80 group-hover:opacity-100"
+          className="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 hover:bg-black/80"
           onClick={onRemove}
           type="button"
         >

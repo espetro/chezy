@@ -1,11 +1,10 @@
 # Chezy — Agent Instructions
 
-Chat-centric AI webapp, 0→1 hackathon build. Chatbot UI lives in `apps/web` — a **verbatim
-import** of `vercel/chatbot` (PR #2; reference copy at `apps/web/vendor/chatbot-template/`,
-excluded from tsconfig). NextAuth 5 guest auth is present and required; Zod, the `@/*`
-alias, `useEffect`, and direct `process.env` reads are all still in use there — the chezy
-bans below apply to `packages/*` and `scripts/` only until the re-alignment checklist in
-`apps/web/AGENTS.md` lands. Neon is swapped for `pg0` and `@ai-sdk/gateway` for
+Chat-centric AI webapp, 0→1 hackathon build. Chatbot UI lives in `apps/web` — it
+diverged from the `vercel/chatbot` import (PR #2 is the last sync point; see git
+history). NextAuth 5 guest auth is present and required; zod and `useEffect` remain in
+upstream-derived template sources under a scoped oxlint override. Neon is swapped for
+`pg0` and `@ai-sdk/gateway` for
 `@ai-sdk/openai-compatible` (Nebius AI Studio). Idealista scraping pipeline lives in
 `apps/scraper` (uv-managed Python CLI). Shared TS/UI primitives live in `packages/*`.
 
@@ -14,7 +13,7 @@ bans below apply to `packages/*` and `scripts/` only until the re-alignment chec
 Per-package rules live in each package's own `AGENTS.md` — this file is the
 repo-wide orientation, not a dump.
 
-- `apps/web/` — verbatim `vercel/chatbot` import (Next.js 16 + React 19).
+- `apps/web/` — `vercel/chatbot`-derived app, diverged (Next.js 16 + React 19).
   See [`apps/web/AGENTS.md`](apps/web/AGENTS.md).
 - `apps/scraper/` — uv-managed Python CLI for idealista.com scraping.
   See [`apps/scraper/AGENTS.md`](apps/scraper/AGENTS.md).
@@ -61,33 +60,33 @@ Any change to one of these requires updating the corresponding gate marker.
   cache. Hardlink mode silently inflates disk on `mv` / tar. **The venv is project-local per
   worktree** — sharing `.venv` across worktrees poisons editable-install `.pth` files.
   [gate: pyproject.toml]
-- `apps/web` is a verbatim import of `vercel/chatbot`. The template's `app/(auth)/*` route
-  group is **present and required** — NextAuth 5 with a `guest` credentials provider;
-  `/api/chat` returns `unauthorized:chat` without the guest session cookie and `/`
-  redirects to `/api/auth/guest` once. `.oxlintrc.json` `ignorePatterns` includes
-  `apps/web/**`, so the bans below do not currently apply inside it. Re-applying them is
-  the manual-review checklist in `apps/web/AGENTS.md`. [gate: apps/web/AGENTS.md]
-- Zod is **banned** in `packages/*` and `scripts/` (it remains a dependency inside the
-  verbatim `apps/web` template). Use Valibot (`valibot` package) for all runtime
-  validation, env parsing, and schema-typed inference. Enforced by oxlint
+- `apps/web` diverged from the `vercel/chatbot` import. The template's `app/(auth)/*`
+  route group is **present and required** — NextAuth 5 with a `guest` credentials
+  provider; `/api/chat` returns `unauthorized:chat` without the guest session cookie and
+  `/` redirects to `/api/auth/guest` once. [gate: apps/web/AGENTS.md]
+- Zod is **banned** in `packages/*` and `scripts/` (`apps/web` template sources are
+  exempt via a scoped `.oxlintrc.json` override). Use Valibot (`valibot` package) for all
+  runtime validation, env parsing, and schema-typed inference. Enforced by oxlint
   `no-restricted-imports`. Formisch is the recommended companion for form bindings.
   [gate: .oxlintrc.json]
-- Biome is **banned** in chezy code. `apps/web` ships no `biome.jsonc` (only the vendor
-  copy at `apps/web/vendor/chatbot-template/` has one) and is linted by nothing today —
-  oxlint ignores it via `ignorePatterns`. [gate: .oxlintrc.json, .oxfmtrc.json]
-- `@/*` (Biome's default) is banned in chezy code (`apps/web` still uses it via
-  `apps/web/tsconfig.json`); we use `~/*` aliased via `tsconfig.base.json` paths.
-  [gate: .oxlintrc.json]
-- `useEffect` is banned in chezy code (`apps/web` exempt as verbatim template). Use the
+- Biome is **banned** in chezy code. `apps/web` ships no `biome.jsonc`. Use oxlint +
+  oxfmt. [gate: .oxlintrc.json, .oxfmtrc.json]
+- `@/*` (Biome's default) is banned in chezy code; we use `~/*` aliased via
+  `tsconfig.base.json` / `apps/web/tsconfig.json` paths. [gate: .oxlintrc.json]
+- `useEffect` is banned in chezy code (`apps/web` template sources are exempt via a
+  scoped `.oxlintrc.json` override). Use the
   five patterns from `.agents/skills/no-use-effect/SKILL.md` (derived state, event
   handlers, data libraries, `useMountEffect`, `key` prop). Enforced by
   `no-restricted-imports` (`importNames: ["useEffect"]`) in `.oxlintrc.json`. The escape
   hatch is `useMountEffect` from
   `@chezy/ui/hooks/useMountEffect`. [gate: .oxlintrc.json]
 - `process.env` reads are banned in chezy code outside `packages/config` and known
-  `*.config-bound.ts` files (`apps/web` reads env directly as upstream does). Inject
-  config through a constructor / ctx. Enforced by `no-restricted-properties`.
-  [gate: .oxlintrc.json]
+  `*.config-bound.ts` files. In `apps/web`, only `NEXT_PUBLIC_*` (build-time inlined)
+  and `NODE_ENV` reads are allowed; `lib/env.ts` is the single `process.env` reader and
+  the listed config-bound files (`next.config.ts`, `drizzle.config.ts`,
+  `playwright.config.ts`, `proxy.ts`, `instrumentation.ts`, `lib/db/*`,
+  `lib/constants.ts`, `app/(auth)/auth.config.ts`) are exempt via scoped override.
+  Enforced by `no-restricted-properties`. [gate: .oxlintrc.json]
 - Drizzle schema lives in `packages/db/src/schema/*`. Components and routes must not
   value-import `packages/db`; reach the server via a `createServerFn` body. Enforced by
   `no-restricted-imports` (client graph ban). [gate: .oxlintrc.json]
@@ -138,8 +137,7 @@ Non-gated, advisory. Lint-clean does not mean idiomatic.
 - Read `.agents/MEMORY.md` first on session start. After non-trivial work, append a dated
   `.agents/notes/YYYY-MM-DD.md` entry if anything surprised you.
 - `apps/web` follows `vercel/chatbot`'s structure (`app/(chat)/*`, `app/api/chat/route.ts`,
-  `components/chat/*`, `lib/ai/*`). When in doubt, mirror the upstream layout — the import
-  is verbatim, auth included. The radar demo UI was dropped (PR #6); its spec lives in
+  `components/chat/*`, `lib/ai/*`). When in doubt, mirror the upstream layout. The radar demo UI was dropped (PR #6); its spec lives in
   `.agents/docs/screens/radar.md`. Voice viewing flow (SLNG / Vonage, `VIEWING_MODE`,
   `CALENDAR_MODE`) lives in `apps/web/lib/{slng,vonage,calendar}.ts` with `/api/viewing`
   and `/api/calendar` routes.

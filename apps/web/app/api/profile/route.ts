@@ -1,12 +1,9 @@
-import {
-  SearchProfileInputSchema,
-  VerifyProfileInputSchema,
-} from "@chezy/contract";
+import { SearchProfileInputSchema, VerifyProfileInputSchema } from "@chezy/contract";
 import * as v from "valibot";
 
-import { auth } from "@/app/(auth)/auth";
-import { geocodeWorkAddress } from "@/lib/geocode";
-import { getProfile, markVerified, upsertProfile } from "@/lib/profile";
+import { auth } from "~/app/(auth)/auth";
+import { geocodeWorkAddress } from "~/lib/geocode";
+import { getProfile, markVerified, upsertProfile } from "~/lib/profile";
 
 export async function GET(): Promise<Response> {
   const session = await auth();
@@ -35,10 +32,7 @@ export async function PUT(request: Request): Promise<Response> {
 
   const parsed = v.safeParse(SearchProfileInputSchema, body);
   if (!parsed.success) {
-    return Response.json(
-      { error: "invalid profile", issues: parsed.issues },
-      { status: 400 },
-    );
+    return Response.json({ error: "invalid profile", issues: parsed.issues }, { status: 400 });
   }
   const input = parsed.output;
 
