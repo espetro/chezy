@@ -1,0 +1,126 @@
+{
+  "intro": {
+    "vo": "Renting in Barcelona has two problems. Listings lie, and speed decides. Thirty-six percent of flats are gone within a day. Chezy is the agent on the renter's side.",
+    "title": "chezy",
+    "kicker": "HackBarna / AI Summit Barcelona 2026",
+    "lines": ["Listings lie.", "Speed decides."]
+  },
+  "footer": {
+    "tagline": "Finding a flat, made easy."
+  },
+  "checkpoints": {
+    "brief": {
+      "label": "Brief",
+      "subtext": "Jessie says who she is; Chezy fills the profile",
+      "callout": "No form. A profile that follows her.",
+      "vo": "Jessie is moving to Barcelona. She opens Chezy and says who she is. Instead of a form, the assistant asks the three things it needs: neighbourhoods, budget, bedrooms. Her answers become a profile that follows her into every future chat, so she never repeats herself.",
+      "screen": {
+        "greeting": "What flat are you looking for?",
+        "user1": "Hi, I'm Jessie",
+        "assistant1": "Welcome, Jessie. Three quick things: which neighbourhoods, your monthly budget, and how many bedrooms?",
+        "user2": "Gràcia or Eixample, 1,800 a month, 2 bedrooms.",
+        "assistant2": "Saved. Gràcia or Eixample, up to €1,800, 2 bedrooms. Anything else that matters, like commute or a gym nearby?"
+      }
+    },
+    "shortlist": {
+      "label": "Shortlist",
+      "subtext": "Real Barcelona listings, as cards",
+      "callout": "Price per m² next to the barrio average.",
+      "vo": "She asks for a bright two bedroom in Gràcia under eighteen hundred euros. Chezy searches real Barcelona listings and returns a shortlist as cards, with the price per square metre next to the barrio average. It's a starting point, not a verdict.",
+      "screen": {
+        "user": "Find me a bright 2-bed in Gràcia under €1,800.",
+        "assistant": "Three candidates.",
+        "cards": [
+          {
+            "price": "1.750 €/mes",
+            "specs": "2 hab · 68 m² · 1 baño",
+            "zone": "Vila de Gràcia, Gràcia",
+            "perM2": "25,7 €/m² · barrio avg 22,8 €/m²"
+          },
+          {
+            "price": "1.690 €/mes",
+            "specs": "2 hab · 74 m² · 1 baño",
+            "zone": "Dreta de l'Eixample",
+            "perM2": "22,8 €/m² · barrio avg 27,5 €/m²"
+          },
+          {
+            "price": "1.795 €/mes",
+            "specs": "2 hab · 60 m² · 1 baño",
+            "zone": "La Salut, Gràcia",
+            "perM2": "29,9 €/m² · barrio avg 22,8 €/m²"
+          }
+        ]
+      }
+    },
+    "forensic": {
+      "label": "Forensic check",
+      "subtext": "Sunlight and price vs barrio, from the data",
+      "callout": "0% direct sunlight. 13% over the barrio average.",
+      "vo": "Now the part listings don't want you to see. Chezy reads the photos and the data behind each card. The first flat says \"luminoso\". Its windows face an interior lightwell, one and a half metres wide. Zero percent direct sunlight, and thirteen percent over the barrio average. It gets an amber flag. The second flat faces south and sits seventeen percent under the average. It passes. The trap is visible before Jessie wastes an afternoon on it.",
+      "screen": {
+        "checked": "I checked both.",
+        "amberTitle": "Forensic warning",
+        "amberSummary": "0% direct sunlight, windows onto a 1.5 m interior lightwell. 13% over the Gràcia average.",
+        "amberBullets": [
+          "Ventanas a patio interior de 1.5 m",
+          "0% luz solar directa",
+          "13% sobre media del barrio"
+        ],
+        "greenLine": "Forensic check passed: south facing, 17% under the Eixample average."
+      }
+    },
+    "call": {
+      "label": "The call",
+      "subtext": "Spanish, with the AI disclosure, on the renter's behalf",
+      "callout": "She never had to speak Spanish.",
+      "vo": "Jessie likes the second one and asks Chezy to book a viewing. This is where every renter loses time: agencies don't answer email, and the call happens in Spanish, during office hours. Chezy picks up the phone. A voice agent built with unmute and deployed on SLNG dials the agency through Vonage telephony. It opens by disclosing it is an AI assistant, as the EU AI Act requires. It names the flat, asks what's available, and agrees a slot. Tuesday at half past six. Jessie never had to speak Spanish, or be awake for it.",
+      "screen": {
+        "approvalUser": "Book a viewing for the Eixample one.",
+        "approvalAssistant": "Calling the agency now, in Spanish. I'll say I'm an AI assistant.",
+        "dialing": "Dialing +34 6·· ··· ···",
+        "dialingSub": "Voice agent · line open",
+        "speakers": { "agent": "chezy voice agent", "agency": "agency" },
+        "transcript": [
+          {
+            "who": "agent",
+            "es": "Hola, soy el asistente de inteligencia artificial de Jessie. Llamo por el piso de dos habitaciones en Eixample.",
+            "en": "Hi, I'm Jessie's AI assistant. I'm calling about the two-bedroom in Eixample.",
+            "tag": "AI disclosure"
+          },
+          {
+            "who": "agency",
+            "es": "Sí, sigue disponible. ¿Cuándo querría verlo?",
+            "en": "Yes, still available. When would she like to see it?"
+          },
+          {
+            "who": "agent",
+            "es": "¿El martes a las seis y media?",
+            "en": "Tuesday at half past six?"
+          },
+          {
+            "who": "agency",
+            "es": "Perfecto, apuntado.",
+            "en": "Perfect, noted."
+          }
+        ],
+        "agreed": "Viewing agreed: Tue 22 Sep, 18:30",
+        "endedChip": "Call ended · 1:12"
+      }
+    },
+    "booked": {
+      "label": "Booked",
+      "subtext": "Confirmed slot on her calendar",
+      "callout": "One conversation. Brief to booked.",
+      "vo": "The confirmed slot comes back to the chat, and the viewing lands on Jessie's calendar. Brief, shortlist, forensic check, call, booked. One conversation, and the renter gets an agent of her own. Chezy. Finding a flat, made easy.",
+      "screen": {
+        "assistant": "Viewing booked: Tuesday 22 September, 18:30. Added to your calendar.",
+        "calendar": {
+          "day": "22",
+          "month": "SEP",
+          "title": "Viewing · Eixample 2-bed",
+          "time": "18:30 to 19:00"
+        }
+      }
+    }
+  }
+}

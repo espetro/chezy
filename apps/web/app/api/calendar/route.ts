@@ -2,10 +2,13 @@
 // pointed at APP_BASE_URL + /api/calendar). `mock` is the demo default;
 // `google` writes a real event with a service account.
 import { BookingRequestSchema, type BookingResult } from "@chezy/contract";
+import { getLogger } from "@chezy/observability";
 import * as v from "valibot";
 
 import { createGoogleEvent, mockBooking } from "@/lib/calendar";
 import { env } from "@/lib/env";
+
+const logger = getLogger(["chezy", "calendar"]);
 
 export async function POST(request: Request): Promise<Response> {
   let body: unknown;
@@ -54,6 +57,11 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json(view);
   } catch (error) {
     const detail = error instanceof Error ? error.message : "unknown error";
+    logger.error("calendar booking failed ({channel}): {detail}", {
+      channel: env.CALENDAR_MODE,
+      detail,
+      propertyRef: input.propertyRef,
+    });
     const view: BookingResult = {
       status: "failed",
       channel: env.CALENDAR_MODE,

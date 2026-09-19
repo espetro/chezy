@@ -27,7 +27,16 @@ linux-x64   = { url = "https://github.com/vectorize-io/pg0/releases/download/v{{
 linux-arm64 = { url = "https://github.com/vectorize-io/pg0/releases/download/v{{ version }}/pg0-linux-aarch64-gnu" }
 windows-x64 = { url = "https://github.com/vectorize-io/pg0/releases/download/v{{ version }}/pg0-windows-x86_64.exe", bin = "pg0.exe" }
 
-ffmpeg = "latest"          # Screenshot/video capture for the AI SDK tests
+ffmpeg = "latest"          # Screenshot/video capture; also ffprobe for video:durations
+
+# ── Demo video audio (apps/video) ──────────────────────────────────────────
+# pocket-tts narrates the demo VO (`mise run video:tts`). The pypi backend
+# resolves it via `uv tool`; `brew install pocket-tts` is the fallback if
+# the pin misbehaves on a host. audio.cpp (music bed, `mise run
+# video:music`) has no usable mise backend: its GitHub releases ship the
+# CLI, model manager and framework as separate tarballs the github backend
+# cannot assemble, so it stays brew-only. See apps/video/README.md.
+"pypi:pocket-tts" = "3.1.0"
 
 # ── Repo automation ────────────────────────────────────────────────────────
 lefthook = "latest"        # Pre-push hook → `mise run validate`
@@ -206,3 +215,43 @@ run = "agent-browser --help"
 [tasks."listings:enrich"]
 description = "Extract VLM photo insights into ListingInsight (idempotent; --limit N --force --concurrency K --model ID)"
 run = "cd apps/web && node --env-file-if-exists=.env.local --import=tsx scripts/enrich-listings.ts"
+
+# ── Demo video (apps/video, Remotion) ──────────────────────────────────────
+# Plan: .agents/plans/2026-09-19-demo-video.md. M1 + 8 GB: never run
+# video:render while video:preview (Studio) or the Next dev server is up.
+
+[tasks."video:tts"]
+description = "Synthesize VO WAVs with pocket-tts (sha256-of-text+voice cache; unchanged segments skipped) + 3 intro voice samples"
+run = "cd apps/video && tsx scripts/tts.ts"
+
+[tasks."video:durations"]
+description = "ffprobe each VO WAV -> apps/video/src/generated/durations.json"
+run = "cd apps/video && tsx scripts/durations.ts"
+
+[tasks."video:capture-doc"]
+description = "Generate apps/video/CAPTURE.md (per-checkpoint capture contract) from demo.config.ts + copy"
+run = "cd apps/video && tsx scripts/capture-doc.ts"
+
+[tasks."video:srt"]
+description = "Generate apps/video/out/chezy-demo.srt captions sidecar from copy + durations"
+run = "cd apps/video && tsx scripts/srt.ts"
+
+[tasks."video:check"]
+description = "Fail if total >175s, a VO WAV is missing, a clip source file is missing, or footer.repoUrl is unset while showMockTags is false"
+run = "cd apps/video && tsx scripts/check.ts"
+
+[tasks."video:preview"]
+description = "Remotion Studio for the demo video (do not run concurrently with video:render)"
+run = "cd apps/video && pnpm exec remotion studio src/index.ts"
+
+[tasks."video:render"]
+description = "Render out/chezy-demo.mp4 (1920x1080 30fps h264 + aac, concurrency 2). Never run with Studio or the Next dev server up."
+run = "cd apps/video && pnpm exec remotion render src/index.ts ChezyDemo out/chezy-demo.mp4 --codec h264 --audio-codec aac --audio-bitrate 192k --concurrency 2"
+
+[tasks."video:music"]
+description = "Generate the ambient music bed via audiocpp (Stable Audio 3 Medium default, MUSIC_MODEL=small for the lighter model, Metal) -> public/audio/music/bed.wav. See apps/video/docs/music.md"
+run = "bash apps/video/scripts/music.sh"
+
+[tasks."video:all"]
+description = "Full video pipeline: tts -> durations -> capture-doc -> srt -> check -> render"
+run = "mise run video:tts && mise run video:durations && mise run video:capture-doc && mise run video:srt && mise run video:check && mise run video:render"

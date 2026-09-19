@@ -1,0 +1,74 @@
+# Secrets scan — betterleaks (https://github.com/betterleaks/betterleaks).
+# Drop-in successor to gitleaks by the same author; reuses the same TOML
+# schema. Scans git history on push, the working tree on PRs, and runs on a
+# weekly schedule so credentials that age into the public set get caught.
+#
+# Runs before the lefthook pre-push gate would catch them on the next push,
+# so PR review sees a red X the moment a real secret lands. Permissions are
+# deliberately tight: contents:read for checkout + security-events:write for
+# SARIF upload only.
+#
+# Future: when GitHub Advanced Security is enabled on the repo, the SARIF
+# upload step lights up the Security tab. Until then, the report is also
+# uploaded as a workflow artifact so reviewers can download it from the
+# run summary.
+name: betterleaks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Mondays 06:00 UTC — catches credentials that age into known-leaked sets
+    # over the week and runs against the full history (depth: 0).
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  betterleaks:
+    name: Scan for leaked secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Full history is required for the git scan mode (push / schedule).
+          # The action's `auto` mode picks `git` for push and `dir` for PR
+          # events, so we always need the full log here.
+          fetch-depth: 0
+
+      - name: Run betterleaks
+        id: scan
+        uses: dortort/betterleaks-action@v0.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          scan-mode: auto
+          config: .betterleaks.toml
+          # SARIF for Code Scanning; the artifact upload below still runs
+          # unconditionally so reviewers without GHAS can see the report.
+          report-format: sarif
+          report-path: betterleaks-report.sarif
+          redact: "true"
+          no-color: "true"
+          no-banner: "true"
+
+      - name: Upload SARIF to GitHub Code Scanning
+        if: always() && github.event_name != 'pull_request'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif-path }}
+        continue-on-error: true
+
+      - name: Upload report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: betterleaks-report
+          path: ${{ steps.scan.outputs.report-path }}
+          if-no-files-found: ignore
+          retention-days: 14

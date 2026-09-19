@@ -1,12 +1,15 @@
 import { tool } from "ai";
 import { z } from "zod";
 
+import { FETCH_TIMEOUT_MS } from "@/lib/constants";
+
 async function geocodeCity(
   city: string
 ): Promise<{ latitude: number; longitude: number } | null> {
   try {
     const response = await fetch(
-      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
+      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`,
+      { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) }
     );
 
     if (!response.ok) {
@@ -59,7 +62,8 @@ export const getWeather = tool({
 
     try {
       const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m&hourly=temperature_2m&daily=sunrise,sunset&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m&hourly=temperature_2m&daily=sunrise,sunset&timezone=auto`,
+        { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) }
       );
 
       if (!response.ok) {

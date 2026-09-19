@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import * as v from "valibot";
 
 import type { Listing } from "@/lib/db/schema";
+import { sentenceCase, streetCase } from "@/lib/format";
 import {
   ListingRecordSchema,
   listingToCallVariables,
@@ -43,6 +44,27 @@ describe("toListingSummary", () => {
   });
 });
 
+describe("speech helpers", () => {
+  test.each([
+    ["FERRAN VALLS I TABERNER", "Ferran Valls i Taberner"],
+    ["MARE DE DEU DEL COLL", "Mare de Deu del Coll"],
+    ["Carrer del Capità Arenas", "Carrer del Capità Arenas"],
+  ])("streetCase(%s) -> %s", (input, expected) => {
+    expect(streetCase(input)).toBe(expected);
+  });
+
+  test.each([
+    [
+      "PISO EN ALQUILER TOTALMENTE EQUIPADO",
+      "Piso en alquiler totalmente equipado",
+    ],
+    ["Carrer de Verdi 42", "Carrer de Verdi 42"],
+    ["DÚPLEX CON TERRAZA 'EXCLUSIVA'", "Dúplex con terraza ’exclusiva’"],
+  ])("sentenceCase(%s) -> %s", (input, expected) => {
+    expect(sentenceCase(input)).toBe(expected);
+  });
+});
+
 describe("listingToCallVariables", () => {
   const base = {
     id: "fotocasa:1",
@@ -51,39 +73,95 @@ describe("listingToCallVariables", () => {
     coverUrl: null,
     pricePeriod: "month",
     bathrooms: 1,
+    street: null,
     description: "",
   };
 
-  test("formats rent price with /mes and joins location", () => {
+  test("rent with ALL-CAPS title and no street speaks clean Spanish", () => {
     const vars = listingToCallVariables({
       ...base,
       operation: "rent",
-      priceEur: 12000,
-      rooms: 6,
-      builtM2: 395,
-      neighbourhood: "Sarria",
-      district: "Sarria - Sant Gervasi",
+      priceEur: 2400,
+      rooms: 2,
+      builtM2: 64,
+      street: null,
+      neighbourhood: "La Nova Esquerra de l'Eixample",
+      district: "Eixample",
+      title:
+        "PISO EN ALQUILER RECREATIVO DE DOS HABITACIONES TOTALMENTE EQUIPADO Y AMUEBLADO",
     });
-    expect(vars.property_price).toBe("12.000\u00a0\u20ac/mes");
-    expect(vars.property_location).toBe("Sarria, Sarria - Sant Gervasi");
-    expect(vars.property_rooms).toBe("6");
-    expect(vars.property_m2).toBe("395");
+    expect(vars.property_title).toMatch(/^Piso en alquiler/);
+    expect(vars.property_price).toBe("2.400 euros al mes");
+    expect(vars.property_summary).toBe(
+      "piso de 2 habitaciones y 64 metros cuadrados en La Nova Esquerra de l’Eixample, por 2.400 euros al mes",
+    );
+    expect(vars.property_rooms).toBe("2");
+    expect(vars.property_m2).toBe("64");
     expect(vars.property_ref).toBe("fotocasa:1");
+    for (const value of Object.values(vars)) {
+      expect(value).not.toMatch(/['€]/);
+    }
   });
 
-  test("formats sale price without period and skips empty location parts", () => {
+  test("street without thoroughfare prefix gets 'calle'", () => {
+    const vars = listingToCallVariables({
+      ...base,
+      operation: "rent",
+      priceEur: 1500,
+      rooms: 1,
+      builtM2: 40,
+      street: "Gravina",
+      neighbourhood: "El Raval",
+      district: "Ciutat Vella",
+    });
+    expect(vars.property_location).toBe("calle Gravina, El Raval, Barcelona");
+  });
+
+  test("street with existing prefix keeps it", () => {
+    const vars = listingToCallVariables({
+      ...base,
+      operation: "rent",
+      priceEur: 1500,
+      rooms: 1,
+      builtM2: 40,
+      street: "CARRER DE MUNTANER",
+      neighbourhood: null,
+      district: "Eixample",
+    });
+    expect(vars.property_location).toBe(
+      "Carrer de Muntaner, Eixample, Barcelona",
+    );
+  });
+
+  test("sale price reads 'euros' without period", () => {
     const vars = listingToCallVariables({
       ...base,
       operation: "sale",
       priceEur: 450000,
       rooms: null,
       builtM2: null,
+      street: null,
       neighbourhood: null,
       district: "Gracia",
     });
-    expect(vars.property_price).toBe("450.000\u00a0\u20ac");
+    expect(vars.property_price).toBe("450.000 euros");
     expect(vars.property_location).toBe("Gracia");
     expect(vars.property_rooms).toBe("");
+  });
+
+  test("null rooms/m2/price collapse the summary gracefully", () => {
+    const vars = listingToCallVariables({
+      ...base,
+      operation: "rent",
+      priceEur: null,
+      rooms: null,
+      builtM2: null,
+      street: null,
+      neighbourhood: "Gràcia",
+      district: "Gràcia",
+    });
+    expect(vars.property_summary).toBe("piso en Gràcia");
+    expect(vars.property_price).toBe("");
   });
 });
 

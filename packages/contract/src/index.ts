@@ -12,7 +12,7 @@ import * as v from "valibot";
 
 export const ViewingRequestSchema = v.object({
   propertyRef: v.pipe(v.string(), v.minLength(1)),
-  agencyPhone: v.pipe(v.string(), v.regex(/^\+?[0-9]{6,15}$/)),
+  agencyPhone: v.optional(v.pipe(v.string(), v.regex(/^\+?[0-9]{6,15}$/))),
   slotHint: v.optional(v.string()),
 });
 
@@ -49,3 +49,4 @@ export const BookingResultSchema = v.object({
 export type BookingResult = v.InferOutput<typeof BookingResultSchema>;
 
 export * from "./user";
+export * from "./profile";

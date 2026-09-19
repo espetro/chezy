@@ -8,17 +8,22 @@
 //   OPENAI_COMPATIBLE_BASE_URL  e.g. http://localhost:8317/v1
 //   OPENAI_COMPATIBLE_API_KEY   used as Bearer auth for the /v1/models fetch
 
-const PROVIDER_BASE_URL =
-  process.env.OPENAI_COMPATIBLE_BASE_URL ?? "http://localhost:8317/v1";
-const PROVIDER_API_KEY =
-  process.env.OPENAI_COMPATIBLE_API_KEY ?? "ollama";
+import {
+  DEFAULT_CHAT_MODEL_ID,
+  DEFAULT_PROVIDER_BASE_URL,
+  FETCH_TIMEOUT_MS,
+} from "../constants";
+import { env } from "../env";
 
-export const DEFAULT_CHAT_MODEL =
-  process.env.CHEZY_MODEL_ID ?? "deepseek-ai/DeepSeek-V4.1-Flash";
+const PROVIDER_BASE_URL =
+  env.OPENAI_COMPATIBLE_BASE_URL ?? DEFAULT_PROVIDER_BASE_URL;
+const PROVIDER_API_KEY = env.OPENAI_COMPATIBLE_API_KEY ?? "ollama";
+
+export const DEFAULT_CHAT_MODEL = env.CHEZY_MODEL_ID ?? DEFAULT_CHAT_MODEL_ID;
 
 export const titleModel: ChatModel = {
   description: "Fast model for title generation",
-  id: process.env.CHEZY_TITLE_MODEL_ID ?? DEFAULT_CHAT_MODEL,
+  id: env.CHEZY_TITLE_MODEL_ID ?? DEFAULT_CHAT_MODEL,
   name: "Default",
   provider: "bifrost",
 };
@@ -52,6 +57,7 @@ async function fetchBifrostModels(): Promise<BifrostModel[]> {
         ? { Authorization: `Bearer ${PROVIDER_API_KEY}` }
         : {},
       next: { revalidate: 60 },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
     if (!res.ok) return [];
     const json = (await res.json()) as { data?: BifrostModel[] };
@@ -106,7 +112,7 @@ export const modelsByProvider = chatModels.reduce(
 
 export type ModelAvailability = "healthy" | "impacted" | "unknown";
 
-export const isDemo = process.env.IS_DEMO === "1";
+export const isDemo = env.IS_DEMO === "1";
 
 export type GatewayModelWithCapabilities = ChatModel & {
   capabilities: ModelCapabilities;

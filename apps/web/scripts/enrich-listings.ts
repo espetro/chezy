@@ -15,9 +15,7 @@ const force = process.argv.includes("--force");
 const concurrency = Number(arg("concurrency") ?? 6);
 const modelId = arg("model");
 
-const allIds = (await db.select({ id: listing.id }).from(listing)).map(
-  (r) => r.id,
-);
+const allIds = (await db.select({ id: listing.id }).from(listing)).map((r) => r.id);
 const done = new Set(
   (
     await db
@@ -26,10 +24,7 @@ const done = new Set(
       .where(eq(listingInsight.promptVersion, INSIGHTS_PROMPT_VERSION))
   ).map((r) => r.listingId),
 );
-const targets = (force ? allIds : allIds.filter((id) => !done.has(id))).slice(
-  0,
-  limit,
-);
+const targets = (force ? allIds : allIds.filter((id) => !done.has(id))).slice(0, limit);
 
 console.log(
   `enriching ${targets.length} listings (concurrency ${concurrency}${force ? ", force" : ""}${modelId ? `, model ${modelId}` : ""})`,
@@ -65,9 +60,7 @@ async function worker() {
       console.log(`ok ${id} ${ms}ms ${rows[0]?.promptTokens ?? 0} promptTok`);
     } catch (error) {
       fail++;
-      console.log(
-        `fail ${id} ${error instanceof Error ? error.message : error}`,
-      );
+      console.log(`fail ${id} ${error instanceof Error ? error.message : error}`);
     }
   }
 }

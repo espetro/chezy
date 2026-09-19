@@ -3,6 +3,7 @@ import path from "node:path";
 
 import * as v from "valibot";
 
+import { VISION_FETCH_TIMEOUT_MS } from "@/lib/constants";
 import { env } from "@/lib/env";
 
 import {
@@ -15,7 +16,11 @@ const MAX_PHOTOS = 25;
 const MAX_TOKENS = 5000;
 
 // lib/vision/extract.ts -> apps/web -> repo root (has chezy-mock-data/).
-const REPO_ROOT = path.resolve(import.meta.dirname, "../../../..");
+// import.meta.dirname is undefined under Turbopack; fall back to cwd (apps/web).
+const REPO_ROOT = path.resolve(
+  import.meta.dirname ?? path.join(process.cwd(), "lib", "vision"),
+  "../../../..",
+);
 
 async function dataUrl(localPath: string): Promise<string | undefined> {
   try {
@@ -56,6 +61,7 @@ async function callModel(
       chat_template_kwargs: { thinking: false },
       messages: [{ role: "user", content }],
     }),
+    signal: AbortSignal.timeout(VISION_FETCH_TIMEOUT_MS),
   });
   if (!res.ok) {
     throw new Error(`vision model request failed: ${res.status} ${await res.text()}`);

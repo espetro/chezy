@@ -1,6 +1,7 @@
 import {
   and,
   asc,
+  count,
   eq,
   gt,
   gte,
@@ -11,8 +12,12 @@ import {
 } from "drizzle-orm";
 import * as v from "valibot";
 
+import { PRICE_HEADROOM } from "@/lib/constants";
 import { db } from "@/lib/db/client";
 import { listing, type Listing } from "@/lib/db/schema";
+import { esInt, eur, sentenceCase, speechText, streetCase } from "@/lib/format";
+
+export { eur };
 
 // Loose parser for one line of chezy-mock-data/data/listings.jsonl — only the
 // fields we persist; everything else is ignored.
@@ -108,6 +113,7 @@ export interface ListingSummary {
   readonly builtM2: number | null;
   readonly district: string | null;
   readonly neighbourhood: string | null;
+  readonly street: string | null;
   readonly url: string;
   readonly coverUrl: string | null;
   readonly description: string;
@@ -125,6 +131,7 @@ export function toListingSummary(row: Listing): ListingSummary {
     builtM2: row.builtM2,
     district: row.district,
     neighbourhood: row.neighbourhood,
+    street: row.street,
     url: row.url,
     coverUrl: row.coverUrl,
     description: (row.description ?? "").slice(0, 300),
@@ -285,6 +292,82 @@ export async function searchListings(
   };
 }
 
+export interface CandidateFilter {
+  neighbourhoods?: string[];
+  maxPriceEur?: number;
+  minRooms?: number;
+  minM2?: number;
+}
+
+function rentCandidateFilters(
+  filter: CandidateFilter,
+  withHeadroom: boolean,
+): SQL[] {
+  const filters: SQL[] = [
+    eq(listing.operation, "rent"),
+    gt(listing.priceEur, 0),
+  ];
+  if (filter.maxPriceEur !== undefined) {
+    const cap = withHeadroom
+      ? filter.maxPriceEur * PRICE_HEADROOM
+      : filter.maxPriceEur;
+    filters.push(lte(listing.priceEur, cap));
+  }
+  if (filter.minRooms !== undefined) {
+    filters.push(gte(listing.rooms, filter.minRooms));
+  }
+  if (filter.minM2 !== undefined) {
+    filters.push(gte(listing.builtM2, filter.minM2));
+  }
+  if (filter.neighbourhoods && filter.neighbourhoods.length > 0) {
+    const places = filter.neighbourhoods
+      .map(
+        (n) =>
+          or(
+            ilike(listing.neighbourhood, `%${n}%`),
+            ilike(listing.district, `%${n}%`),
+          ) as SQL,
+      )
+      .filter((s): s is SQL => s !== undefined);
+    if (places.length > 0) {
+      filters.push(or(...places) as SQL);
+    }
+  }
+  return filters;
+}
+
+// Feed candidate pool: rents within budget headroom, ordered cheapest first.
+export async function listRentCandidates(
+  filter: CandidateFilter,
+): Promise<Listing[]> {
+  return db
+    .select()
+    .from(listing)
+    .where(and(...rentCandidateFilters(filter, true)))
+    .orderBy(asc(listing.priceEur))
+    .limit(120);
+}
+
+// Exact-match counter for the "N pisos coinciden" badge: same filters but
+// without the price headroom.
+export async function countRentCandidates(
+  filter: CandidateFilter,
+): Promise<number> {
+  const [row] = await db
+    .select({ value: count() })
+    .from(listing)
+    .where(and(...rentCandidateFilters(filter, false)));
+  return row?.value ?? 0;
+}
+
+// Full row for the listing detail page (media, lat/lon, floor, amenities).
+export async function getListingRowById(
+  id: string,
+): Promise<Listing | undefined> {
+  const rows = await db.select().from(listing).where(eq(listing.id, id));
+  return rows[0];
+}
+
 export async function getListingById(
   id: string,
 ): Promise<ListingSummary | undefined> {
@@ -293,32 +376,74 @@ export async function getListingById(
   return row ? toListingSummary(row) : undefined;
 }
 
-const eur = new Intl.NumberFormat("es-ES", {
-  style: "currency",
-  currency: "EUR",
-  maximumFractionDigits: 0,
-  // es-ES sets minimumGroupingDigits=2, so 4187 would render "4187 €"; force
-  // grouping so prices always read "4.187 €".
-  useGrouping: "always",
-});
 
+
+// Street names that already carry a thoroughfare prefix don't get "calle ".
+const STREET_PREFIX =
+  /^(carrer|calle|avinguda|avenida|passeig|paseo|plaça|plaza|rambla|via|vía|travessera|ronda)\b/i;
+
+// Spoken price: no € glyph, "al mes" spelled out for rents.
+function speechPrice(summary: ListingSummary): string {
+  if (summary.priceEur === null) {
+    return "";
+  }
+  const amount = esInt.format(summary.priceEur);
+  return summary.operation === "rent"
+    ? `${amount} euros al mes`
+    : `${amount} euros`;
+}
+
+function speechLocation(summary: ListingSummary): string {
+  if (summary.street) {
+    const street = streetCase(summary.street);
+    const place = summary.neighbourhood ?? summary.district ?? "Barcelona";
+    const streetPart = STREET_PREFIX.test(street) ? street : `calle ${street}`;
+    return speechText(
+      `${streetPart}, ${place}${place === "Barcelona" ? "" : ", Barcelona"}`,
+    );
+  }
+  return speechText(
+    [summary.neighbourhood, summary.district]
+      .filter((part): part is string => Boolean(part))
+      .join(", "),
+  );
+}
+
+function speechSummary(summary: ListingSummary): string {
+  const parts: string[] = [];
+  if (summary.rooms !== null) {
+    parts.push(
+      summary.rooms === 1 ? "1 habitación" : `${summary.rooms} habitaciones`,
+    );
+  }
+  if (summary.builtM2 !== null) {
+    parts.push(`${Math.round(summary.builtM2)} metros cuadrados`);
+  }
+  const street = summary.street ? streetCase(summary.street) : undefined;
+  const place = street
+    ? `${STREET_PREFIX.test(street) ? `el ${street}` : `la calle ${street}`}, en ${summary.neighbourhood ?? summary.district ?? "Barcelona"}`
+    : (summary.neighbourhood ?? summary.district ?? "Barcelona");
+  const price = speechPrice(summary);
+  return speechText(
+    `piso ${parts.length > 0 ? `de ${parts.join(" y ")} ` : ""}en ${place}${
+      price ? `, por ${price}` : ""
+    }`,
+  );
+}
+
+// Variables the SLNG voice agent reads aloud: speech-ready text (no €, no
+// straight apostrophes, no ALL-CAPS).
 export function listingToCallVariables(
   summary: ListingSummary,
 ): Record<string, string> {
-  const price =
-    summary.priceEur === null
-      ? ""
-      : summary.operation === "rent"
-        ? `${eur.format(summary.priceEur)}/mes`
-        : eur.format(summary.priceEur);
   return {
     property_ref: summary.id,
-    property_title: summary.title,
-    property_price: price,
-    property_location: [summary.neighbourhood, summary.district]
-      .filter((part): part is string => Boolean(part))
-      .join(", "),
+    property_title: sentenceCase(summary.title).slice(0, 90),
+    property_price: speechPrice(summary),
+    property_location: speechLocation(summary),
     property_rooms: summary.rooms?.toString() ?? "",
-    property_m2: summary.builtM2?.toString() ?? "",
+    property_m2:
+      summary.builtM2 === null ? "" : Math.round(summary.builtM2).toString(),
+    property_summary: speechSummary(summary),
   };
 }
