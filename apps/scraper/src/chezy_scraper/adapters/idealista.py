@@ -44,6 +44,8 @@ _ID_IN_URL = re.compile(r"/inmueble/(\d+)")
 _NUMBER = re.compile(r"\d[\d.,]*")
 _LAT = re.compile(r"latitude\W{1,4}(-?\d{1,3}\.\d+)")
 _LON = re.compile(r"longitude\W{1,4}(-?\d{1,3}\.\d+)")
+# Items of the list after a heading: the list is either a sibling or wrapped in a div.
+_SECTION_ITEMS = "following-sibling::*[1][self::ul]/li | following-sibling::*[1][self::div]//li"
 _ENERGY_CLASS = re.compile(r"icon-energy-(c|e)-([a-g])", re.IGNORECASE)
 _STREET_NUMBER = re.compile(r",\s*(\d+\w?)\s*$")
 _CONDITIONS = {
@@ -143,6 +145,10 @@ class IdealistaAdapter:
         facts = _Facts()
         for line in [*top, *lines]:
             facts.absorb(line)
+        facts.built_m2 = facts.built_m2 or next(
+            (v for line in top if (v := _num(_group(_BARE_M2, line)))), None
+        )
+        tags = [_clean(t).lower() for t in sel.css(".detail-info-tags .tag::text").getall()]
         multimedia = obj(page.globals.get("adMultimediasInfo"))
         price_text = _clean(" ".join(sel.css(".info-data-price ::text").getall()))
         payload: JsonObj = {
@@ -163,6 +169,7 @@ class IdealistaAdapter:
             "description": _description(sel),
             "property_type": _property_type(sel),
             **asdict(facts),
+            "is_temporary_rental": True if any("temporada" in t for t in tags) else None,
             **_energy(sel),
             **_location(sel, page.html),
             "amenities": keyword_amenities([*top, *lines], IDEALISTA_KEYWORDS),
@@ -183,8 +190,7 @@ def _sections(sel: Selector) -> dict[str, list[str]]:
     for heading in sel.css(".details-property h2"):
         name = _clean(heading.css("::text").get())
         items = [
-            _clean(" ".join(li.css("::text").getall()))
-            for li in heading.xpath("following-sibling::ul[1]/li")
+            _clean(" ".join(li.css("::text").getall())) for li in heading.xpath(_SECTION_ITEMS)
         ]
         if name:
             out[name] = [item for item in items if item]
@@ -205,7 +211,7 @@ def _property_type(sel: Selector) -> str | None:
 
 def _energy(sel: Selector) -> dict[str, object]:
     out: dict[str, object] = {}
-    for li in sel.css(".details-property h2 ~ ul li"):
+    for li in sel.css(".details-property li"):
         line = _clean(" ".join(li.css("::text").getall()))
         klass = " ".join(li.css("*::attr(class)").getall())
         match = _ENERGY_CLASS.search(klass)
@@ -279,6 +285,7 @@ def _media(multimedia: JsonObj) -> list[Media]:
 # -- line facts ------------------------------------------------------------------
 
 _BUILT = re.compile(r"(\d[\d.,]*)\s*m²\s*construidos", re.IGNORECASE)
+_BARE_M2 = re.compile(r"^(\d[\d.,]*)\s*m²$")
 _USABLE = re.compile(r"(\d[\d.,]*)\s*m²\s*útiles", re.IGNORECASE)
 _ROOMS = re.compile(r"(\d+)\s*(?:habitaci|hab\.)", re.IGNORECASE)
 _BATHS = re.compile(r"(\d+)\s*baños?", re.IGNORECASE)

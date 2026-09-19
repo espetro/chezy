@@ -115,3 +115,20 @@ def test_non_detail_url_is_rejected() -> None:
     page = RenderedPage(url="https://www.idealista.com/x/", html="<html></html>")
     with pytest.raises(ValueError, match="not an idealista detail url"):
         IdealistaAdapter().parse_detail(page, operation="rent", scraped_at=NOW)
+
+
+def test_live_markup_shape_wrapped_lists_seasonal_tag_and_energy() -> None:
+    """Real pages wrap each feature list in a div and mark seasonal lets with a tag."""
+    page = RenderedPage(
+        url="https://www.idealista.com/inmueble/112601389/",
+        html=(FIXTURES / "idealista_detail_live.html").read_text(encoding="utf-8"),
+        globals={},
+    )
+    listing = IdealistaAdapter().parse_detail(
+        page, operation="rent", scraped_at=datetime(2026, 9, 19, tzinfo=UTC)
+    )
+    assert listing.built_m2 == 50
+    assert listing.bathrooms == 1
+    assert listing.is_temporary_rental is True
+    assert listing.energy_consumption_label == "G"
+    assert listing.neighbourhood == "El Raval"
