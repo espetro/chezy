@@ -26,8 +26,6 @@ import {
 } from "~/components/ui/sidebar";
 import type { Chat } from "~/lib/db/schema";
 import { fetcher } from "~/lib/utils";
-export { getChatHistoryPaginationKey };
-export type { ChatHistory };
 import { LoaderIcon } from "./icons";
 import { ChatItem } from "./sidebar-history-item";
 
@@ -40,6 +38,9 @@ type GroupedChats = {
 };
 
 import { getChatHistoryPaginationKey, type ChatHistory } from "~/lib/chat-helpers";
+
+export { getChatHistoryPaginationKey };
+export type { ChatHistory };
 
 const groupChatsByDate = (chats: Chat[]): GroupedChats => {
   const now = new Date();
