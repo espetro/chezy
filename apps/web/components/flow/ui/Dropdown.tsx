@@ -11,14 +11,14 @@ interface DropdownOption<T extends string> {
 
 const triggerClass = (isOpen: boolean, compact: boolean) =>
   cn(
-    "flex h-11 w-full items-center gap-2 rounded-inputs border border-mist bg-snow text-label-md text-obsidian transition-colors duration-200 hover:border-ash focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
+    "flex h-11 w-full items-center gap-2 rounded-inputs border border-cloud bg-snow text-label-md text-obsidian shadow-sm transition-colors duration-200 hover:border-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
     compact ? "w-11 justify-center px-0" : "justify-between px-3.5",
-    isOpen && "border-obsidian",
+    isOpen && "border-mist",
   );
 
 const panelClass = (align: "start" | "end") =>
   cn(
-    "absolute top-[calc(100%+6px)] z-20 flex max-h-72 min-w-full max-w-[280px] flex-col gap-0.5 overflow-y-auto rounded-[14px] border border-mist bg-snow p-1.5 shadow-float",
+    "absolute top-[calc(100%+6px)] z-20 flex max-h-72 min-w-full max-w-[280px] flex-col gap-0.5 overflow-y-auto rounded-[14px] border border-cloud bg-snow p-1.5 shadow-float",
     align === "end" ? "right-0" : "left-0",
   );
 
@@ -196,7 +196,7 @@ export const FlowMultiDropdown = <T extends string>({
                   aria-hidden
                   className={cn(
                     "flex size-[18px] shrink-0 items-center justify-center rounded-[6px] border transition-colors duration-200",
-                    isChecked ? "border-obsidian bg-obsidian text-snow" : "border-mist bg-snow",
+                    isChecked ? "border-obsidian bg-obsidian text-snow" : "border-cloud bg-snow",
                   )}
                 >
                   {isChecked ? <Check size={12} /> : undefined}
