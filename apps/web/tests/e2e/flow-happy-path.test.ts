@@ -7,10 +7,7 @@ test.use({ viewport: { width: 390, height: 844 } });
 // The happy path only works against the mock viewing flow; fail fast if the
 // dev server was started with VIEWING_MODE=slng.
 test.beforeAll(() => {
-  const envLocal = readFileSync(
-    path.resolve(process.cwd(), ".env.local"),
-    "utf8",
-  );
+  const envLocal = readFileSync(path.resolve(process.cwd(), ".env.local"), "utf8");
   const viewingMode = envLocal.match(/^VIEWING_MODE=(.*)$/m)?.[1]?.trim();
   expect(
     viewingMode ?? "mock",
@@ -28,15 +25,10 @@ const TOLERATED_ERRORS: RegExp[] = [
 ];
 
 test.describe("flow happy path", () => {
-  test("landing → onboarding → explore → match detail → viewing call", async ({
-    page,
-  }) => {
+  test("landing → onboarding → explore → match detail → viewing call", async ({ page }) => {
     const consoleErrors: string[] = [];
     page.on("console", (msg) => {
-      if (
-        msg.type() === "error" &&
-        !TOLERATED_ERRORS.some((re) => re.test(msg.text()))
-      ) {
+      if (msg.type() === "error" && !TOLERATED_ERRORS.some((re) => re.test(msg.text()))) {
         consoleErrors.push(msg.text());
       }
     });
@@ -50,18 +42,12 @@ test.describe("flow happy path", () => {
     await page.getByRole("button", { name: "Let's go" }).click();
 
     // 3. Routine: address + 25 min commute + Gràcia chip.
-    await page
-      .getByLabel(/Work or study address/)
-      .fill("Diagonal 405");
+    await page.getByLabel(/Work or study address/).fill("Diagonal 405");
     await page.getByRole("radio", { name: "25 min" }).click();
-    await page
-      .getByRole("button", { name: "Gràcia", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Gràcia", exact: true }).click();
 
     // The sticky counter must show a live number.
-    await expect(
-      page.getByText(/\d+ listings? match(?:es)? right now/),
-    ).toBeVisible();
+    await expect(page.getByText(/\d+ listings? match(?:es)? right now/)).toBeVisible();
     await page.getByRole("button", { name: "Continue" }).click();
 
     // 4. Budget & space: defaults are fine → Continue.
@@ -76,9 +62,7 @@ test.describe("flow happy path", () => {
     await page.getByRole("button", { name: "Continue" }).click();
 
     // 8. Autonomy (default cowork) → confirm, then start searching.
-    await page
-      .getByRole("button", { name: /Confirm autonomy level/ })
-      .click();
+    await page.getByRole("button", { name: /Confirm autonomy level/ }).click();
     await page.getByRole("button", { name: /Start searching/ }).click();
 
     // 9. Explore: at least one candidate card.
@@ -96,9 +80,9 @@ test.describe("flow happy path", () => {
     if (await callNow.isVisible()) {
       await callNow.click();
     }
-    await expect(
-      page.getByText(/Visit booked|Live call in progress/),
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/Visit booked|Live call in progress/)).toBeVisible({
+      timeout: 10_000,
+    });
 
     // 12. No console errors during the whole run.
     expect(consoleErrors).toEqual([]);

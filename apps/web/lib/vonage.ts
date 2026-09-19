@@ -4,8 +4,8 @@
 import { createSign, randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 
-import { FETCH_TIMEOUT_MS } from "@/lib/constants";
-import { env } from "@/lib/env";
+import { FETCH_TIMEOUT_MS } from "~/lib/constants";
+import { env } from "~/lib/env";
 
 export interface VonageCallResult {
   readonly uuid: string;
@@ -24,9 +24,7 @@ function loadPrivateKey(): string {
 
 export function signVonageJwt(applicationId: string, privateKey: string): string {
   const now = Math.floor(Date.now() / 1000);
-  const header = Buffer.from(
-    JSON.stringify({ alg: "RS256", typ: "JWT" }),
-  ).toString("base64url");
+  const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
   const payload = Buffer.from(
     JSON.stringify({
       application_id: applicationId,
@@ -67,9 +65,7 @@ export async function placeVonageCall(input: {
   });
 
   if (!response.ok) {
-    throw new Error(
-      `Vonage call failed: ${response.status} ${await response.text()}`,
-    );
+    throw new Error(`Vonage call failed: ${response.status} ${await response.text()}`);
   }
   const json = (await response.json()) as { uuid?: string; status?: string };
   if (!json.uuid) {

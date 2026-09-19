@@ -7,7 +7,7 @@ const mockUsage = {
 
 export function getResponseChunksByPrompt(
   _prompt: unknown,
-  includeReasoning = false
+  includeReasoning = false,
 ): LanguageModelV3StreamPart[] {
   const chunks: LanguageModelV3StreamPart[] = [];
 
@@ -15,7 +15,7 @@ export function getResponseChunksByPrompt(
     chunks.push(
       { id: "r1", type: "reasoning-start" },
       { delta: "Let me think about this.", id: "r1", type: "reasoning-delta" },
-      { id: "r1", type: "reasoning-end" }
+      { id: "r1", type: "reasoning-end" },
     );
   }
 
@@ -27,7 +27,7 @@ export function getResponseChunksByPrompt(
       finishReason: { raw: "stop", unified: "stop" },
       type: "finish",
       usage: mockUsage,
-    }
+    },
   );
 
   return chunks;

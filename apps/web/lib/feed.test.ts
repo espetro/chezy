@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import type { CandidateFilter } from "@/lib/listings";
-import type { Listing, SearchProfile } from "@/lib/db/schema";
+import type { CandidateFilter } from "~/lib/listings";
+import type { Listing, SearchProfile } from "~/lib/db/schema";
 import { buildFeed } from "./feed";
 
 const profile: SearchProfile = {
@@ -58,8 +58,7 @@ const makeListing = (id: string): Listing =>
     createdAt: new Date(0),
   }) as Listing;
 
-const rows = (n: number) =>
-  Array.from({ length: n }, (_, i) => makeListing(`l${i}`));
+const rows = (n: number) => Array.from({ length: n }, (_, i) => makeListing(`l${i}`));
 
 // Records the filters it is called with and returns N rows per call site.
 const scriptedRun = (sizes: number[]) => {
@@ -88,9 +87,18 @@ describe("buildFeed ladder", () => {
 
   it.each<[number[], string[]]>([
     [[0, 8], ["minM2"]],
-    [[0, 0, 8], ["minM2", "neighbourhoods"]],
-    [[0, 0, 0, 8], ["minM2", "neighbourhoods", "maxPriceEur"]],
-    [[0, 0, 0, 0, 8], ["minM2", "neighbourhoods", "maxPriceEur", "minRooms"]],
+    [
+      [0, 0, 8],
+      ["minM2", "neighbourhoods"],
+    ],
+    [
+      [0, 0, 0, 8],
+      ["minM2", "neighbourhoods", "maxPriceEur"],
+    ],
+    [
+      [0, 0, 0, 0, 8],
+      ["minM2", "neighbourhoods", "maxPriceEur", "minRooms"],
+    ],
   ])("sizes %j relaxes %j", async (sizes, expected) => {
     const { run } = scriptedRun(sizes);
     const res = await buildFeed(profile, run);
@@ -111,12 +119,7 @@ describe("buildFeed ladder", () => {
     const { run } = scriptedRun([0, 0, 0, 0, 0]);
     const res = await buildFeed(profile, run);
     expect(res.items).toEqual([]);
-    expect(res.relaxed).toEqual([
-      "minM2",
-      "neighbourhoods",
-      "maxPriceEur",
-      "minRooms",
-    ]);
+    expect(res.relaxed).toEqual(["minM2", "neighbourhoods", "maxPriceEur", "minRooms"]);
     expect(res.note).toBeTruthy();
   });
 

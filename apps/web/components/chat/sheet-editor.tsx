@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { parse, unparse } from "papaparse";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import DataGrid, { textEditor } from "react-data-grid";
-import { cn } from "@/lib/utils";
+import { cn } from "~/lib/utils";
 
 import "react-data-grid/lib/styles.css";
 
@@ -47,8 +47,7 @@ const PureSpreadsheetEditor = ({ content, saveContent }: SheetEditorProps) => {
     const rowNumberColumn = {
       cellClass: "border-t border-r dark:bg-neutral-950 dark:text-neutral-50",
       frozen: true,
-      headerCellClass:
-        "border-t border-r dark:bg-neutral-900 dark:text-neutral-50",
+      headerCellClass: "border-t border-r dark:bg-neutral-900 dark:text-neutral-50",
       key: "rowNumber",
       name: "",
       renderCell: ({ rowIdx }: { rowIdx: number }) => rowIdx + 1,
@@ -85,7 +84,7 @@ const PureSpreadsheetEditor = ({ content, saveContent }: SheetEditorProps) => {
 
         return rowData;
       }),
-    [parseData, columns]
+    [parseData, columns],
   );
 
   const [localRows, setLocalRows] = useState(initialRows);
@@ -100,7 +99,7 @@ const PureSpreadsheetEditor = ({ content, saveContent }: SheetEditorProps) => {
     setLocalRows(newRows);
 
     const updatedData = newRows.map((row) =>
-      columns.slice(1).map((col) => String(row[col.key] ?? ""))
+      columns.slice(1).map((col) => String(row[col.key] ?? "")),
     );
 
     const newCsvContent = generateCsv(updatedData);
@@ -108,15 +107,12 @@ const PureSpreadsheetEditor = ({ content, saveContent }: SheetEditorProps) => {
   };
 
   const handleCellClick = useCallback(
-    (args: {
-      column: { key: string };
-      selectCell: (enableEditor?: boolean) => void;
-    }) => {
+    (args: { column: { key: string }; selectCell: (enableEditor?: boolean) => void }) => {
       if (args.column.key !== "rowNumber") {
         args.selectCell(true);
       }
     },
-    []
+    [],
   );
 
   return (

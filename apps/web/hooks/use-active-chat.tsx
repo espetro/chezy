@@ -17,16 +17,16 @@ import {
 } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
-import { useDataStream } from "@/components/chat/data-stream-provider";
-import { getChatHistoryPaginationKey } from "@/components/chat/sidebar-history";
-import { toast } from "@/components/chat/toast";
-import type { VisibilityType } from "@/components/chat/visibility-selector";
-import { useAutoResume } from "@/hooks/use-auto-resume";
-import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
-import type { Vote } from "@/lib/db/schema";
-import { ChatbotError } from "@/lib/errors";
-import type { ChatMessage } from "@/lib/types";
-import { fetcher, fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
+import { useDataStream } from "~/components/chat/data-stream-provider";
+import { getChatHistoryPaginationKey } from "~/components/chat/sidebar-history";
+import { toast } from "~/components/chat/toast";
+import type { VisibilityType } from "~/components/chat/visibility-selector";
+import { useAutoResume } from "~/hooks/use-auto-resume";
+import { DEFAULT_CHAT_MODEL } from "~/lib/ai/models";
+import type { Vote } from "~/lib/db/schema";
+import { ChatbotError } from "~/lib/errors";
+import type { ChatMessage } from "~/lib/types";
+import { fetcher, fetchWithErrorHandlers, generateUUID } from "~/lib/utils";
 
 type ActiveChatContextValue = {
   chatId: string;
@@ -49,11 +49,11 @@ type ActiveChatContextValue = {
   setShowCreditCardAlert: Dispatch<SetStateAction<boolean>>;
 };
 
-const ActiveChatContext = createContext<ActiveChatContextValue | null>(null);
+const ActiveChatContext = createContext<ActiveChatContextValue | undefined>(undefined);
 
-function extractChatId(pathname: string): string | null {
+function extractChatId(pathname: string): string | undefined {
   const match = pathname.match(/\/chat\/([^/]+)/);
-  return match ? match[1] : null;
+  return match ? match[1] : undefined;
 }
 
 export function ActiveChatProvider({ children }: { children: ReactNode }) {
@@ -84,18 +84,14 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
 
   const { data: chatData, isLoading } = useSWR(
     isNewChat
-      ? null
+      ? undefined
       : `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/messages?chatId=${chatId}`,
     fetcher,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   );
 
-  const initialMessages: ChatMessage[] = isNewChat
-    ? []
-    : (chatData?.messages ?? []);
-  const visibility: VisibilityType = isNewChat
-    ? "private"
-    : (chatData?.visibility ?? "private");
+  const initialMessages: ChatMessage[] = isNewChat ? [] : (chatData?.messages ?? []);
+  const visibility: VisibilityType = isNewChat ? "private" : (chatData?.visibility ?? "private");
 
   const {
     messages,
@@ -140,7 +136,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
             "state" in part &&
             part.state === "approval-responded" &&
             "approval" in part &&
-            (part.approval as { approved?: boolean })?.approved === true
+            (part.approval as { approved?: boolean })?.approved === true,
         ) ?? false
       );
     },
@@ -154,10 +150,8 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
           request.messages.some((msg) =>
             msg.parts?.some((part) => {
               const { state } = part as { state?: string };
-              return (
-                state === "approval-responded" || state === "output-denied"
-              );
-            })
+              return state === "approval-responded" || state === "output-denied";
+            }),
           );
 
         return {
@@ -228,7 +222,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
       window.history.replaceState(
         {},
         "",
-        `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/chat/${chatId}`
+        `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/chat/${chatId}`,
       );
       sendMessage({
         parts: [{ text: query, type: "text" }],
@@ -249,9 +243,9 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
   const { data: votes } = useSWR<Vote[]>(
     !isReadonly && messages.length >= 2
       ? `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/vote?chatId=${chatId}`
-      : null,
+      : undefined,
     fetcher,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   );
 
   const value = useMemo<ActiveChatContextValue>(
@@ -292,14 +286,10 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
       votes,
       currentModelId,
       showCreditCardAlert,
-    ]
+    ],
   );
 
-  return (
-    <ActiveChatContext.Provider value={value}>
-      {children}
-    </ActiveChatContext.Provider>
-  );
+  return <ActiveChatContext.Provider value={value}>{children}</ActiveChatContext.Provider>;
 }
 
 export function useActiveChat() {

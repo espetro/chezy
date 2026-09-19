@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useActionState, useEffect, useState } from "react";
 
-import { AuthForm } from "@/components/chat/auth-form";
-import { SubmitButton } from "@/components/chat/submit-button";
-import { toast } from "@/components/chat/toast";
+import { AuthForm } from "~/components/chat/auth-form";
+import { SubmitButton } from "~/components/chat/submit-button";
+import { toast } from "~/components/chat/toast";
 import { type LoginActionState, login } from "../actions";
 
 export default function Page() {
@@ -15,14 +15,11 @@ export default function Page() {
   const [email, setEmail] = useState("");
   const [isSuccessful, setIsSuccessful] = useState(false);
 
-  const [state, formAction] = useActionState<LoginActionState, FormData>(
-    login,
-    { status: "idle" }
-  );
+  const [state, formAction] = useActionState<LoginActionState, FormData>(login, { status: "idle" });
 
   const { update: updateSession } = useSession();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: router and updateSession are stable refs
+  // updateSession (next-auth useSession update) and router are stable refs.
   useEffect(() => {
     if (state.status === "failed") {
       toast({ description: "Invalid credentials!", type: "error" });
@@ -36,7 +33,7 @@ export default function Page() {
       updateSession();
       router.refresh();
     }
-  }, [state.status]);
+  }, [state.status, setIsSuccessful, updateSession, router]);
 
   const handleSubmit = (formData: FormData) => {
     setEmail(formData.get("email") as string);
@@ -45,7 +42,9 @@ export default function Page() {
 
   return (
     <>
-      <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">Welcome back</h1>
+      <h1 className="text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">
+        Welcome back
+      </h1>
       <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
         Sign in to your account to continue
       </p>
@@ -53,10 +52,7 @@ export default function Page() {
         <SubmitButton isSuccessful={isSuccessful}>Sign in</SubmitButton>
         <p className="text-center text-[13px] text-muted-foreground">
           {"No account? "}
-          <Link
-            className="text-foreground underline-offset-4 hover:underline"
-            href="/register"
-          >
+          <Link className="text-foreground underline-offset-4 hover:underline" href="/register">
             Sign up
           </Link>
         </p>

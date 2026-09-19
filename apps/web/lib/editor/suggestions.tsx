@@ -1,7 +1,7 @@
 import type { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { DecorationSet } from "prosemirror-view";
-import type { Suggestion } from "@/lib/db/schema";
+import type { Suggestion } from "~/lib/db/schema";
 
 export interface UISuggestion extends Suggestion {
   selectionEnd: number;
@@ -13,8 +13,8 @@ type Position = {
   end: number;
 };
 
-function findPositionsInDoc(doc: Node, searchText: string): Position | null {
-  let positions: { start: number; end: number } | null = null;
+function findPositionsInDoc(doc: Node, searchText: string): Position | undefined {
+  let positions: { start: number; end: number } | undefined = undefined;
 
   doc.nodesBetween(0, doc.content.size, (node, pos) => {
     if (node.isText && node.text) {
@@ -36,10 +36,7 @@ function findPositionsInDoc(doc: Node, searchText: string): Position | null {
   return positions;
 }
 
-export function projectWithPositions(
-  doc: Node,
-  suggestions: Suggestion[]
-): UISuggestion[] {
+export function projectWithPositions(doc: Node, suggestions: Suggestion[]): UISuggestion[] {
   return suggestions.map((suggestion) => {
     const positions = findPositionsInDoc(doc, suggestion.originalText);
 
@@ -90,7 +87,7 @@ export const suggestionsPlugin = new Plugin({
       };
     },
     init() {
-      return { decorations: DecorationSet.empty, selected: null };
+      return { decorations: DecorationSet.empty, selected: undefined };
     },
   },
 });

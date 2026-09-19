@@ -2,11 +2,11 @@
 
 import { useMountEffect } from "@chezy/ui/hooks/useMountEffect";
 import { useState } from "react";
-import { FlowAgentMark } from "@/components/flow/ui/AgentMark";
-import { FlowBadge } from "@/components/flow/ui/Badge";
-import { FlowButton } from "@/components/flow/ui/Button";
-import { AUTO_CALL_MATCH_THRESHOLD } from "@/lib/flow/constants";
-import type { FlowListing } from "@/lib/flow/types";
+import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
+import { FlowBadge } from "~/components/flow/ui/Badge";
+import { FlowButton } from "~/components/flow/ui/Button";
+import { AUTO_CALL_MATCH_THRESHOLD } from "~/lib/flow/constants";
+import type { FlowListing } from "~/lib/flow/types";
 
 type CallStatus = "idle" | "calling" | "booked" | "failed" | "discarded";
 
@@ -102,8 +102,8 @@ export const AgentCallGate = ({ listing }: AgentCallGateProps) => {
               Auto-call · ≥{AUTO_CALL_MATCH_THRESHOLD}% match
             </FlowBadge>
             <p className="text-[13px] text-fog">
-              This match cleared chezMoi's {AUTO_CALL_MATCH_THRESHOLD}% confidence bar, so
-              the agent called {listing.agency} automatically — no approval needed.
+              This match cleared chezMoi's {AUTO_CALL_MATCH_THRESHOLD}% confidence bar, so the agent
+              called {listing.agency} automatically — no approval needed.
             </p>
           </div>
         </div>
@@ -111,12 +111,10 @@ export const AgentCallGate = ({ listing }: AgentCallGateProps) => {
         <div className="flex items-start gap-3">
           <FlowAgentMark size="sm" className="mt-0.5" />
           <div className="flex flex-col gap-1">
-            <p className="text-[15px] font-medium text-obsidian">
-              {listing.matchScore}% match
-            </p>
+            <p className="text-[15px] font-medium text-obsidian">{listing.matchScore}% match</p>
             <p className="text-[13px] text-fog">
-              This is below my {AUTO_CALL_MATCH_THRESHOLD}% bar for calling on my own. I'll
-              keep watching it, or you can ask me to call now.
+              This is below my {AUTO_CALL_MATCH_THRESHOLD}% bar for calling on my own. I'll keep
+              watching it, or you can ask me to call now.
             </p>
           </div>
         </div>
@@ -128,9 +126,7 @@ export const AgentCallGate = ({ listing }: AgentCallGateProps) => {
         ) : status === "calling" ? (
           <div className="flex items-center gap-2">
             <span className="size-2 animate-pulse rounded-full bg-ember motion-reduce:animate-none" />
-            <p className="text-[14px] font-medium text-graphite">
-              Calling {listing.agency}…
-            </p>
+            <p className="text-[14px] font-medium text-graphite">Calling {listing.agency}…</p>
           </div>
         ) : status === "failed" ? (
           <div className="flex flex-col gap-1">
@@ -141,9 +137,7 @@ export const AgentCallGate = ({ listing }: AgentCallGateProps) => {
           </div>
         ) : (
           <div className="flex flex-col gap-1">
-            <p className="text-[14px] font-medium text-graphite">
-              Called {listing.agency}
-            </p>
+            <p className="text-[14px] font-medium text-graphite">Called {listing.agency}</p>
             <p className="text-[13px] text-fog">
               Visit booked for {visit?.label} ({visit?.durationMinutes} min).
             </p>

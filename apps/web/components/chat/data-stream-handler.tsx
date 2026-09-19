@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 import { useSWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
-import { initialArtifactData, useArtifact } from "@/hooks/use-artifact";
-import { artifactDefinitions } from "./artifact";
+import { initialArtifactData, useArtifact } from "~/hooks/use-artifact";
+import { artifactDefinitions } from "./artifact-definitions";
 import { useDataStream } from "./data-stream-provider";
 import { getChatHistoryPaginationKey } from "./sidebar-history";
 
@@ -28,8 +28,7 @@ export function DataStreamHandler() {
         continue;
       }
       const artifactDefinition = artifactDefinitions.find(
-        (currentArtifactDefinition) =>
-          currentArtifactDefinition.kind === artifact.kind
+        (currentArtifactDefinition) => currentArtifactDefinition.kind === artifact.kind,
       );
 
       if (artifactDefinition?.onStreamPart) {
@@ -87,5 +86,5 @@ export function DataStreamHandler() {
     }
   }, [dataStream, setArtifact, setMetadata, artifact, setDataStream, mutate]);
 
-  return null;
+  return undefined;
 }

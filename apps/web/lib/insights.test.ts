@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { insightsToCallVariables, toInsightRow } from "@/lib/insights";
-import type { ListingInsights } from "@/lib/vision/schema";
+import { insightsToCallVariables, toInsightRow } from "~/lib/insights";
+import type { ListingInsights } from "~/lib/vision/schema";
 
 const INSIGHTS: ListingInsights = {
   per_image: [

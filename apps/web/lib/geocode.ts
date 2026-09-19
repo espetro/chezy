@@ -23,12 +23,7 @@ interface Anchor {
 const DEFAULT_ANCHOR: Anchor = {
   point: { lat: 41.3954, lon: 2.1618 },
   label: "Diagonal 405 / Passeig de Gràcia",
-  keywords: [
-    "diagonal",
-    "passeig de gracia",
-    "paseo de gracia",
-    "pg. de gracia",
-  ],
+  keywords: ["diagonal", "passeig de gracia", "paseo de gracia", "pg. de gracia"],
 };
 
 const ANCHORS: readonly Anchor[] = [
@@ -61,12 +56,7 @@ const ANCHORS: readonly Anchor[] = [
 ];
 
 export function normalizeText(value: string): string {
-  return value
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .replace(/\s+/g, " ")
-    .trim();
+  return value.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "").replace(/\s+/g, " ").trim();
 }
 
 export function geocodeWorkAddress(address: string): GeocodeResult {

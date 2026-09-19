@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm";
 
-import { db } from "@/lib/db/client";
-import { listing, listingInsight } from "@/lib/db/schema";
-import { ensureListingInsights } from "@/lib/insights";
-import { INSIGHTS_PROMPT_VERSION } from "@/lib/vision/prompt";
+import { db } from "~/lib/db/client";
+import { listing, listingInsight } from "~/lib/db/schema";
+import { ensureListingInsights } from "~/lib/insights";
+import { INSIGHTS_PROMPT_VERSION } from "~/lib/vision/prompt";
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(`--${name}`);

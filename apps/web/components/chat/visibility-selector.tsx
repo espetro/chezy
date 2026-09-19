@@ -8,21 +8,16 @@ import {
   useMemo,
   useState,
 } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useChatVisibility } from "@/hooks/use-chat-visibility";
-import { cn } from "@/lib/utils";
-import {
-  CheckCircleFillIcon,
-  ChevronDownIcon,
-  GlobeIcon,
-  LockIcon,
-} from "./icons";
+} from "~/components/ui/dropdown-menu";
+import { useChatVisibility } from "~/hooks/use-chat-visibility";
+import { cn } from "~/lib/utils";
+import { CheckCircleFillIcon, ChevronDownIcon, GlobeIcon, LockIcon } from "./icons";
 
 export type VisibilityType = "private" | "public";
 
@@ -72,10 +67,8 @@ function VisibilitySelectorItem({
       <div className="flex flex-col items-start gap-1">
         {visibility.label}
         {visibility.description ? (
-          <div className="text-muted-foreground text-xs">
-            {visibility.description}
-          </div>
-        ) : null}
+          <div className="text-xs text-muted-foreground">{visibility.description}</div>
+        ) : undefined}
       </div>
       <div className="text-foreground opacity-0 group-data-[active=true]/item:opacity-100 dark:text-foreground">
         <CheckCircleFillIcon />
@@ -101,7 +94,7 @@ export function VisibilitySelector({
 
   const selectedVisibility = useMemo(
     () => visibilities.find((visibility) => visibility.id === visibilityType),
-    [visibilityType]
+    [visibilityType],
   );
 
   return (
@@ -110,11 +103,11 @@ export function VisibilitySelector({
         asChild
         className={cn(
           "w-fit data-[state=open]:bg-accent data-[state=open]:text-accent-foreground",
-          className
+          className,
         )}
       >
         <Button
-          className="gap-1.5 rounded-lg border-border/50 text-muted-foreground shadow-none transition-colors hover:text-foreground focus-visible:ring-0 focus-visible:border-border/50 active:translate-y-0"
+          className="gap-1.5 rounded-lg border-border/50 text-muted-foreground shadow-none transition-colors hover:text-foreground focus-visible:border-border/50 focus-visible:ring-0 active:translate-y-0"
           data-testid="visibility-selector"
           size="sm"
           variant="outline"

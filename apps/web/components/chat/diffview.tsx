@@ -1,10 +1,5 @@
 import OrderedMap from "orderedmap";
-import {
-  DOMParser,
-  type MarkSpec,
-  type Node as ProsemirrorNode,
-  Schema,
-} from "prosemirror-model";
+import { DOMParser, type MarkSpec, type Node as ProsemirrorNode, Schema } from "prosemirror-model";
 import { schema } from "prosemirror-schema-basic";
 import { addListNodes } from "prosemirror-schema-list";
 import { EditorState } from "prosemirror-state";
@@ -12,8 +7,8 @@ import { EditorView } from "prosemirror-view";
 import { useEffect, useRef } from "react";
 import { renderToString } from "react-dom/server";
 
-import { MessageResponse } from "@/components/ai-elements/message";
-import { DiffType, diffEditor } from "@/lib/editor/diff";
+import { MessageResponse } from "~/components/ai-elements/message";
+import { DiffType, diffEditor } from "~/lib/editor/diff";
 
 const diffSchema = new Schema({
   marks: OrderedMap.from({
@@ -59,12 +54,8 @@ export const DiffView = ({ oldContent, newContent }: DiffEditorProps) => {
     if (editorRef.current && !viewRef.current) {
       const parser = DOMParser.fromSchema(diffSchema);
 
-      const oldHtmlContent = renderToString(
-        <MessageResponse>{oldContent}</MessageResponse>
-      );
-      const newHtmlContent = renderToString(
-        <MessageResponse>{newContent}</MessageResponse>
-      );
+      const oldHtmlContent = renderToString(<MessageResponse>{oldContent}</MessageResponse>);
+      const newHtmlContent = renderToString(<MessageResponse>{newContent}</MessageResponse>);
 
       const oldContainer = document.createElement("div");
       oldContainer.innerHTML = oldHtmlContent;
@@ -89,7 +80,7 @@ export const DiffView = ({ oldContent, newContent }: DiffEditorProps) => {
 
       requestAnimationFrame(() => {
         const firstDiff = editorRef.current?.querySelector(
-          "[class*='bg-emerald'], [class*='bg-red']"
+          "[class*='bg-emerald'], [class*='bg-red']",
         );
         if (firstDiff) {
           firstDiff.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -100,6 +91,8 @@ export const DiffView = ({ oldContent, newContent }: DiffEditorProps) => {
     return () => {
       if (viewRef.current) {
         viewRef.current.destroy();
+        // Ref typed EditorView | null by CodeMirror.
+        // oxlint-disable-next-line unicorn/no-null
         viewRef.current = null;
       }
     };
@@ -107,7 +100,7 @@ export const DiffView = ({ oldContent, newContent }: DiffEditorProps) => {
 
   return (
     <div
-      className="diff-editor prose dark:prose-invert prose-neutral relative max-w-none"
+      className="diff-editor relative prose max-w-none prose-neutral dark:prose-invert"
       ref={editorRef}
     />
   );
