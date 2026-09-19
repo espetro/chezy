@@ -1,7 +1,6 @@
 "use client";
 
-import { Calendar } from "lucide-react";
-import { useId } from "react";
+import { FlowCalendar, formatFlowDate, toIsoDate } from "~/components/flow/ui/Calendar";
 import type { MoveIn } from "~/lib/flow/types";
 import { cn } from "~/lib/utils";
 
@@ -19,9 +18,9 @@ const chipClass = (isSelected: boolean) =>
   );
 
 export const FlowDateChips = ({ value, onChange }: DateChipsProps) => {
-  const dateInputId = useId();
   const isDate = value?.mode === "date";
   const isFlexible = value?.mode === "flexible";
+  const selectedDate = isDate ? value.date : "";
 
   return (
     <div className="flex flex-col gap-3">
@@ -30,7 +29,7 @@ export const FlowDateChips = ({ value, onChange }: DateChipsProps) => {
           type="button"
           role="radio"
           aria-checked={isDate}
-          onClick={() => onChange({ mode: "date", date: isDate ? value.date : "" })}
+          onClick={() => onChange({ mode: "date", date: selectedDate })}
           className={chipClass(isDate)}
         >
           Pick a date
@@ -47,22 +46,18 @@ export const FlowDateChips = ({ value, onChange }: DateChipsProps) => {
       </div>
 
       {isDate ? (
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor={dateInputId} className="text-label-sm text-steel">
-            Ideal move-in date
-          </label>
-          <div className="relative flex items-center">
-            <span className="pointer-events-none absolute left-3.5 flex text-fog">
-              <Calendar size={18} aria-hidden />
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <span className="text-label-sm text-steel">Ideal move-in date</span>
+            <span className="text-label-md font-semibold text-obsidian">
+              {selectedDate === "" ? "—" : formatFlowDate(selectedDate)}
             </span>
-            <input
-              id={dateInputId}
-              type="date"
-              value={value.date}
-              onChange={(event) => onChange({ mode: "date", date: event.target.value })}
-              className="h-12 w-full rounded-[14px] bg-paper pr-4 pl-10 text-body-medium text-graphite transition-colors outline-none focus:bg-snow focus-visible:ring-2 focus-visible:ring-obsidian"
-            />
           </div>
+          <FlowCalendar
+            value={selectedDate}
+            onChange={(date) => onChange({ mode: "date", date })}
+            min={toIsoDate(new Date())}
+          />
         </div>
       ) : undefined}
     </div>

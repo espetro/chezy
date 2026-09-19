@@ -24,7 +24,7 @@ const MUST_HAVE_TO_SEARCH: Record<string, string> = {
 const RED_LINE_TO_SEARCH: Record<string, string> = {
   "no-dark-interior": "no_interior",
   "no-excessive-deposit": "no_high_deposit",
-  "no-unknown-flatmates": "no_flatmates",
+  "no-suspicious-ads": "no_suspicious_ads",
 };
 
 const commuteValues = new Set<number>([15, 25, 40]);

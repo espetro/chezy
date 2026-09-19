@@ -8,9 +8,9 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "chezMoi — your rental agent",
+  title: "Chezy — your rental agent",
   description:
-    "chezMoi searches, scores, and negotiates your next rental for you, with you approving what matters.",
+    "Chezy searches, scores, and negotiates your next rental for you, with you approving what matters.",
 };
 
 interface FlowLayoutProps {

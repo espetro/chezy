@@ -78,7 +78,7 @@ const CallGate = ({ listing }: AgentCallGateProps) => {
               Auto-call simulation · ≥{AUTO_CALL_MATCH_THRESHOLD}% match
             </FlowBadge>
             <p className="text-[13px] text-fog">
-              This match cleared the {AUTO_CALL_MATCH_THRESHOLD}% confidence bar. Rehearsal
+              This match cleared Chezy's {AUTO_CALL_MATCH_THRESHOLD}% confidence bar. Rehearsal
               simulates the call; a live demo call requires your explicit approval.
             </p>
           </div>

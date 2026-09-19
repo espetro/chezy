@@ -1,12 +1,18 @@
 "use client";
 
+import { ArrowUpDown } from "lucide-react";
 import { useState } from "react";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
+import { FlowDropdown, FlowMultiDropdown } from "~/components/flow/ui/Dropdown";
 import { CandidateCarousel } from "~/components/flow/explore/CandidateCarousel";
 import type { FlowListing } from "~/lib/flow/types";
-import { cn } from "~/lib/utils";
 
 type SortMode = "match" | "price-asc";
+
+const sortOptions = [
+  { value: "match" as const, label: "Best match" },
+  { value: "price-asc" as const, label: "Price (low to high)" },
+];
 
 interface ExploreFeedProps {
   listings: FlowListing[];
@@ -14,12 +20,19 @@ interface ExploreFeedProps {
 }
 
 export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
-  const [activeZone, setActiveZone] = useState<string | undefined>();
+  const [activeZones, setActiveZones] = useState<string[]>([]);
   const [sortMode, setSortMode] = useState<SortMode>("match");
 
   const zones = Array.from(new Set(listings.map((listing) => listing.neighborhood)));
 
-  const filtered = listings.filter((listing) => !activeZone || listing.neighborhood === activeZone);
+  const zoneOptions = zones.map((zone) => ({
+    value: zone,
+    label: `${zone} (${listings.filter((listing) => listing.neighborhood === zone).length})`,
+  }));
+
+  const filtered = listings.filter(
+    (listing) => activeZones.length === 0 || activeZones.includes(listing.neighborhood),
+  );
 
   const sorted = [...filtered].sort((a, b) =>
     sortMode === "match" ? b.matchScore - a.matchScore : a.price - b.price,
@@ -39,52 +52,29 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setActiveZone(undefined)}
-            className={cn(
-              "min-h-11 rounded-pills border px-4 py-2 text-[13px]",
-              !activeZone
-                ? "border-obsidian bg-obsidian text-snow"
-                : "border-mist bg-snow text-graphite hover:border-iron",
-            )}
-          >
-            All neighborhoods
-          </button>
-          {zones.map((zone) => (
-            <button
-              key={zone}
-              type="button"
-              onClick={() => setActiveZone(zone)}
-              className={cn(
-                "min-h-11 rounded-pills border px-4 py-2 text-[13px]",
-                activeZone === zone
-                  ? "border-obsidian bg-obsidian text-snow"
-                  : "border-mist bg-snow text-graphite hover:border-iron",
-              )}
-            >
-              {zone}
-            </button>
-          ))}
-        </div>
-
-        <label className="flex w-full items-center gap-2 text-[13px] text-fog sm:w-auto">
-          Sort by
-          <select
-            value={sortMode}
-            onChange={(event) => setSortMode(event.target.value as SortMode)}
-            className="h-11 flex-1 rounded-inputs border border-mist bg-snow px-3 py-2 text-[13px] text-graphite outline-none focus-visible:ring-2 focus-visible:ring-obsidian sm:flex-none"
-          >
-            <option value="match">Best match</option>
-            <option value="price-asc">Price (low to high)</option>
-          </select>
-        </label>
+      <div className="flex items-center gap-2">
+        <FlowMultiDropdown
+          label="Neighborhoods"
+          className="min-w-0 flex-1 sm:max-w-xs"
+          values={activeZones}
+          options={zoneOptions}
+          onChange={setActiveZones}
+          emptyLabel={`All neighborhoods (${listings.length})`}
+          selectionLabel={(count) => `${count} neighborhoods`}
+        />
+        <FlowDropdown
+          label="Sort by"
+          compact
+          align="end"
+          icon={<ArrowUpDown size={16} aria-hidden />}
+          value={sortMode}
+          options={sortOptions}
+          onChange={setSortMode}
+        />
       </div>
 
       <CandidateCarousel
-        key={`${activeZone ?? "all"}-${sortMode}`}
+        key={`${activeZones.join(",") || "all"}-${sortMode}`}
         listings={sorted}
         label="Candidate matches"
       />
