@@ -11,6 +11,8 @@ vi.mock("postgres", () => ({
   default: vi.fn(() => mockQueryFn),
 }));
 
+vi.mock("./client", () => ({ client: mockQueryFn }));
+
 import { findSimilarMemory, insertMemory, searchMemories } from "./memory-queries";
 
 describe("memory-queries", () => {
