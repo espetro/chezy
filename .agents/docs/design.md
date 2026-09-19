@@ -122,3 +122,153 @@ This doc is **advisory**. The lint rules in `.oxlintrc.json` are **enforced**. C
 between this doc and the lint rules are resolved by the lint rules. If you find
 yourself wanting to violate a rule for a design reason, write a plan in
 `.agents/plans/` first.
+
+---
+
+# `/flow` design system (Stitch "Chezy AI Rental Platform", 2026-09-19)
+
+Everything above describes the chat app. The `/flow/*` UX exploration (onboarding /
+explore / match) uses a separate, isolated system derived from the Chezy style reference
+and the Stitch project's **Preferencias** screen. Tokens live in the delimited `/flow`
+`@theme` block at the bottom of `apps/web/app/globals.css`; every token there is a **new
+name** (never `--background`, `--primary`, `--secondary`, …) so `/flow` can't reskin the
+chat. Components live in `apps/web/components/flow/ui/` and are `Flow*`-prefixed.
+
+## Palette
+
+| Token | Value | Role |
+|---|---|---|
+| `obsidian` `#09090b` | dominant ink, primary CTA fill, selected states |
+| `graphite` `#18181b` / `iron` `#3f3f46` / `steel` `#52525b` / `fog` `#71717a` / `ash` `#a1a1aa` | text ramp, darkest → placeholder |
+| `mist` `#d4d4d8` / `cloud` `#ececee` | tracks, unchecked boxes, dividers |
+| `paper` `#f4f4f5` | canvas **and** recessed inputs/tiles inside white cards |
+| `snow` `#ffffff` | cards, bubbles, thumbs |
+| `card-subtle` `#fafafa` | hover fills |
+| `ember` `#ff5a00` | the single accent: badges (`bg-ember/10 text-ember`), status dots, slider fill, selected must-have icon |
+| `ember-deep` `#a83900` / `ember-soft` `#ffdbcf` | dealbreaker ("auto-discard") accents — Stitch's `secondary`/`secondary-fixed`, renamed because `--color-secondary` already belongs to the chat's shadcn tokens |
+
+## Elevation (differs from the chat app above)
+
+- **Surfaces float on soft shadow, not hairlines**: cards, bubbles, section cards are
+  `bg-snow shadow-sm` with **no border**. `hover:shadow-md` only on cards that are links.
+- **Controls are recessed, not outlined**: inputs, tiles, chips, rows, the budget panel
+  are `bg-paper` on the white card, no border. Focus = `ring-2 ring-obsidian`.
+- Hairline `border-cloud` survives only as an inline divider (e.g. the "To:" row of the
+  contact draft) and on outline tag pills.
+
+## Type scale (`text-*` utilities)
+
+| Utility | Size / line | Weight | Use |
+|---|---|---|---|
+| `text-label-sm` | 11 / 16, +0.04em | 600 | eyebrows, field labels (as `text-steel`), badges |
+| `text-label-md` | 13 / 18 | 500 | chips, selector options, live value ("Max 25 min by metro") |
+| `text-body-default` | 14 / 20 | 400 | bubbles, descriptions |
+| `text-body-medium` | 14 / 20 | 500 | input text, tile values, CTA |
+| `text-headline-sm` | 18 / 26, −0.01em | 600 | section card titles ("1. Routine & area") |
+| `text-headline-md` | 24 / 32, −0.015em | 600 | reserved (page titles) |
+
+Radii by role: section card 32, mini/alerts card 28, bubble 24 (`rounded-tl-sm` on the
+agent side, `rounded-tr-sm` on the user side), budget panel 20, tiles & rows 18, inputs /
+CTA / date chips 14, segmented options 12, checkbox 6, chips `full`.
+
+Icons: `lucide-react` (no Material Symbols). Mapping used: `Bot` avatar, `Navigation`,
+`Wallet`, `Calendar`, `BadgeCheck`, `Shield`, `Ban`, `TriangleAlert`, `UserX`, `Sun`,
+`Umbrella`, `ArrowUpDown`, `Snowflake`, `Sofa`, `PawPrint`, `BedDouble`, `Scaling`,
+`Briefcase`, `BellRing`, `ArrowRight`, `Check`, `Minus`/`Plus`.
+
+## Interaction components
+
+All keyboard-operable, `focus-visible:ring-2 ring-obsidian`, 200ms color transitions, no
+`useEffect`. File = `apps/web/components/flow/ui/<Name>.tsx`, export `Flow<Name>`.
+
+**SectionCard** — one numbered section per onboarding step.
+```
++--------------------------------------------------------------+
+| (icon) 1. Routine & area                     [ High priority ] |  <- 28px paper disc,
+|                                                                |     headline-sm, aside slot
+|  ...children...                                                |
++--------------------------------------------------------------+
+   bg-snow rounded-[32px] p-5 shadow-sm; `iconTone="deep"` = ember-soft/ember-deep disc
+```
+
+**Stepper** — sticky top; "GETTING STARTED" on step 0, else "STEP N OF 7".
+```
+ • STEP 2 OF 7                                   Budget & space
+ [████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░]   h-1 cloud track, obsidian fill
+   role=progressbar aria-valuenow/max
+```
+
+**TextField** — label above, leading icon, recessed.
+```
+ Work or study address you commute to           <- text-label-sm text-steel
+ [ (briefcase)  Diagonal 405 (Passeig de Gràcia), BCN        ]   h-12 bg-paper rounded-[14px]
+                                                                  focus:bg-snow
+```
+
+**SegmentedSelector** — single choice, radiogroup with roving tabindex + arrow keys.
+```
+ Max commute time                          Max 25 min by metro   <- live value, label-md 600
+ [  15 min  ] [■ 25 min ■] [  40 min  ]     rounded-[12px]; selected = obsidian/snow
+```
+
+**ToggleChipGroup** — multi-select chips, `aria-pressed`, check icon reserves width.
+```
+ Target neighborhoods
+ (■ Eixample ✓) (■ Gràcia ✓) ( Poblenou  ) ( Sant Antoni  ) ...
+```
+
+**RangeSlider** — two overlaid native `<input type=range>` on one track.
+```
+ +----------------------------------------------------------+
+ | Monthly range                          €800 — €1,200     |
+ |  ────────●━━━━━━━━━━━━━━━━●──────────────────────────    |  cloud track, ember fill,
+ |  €600           Area average: €1,150            €2,000+  |  20px snow thumbs w/ ember dot
+ +----------------------------------------------------------+
+   bg-paper rounded-[20px] p-3.5; aria-label "Minimum/Maximum monthly range", aria-valuetext
+```
+
+**StatTile** — value stepper (bedrooms, min m²).
+```
+ [ (bed)  Bedrooms                                 (−) (+) ]   bg-paper rounded-[18px] p-3
+ [        2 bedrooms                                       ]   value is aria-live
+```
+
+**DateChips** — radiogroup; "Pick a date" reveals a `<input type=date>` TextField.
+```
+ [   Pick a date   ] [■ Flexible ±15 days ■]     rounded-[14px] flex-1
+```
+
+**SelectableTile** — 2-col must-have toggles, `aria-pressed`.
+```
+ [ (sun•) Natural light                 (✓) ]  [ (❄)  Air conditioning        ( ) ]
+   selected: ember icon, obsidian text, obsidian check disc; else fog/steel, cloud disc
+```
+
+**CheckboxRow** — native checkbox wrapped in a `<label>` row; dealbreakers.
+```
+ [ (⊘) No dark ground floors or interior-facing units      [✓] ]  bg-paper rounded-[18px]
+   ember-deep icon; 20px rounded-[6px] box, obsidian when checked
+```
+
+**Switch** — `role=switch`, 44×24 track, 20px thumb.
+```
+ Real-time alerts                                [ Active ] (●━)
+ Chezy will notify you via push & WhatsApp
+```
+
+**StickyActionBar** — bottom of every onboarding step; the only CTA on screen.
+```
+ +--------------------------------------------------------------+
+ | • 2 listings match right now                      94% match  |  pulsing ember dot, aria-live
+ | [                  Continue  →                              ] |  h-12 obsidian, active:scale-[0.99]
+ +--------------------------------------------------------------+
+   sticky bottom-0 bg-snow/90 backdrop-blur-md; disabled = 40% opacity
+```
+
+**ChatBubble (agent)** — 40px `Bot` avatar with ember status dot, name row
+("Chezy AI · Personal agent"), `rounded-[24px] rounded-tl-sm shadow-sm`, optional meta
+row of pills. User side: obsidian, `rounded-tr-sm`, right-aligned.
+
+Live counter logic is not a component: `countMatches()` in `apps/web/lib/flow/matching.ts`
+is a pure function over the current `UserPreferences` and the mock listings, derived at
+render — no effect, no store.
