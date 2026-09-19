@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import asdict, dataclass
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Final, Literal, cast
 
 from parsel import Selector
 
@@ -249,10 +249,20 @@ def _location(sel: Selector, html: str) -> dict[str, object]:
     return out
 
 
+_KIND_LABELS: Final[dict[str, Literal["professional", "private"]]] = {
+    "profesional": "professional",
+    "particular": "private",
+}
+
+
 def _publisher(sel: Selector) -> Publisher | None:
+    """Live pages show only the advertiser type ("Profesional"/"Particular") in these nodes."""
     name = _clean(sel.css(".about-advertiser-name::text, .professional-name .name::text").get())
     if not name:
         return None
+    label = _KIND_LABELS.get(name.lower())
+    if label is not None:
+        return Publisher(name=None, kind=label)
     return Publisher(
         name=name,
         kind="professional" if sel.css(".professional-name") else "private",

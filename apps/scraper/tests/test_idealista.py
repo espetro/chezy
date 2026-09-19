@@ -132,3 +132,20 @@ def test_live_markup_shape_wrapped_lists_seasonal_tag_and_energy() -> None:
     assert listing.is_temporary_rental is True
     assert listing.energy_consumption_label == "G"
     assert listing.neighbourhood == "El Raval"
+
+
+@pytest.mark.parametrize(
+    ("label", "kind"), [("Profesional", "professional"), ("Particular", "private")]
+)
+def test_publisher_type_label_is_a_kind_not_a_name(label: str, kind: str) -> None:
+    html = (FIXTURES / "idealista_detail_live.html").read_text(encoding="utf-8")
+    page = RenderedPage(
+        url="https://www.idealista.com/inmueble/1/",
+        html=html.replace("</body>", f'<div class="about-advertiser-name">{label}</div></body>'),
+        globals={},
+    )
+    listing = IdealistaAdapter().parse_detail(
+        page, operation="rent", scraped_at=datetime(2026, 9, 19, tzinfo=UTC)
+    )
+    assert listing.publisher is not None
+    assert (listing.publisher.name, listing.publisher.kind) == (None, kind)
