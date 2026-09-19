@@ -5,22 +5,22 @@ import * as v from "valibot";
 
 import { env } from "@/lib/env";
 
-import {
-  INSIGHTS_PROMPT_VERSION,
-  LISTING_INSIGHTS_PROMPT,
-} from "@/lib/vision/prompt";
+import { INSIGHTS_PROMPT_VERSION, LISTING_INSIGHTS_PROMPT } from "@/lib/vision/prompt";
 import { type ListingInsights, ListingInsightsSchema } from "@/lib/vision/schema";
 
 const MAX_PHOTOS = 25;
 const MAX_TOKENS = 5000;
 
 // lib/vision/extract.ts -> apps/web -> repo root (has chezy-mock-data/).
-const REPO_ROOT = path.resolve(import.meta.dirname, "../../../..");
+// import.meta.dirname is undefined in next build's module-evaluation context
+// (page-data collection), so resolve lazily from cwd: next always runs with
+// the app dir as cwd in dev/start/build.
+const REPO_ROOT = () => path.resolve(process.cwd(), "../..");
 
 async function dataUrl(localPath: string): Promise<string | undefined> {
   try {
     // Dataset `local_path` already starts with `media/`.
-    const buf = await readFile(path.join(REPO_ROOT, "chezy-mock-data", localPath));
+    const buf = await readFile(path.join(REPO_ROOT(), "chezy-mock-data", localPath));
     return `data:image/webp;base64,${buf.toString("base64")}`;
   } catch {
     return undefined;
@@ -89,9 +89,7 @@ export async function extractListingInsights(
 }> {
   const model = opts?.modelId ?? env.VISION_MODEL_ID;
   const photos = input.photos.slice(0, MAX_PHOTOS);
-  const parts: (TextPart | ImagePart)[] = [
-    { type: "text", text: LISTING_INSIGHTS_PROMPT },
-  ];
+  const parts: (TextPart | ImagePart)[] = [{ type: "text", text: LISTING_INSIGHTS_PROMPT }];
   for (const photo of photos) {
     const local = photo.localPath ? await dataUrl(photo.localPath) : undefined;
     parts.push({ type: "image_url", image_url: { url: local ?? photo.url } });

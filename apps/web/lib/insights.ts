@@ -39,9 +39,7 @@ export function toInsightRow(
   };
 }
 
-export async function getListingInsights(
-  listingId: string,
-): Promise<ListingInsights | undefined> {
+export async function getListingInsights(listingId: string): Promise<ListingInsights | undefined> {
   const rows = await db
     .select()
     .from(listingInsight)
@@ -50,7 +48,10 @@ export async function getListingInsights(
 }
 
 // lib/insights.ts -> apps/web -> repo root (has chezy-mock-data/).
-const REPO_ROOT = path.resolve(import.meta.dirname, "../../..");
+// import.meta.dirname is undefined in next build's module-evaluation context
+// (page-data collection), so resolve lazily from cwd: next always runs with
+// the app dir as cwd in dev/start/build.
+const REPO_ROOT = () => path.resolve(process.cwd(), "../..");
 
 // Media items marked `photo` can actually be portal-embedded 3D-tour / viewer
 // links (plushglobalmedia, matterport, floorfy, inmovilla) that the provider
@@ -63,19 +64,17 @@ function isCdnImageUrl(url: string): boolean {
     return false;
   }
 }
-const JSONL = path.join(REPO_ROOT, "chezy-mock-data", "data", "listings.jsonl");
+const JSONL = () => path.join(REPO_ROOT(), "chezy-mock-data", "data", "listings.jsonl");
 
 let localPathIndex: Map<string, Map<string, string>> | undefined;
 
 // Maps listingId -> (media url -> local_path) so the VLM gets the cheaper
 // local WebPs. Parsed lazily from the committed JSONL (300 rows).
-async function datasetLocalPaths(
-  listingId: string,
-): Promise<Map<string, string>> {
+async function datasetLocalPaths(listingId: string): Promise<Map<string, string>> {
   if (!localPathIndex) {
     localPathIndex = new Map();
     const rl = readline.createInterface({
-      input: createReadStream(JSONL),
+      input: createReadStream(JSONL()),
       crlfDelay: Number.POSITIVE_INFINITY,
     });
     for await (const line of rl) {
@@ -114,10 +113,7 @@ export async function selectPhotos(row: {
       kind: m.kind,
       mediaIndex,
     }))
-    .filter(
-      (p) =>
-        p.kind === "photo" && (p.localPath !== null || isCdnImageUrl(p.url)),
-    )
+    .filter((p) => p.kind === "photo" && (p.localPath !== null || isCdnImageUrl(p.url)))
     .map(({ url, localPath, mediaIndex }) => ({ url, localPath, mediaIndex }));
 }
 
@@ -125,10 +121,7 @@ export async function ensureListingInsights(
   listingId: string,
   opts?: { force?: boolean; modelId?: string },
 ): Promise<ListingInsights> {
-  const rows = await db
-    .select()
-    .from(listing)
-    .where(eq(listing.id, listingId));
+  const rows = await db.select().from(listing).where(eq(listing.id, listingId));
   const row = rows[0];
   if (!row) {
     throw new Error(`listing not found: ${listingId}`);
@@ -139,11 +132,7 @@ export async function ensureListingInsights(
     .from(listingInsight)
     .where(eq(listingInsight.listingId, listingId));
   const current = stored[0];
-  if (
-    !opts?.force &&
-    current &&
-    current.promptVersion === INSIGHTS_PROMPT_VERSION
-  ) {
+  if (!opts?.force && current && current.promptVersion === INSIGHTS_PROMPT_VERSION) {
     return current.insights;
   }
 
@@ -180,18 +169,13 @@ export async function ensureListingInsights(
     }
   }
   if (dirty) {
-    await db
-      .update(listing)
-      .set({ media })
-      .where(eq(listing.id, listingId));
+    await db.update(listing).set({ media }).where(eq(listing.id, listingId));
   }
 
   return insights;
 }
 
-export function insightsToCallVariables(
-  insights: ListingInsights,
-): Record<string, string> {
+export function insightsToCallVariables(insights: ListingInsights): Record<string, string> {
   return {
     property_highlights: insights.highlights_es.slice(0, 3).join("; "),
     property_condition: String(insights.condition.score_1to5),
