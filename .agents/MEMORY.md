@@ -54,6 +54,36 @@ Full breakdown + commands in `.agents/docs/worktree-disk-budget.md`.
 - **Adding a new Valibot schema**: `.agents/workflows/add-valibot-schema.md`.
 - **Adding a new Drizzle table**: `.agents/workflows/add-drizzle-table.md`.
 
+## `/flow` — isolated UX exploration (2026-09-19)
+
+Onboarding/explore/match screens live under `/flow/*` (`apps/web/app/flow/**`,
+`components/flow/**`, `lib/flow/**`), deliberately namespaced and excluded from
+`proxy.ts`'s auth gate — ported from a standalone prototype without colliding with
+in-flight work on the real routes. Its own design tokens (obsidian/ember, DM Sans) live
+in a clearly-delimited block at the bottom of `apps/web/app/globals.css`; none of them
+redefine the app's shadcn tokens. See `.agents/docs/screens/flow-*.md` for per-screen
+specs and `.agents/plans/2026-09-19-port-to-main.md` for the full rationale + exact
+deltas from the prototype (alias, naming, token collisions avoided, etc.).
+
+- **`/flow` elevation rule ≠ chat rule**: `/flow` surfaces are `bg-snow shadow-sm` with no
+  border and controls are recessed `bg-paper` (from the Stitch design, 2026-09-19). The
+  chat app keeps hairline borders. Don't "fix" one to match the other.
+- **`/flow` token naming caveat**: Stitch's `secondary`/`secondary-fixed` were added as
+  `ember-deep`/`ember-soft` because `--color-secondary` is a live shadcn token in the chat.
+  Any future Stitch export must be checked for name collisions the same way (`grep` the
+  `@theme inline` block in `apps/web/app/globals.css`) before adding tokens.
+
+- **Email-draft gate replaced by an auto-call gate (2026-09-19)**: `AgentContactGate`
+  (email approve/edit/discard) is gone. `AgentCallGate` now calls the agency
+  autonomously once `matchScore >= AUTO_CALL_MATCH_THRESHOLD` (95, in
+  `lib/flow/constants.ts`) — this overrides the onboarding autonomy tier entirely, by
+  design. Below 95% there's a manual "Call the agency now" override. It's fully
+  simulated (`lib/flow/calling.ts`) — **not** wired to the real `/api/viewing` +
+  `/api/calendar` call/booking flow that already exists in this repo (from the dropped
+  radar demo), because those routes sit behind `apps/web/proxy.ts`'s `"/api/:path*"`
+  auth matcher and `/flow` is deliberately session-free. See
+  `.agents/docs/screens/flow-match.md`.
+
 ## Key references
 
 - `.agents/skills/no-use-effect/` — the no-`useEffect` rule + `useMountEffect` escape hatch.
