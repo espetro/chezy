@@ -1,5 +1,5 @@
 import { test, expect } from "vitest";
-import { configureLogger, createAuditLogger } from "../src/index.ts";
+import { configureLogger, createAuditLogger } from "../index";
 
 test("configureLogger is idempotent and produces a usable audit logger", async () => {
   await configureLogger({ service: "chezy-test", auditFile: null });
