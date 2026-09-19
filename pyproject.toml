@@ -50,7 +50,8 @@ max-complexity = 10
 
 [tool.ruff.lint.per-file-ignores]
 "**/tests/**" = ["S101", "PLR2004", "INP001"]
-"scripts/**" = ["INP001"]
+# Gate scripts shell out to git/uv/pnpm by name on purpose.
+"scripts/**" = ["INP001", "S603", "S607"]
 
 [tool.basedpyright]
 include = ["apps", "tests", "scripts"]
