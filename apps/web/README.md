@@ -14,7 +14,8 @@ lives at `vendor/chatbot-template/` (excluded from tsconfig). Deliberate diffs s
   (`lib/ai/providers.ts`, `lib/ai/models.ts`) replaces `@ai-sdk/gateway`. The project
   provider is Nebius AI Studio; env vars are `OPENAI_COMPATIBLE_BASE_URL`,
   `OPENAI_COMPATIBLE_API_KEY`, `CHEZY_MODEL_ID`, `CHEZY_TITLE_MODEL_ID` — see
-  `.env.example`. The code default is a local bifrost at `http://localhost:8317/v1`.
+  `.env.example`. The code default base URL is a local bifrost at
+  `http://localhost:8317/v1`; the code default model is `deepseek-ai/DeepSeek-V4.1-Flash`.
 - **Voice viewing flow**: `lib/slng.ts` (SLNG agent), `lib/vonage.ts` (Vonage Voice API),
   `lib/calendar.ts`, plus `/api/viewing` and `/api/calendar`. `VIEWING_MODE` /
   `CALENDAR_MODE` env switches default to `mock`.
@@ -41,6 +42,6 @@ the component composes into the wider app surface.
 Copy `.env.example` to `.env.local` and set `OPENAI_COMPATIBLE_API_KEY` to the Nebius
 key (provisioned as `NEBIUS_API_KEY`; the same key backs the future smart-KPI feature).
 Defaults point at Nebius AI Studio (`https://api.studio.nebius.com/v1`, chat model
-`Qwen/Qwen3-235B-A22B-Instruct-2507`, title model `Qwen/Qwen3-30B-A3B-Instruct-2507`).
+`deepseek-ai/DeepSeek-V4.1-Flash`, title model `Qwen/Qwen3-30B-A3B-Instruct-2507`).
 Then `mise run db:start` (from the repo root) and `pnpm db:migrate` here to create the
 chat tables.
