@@ -1,3 +1,4 @@
+import { createAuditLogger, getLogger } from "@chezy/observability";
 import { geolocation, ipAddress } from "@vercel/functions";
 import {
   convertToModelMessages,
@@ -52,6 +53,9 @@ import { type PostRequestBody, postRequestBodySchema } from "./schema";
 export const maxDuration = 60;
 
 const HEALTH_CHECK_DELAY_MS = 9000;
+
+const chatLogger = getLogger(["chezy", "chat"]);
+const chatAudit = createAuditLogger("chat");
 
 function isModelStreamActivity(chunk: { type: string }) {
   return !["start", "start-step", "finish-step", "finish", "raw"].includes(
@@ -204,6 +208,14 @@ export async function POST(request: Request) {
 
     const modelMessages = await convertToModelMessages(uiMessages);
 
+    chatAudit.emit({
+      actor: session.user.id,
+      action: "chat.turn.start",
+      ctx: { model: chatModel },
+      outcome: "pending",
+      target: id,
+    });
+
     const stream = createUIMessageStream({
       execute: async ({ writer: dataStream }) => {
         const modelName = modelConfig?.name ?? chatModel;
@@ -295,8 +307,19 @@ export async function POST(request: Request) {
           onEnd() {
             stopWaitingStatus();
           },
-          onError() {
+          onError({ error }) {
             stopWaitingStatus();
+            chatLogger.error("model stream error: {error}", { error });
+            chatAudit.emit({
+              actor: session.user.id,
+              action: "chat.turn.fail",
+              ctx: {
+                message: error instanceof Error ? error.message : String(error),
+                model: chatModel,
+              },
+              outcome: "failure",
+              target: id,
+            });
           },
           providerOptions: {
             ...(modelConfig?.gatewayOrder && {
@@ -353,6 +376,13 @@ export async function POST(request: Request) {
       },
       generateId: generateUUID,
       onEnd: async ({ messages: finishedMessages }) => {
+        chatAudit.emit({
+          actor: session.user.id,
+          action: "chat.turn.complete",
+          ctx: { messageCount: finishedMessages.length, model: chatModel },
+          outcome: "success",
+          target: id,
+        });
         if (isToolApprovalFlow) {
           await Promise.all(
             finishedMessages.map(async (finishedMsg) => {
@@ -395,6 +425,7 @@ export async function POST(request: Request) {
         }
       },
       onError: (error) => {
+        chatLogger.error("chat stream failed: {error}", { error });
         if (
           error instanceof Error &&
           error.message?.includes(
@@ -445,7 +476,17 @@ export async function POST(request: Request) {
       return new ChatbotError("bad_request:activate_gateway").toResponse();
     }
 
-    console.error("Unhandled error in chat API:", error, { vercelId });
+    chatLogger.error("unhandled error in chat API: {error}", {
+      error,
+      vercelId,
+    });
+    chatAudit.emit({
+      actor: "anonymous",
+      action: "chat.turn.fail",
+      ctx: { message: error instanceof Error ? error.message : String(error) },
+      outcome: "failure",
+      target: requestBody?.id,
+    });
     return new ChatbotError("offline:chat").toResponse();
   }
 }
