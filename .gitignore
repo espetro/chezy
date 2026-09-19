@@ -57,6 +57,7 @@ test-results/
 # Logs
 *.log
 .logs/
+.audit/
 pyinfra-debug.log
 
 # Plans are intentionally tracked even though a global gitignore may silence them

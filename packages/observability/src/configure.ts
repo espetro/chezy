@@ -9,6 +9,9 @@ import {
   getJsonLinesFormatter,
 } from "@logtape/logtape";
 
+import { mkdirSync } from "node:fs";
+import { dirname } from "node:path";
+
 import { rootLogger } from "./logger.ts";
 
 export interface ConfigureLoggerOptions {
@@ -56,6 +59,11 @@ export async function configureLogger(
   const env = options.environment ?? process.env["NODE_ENV"] ?? "development";
   const isTty = process.stderr.isTTY === true;
 
+  const auditPath = options.auditFile ?? defaultAuditPath(options.service);
+  if (options.auditFile !== null) {
+    mkdirSync(dirname(auditPath), { recursive: true });
+  }
+
   const sinks = {
     stderr: getConsoleSink({
       formatter: getAnsiColorFormatter({
@@ -69,15 +77,12 @@ export async function configureLogger(
     }),
     ...(options.auditFile !== null
       ? {
-          audit: getFileSink(
-            options.auditFile ?? defaultAuditPath(options.service),
-            {
-              formatter: getJsonLinesFormatter({
-                timestamp: "date-time-tz",
-                categoryDelimiter: ".",
-              }),
-            },
-          ),
+          audit: getFileSink(auditPath, {
+            formatter: getJsonLinesFormatter({
+              timestamp: "date-time-tz",
+              categoryDelimiter: ".",
+            }),
+          }),
         }
       : {}),
   };
