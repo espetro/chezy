@@ -564,7 +564,7 @@ textarea:focus-visible {
   --radius-pills: 10000px;
 
   --shadow-btn-primary: inset 0 0.5px 0 0 rgba(255, 255, 255, 0.5),
-    inset 0 9px 14px -5px rgba(117, 123, 133, 0.4), 0 0 0 1.5px rgb(44, 46, 52),
+    inset 0 9px 14px -5px rgba(117, 123, 133, 0.4),
     0 4px 6px 0 rgba(0, 0, 0, 0.14);
 
   --animate-fade-up: fade-up 360ms cubic-bezier(0.22, 1, 0.36, 1) both;

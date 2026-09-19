@@ -16,8 +16,8 @@ const variantClasses: Record<ButtonVariant, string> = {
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  md: "px-4 py-3 text-[14px]",
-  sm: "px-3 py-2 text-[13px]",
+  md: "h-11 px-4 text-[14px]",
+  sm: "h-9 px-3 text-[13px]",
 };
 
 export const FlowButton = ({
