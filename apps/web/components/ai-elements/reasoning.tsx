@@ -221,15 +221,14 @@ export const ReasoningContent = memo(
           "mt-2 animate-in fade-in-0 duration-200 text-muted-foreground/60 [overflow-anchor:none]",
           className
         )}
+        {...props}
       >
         <div
           className="max-h-[200px] overflow-y-auto rounded-lg border border-border/20 bg-muted/30 px-3 py-2 text-[11px] leading-relaxed"
           ref={scrollRef}
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          <Streamdown plugins={streamdownPlugins} {...props}>
-            {children}
-          </Streamdown>
+          <Streamdown plugins={streamdownPlugins}>{children}</Streamdown>
         </div>
       </div>
     );
