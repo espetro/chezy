@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { FlowPill } from "@/components/flow/ui/Pill";
-import { FlowScoreBadge } from "@/components/flow/ui/ScoreBadge";
-import type { FlowListing } from "@/lib/flow/types";
+import { FlowPill } from "~/components/flow/ui/Pill";
+import { FlowScoreBadge } from "~/components/flow/ui/ScoreBadge";
+import type { FlowListing } from "~/lib/flow/types";
 
 interface CandidateCardProps {
   listing: FlowListing;
@@ -23,17 +23,17 @@ export const CandidateCard = ({ listing }: CandidateCardProps) => (
       ) : (
         <div className="absolute inset-0 bg-mist" />
       )}
-      <FlowScoreBadge score={listing.matchScore} className="absolute left-4 top-4 shadow-[0_1px_8px_rgba(0,0,0,0.18)]" />
+      <FlowScoreBadge
+        score={listing.matchScore}
+        className="absolute top-4 left-4 shadow-[0_1px_8px_rgba(0,0,0,0.18)]"
+      />
     </div>
 
     <div className="flex flex-1 flex-col gap-3 p-5 sm:p-7">
       <div>
-        <h3 className="text-subheading font-semibold text-obsidian">
-          {listing.title}
-        </h3>
+        <h3 className="text-subheading font-semibold text-obsidian">{listing.title}</h3>
         <p className="mt-1 text-[14px] text-fog">
-          {listing.neighborhood}, {listing.city} · {listing.sizeM2} m² ·{" "}
-          {listing.rooms} bd
+          {listing.neighborhood}, {listing.city} · {listing.sizeM2} m² · {listing.rooms} bd
         </p>
       </div>
 

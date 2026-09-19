@@ -58,12 +58,7 @@ export const VercelIcon = ({ size = 17 }) => (
     viewBox="0 0 16 16"
     width={size}
   >
-    <path
-      clipRule="evenodd"
-      d="M8 1L16 15H0L8 1Z"
-      fill="currentColor"
-      fillRule="evenodd"
-    />
+    <path clipRule="evenodd" d="M8 1L16 15H0L8 1Z" fill="currentColor" fillRule="evenodd" />
   </svg>
 );
 
@@ -266,12 +261,7 @@ export const LoaderIcon = ({ size = 16 }: { size?: number }) => (
   >
     <g clipPath="url(#clip0_2393_1490)">
       <path d="M8 0V4" stroke="currentColor" strokeWidth="1.5" />
-      <path
-        d="M8 16V12"
-        opacity="0.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
+      <path d="M8 16V12" opacity="0.5" stroke="currentColor" strokeWidth="1.5" />
       <path
         d="M3.29773 1.52783L5.64887 4.7639"
         opacity="0.9"
@@ -406,15 +396,7 @@ export const UncheckedSquare = ({ size = 16 }: { size?: number }) => (
     viewBox="0 0 16 16"
     width={size}
   >
-    <rect
-      fill="none"
-      height="14"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      width="14"
-      x="1"
-      y="1"
-    />
+    <rect fill="none" height="14" stroke="currentColor" strokeWidth="1.5" width="14" x="1" y="1" />
   </svg>
 );
 
@@ -501,12 +483,7 @@ export const StopIcon = ({
     width={size}
     {...props}
   >
-    <path
-      clipRule="evenodd"
-      d="M3 3H13V13H3V3Z"
-      fill="currentColor"
-      fillRule="evenodd"
-    />
+    <path clipRule="evenodd" d="M3 3H13V13H3V3Z" fill="currentColor" fillRule="evenodd" />
   </svg>
 );
 

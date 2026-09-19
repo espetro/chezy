@@ -2,7 +2,7 @@ import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { auth } from "@/app/(auth)/auth";
+import { auth } from "~/app/(auth)/auth";
 
 const FileSchema = z.object({
   file: z
@@ -37,9 +37,7 @@ export async function POST(request: Request) {
     const validatedFile = FileSchema.safeParse({ file });
 
     if (!validatedFile.success) {
-      const errorMessage = validatedFile.error.issues
-        .map((error) => error.message)
-        .join(", ");
+      const errorMessage = validatedFile.error.issues.map((error) => error.message).join(", ");
 
       return NextResponse.json({ error: errorMessage }, { status: 400 });
     }
@@ -58,9 +56,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Upload failed" }, { status: 500 });
     }
   } catch {
-    return NextResponse.json(
-      { error: "Failed to process request" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to process request" }, { status: 500 });
   }
 }

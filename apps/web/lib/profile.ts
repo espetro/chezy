@@ -1,18 +1,13 @@
 import type { SearchProfileInput } from "@chezy/contract";
 import { eq } from "drizzle-orm";
 
-import { db } from "@/lib/db/client";
-import { updateUserProfile } from "@/lib/db/queries";
-import { type SearchProfile, searchProfile, user } from "@/lib/db/schema";
-import { mergeUserProfile } from "@/lib/user-profile";
+import { db } from "~/lib/db/client";
+import { updateUserProfile } from "~/lib/db/queries";
+import { type SearchProfile, searchProfile, user } from "~/lib/db/schema";
+import { mergeUserProfile } from "~/lib/user-profile";
 
-export async function getProfile(
-  userId: string,
-): Promise<SearchProfile | undefined> {
-  const rows = await db
-    .select()
-    .from(searchProfile)
-    .where(eq(searchProfile.userId, userId));
+export async function getProfile(userId: string): Promise<SearchProfile | undefined> {
+  const rows = await db.select().from(searchProfile).where(eq(searchProfile.userId, userId));
   return rows[0];
 }
 
@@ -23,7 +18,10 @@ export async function upsertProfile(
   const { workLat, workLon, ...fields } = input;
   const values = {
     userId,
+    // null clears the column on conflict-update; undefined would leave it stale.
+    // oxlint-disable-next-line unicorn/no-null
     workLat: workLat ?? null,
+    // oxlint-disable-next-line unicorn/no-null
     workLon: workLon ?? null,
     ...fields,
   };

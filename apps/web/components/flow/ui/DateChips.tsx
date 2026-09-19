@@ -2,8 +2,8 @@
 
 import { Calendar } from "lucide-react";
 import { useId } from "react";
-import type { MoveIn } from "@/lib/flow/types";
-import { cn } from "@/lib/utils";
+import type { MoveIn } from "~/lib/flow/types";
+import { cn } from "~/lib/utils";
 
 interface DateChipsProps {
   value: MoveIn | undefined;
@@ -13,7 +13,9 @@ interface DateChipsProps {
 const chipClass = (isSelected: boolean) =>
   cn(
     "min-h-11 flex-1 rounded-[14px] px-3 py-2.5 text-center text-label-md transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
-    isSelected ? "bg-obsidian font-semibold text-snow" : "bg-paper text-graphite hover:text-obsidian",
+    isSelected
+      ? "bg-obsidian font-semibold text-snow"
+      : "bg-paper text-graphite hover:text-obsidian",
   );
 
 export const FlowDateChips = ({ value, onChange }: DateChipsProps) => {
@@ -58,7 +60,7 @@ export const FlowDateChips = ({ value, onChange }: DateChipsProps) => {
               type="date"
               value={value.date}
               onChange={(event) => onChange({ mode: "date", date: event.target.value })}
-              className="h-12 w-full rounded-[14px] bg-paper pl-10 pr-4 text-body-medium text-graphite outline-none transition-colors focus:bg-snow focus-visible:ring-2 focus-visible:ring-obsidian"
+              className="h-12 w-full rounded-[14px] bg-paper pr-4 pl-10 text-body-medium text-graphite transition-colors outline-none focus:bg-snow focus-visible:ring-2 focus-visible:ring-obsidian"
             />
           </div>
         </div>

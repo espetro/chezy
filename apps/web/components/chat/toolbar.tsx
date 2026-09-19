@@ -9,6 +9,7 @@ import {
   isValidElement,
   memo,
   type ReactNode,
+  type RefObject,
   type SetStateAction,
   useCallback,
   useEffect,
@@ -16,31 +17,22 @@ import {
   useState,
 } from "react";
 import { useOnClickOutside } from "usehooks-ts";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import type { ChatMessage } from "@/lib/types";
-import { type ArtifactKind, artifactDefinitions } from "./artifact";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
+import type { ChatMessage } from "~/lib/types";
+import { type ArtifactKind, artifactDefinitions } from "./artifact-definitions";
 import type { ArtifactToolbarItem } from "./create-artifact";
 import { ArrowUpIcon, StopIcon, SummarizeIcon } from "./icons";
 
 type ToolProps = {
   description: string;
   icon: ReactNode;
-  selectedTool: string | null;
-  setSelectedTool: Dispatch<SetStateAction<string | null>>;
+  selectedTool: string | undefined;
+  setSelectedTool: Dispatch<SetStateAction<string | undefined>>;
   isToolbarVisible?: boolean;
   setIsToolbarVisible?: Dispatch<SetStateAction<boolean>>;
   isAnimating: boolean;
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
-  onClick: ({
-    sendMessage,
-  }: {
-    sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
-  }) => void;
+  onClick: ({ sendMessage }: { sendMessage: UseChatHelpers<ChatMessage>["sendMessage"] }) => void;
 };
 
 const READING_LEVELS = [
@@ -84,7 +76,7 @@ const Tool = ({
     }
 
     if (selectedTool === description) {
-      setSelectedTool(null);
+      setSelectedTool(undefined);
       onClick({ sendMessage });
     } else {
       setSelectedTool(description);
@@ -115,7 +107,7 @@ const Tool = ({
         handleSelect();
       }
     },
-    [handleSelect]
+    [handleSelect],
   );
 
   return (
@@ -139,11 +131,7 @@ const Tool = ({
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
         >
-          {selectedTool === description ? (
-            <ArrowUpIcon />
-          ) : isValidElement(icon) ? (
-            icon
-          ) : null}
+          {selectedTool === description ? <ArrowUpIcon /> : isValidElement(icon) ? icon : undefined}
         </motion.div>
       </TooltipTrigger>
       <TooltipContent
@@ -164,7 +152,7 @@ const ReadingLevelSelector = ({
   sendMessage,
   isAnimating,
 }: {
-  setSelectedTool: Dispatch<SetStateAction<string | null>>;
+  setSelectedTool: Dispatch<SetStateAction<string | undefined>>;
   isAnimating: boolean;
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
 }) => {
@@ -173,8 +161,7 @@ const ReadingLevelSelector = ({
   const yToLevel = useTransform(y, [0, -dragConstraints], [0, 5]);
 
   const [currentLevel, setCurrentLevel] = useState(2);
-  const [hasUserSelectedLevel, setHasUserSelectedLevel] =
-    useState<boolean>(false);
+  const [hasUserSelectedLevel, setHasUserSelectedLevel] = useState<boolean>(false);
 
   useEffect(() => {
     const unsubscribe = yToLevel.on("change", (latest) => {
@@ -197,13 +184,13 @@ const ReadingLevelSelector = ({
         role: "user",
       });
 
-      setSelectedTool(null);
+      setSelectedTool(undefined);
     }
   }, [currentLevel, hasUserSelectedLevel, sendMessage, setSelectedTool]);
 
   const handleDragEnd = useCallback(() => {
     if (currentLevel === 2) {
-      setSelectedTool(null);
+      setSelectedTool(undefined);
     } else {
       setHasUserSelectedLevel(true);
     }
@@ -237,7 +224,7 @@ const ReadingLevelSelector = ({
                 {
                   "bg-background text-foreground": currentLevel === 2,
                   "bg-primary text-primary-foreground": currentLevel !== 2,
-                }
+                },
               )}
               drag="y"
               dragConstraints={{ bottom: 0, top: -dragConstraints }}
@@ -255,7 +242,7 @@ const ReadingLevelSelector = ({
             </motion.div>
           </TooltipTrigger>
           <TooltipContent
-            className="rounded-2xl bg-foreground p-3 px-4 text-background text-sm"
+            className="rounded-2xl bg-foreground p-3 px-4 text-sm text-background"
             side="left"
             sideOffset={16}
           >
@@ -274,8 +261,8 @@ export const Tools = ({
   isAnimating,
   tools,
 }: {
-  selectedTool: string | null;
-  setSelectedTool: Dispatch<SetStateAction<string | null>>;
+  selectedTool: string | undefined;
+  setSelectedTool: Dispatch<SetStateAction<string | undefined>>;
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
   isAnimating: boolean;
   tools: ArtifactToolbarItem[];
@@ -301,10 +288,7 @@ export const Tools = ({
   </motion.div>
 );
 
-const createFixErrorTool = (
-  consoleOutput: string,
-  documentId?: string
-): ArtifactToolbarItem => ({
+const createFixErrorTool = (consoleOutput: string, documentId?: string): ArtifactToolbarItem => ({
   description: "Fix error",
   icon: <WrenchIcon className="size-4" />,
   onClick: ({ sendMessage: send }) => {
@@ -346,14 +330,14 @@ const PureToolbar = ({
   onClose?: () => void;
 }) => {
   const toolbarRef = useRef<HTMLDivElement>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+  const [selectedTool, setSelectedTool] = useState<string | undefined>(undefined);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  useOnClickOutside(toolbarRef, () => {
+  useOnClickOutside(toolbarRef as RefObject<HTMLElement>, () => {
     setIsToolbarVisible(false);
-    setSelectedTool(null);
+    setSelectedTool(undefined);
   });
 
   const startCloseTimer = useCallback(() => {
@@ -362,7 +346,7 @@ const PureToolbar = ({
     }
 
     timeoutRef.current = setTimeout(() => {
-      setSelectedTool(null);
+      setSelectedTool(undefined);
       setIsToolbarVisible(false);
     }, 2000);
   }, [setIsToolbarVisible]);
@@ -379,7 +363,7 @@ const PureToolbar = ({
         clearTimeout(timeoutRef.current);
       }
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -419,7 +403,7 @@ const PureToolbar = ({
   }, [setMessages, stop]);
 
   const artifactDefinition = artifactDefinitions.find(
-    (definition) => definition.kind === artifactKind
+    (definition) => definition.kind === artifactKind,
   );
 
   if (!artifactDefinition) {
@@ -427,14 +411,11 @@ const PureToolbar = ({
   }
 
   const toolsByArtifactKind = consoleError
-    ? [
-        createFixErrorTool(consoleError, documentId),
-        ...artifactDefinition.toolbar.slice(1),
-      ]
+    ? [createFixErrorTool(consoleError, documentId), ...artifactDefinition.toolbar.slice(1)]
     : artifactDefinition.toolbar;
 
   if (toolsByArtifactKind.length === 0) {
-    return null;
+    return undefined;
   }
 
   return (
@@ -460,7 +441,7 @@ const PureToolbar = ({
           >
             <XIcon className="size-4" />
           </motion.div>
-        ) : null}
+        ) : undefined}
 
         {status === "streaming" ? (
           <motion.div

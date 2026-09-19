@@ -12,7 +12,7 @@ export const FlowStepper = ({ step, total, label }: StepperProps) => {
       <div className="flex items-center justify-between text-steel">
         <div className="flex items-center gap-1.5">
           <span className="size-1.5 rounded-full bg-ember" />
-          <span className="text-label-sm uppercase tracking-wider text-obsidian">
+          <span className="text-label-sm tracking-wider text-obsidian uppercase">
             {step === 0 ? "Getting started" : `Step ${Math.min(step, total)} of ${total}`}
           </span>
         </div>

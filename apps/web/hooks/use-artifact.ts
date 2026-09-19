@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import useSWR from "swr";
-import type { UIArtifact } from "@/components/chat/artifact";
+import type { UIArtifact } from "~/components/chat/artifact";
 
 export const initialArtifactData: UIArtifact = {
   boundingBox: {
@@ -22,9 +22,12 @@ export const initialArtifactData: UIArtifact = {
 type Selector<T> = (state: UIArtifact) => T;
 
 export function useArtifactSelector<Selected>(selector: Selector<Selected>) {
-  const { data: localArtifact } = useSWR<UIArtifact>("artifact", null, {
-    fallbackData: initialArtifactData,
-  });
+  // SWR requires an explicit null fetcher for cache-only reads.
+  const { data: localArtifact } =
+    // oxlint-disable-next-line unicorn/no-null
+    useSWR<UIArtifact>("artifact", null, {
+      fallbackData: initialArtifactData,
+    });
 
   const selectedValue = useMemo(() => {
     if (!localArtifact) {
@@ -37,12 +40,14 @@ export function useArtifactSelector<Selected>(selector: Selector<Selected>) {
 }
 
 export function useArtifact() {
+  // SWR requires an explicit null fetcher for cache-only reads.
   const { data: localArtifact, mutate: setLocalArtifact } = useSWR<UIArtifact>(
     "artifact",
+    // oxlint-disable-next-line unicorn/no-null
     null,
     {
       fallbackData: initialArtifactData,
-    }
+    },
   );
 
   const artifact = useMemo(() => {
@@ -64,18 +69,18 @@ export function useArtifact() {
         return updaterFn;
       });
     },
-    [setLocalArtifact]
+    [setLocalArtifact],
   );
 
-  const { data: localArtifactMetadata, mutate: setLocalArtifactMetadata } =
-    useSWR<any>(
-      () =>
-        artifact.documentId ? `artifact-metadata-${artifact.documentId}` : null,
-      null,
-      {
-        fallbackData: null,
-      }
-    );
+  const { data: localArtifactMetadata, mutate: setLocalArtifactMetadata } = useSWR<any>(
+    () => (artifact.documentId ? `artifact-metadata-${artifact.documentId}` : undefined),
+    // SWR requires an explicit null fetcher for cache-only reads.
+    // oxlint-disable-next-line unicorn/no-null
+    null,
+    {
+      fallbackData: undefined,
+    },
+  );
 
   return useMemo(
     () => ({
@@ -84,6 +89,6 @@ export function useArtifact() {
       setArtifact,
       setMetadata: setLocalArtifactMetadata,
     }),
-    [artifact, setArtifact, localArtifactMetadata, setLocalArtifactMetadata]
+    [artifact, setArtifact, localArtifactMetadata, setLocalArtifactMetadata],
   );
 }

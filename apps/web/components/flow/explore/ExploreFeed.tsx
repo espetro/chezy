@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { FlowAgentMark } from "@/components/flow/ui/AgentMark";
-import { CandidateCarousel } from "@/components/flow/explore/CandidateCarousel";
-import type { FlowListing } from "@/lib/flow/types";
-import { cn } from "@/lib/utils";
+import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
+import { CandidateCarousel } from "~/components/flow/explore/CandidateCarousel";
+import type { FlowListing } from "~/lib/flow/types";
+import { cn } from "~/lib/utils";
 
 type SortMode = "match" | "price-asc";
 
@@ -19,9 +19,7 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
 
   const zones = Array.from(new Set(listings.map((listing) => listing.neighborhood)));
 
-  const filtered = listings.filter(
-    (listing) => !activeZone || listing.neighborhood === activeZone,
-  );
+  const filtered = listings.filter((listing) => !activeZone || listing.neighborhood === activeZone);
 
   const sorted = [...filtered].sort((a, b) =>
     sortMode === "match" ? b.matchScore - a.matchScore : a.price - b.price,
@@ -33,13 +31,11 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
         <FlowAgentMark size="sm" className="mt-0.5" />
         <div className="flex flex-col gap-1.5">
           <p className="text-sm text-graphite sm:text-[15px]">
-            I found <strong>{listings.length} candidates</strong> that
-            match your search across our partner agency network. Sorted by
-            match — I'll let you know as soon as a new one comes in.
+            I found <strong>{listings.length} candidates</strong> that match your search across our
+            partner agency network. Sorted by match — I'll let you know as soon as a new one comes
+            in.
           </p>
-          {note ? (
-            <p className="text-[13px] text-amber-700">{note}</p>
-          ) : undefined}
+          {note ? <p className="text-[13px] text-amber-700">{note}</p> : undefined}
         </div>
       </div>
 

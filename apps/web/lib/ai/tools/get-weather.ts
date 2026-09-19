@@ -1,25 +1,25 @@
 import { tool } from "ai";
 import { z } from "zod";
 
-import { FETCH_TIMEOUT_MS } from "@/lib/constants";
+import { FETCH_TIMEOUT_MS } from "~/lib/constants";
 
 async function geocodeCity(
-  city: string
-): Promise<{ latitude: number; longitude: number } | null> {
+  city: string,
+): Promise<{ latitude: number; longitude: number } | undefined> {
   try {
     const response = await fetch(
       `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`,
-      { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) }
+      { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) },
     );
 
     if (!response.ok) {
-      return null;
+      return undefined;
     }
 
     const data = await response.json();
 
     if (!data.results || data.results.length === 0) {
-      return null;
+      return undefined;
     }
 
     const [result] = data.results;
@@ -28,7 +28,7 @@ async function geocodeCity(
       longitude: result.longitude,
     };
   } catch {
-    return null;
+    return undefined;
   }
 }
 
@@ -53,8 +53,7 @@ export const getWeather = tool({
       longitude = inputLongitude;
     } else {
       return {
-        error:
-          "Please provide either a city name or both latitude and longitude coordinates.",
+        error: "Please provide either a city name or both latitude and longitude coordinates.",
       };
     }
 
@@ -63,7 +62,7 @@ export const getWeather = tool({
     try {
       const response = await fetch(
         `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m&hourly=temperature_2m&daily=sunrise,sunset&timezone=auto`,
-        { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) }
+        { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) },
       );
 
       if (!response.ok) {
@@ -88,10 +87,7 @@ export const getWeather = tool({
     return weatherData;
   },
   inputSchema: z.object({
-    city: z
-      .string()
-      .describe("City name (e.g., 'San Francisco', 'New York', 'London')")
-      .optional(),
+    city: z.string().describe("City name (e.g., 'San Francisco', 'New York', 'London')").optional(),
     latitude: z.number().optional(),
     longitude: z.number().optional(),
   }),

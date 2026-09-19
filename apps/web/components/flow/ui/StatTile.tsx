@@ -1,7 +1,7 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "~/lib/utils";
 
 interface StatTileProps<T extends number> {
   label: string;

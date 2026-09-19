@@ -1,4 +1,4 @@
-// Mirrors the `@/*` -> `./*` path alias from tsconfig.json so modules under
+// Mirrors the `~/*` -> `./*` path alias from tsconfig.json so modules under
 // test resolve the same way under vitest as under Next/tsc.
 import path from "node:path";
 import { configDefaults, defineConfig } from "vitest/config";
@@ -11,7 +11,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve(import.meta.dirname, "."),
+      "~": path.resolve(import.meta.dirname, "."),
     },
   },
 });

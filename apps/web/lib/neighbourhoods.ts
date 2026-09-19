@@ -108,9 +108,7 @@ export const DISTRICT_CHIPS: ReadonlyArray<{
   { label: "Sarrià-Sant Gervasi", value: "Sarrià" },
 ];
 
-export function getDistrictProfile(
-  district: string | null,
-): DistrictProfile | undefined {
+export function getDistrictProfile(district: string | null): DistrictProfile | undefined {
   if (!district) {
     return undefined;
   }

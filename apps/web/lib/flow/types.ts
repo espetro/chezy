@@ -68,9 +68,4 @@ export interface FlowListing {
   availableFrom: string;
 }
 
-export type PipelineStage =
-  | "new"
-  | "interested"
-  | "contacted"
-  | "visiting"
-  | "negotiating";
+export type PipelineStage = "new" | "interested" | "contacted" | "visiting" | "negotiating";

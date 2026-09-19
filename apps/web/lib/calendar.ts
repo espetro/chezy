@@ -4,8 +4,8 @@
 import { createSign } from "node:crypto";
 import { readFileSync } from "node:fs";
 
-import { FETCH_TIMEOUT_MS } from "@/lib/constants";
-import { env } from "@/lib/env";
+import { FETCH_TIMEOUT_MS } from "~/lib/constants";
+import { env } from "~/lib/env";
 
 export interface BookingInput {
   readonly propertyRef: string;
@@ -50,9 +50,7 @@ export function mockBooking(slotIso: string): CalendarEventResult {
 
 async function googleAccessToken(sa: ServiceAccount): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
-  const header = Buffer.from(
-    JSON.stringify({ alg: "RS256", typ: "JWT" }),
-  ).toString("base64url");
+  const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
   const claims = Buffer.from(
     JSON.stringify({
       iss: sa.client_email,
@@ -64,9 +62,7 @@ async function googleAccessToken(sa: ServiceAccount): Promise<string> {
   ).toString("base64url");
   const signer = createSign("RSA-SHA256");
   signer.update(`${header}.${claims}`);
-  const assertion = `${header}.${claims}.${signer
-    .sign(sa.private_key)
-    .toString("base64url")}`;
+  const assertion = `${header}.${claims}.${signer.sign(sa.private_key).toString("base64url")}`;
 
   const response = await fetch(sa.token_uri, {
     method: "POST",
@@ -87,20 +83,14 @@ async function googleAccessToken(sa: ServiceAccount): Promise<string> {
   return json.access_token;
 }
 
-export async function createGoogleEvent(
-  input: BookingInput,
-): Promise<CalendarEventResult> {
+export async function createGoogleEvent(input: BookingInput): Promise<CalendarEventResult> {
   const serviceAccountPath = env.GOOGLE_SERVICE_ACCOUNT_JSON_PATH;
   const calendarId = env.GOOGLE_CALENDAR_ID;
   if (!serviceAccountPath || !calendarId) {
-    throw new Error(
-      "GOOGLE_SERVICE_ACCOUNT_JSON_PATH and GOOGLE_CALENDAR_ID are required",
-    );
+    throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON_PATH and GOOGLE_CALENDAR_ID are required");
   }
 
-  const sa = JSON.parse(
-    readFileSync(serviceAccountPath, "utf8"),
-  ) as ServiceAccount;
+  const sa = JSON.parse(readFileSync(serviceAccountPath, "utf8")) as ServiceAccount;
   const token = await googleAccessToken(sa);
   const endIso = new Date(
     new Date(input.slotIso).getTime() + input.durationMinutes * 60_000,

@@ -2,8 +2,8 @@ import { valibotSchema } from "@ai-sdk/valibot";
 import { tool } from "ai";
 import * as v from "valibot";
 
-import { ensureListingInsights } from "@/lib/insights";
-import { getListingById } from "@/lib/listings";
+import { ensureListingInsights } from "~/lib/insights";
+import { getListingById } from "~/lib/listings";
 
 export const getListingTool = tool({
   description:
