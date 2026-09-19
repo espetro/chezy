@@ -26,7 +26,7 @@ export const CandidateCard = ({ listing }: CandidateCardProps) => (
       <FlowScoreBadge score={listing.matchScore} className="absolute left-4 top-4 shadow-[0_1px_8px_rgba(0,0,0,0.18)]" />
     </div>
 
-    <div className="flex flex-1 flex-col gap-3 p-7">
+    <div className="flex flex-1 flex-col gap-3 p-5 sm:p-7">
       <div>
         <h3 className="text-subheading font-semibold text-obsidian">
           {listing.title}
