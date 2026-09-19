@@ -23,7 +23,7 @@ interface FlowLayoutProps {
 // globals.css; they don't touch `--background`/`--foreground` etc., so the (chat) subtree
 // is unaffected.
 const FlowLayout = ({ children }: FlowLayoutProps) => (
-  <div className={`${dmSans.variable} min-h-screen bg-paper font-flow text-obsidian`}>
+  <div className={`${dmSans.variable} min-h-[100dvh] bg-paper font-flow text-obsidian`}>
     {children}
   </div>
 );
