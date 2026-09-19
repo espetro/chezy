@@ -4,6 +4,7 @@ Day-0 scope: prints a hello message and emits one audit event so the
 JSONL pipeline is exercised end-to-end. Real commands land as features
 ship.
 """
+
 from __future__ import annotations
 
 from chezy_scraper.observability import audit, configure_logging
