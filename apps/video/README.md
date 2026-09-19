@@ -15,7 +15,7 @@ Everything installs on macOS with two commands: `mise install` (pins from
 | Tool | Used for | Install |
 | --- | --- | --- |
 | node, pnpm | Remotion, all `scripts/*.ts` via `tsx` | mise-pinned, `mise install` |
-| ffmpeg / ffprobe | `ffprobe` measures each VO WAV into `src/generated/durations.json`; ffmpeg does the final encode inside `remotion render` | mise-pinned (`ffmpeg = "latest"`) |
+| ffmpeg / ffprobe | `ffprobe` measures each VO WAV into `src/generated/durations.json`; ffmpeg slows each VO WAV via `atempo` in `video:tts` and does the final encode inside `remotion render` | mise-pinned (`ffmpeg = "latest"`) |
 | pocket-tts | Narration. `scripts/tts.ts` shells out to `pocket-tts generate` per segment | mise-pinned (`"pypi:pocket-tts" = "3.1.0"`, installed through the uv backend). Fallback: `brew install pocket-tts` (homebrew-core, bottled) |
 | audiocpp + audiocpp_model_manager | Music bed. `scripts/music.sh` runs `audiocpp --task gen --family stable_audio` on the Metal backend | `brew install 0xshug0/audio-cpp/audio-cpp` (tap; no usable mise backend, the GitHub release ships split tarballs). Model install and prompting: [`docs/music.md`](docs/music.md) |
 | lefthook, oxlint, oxfmt | repo gates | mise-pinned |
@@ -29,6 +29,10 @@ Notes on pocket-tts:
 - Built-in voice cloning (a `.wav` input) needs the gated
   `kyutai/pocket-tts` HF repo: accept its terms and run `hf auth login`
   once. `.safetensors` voices and built-in names work without it.
+- pocket-tts has no speaking-rate flag; `voice.tempo` in `demo.config.ts`
+  slows each WAV in post via ffmpeg `atempo` (recommended 0.80 to 0.85 for
+  narration, 1.0 to disable). Raw pre-atempo WAVs land in
+  `public/audio/vo/raw/` (gitignored).
 
 ### Narrator voice
 
@@ -47,9 +51,10 @@ not depend on the HF voice catalog staying stable. `mise run video:tts`
 emits intro-line samples for `alba`/`marius`/`jean` under
 `public/audio/vo/samples/` if you want to audition alternates.
 
-The TTS cache key is sha256(voice + text); for file voices it hashes the
-file contents, so pointing at a different file or re-exporting it
-regenerates every segment. Just run `mise run video:tts` again.
+The TTS cache key is sha256(voice + text + tempo); for file voices it
+hashes the file contents, so pointing at a different file, re-exporting
+it, or changing `voice.tempo` regenerates every segment. Just run
+`mise run video:tts` again.
 
 ### Use your own voice
 
@@ -78,7 +83,7 @@ All tasks run from the repo root via `mise run`:
 
 | Task | Does |
 | --- | --- |
-| `video:tts` | `pocket-tts generate` per segment -> `public/audio/vo/*.wav`, sha256(text + voice) cache in `.cache.json`, plus intro samples for `alba`/`marius`/`jean` in `public/audio/vo/samples/` |
+| `video:tts` | `pocket-tts generate` per segment + ffmpeg `atempo` (`voice.tempo`) -> `public/audio/vo/*.wav`, sha256(text + voice + tempo) cache in `.cache.json`, plus intro samples for `alba`/`marius`/`jean` in `public/audio/vo/samples/` |
 | `video:durations` | `ffprobe` each WAV -> `src/generated/durations.json` (committed; the render reads it for frame counts) |
 | `video:capture-doc` | Regenerate `CAPTURE.md` from `demo.config.ts` + copy |
 | `video:srt` | Captions sidecar -> `out/chezy-demo.srt` |

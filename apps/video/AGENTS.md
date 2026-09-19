@@ -16,6 +16,10 @@ reads in `src/`, relative imports only.
 - Segment timing is audio-first: `buildTimeline(config, durations)` derives
   frames from `src/generated/durations.json` (committed) plus a per-segment
   tail. Never hardcode frame counts for narration.
+- Narration pacing is `voice.tempo` in `demo.config.ts`: an ffmpeg `atempo`
+  post-process on each WAV (pocket-tts has no rate control; 0.80 to 0.85 is
+  the recommended narration range). It is part of the TTS cache key, so a
+  tempo change regenerates every segment.
 - App dark tokens live in `src/theme.ts` only.
 - `public/audio/`, `public/clips/` and `out/` are gitignored; WAVs and MP4s
   never get committed.
