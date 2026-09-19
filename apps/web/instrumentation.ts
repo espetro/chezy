@@ -1,10 +1,8 @@
-/**
- * Server boot hook. The audit sink writes files with `node:fs`, which the
- * Edge runtime rejects, so logging is configured only on the Node.js runtime.
- */
-export async function register(): Promise<void> {
-  if (process.env.NEXT_RUNTIME === "nodejs") {
-    const { setupLogging } = await import("./lib/observability");
-    await setupLogging();
-  }
+import { OpenTelemetry } from "@ai-sdk/otel";
+import { registerOTel } from "@vercel/otel";
+import { registerTelemetry } from "ai";
+
+export function register() {
+  registerOTel({ serviceName: "chatbot" });
+  registerTelemetry(new OpenTelemetry());
 }

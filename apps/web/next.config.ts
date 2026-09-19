@@ -1,17 +1,55 @@
+import { withBotId } from "botid/next/config";
 import type { NextConfig } from "next";
 
-const config: NextConfig = {
-  // Day-0: keep the Next config minimal. The vercel/chatbot fork uses a
-  // proxy.ts (replacing middleware.ts from older versions), typedRoutes,
-  // and the AI SDK instrumentation hook. Add those in follow-up tickets.
-  typedRoutes: true,
-  // Disabled until `babel-plugin-react-compiler` is a declared dependency.
-  // Enabling it without the plugin fails the build at compile time.
-  reactCompiler: false,
-  experimental: {
-    // ppr is experimental but stable enough for the chatbot fork.
-    ppr: false,
+const basePath = process.env.IS_DEMO === "1" ? "/demo" : "";
+
+const nextConfig: NextConfig = {
+  ...(basePath
+    ? {
+        assetPrefix: "/demo-assets",
+        basePath,
+        redirects: async () => [
+          {
+            basePath: false,
+            destination: basePath,
+            permanent: false,
+            source: "/",
+          },
+        ],
+      }
+    : {}),
+  cacheComponents: true,
+  devIndicators: false,
+  env: {
+    NEXT_PUBLIC_BASE_PATH: basePath,
   },
+  experimental: {
+    appNewScrollHandler: true,
+    cachedNavigations: true,
+    inlineCss: true,
+    prefetchInlining: true,
+    turbopackFileSystemCacheForDev: true,
+  },
+  images: {
+    remotePatterns: [
+      {
+        hostname: "avatar.vercel.sh",
+      },
+      {
+        hostname: "*.public.blob.vercel-storage.com",
+        protocol: "https",
+      },
+    ],
+  },
+  logging: {
+    fetches: {
+      fullUrl: false,
+    },
+    incomingRequests: false,
+  },
+  poweredByHeader: false,
+  reactCompiler: true,
+  transpilePackages: ["@chezy/contract"],
 };
 
-export default config;
+export default withBotId(nextConfig);

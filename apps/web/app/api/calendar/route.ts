@@ -4,8 +4,8 @@
 import { BookingRequestSchema, type BookingResult } from "@chezy/contract";
 import * as v from "valibot";
 
-import { createGoogleEvent, mockBooking } from "~lib/calendar";
-import { env } from "~lib/env";
+import { createGoogleEvent, mockBooking } from "@/lib/calendar";
+import { env } from "@/lib/env";
 
 export async function POST(request: Request): Promise<Response> {
   let body: unknown;

@@ -4,6 +4,7 @@
   "private": true,
   "description": "Chat-centric AI webapp — Next.js 16 fork of vercel/chatbot + Python scraper + pg0.",
   "packageManager": "pnpm@12",
+  "type": "module",
   "engines": {
     "node": ">=24",
     "pnpm": ">=12"
@@ -55,7 +56,8 @@
     "oxlint-tsgolint": "catalog:default",
     "tsx": "^4.20.0",
     "type-fest": "catalog:default",
-    "typescript": "catalog:default"
+    "typescript": "catalog:default",
+    "@types/node": "catalog:default"
   },
   "pnpm": {
     "peerDependencyRules": {
