@@ -1,0 +1,73 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+.mypy_cache/
+.basedpyright_cache/
+
+# pg0 embedded Postgres data
+.pg0/
+
+# Local data stores
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+local.db
+
+# Secrets / env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+
+# Test / coverage
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+.playwright-cli/
+
+# Build artifacts
+.turbo/
+.next/
+.tanstack/
+*.tsbuildinfo
+.output/
+
+# Logs
+*.log
+.logs/
+pyinfra-debug.log
+
+# Plans are intentionally tracked even though a global gitignore may silence them
+!.agents/plans/
+
+# Per-developer scratch (secrets, dumps)
+tmp/
+scratch/
+
+# Vercel CLI link state — never tracked
+.vercel/
+
+# Next.js
+next-env.d.ts
