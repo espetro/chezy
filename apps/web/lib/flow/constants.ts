@@ -8,6 +8,3 @@ export const AGENT_THINKING_DELAY_MS = { min: 700, max: 1300 } as const;
 // Match score at/above which the agent calls the agency on its own — no approval gate,
 // regardless of the autonomy tier chosen in onboarding. See AgentCallGate.tsx.
 export const AUTO_CALL_MATCH_THRESHOLD = 95;
-
-// Simulated "dialing" pause before a call resolves to booked. Mirrors AGENT_THINKING_DELAY_MS.
-export const CALL_DIALING_DELAY_MS = { min: 1200, max: 2200 } as const;

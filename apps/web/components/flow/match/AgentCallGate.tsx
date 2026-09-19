@@ -1,51 +1,91 @@
 "use client";
 
 import { useMountEffect } from "@chezy/ui/hooks/useMountEffect";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { FlowAgentMark } from "@/components/flow/ui/AgentMark";
 import { FlowBadge } from "@/components/flow/ui/Badge";
 import { FlowButton } from "@/components/flow/ui/Button";
-import { type BookedVisit, nextVisitSlot } from "@/lib/flow/calling";
-import { AUTO_CALL_MATCH_THRESHOLD, CALL_DIALING_DELAY_MS } from "@/lib/flow/constants";
-import type { Listing } from "@/lib/flow/types";
+import { AUTO_CALL_MATCH_THRESHOLD } from "@/lib/flow/constants";
+import type { FlowListing } from "@/lib/flow/types";
 
-type CallStatus = "idle" | "calling" | "booked" | "discarded";
+type CallStatus = "idle" | "calling" | "booked" | "failed" | "discarded";
 
-interface AgentCallGateProps {
-  listing: Listing;
+interface BookedVisit {
+  slotIso?: string;
+  label: string;
+  durationMinutes: number;
+  live: boolean;
 }
 
-const randomDialingDelay = () =>
-  CALL_DIALING_DELAY_MS.min +
-  Math.random() * (CALL_DIALING_DELAY_MS.max - CALL_DIALING_DELAY_MS.min);
+interface AgentCallGateProps {
+  listing: FlowListing;
+}
+
+interface ViewingResponse {
+  status?: "mock" | "dispatched" | "failed";
+  slotIso?: string;
+  detail?: string;
+}
+
+const slotFormatter = new Intl.DateTimeFormat("en-US", {
+  weekday: "long",
+  hour: "numeric",
+  minute: "2-digit",
+  timeZone: "Europe/Madrid",
+});
+
+const autoCallKey = (listingId: string) => `chezy:autocall:${listingId}`;
 
 export const AgentCallGate = ({ listing }: AgentCallGateProps) => {
   const isAutoCall = listing.matchScore >= AUTO_CALL_MATCH_THRESHOLD;
-  const [status, setStatus] = useState<CallStatus>(isAutoCall ? "calling" : "idle");
+  const [status, setStatus] = useState<CallStatus>("idle");
   const [visit, setVisit] = useState<BookedVisit | undefined>(undefined);
-  const dialingTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [error, setError] = useState<string | undefined>(undefined);
 
-  const startCall = () => {
+  const startCall = async () => {
     setStatus("calling");
-    clearTimeout(dialingTimer.current);
-    dialingTimer.current = setTimeout(function resolveCall() {
-      setVisit(nextVisitSlot());
-      setStatus("booked");
-    }, randomDialingDelay());
+    setError(undefined);
+    try {
+      const response = await fetch("/api/viewing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ propertyRef: listing.id }),
+      });
+      const data: ViewingResponse = await response.json().catch(() => ({}));
+      if (response.ok && data.status !== "failed") {
+        setVisit({
+          slotIso: data.slotIso,
+          label: data.slotIso
+            ? slotFormatter.format(new Date(data.slotIso))
+            : "the next available slot",
+          durationMinutes: 30,
+          live: data.status === "dispatched",
+        });
+        setStatus("booked");
+      } else {
+        setError(data.detail ?? "The call could not be placed.");
+        setStatus("failed");
+      }
+    } catch {
+      setError("Network error while placing the call.");
+      setStatus("failed");
+    }
   };
 
   useMountEffect(function autoCallOnMount() {
-    if (isAutoCall) startCall();
-    return function clearPendingCall() {
-      clearTimeout(dialingTimer.current);
-    };
+    // Guard real phone calls: only auto-dial once per listing per browser, even on
+    // remounts/reloads. The threshold stays the designer's ≥95% semantic.
+    if (isAutoCall && !localStorage.getItem(autoCallKey(listing.id))) {
+      localStorage.setItem(autoCallKey(listing.id), new Date().toISOString());
+      void startCall();
+    }
   });
 
   if (status === "discarded") {
     return (
       <div className="flex items-center justify-between rounded-cards bg-card-subtle px-6 py-5 shadow-sm">
         <p className="text-[14px] text-fog">Candidate discarded.</p>
-        <FlowButton variant="ghost" size="sm" onClick={() => setStatus(isAutoCall ? "booked" : "idle")}>
+        <FlowButton variant="ghost" size="sm" onClick={() => setStatus(visit ? "booked" : "idle")}>
           Undo
         </FlowButton>
       </div>
@@ -92,6 +132,13 @@ export const AgentCallGate = ({ listing }: AgentCallGateProps) => {
               Calling {listing.agency}…
             </p>
           </div>
+        ) : status === "failed" ? (
+          <div className="flex flex-col gap-1">
+            <p className="text-[14px] font-medium text-graphite">
+              The call to {listing.agency} failed
+            </p>
+            <p className="text-[13px] text-fog">{error}</p>
+          </div>
         ) : (
           <div className="flex flex-col gap-1">
             <p className="text-[14px] font-medium text-graphite">
@@ -100,12 +147,16 @@ export const AgentCallGate = ({ listing }: AgentCallGateProps) => {
             <p className="text-[13px] text-fog">
               Visit booked for {visit?.label} ({visit?.durationMinutes} min).
             </p>
+            {visit?.live ? (
+              <p className="text-[13px] font-medium text-ember">Live call in progress</p>
+            ) : undefined}
           </div>
         )}
       </div>
 
       <div className="flex flex-wrap gap-3">
-        {status === "idle" ? <FlowButton onClick={startCall}>Call the agency now</FlowButton> : undefined}
+        {status === "idle" ? <FlowButton onClick={() => void startCall()}>Call the agency now</FlowButton> : undefined}
+        {status === "failed" ? <FlowButton onClick={() => void startCall()}>Try again</FlowButton> : undefined}
         <FlowButton variant="ghost" onClick={() => setStatus("discarded")}>
           Discard candidate
         </FlowButton>
