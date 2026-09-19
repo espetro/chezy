@@ -35,6 +35,13 @@ export const SLNG_AGENT_REGION = "eu-central";
 export const SLNG_AGENT_ORCHESTRATOR = "livekit";
 export const SLNG_API_BASE_URL = "https://api.agents.slng.ai";
 
+// Qwen3-embedding cosine, tuned by eyeball; raise if near-duplicates slip through.
+export const MEMORY_COSINE_DEDUP_THRESHOLD = 0.08;
+// top-k injected into prompt.
+export const MEMORY_RECALL_LIMIT = 8;
+// extraction prompt bound.
+export const MEMORY_MAX_CONTENT_CHARS = 500;
+
 // Rough Barcelona metro pace incl. transfers; demo estimate, not routing.
 export const COMMUTE_MIN_PER_KM = 3.2;
 // Fixed leg overhead (walk to stop, wait, walk to door); demo estimate.
