@@ -41,6 +41,7 @@ import {
   roomOptions,
   sizeOptions,
   zoneOptions,
+  zoneLabel,
   type DealBreakerIcon,
   type MustHaveIcon,
 } from "@/lib/flow/onboarding-steps";
@@ -261,7 +262,7 @@ export const SummaryStep = ({ prefs, onChange }: StepProps) => {
   const rows: Array<[string, string]> = [
     ["Work address", prefs.workAddress || "—"],
     ["Commute", commuteLabel],
-    ["Neighborhoods", prefs.zones.length > 0 ? prefs.zones.join(", ") : "Anywhere in Barcelona"],
+    ["Neighborhoods", prefs.zones.length > 0 ? prefs.zones.map(zoneLabel).join(", ") : "Anywhere in Barcelona"],
     ["Monthly range", `${formatEur(prefs.budgetMin)} — ${formatEur(prefs.budgetMax)}`],
     ["Space", `${prefs.rooms >= 3 ? "3+" : prefs.rooms} bd · ${prefs.sizeMin >= 80 ? "80+" : `+${prefs.sizeMin}`} m²`],
     ["Move-in", moveInLabel],

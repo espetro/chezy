@@ -5,17 +5,17 @@ import { cn } from "@/lib/utils";
 
 interface StickyActionBarProps {
   matchCount: number;
-  bestScore: number;
   cta: string;
   disabled?: boolean;
+  error?: string;
   onAction: () => void;
 }
 
 export const FlowStickyActionBar = ({
   matchCount,
-  bestScore,
   cta,
   disabled = false,
+  error,
   onAction,
 }: StickyActionBarProps) => (
   <div className="sticky bottom-0 z-10 -mx-4 bg-snow/90 p-4 backdrop-blur-md [padding-bottom:max(1rem,env(safe-area-inset-bottom))]">
@@ -27,10 +27,12 @@ export const FlowStickyActionBar = ({
             {matchCount} {matchCount === 1 ? "listing matches" : "listings match"} right now
           </span>
         </div>
-        <span className="text-label-sm text-fog">
-          {bestScore > 0 ? `${bestScore}% match` : "—"}
-        </span>
       </div>
+      {error ? (
+        <p role="alert" className="px-1 text-label-sm text-ember">
+          {error}
+        </p>
+      ) : undefined}
       <button
         type="button"
         onClick={onAction}

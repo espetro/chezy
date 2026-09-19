@@ -17,16 +17,17 @@ import {
 import { ThinkingBubble } from "@/components/flow/onboarding/ThinkingBubble";
 import { FlowStepper } from "@/components/flow/ui/Stepper";
 import { FlowStickyActionBar } from "@/components/flow/ui/StickyActionBar";
+import { toSearchProfileInput } from "@/lib/flow/adapters";
 import { AGENT_THINKING_DELAY_MS } from "@/lib/flow/constants";
-import { countMatches } from "@/lib/flow/matching";
-import { mockListings } from "@/lib/flow/mock-listings";
 import {
   autonomyOptions,
   commuteOptions,
   dealBreakerOptions,
+  defaultPreferences,
   mustHaveOptions,
   onboardingSteps,
   progressStepCount,
+  zoneLabel,
   type OnboardingStepId,
 } from "@/lib/flow/onboarding-steps";
 import type { UserPreferences } from "@/lib/flow/types";
@@ -35,21 +36,6 @@ interface HistoryEntry {
   agentMessage: string;
   userAnswer?: string;
 }
-
-const initialPreferences: UserPreferences = {
-  workAddress: "",
-  commuteMaxMin: undefined,
-  zones: [],
-  budgetMin: 800,
-  budgetMax: 1200,
-  rooms: 2,
-  sizeMin: 60,
-  moveIn: undefined,
-  mustHaves: [],
-  dealBreakers: dealBreakerOptions.map((option) => option.id),
-  alerts: true,
-  autonomy: "cowork",
-};
 
 const randomThinkingDelay = () =>
   AGENT_THINKING_DELAY_MS.min +
@@ -78,7 +64,7 @@ const answerSummary = (id: OnboardingStepId, prefs: UserPreferences): string | u
       return "Let's go";
     case "routine": {
       const commute = commuteOptions.find((o) => o.value === prefs.commuteMaxMin)?.label;
-      return `${prefs.zones.join(", ")} · max ${commute} from ${prefs.workAddress}`;
+      return `${prefs.zones.map(zoneLabel).join(", ")} · max ${commute} from ${prefs.workAddress}`;
     }
     case "budget":
       return `${formatEur(prefs.budgetMin)} — ${formatEur(prefs.budgetMax)} · ${prefs.rooms >= 3 ? "3+" : prefs.rooms} bd · +${prefs.sizeMin} m²`;
@@ -99,13 +85,39 @@ const answerSummary = (id: OnboardingStepId, prefs: UserPreferences): string | u
   }
 };
 
-export const OnboardingFlow = () => {
+interface OnboardingFlowProps {
+  initial?: UserPreferences;
+  initialCount: number;
+}
+
+const countCandidates = async (prefs: UserPreferences): Promise<number | undefined> => {
+  const params = new URLSearchParams({
+    maxPriceEur: String(prefs.budgetMax),
+    minRooms: String(prefs.rooms),
+    minM2: String(prefs.sizeMin),
+  });
+  if (prefs.zones.length > 0) params.set("neighbourhoods", prefs.zones.join(","));
+  try {
+    const response = await fetch(`/api/profile/count?${params}`);
+    if (!response.ok) return undefined;
+    const data: { count?: unknown } = await response.json();
+    return typeof data.count === "number" ? data.count : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+export const OnboardingFlow = ({ initial, initialCount }: OnboardingFlowProps) => {
   const router = useRouter();
   const [stepIndex, setStepIndex] = useState(0);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [preferences, setPreferences] = useState<UserPreferences>(initialPreferences);
+  const [preferences, setPreferences] = useState<UserPreferences>(initial ?? defaultPreferences);
+  const [matchCount, setMatchCount] = useState(initialCount);
   const [isThinking, setIsThinking] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | undefined>(undefined);
   const thinkingTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const countTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const think = () => {
     clearTimeout(thinkingTimer.current);
@@ -125,13 +137,41 @@ export const OnboardingFlow = () => {
   const currentStep = onboardingSteps[stepIndex];
   if (!currentStep) return undefined;
 
-  const matches = countMatches(preferences, mockListings);
   const updatePreferences = (patch: Partial<UserPreferences>) =>
-    setPreferences((prev) => ({ ...prev, ...patch }));
+    setPreferences((prev) => {
+      const next = { ...prev, ...patch };
+      clearTimeout(countTimer.current);
+      countTimer.current = setTimeout(async function refreshCount() {
+        const count = await countCandidates(next);
+        if (count !== undefined) setMatchCount(count);
+      }, 300);
+      return next;
+    });
+
+  const submitProfile = async () => {
+    setSubmitting(true);
+    setSubmitError(undefined);
+    try {
+      const response = await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(toSearchProfileInput(preferences)),
+      });
+      if (!response.ok) {
+        setSubmitError("Couldn't save your search — please try again.");
+        setSubmitting(false);
+        return;
+      }
+      router.push("/flow/explore");
+    } catch {
+      setSubmitError("Couldn't save your search — please try again.");
+      setSubmitting(false);
+    }
+  };
 
   const submitStep = () => {
     if (currentStep.id === "summary") {
-      router.push("/flow/explore");
+      void submitProfile();
       return;
     }
     setHistory((prev) => [
@@ -215,10 +255,10 @@ export const OnboardingFlow = () => {
       </div>
 
       <FlowStickyActionBar
-        matchCount={matches.count}
-        bestScore={matches.bestScore}
+        matchCount={matchCount}
         cta={currentStep.cta}
-        disabled={isThinking || !canSubmit(currentStep.id, preferences)}
+        disabled={isThinking || submitting || !canSubmit(currentStep.id, preferences)}
+        error={submitError}
         onAction={submitStep}
       />
     </div>

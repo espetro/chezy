@@ -1,15 +1,19 @@
-import type { AutonomyOption, CommuteMax, ListingTag } from "@/lib/flow/types";
+import type {
+  AutonomyOption,
+  CommuteMax,
+  ListingTag,
+  UserPreferences,
+} from "@/lib/flow/types";
+import { DISTRICT_CHIPS } from "@/lib/neighbourhoods";
 
-export const zoneOptions = [
-  "Eixample",
-  "Gràcia",
-  "Poblenou",
-  "Sant Antoni",
-  "Poble Sec",
-  "Sants",
-  "El Born",
-  "Sant Gervasi",
-];
+// Stored zones are the ilike-compatible district values; labels are what the chips show.
+export const zoneOptions = DISTRICT_CHIPS.map((chip) => ({
+  label: chip.label,
+  value: chip.value,
+}));
+
+export const zoneLabel = (value: string) =>
+  DISTRICT_CHIPS.find((chip) => chip.value === value)?.label ?? value;
 
 export interface CommuteOption {
   value: CommuteMax;
@@ -23,7 +27,7 @@ export const commuteOptions: CommuteOption[] = [
   { value: 40, label: "40 min", description: "Max 40 min by metro" },
 ];
 
-export const BUDGET = { min: 600, max: 2000, step: 50, areaAverage: 1150 } as const;
+export const BUDGET = { min: 600, max: 4000, step: 50, areaAverage: 1150 } as const;
 export const roomOptions = [1, 2, 3] as const;
 export const sizeOptions = [40, 60, 80] as const;
 
@@ -153,3 +157,20 @@ export const onboardingSteps: OnboardingStep[] = [
 
 // Steps that count toward the progress bar (welcome is step 0, summary is the last).
 export const progressStepCount = onboardingSteps.length - 1;
+
+// Data-driven defaults (median rent ≈ €3,250): shared by the onboarding UI and the
+// server page's initial candidate count.
+export const defaultPreferences: UserPreferences = {
+  workAddress: "",
+  commuteMaxMin: undefined,
+  zones: [],
+  budgetMin: 1200,
+  budgetMax: 2500,
+  rooms: 2,
+  sizeMin: 50,
+  moveIn: undefined,
+  mustHaves: [],
+  dealBreakers: dealBreakerOptions.map((option) => option.id),
+  alerts: true,
+  autonomy: "cowork",
+};
