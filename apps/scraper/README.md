@@ -7,7 +7,7 @@ Barcelona rent and sale listings from Spanish portals into one canonical model.
 | fotocasa | plain HTTP | verified live (no street, no energy data) |
 | habitaclia | plain HTTP | verified live (street, energy on most records) |
 | milanuncios | plain HTTP | verified live (thin data, mostly cross-posts of fotocasa) |
-| idealista | your real Chrome over CDP | parser and pipeline tested on synthetic fixtures only |
+| idealista | your real Chrome over CDP | verified live on 2026-09-19 (50 rent ads, no exact coordinates) |
 
 ## Usage
 
@@ -16,6 +16,7 @@ uv run scraper scrape --platform fotocasa --operation rent --tier small
 uv run scraper media --tier small      # WebP mirror on the media volume
 mise run db:start && uv run scraper load --tier small
 uv run scraper stats                   # per file counts and field coverage
+uv run scraper package --tier small    # shareable tar.gz bundle, see below
 ```
 
 Tiers are strict supersets, cut from one append only master file per platform and
@@ -34,6 +35,24 @@ default; `media --tier large` needs `--with-media`.
 <CHEZY_MEDIA_DIR>/media_manifest.jsonl                    relative paths, relocatable
 ```
 
+## Sharing a dataset
+
+`scraper package --tier small` mirrors the images, then writes
+`<media root>/../datasets/chezy-<tier>-<date>.tar.gz` (and the unpacked folder next to it):
+
+```
+data/listings.parquet   typed columns, one row per listing
+data/listings.jsonl     nested JSON with the media array
+data/media.parquet      one row per image; `path` is an object key
+media/<platform>/<id>/<nn>-<room>.webp   images as plain files, never inside the tables
+schema/listing.schema.json  DATASET.md  MANIFEST.json  SHA256SUMS
+```
+
+Defaults: fotocasa, habitaclia and milanuncios (pass `--platform` to change), contact
+details scrubbed (`--pii keep` to keep them). Up to 25 photos and all floor plans are copied
+per listing; other media keep only their source url. Verify a received copy with
+`shasum -a 256 -c SHA256SUMS`.
+
 ## Idealista
 
 DataDome blocks plain HTTP and clean automated browsers. The scraper drives one
@@ -47,6 +66,12 @@ CHEZY_IDEALISTA_RENT_URL='https://www.idealista.com/alquiler-viviendas/barcelona
   uv run scraper scrape --platform idealista --operation rent --tier small
 ```
 
+Two ways to attach. A Chrome started with `--remote-debugging-port` serves `/json/version`.
+Chrome's own `chrome://inspect/#remote-debugging` toggle on your default profile does not; the
+scraper then reads the websocket path from `DevToolsActivePort` in the profile folder
+(`CHEZY_CHROME_PROFILE_DIR`). Chrome asks you to allow each new connection, so a run is one
+process, one confirmation.
+
 Limits: 5 to 12 s between page loads, 60 pages per run. Phase 1 stores the id list, phase 2
 fetches details; both resume on the next run. A DataDome challenge stops the run with
 exit code 3; do not retry from the same session.
@@ -59,6 +84,7 @@ exit code 3; do not retry from the same session.
 | `CHEZY_MEDIA_DIR` | `/Volumes/KeVagiBe/chezy/media` (refused if the volume is not mounted) |
 | `DATABASE_URL` | local pg0 |
 | `CHEZY_CDP_URL` | `http://127.0.0.1:9222` |
+| `CHEZY_CHROME_PROFILE_DIR` | `~/Library/Application Support/Google/Chrome` |
 | `CHEZY_IDEALISTA_RENT_URL`, `CHEZY_IDEALISTA_SALE_URL` | whole city |
 | `CHEZY_AUDIT_DIR`, `CHEZY_LOG_LEVEL` | see `observability.py` |
 

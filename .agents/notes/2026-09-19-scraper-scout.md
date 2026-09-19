@@ -20,13 +20,15 @@ coordinates, street, energy or amenities. Every ad on the scouted pages had
 `origin.provider = fotocasa_pro`, so this feed is largely a cross-post of fotocasa. Dedupe
 across platforms before counting it as extra coverage. Image hosts come without a scheme.
 
-**idealista**. Plain HTTP is a DataDome 403. Only the real logged-in Chrome passes, so the
-adapter and CDP driver were written against the markup as scouted and are tested with
-synthetic fixtures. NOT verified against the live site. Expect selector fixes on the first
-real run: the `#headerMap` location list, the `icon-energy-c-*` / `icon-energy-e-*` class
-convention for energy labels, and the `.info-features` line. Raw payload is always kept in
-`source_raw` so a parser fix does not need a re-scrape of the same pages, but it does need the
-ids again if the run was interrupted before phase 2.
+**idealista**. Plain HTTP is a DataDome 403. Only the real logged-in Chrome passes. Verified
+live on 2026-09-19 over Chrome's `chrome://inspect` toggle: 52 pages, 50 rent ads, no challenge.
+Real markup differs from the scouted one: each feature list is wrapped in a `div` under its
+`h2`, m² appears bare (`50 m²`) in `.info-features`, and seasonal lets carry a
+`.detail-info-tags .tag` "Alquiler de temporada" (28 of 50 rent ads). Exact coordinates are
+usually hidden ("por privacidad"), so `lat` and `lon` are null and accuracy is street or zone.
+The advertiser node holds only the type label, not the agency name. Fill rates on the 50 ads:
+built_m2, bathrooms, energy label and price 50/50, rooms 44, description 48, floor 2, year 10.
+Raw payload is kept in `source_raw`, but a parser fix needs the detail pages again.
 
 ## Anti-bot posture
 
