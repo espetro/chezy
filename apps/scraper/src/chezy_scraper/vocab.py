@@ -90,6 +90,45 @@ HABITACLIA_FEATURES: Final[dict[str, str]] = {
 HABITACLIA_DYNAMIC: Final[dict[str, str]] = FOTOCASA_DYNAMIC
 
 
+# Spanish phrases idealista prints in its detail lists; matched as substrings on the
+# lowercased line. A line starting with "sin " (e.g. "Sin ascensor") never matches.
+IDEALISTA_KEYWORDS: Final[dict[str, str]] = {
+    "aire acondicionado": "air_conditioning",
+    "amueblado": "furnished",
+    "armarios empotrados": "wardrobes",
+    "balcón": "balcony",
+    "calefacción": "heating",
+    "chimenea": "fireplace",
+    "cocina equipada": "equipped_kitchen",
+    "con ascensor": "elevator",
+    "conserje": "doorman",
+    "exterior": "exterior",
+    "garaje": "parking",
+    "gimnasio": "gym",
+    "jardín": "garden",
+    "lavadora": "laundry",
+    "mascotas": "pets_allowed",
+    "piscina": "pool",
+    "portero": "doorman",
+    "trastero": "storage_room",
+    "terraza": "terrace",
+    "vistas al mar": "sea_view",
+}
+
+
+def keyword_amenities(lines: list[str], mapping: dict[str, str]) -> list[str]:
+    """Map free-text feature lines onto the shared vocabulary (substring match)."""
+    seen: dict[str, None] = {}
+    for line in lines:
+        lowered = line.lower().strip()
+        if lowered.startswith(("sin ", "no ")):
+            continue
+        for phrase, canonical in mapping.items():
+            if phrase in lowered:
+                seen.setdefault(canonical)
+    return list(seen)
+
+
 def normalize(keys: list[str], mapping: dict[str, str]) -> list[str]:
     """Map platform keys to the shared vocabulary, deduped, stable order."""
     seen: dict[str, None] = {}
