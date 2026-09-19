@@ -78,3 +78,13 @@ def test_bundle_round_trip(tmp_path: Path) -> None:
         assert hashlib.sha256((root / relative).read_bytes()).hexdigest() == digest
     with tarfile.open(result.archive) as tar:
         assert "chezy-small-t1/DATASET.md" in tar.getnames()
+
+
+def test_package_command_is_wired_and_rejects_unknown_platform() -> None:
+    from chezy_scraper.__main__ import app  # noqa: PLC0415
+    from typer.testing import CliRunner  # noqa: PLC0415
+
+    runner = CliRunner()
+    assert runner.invoke(app, ["package", "--help"]).exit_code == 0
+    result = runner.invoke(app, ["package", "--platform", "nope"])
+    assert result.exit_code == 2

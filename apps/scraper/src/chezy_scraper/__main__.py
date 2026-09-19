@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Annotated, Final
+from typing import Annotated, Final, get_args
 
 import psycopg
 import typer
@@ -176,7 +176,7 @@ def media(
 def package(
     tier: Annotated[Tier, typer.Option(help="Tier to bundle.")] = "small",
     platform: Annotated[
-        list[Platform] | None,
+        list[str] | None,
         typer.Option(help="Platforms to include (repeatable). Default: all but idealista."),
     ] = None,
     release: Annotated[str | None, typer.Option(help="Release label, default today.")] = None,
@@ -186,9 +186,13 @@ def package(
     pii: Annotated[Pii, typer.Option(help="scrub (default) or keep contact details.")] = "scrub",
 ) -> None:
     """Mirror images, then write a checksummed `chezy-<tier>-<release>.tar.gz` bundle."""
+    wanted = set(platform or _BUNDLE_PLATFORMS)
+    unknown = wanted - set(get_args(Platform))
+    if unknown:
+        typer.echo(f"unknown platform(s): {sorted(unknown)}", err=True)
+        raise typer.Exit(2)
     settings = Settings.from_env()
     configure_logging()
-    wanted = set(platform or _BUNDLE_PLATFORMS)
     listings = [x for x in _tier_listings(settings, tier) if x.platform in wanted]
     if not listings:
         typer.echo(f"no {tier} datasets for {sorted(wanted)}; run `scraper scrape` first", err=True)
