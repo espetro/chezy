@@ -79,3 +79,8 @@ next-env.d.ts
 # Dataset photos are 437 MB of WebP; the UI hotlinks media[].url at the source
 # CDN instead. Keep the tables (data/, schema/, docs) tracked.
 chezy-mock-data/media/
+
+# apps/video generated media: TTS WAVs, teammate phone captures, renders
+apps/video/public/audio/
+apps/video/public/clips/
+apps/video/out/
