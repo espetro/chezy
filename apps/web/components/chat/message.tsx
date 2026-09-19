@@ -306,7 +306,7 @@ const PurePreviewMessage = ({
 
         return (
           <div className={widthClass} key={toolCallId}>
-            <Tool className="w-full" defaultOpen={false}>
+            <Tool className="w-full" defaultOpen={listings.length > 0}>
               <ToolHeader
                 state={state}
                 title={
@@ -518,12 +518,12 @@ const ListingRow = ({ listing }: { listing: ListingSummary }) => {
     .join(" · ");
 
   return (
-    <li className="flex items-center gap-3">
+    <li className="flex items-center gap-3 rounded-md border p-2">
       {listing.coverUrl && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           alt={listing.title}
-          className="size-12 shrink-0 rounded object-cover"
+          className="size-16 shrink-0 rounded object-cover"
           src={listing.coverUrl}
         />
       )}
@@ -537,7 +537,10 @@ const ListingRow = ({ listing }: { listing: ListingSummary }) => {
           {listing.title}
         </a>
         <div className="truncate text-muted-foreground text-xs">
-          {[price, details].filter(Boolean).join(" · ")}
+          {[price, details].filter(Boolean).join(" · ")}{" "}
+          <span className="font-mono text-[11px] text-muted-foreground">
+            {listing.id}
+          </span>
         </div>
       </div>
     </li>
