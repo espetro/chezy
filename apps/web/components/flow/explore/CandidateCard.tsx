@@ -1,26 +1,28 @@
-import Image from "next/image";
 import Link from "next/link";
 import { FlowPill } from "@/components/flow/ui/Pill";
 import { FlowScoreBadge } from "@/components/flow/ui/ScoreBadge";
-import type { Listing } from "@/lib/flow/types";
+import type { FlowListing } from "@/lib/flow/types";
 
 interface CandidateCardProps {
-  listing: Listing;
+  listing: FlowListing;
 }
 
 export const CandidateCard = ({ listing }: CandidateCardProps) => (
   <Link
-    href={`/flow/explore/${listing.id}`}
+    href={`/flow/explore/${encodeURIComponent(listing.id)}`}
     className="group flex flex-col overflow-hidden rounded-cards bg-snow shadow-sm transition-shadow hover:shadow-md"
   >
     <div className="relative h-48 w-full">
-      <Image
-        src={listing.imageUrl}
-        alt={listing.title}
-        fill
-        sizes="(min-width: 768px) 33vw, 100vw"
-        className="object-cover"
-      />
+      {listing.imageUrl ? (
+        <img
+          src={listing.imageUrl}
+          alt={listing.title}
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-mist" />
+      )}
       <FlowScoreBadge score={listing.matchScore} className="absolute left-4 top-4 shadow-[0_1px_8px_rgba(0,0,0,0.18)]" />
     </div>
 

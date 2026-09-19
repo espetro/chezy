@@ -3,11 +3,11 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, useState } from "react";
 import { CandidateCard } from "@/components/flow/explore/CandidateCard";
-import type { Listing } from "@/lib/flow/types";
+import type { FlowListing } from "@/lib/flow/types";
 import { cn } from "@/lib/utils";
 
 interface CandidateCarouselProps {
-  listings: Listing[];
+  listings: FlowListing[];
   label: string;
 }
 

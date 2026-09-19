@@ -39,11 +39,6 @@ const nextConfig: NextConfig = {
         hostname: "*.public.blob.vercel-storage.com",
         protocol: "https",
       },
-      {
-        // /flow's mock listing photos (stock Unsplash images, not real listings).
-        hostname: "images.unsplash.com",
-        protocol: "https",
-      },
     ],
   },
   logging: {

@@ -1,21 +1,37 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { Suspense } from "react";
+
+import { auth } from "@/app/(auth)/auth";
 import { MatchDetail } from "@/components/flow/match/MatchDetail";
-import { getListingById, mockListings } from "@/lib/flow/mock-listings";
+import { toFlowListing } from "@/lib/flow/adapters";
+import { getListingRowById } from "@/lib/listings";
+import { scoreListing } from "@/lib/match";
+import { getProfile } from "@/lib/profile";
 
 interface ExploreDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-export const generateStaticParams = () =>
-  mockListings.map((listing) => ({ id: listing.id }));
+export default function ExploreDetailPage({ params }: ExploreDetailPageProps) {
+  return (
+    <Suspense>
+      <Detail params={params} />
+    </Suspense>
+  );
+}
 
-const ExploreDetailPage = async ({ params }: ExploreDetailPageProps) => {
+async function Detail({ params }: ExploreDetailPageProps) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    redirect("/api/auth/guest?redirectUrl=/flow/explore");
+  }
+
   const { id } = await params;
-  const listing = getListingById(id);
+  const row = await getListingRowById(decodeURIComponent(id));
+  if (!row) notFound();
 
-  if (!listing) notFound();
+  const profile = await getProfile(session.user.id);
+  const match = profile ? scoreListing(profile, row) : { score: 0, reasons: [] };
 
-  return <MatchDetail listing={listing} />;
-};
-
-export default ExploreDetailPage;
+  return <MatchDetail listing={toFlowListing(row, match, profile)} />;
+}

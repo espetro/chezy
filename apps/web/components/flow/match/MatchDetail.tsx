@@ -1,14 +1,13 @@
-import Image from "next/image";
 import Link from "next/link";
 import { AgentCallGate } from "@/components/flow/match/AgentCallGate";
 import { NeighborhoodProfile } from "@/components/flow/match/NeighborhoodProfile";
 import { FlowCard } from "@/components/flow/ui/Card";
 import { FlowPill } from "@/components/flow/ui/Pill";
 import { FlowScoreBadge } from "@/components/flow/ui/ScoreBadge";
-import type { Listing } from "@/lib/flow/types";
+import type { FlowListing } from "@/lib/flow/types";
 
 interface MatchDetailProps {
-  listing: Listing;
+  listing: FlowListing;
 }
 
 export const MatchDetail = ({ listing }: MatchDetailProps) => {
@@ -19,14 +18,15 @@ export const MatchDetail = ({ listing }: MatchDetailProps) => {
       </Link>
 
       <div className="relative h-80 w-full overflow-hidden rounded-cards md:h-96">
-        <Image
-          src={listing.imageUrl}
-          alt={listing.title}
-          fill
-          sizes="(min-width: 768px) 1000px, 100vw"
-          className="object-cover"
-          priority
-        />
+        {listing.imageUrl ? (
+          <img
+            src={listing.imageUrl}
+            alt={listing.title}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-mist" />
+        )}
       </div>
 
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">

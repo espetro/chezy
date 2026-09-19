@@ -3,18 +3,23 @@
 import { useState } from "react";
 import { FlowAgentMark } from "@/components/flow/ui/AgentMark";
 import { CandidateCarousel } from "@/components/flow/explore/CandidateCarousel";
-import { mockListings } from "@/lib/flow/mock-listings";
+import type { FlowListing } from "@/lib/flow/types";
 import { cn } from "@/lib/utils";
 
 type SortMode = "match" | "price-asc";
 
-const zones = Array.from(new Set(mockListings.map((listing) => listing.neighborhood)));
+interface ExploreFeedProps {
+  listings: FlowListing[];
+  note?: string;
+}
 
-export const ExploreFeed = () => {
+export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
   const [activeZone, setActiveZone] = useState<string | undefined>();
   const [sortMode, setSortMode] = useState<SortMode>("match");
 
-  const filtered = mockListings.filter(
+  const zones = Array.from(new Set(listings.map((listing) => listing.neighborhood)));
+
+  const filtered = listings.filter(
     (listing) => !activeZone || listing.neighborhood === activeZone,
   );
 
@@ -26,11 +31,16 @@ export const ExploreFeed = () => {
     <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-6 py-10 md:px-8">
       <div className="flex items-start gap-3 rounded-cards bg-snow px-6 py-5 shadow-sm">
         <FlowAgentMark size="sm" className="mt-0.5" />
-        <p className="text-[15px] text-graphite">
-          I found <strong>{mockListings.length} candidates</strong> that
-          match your search across our partner agency network. Sorted by
-          match — I'll let you know as soon as a new one comes in.
-        </p>
+        <div className="flex flex-col gap-1.5">
+          <p className="text-[15px] text-graphite">
+            I found <strong>{listings.length} candidates</strong> that
+            match your search across our partner agency network. Sorted by
+            match — I'll let you know as soon as a new one comes in.
+          </p>
+          {note ? (
+            <p className="text-[13px] text-amber-700">{note}</p>
+          ) : undefined}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-4">
