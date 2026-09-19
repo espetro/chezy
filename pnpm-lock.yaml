@@ -131,6 +131,9 @@ importers:
       '@codemirror/view':
         specifier: ^6.43.5
         version: 6.43.12
+      '@logtape/logtape':
+        specifier: catalog:default
+        version: 2.3.5
       '@opentelemetry/api':
         specifier: ^1.9.1
         version: 1.9.1

@@ -1,3 +1,10 @@
+// errors.ts is reachable from client code (lib/utils.ts), so it must not import
+// the @chezy/observability index (its file sink pulls in node:*). `getLogger`
+// is the same logtape function the facade re-exports, and `./logger` is the
+// facade's import-free entry point.
+import { rootLogger } from "@chezy/observability/logger";
+import { getLogger } from "@logtape/logtape";
+
 export type ErrorType =
   | "bad_request"
   | "unauthorized"
@@ -36,6 +43,8 @@ export const visibilityBySurface: Record<Surface, ErrorVisibility> = {
   vote: "response",
 };
 
+const errorLogger = getLogger([...rootLogger.category, "errors"]);
+
 export class ChatbotError extends Error {
   type: ErrorType;
   surface: Surface;
@@ -64,11 +73,7 @@ export class ChatbotError extends Error {
     const { message, cause, statusCode } = this;
 
     if (visibility === "log") {
-      console.error({
-        cause,
-        code,
-        message,
-      });
+      errorLogger.error("{code}: {message}", { cause, code, message });
 
       return Response.json(
         { code: "", message: "Something went wrong. Please try again later." },
