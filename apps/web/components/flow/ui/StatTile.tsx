@@ -31,7 +31,7 @@ export const FlowStatTile = <T extends number>({
       disabled={target === undefined}
       onClick={() => target !== undefined && onChange(target)}
       className={cn(
-        "flex min-h-11 size-7 items-center justify-center rounded-full bg-snow text-steel transition-colors duration-200 hover:text-obsidian disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
+        "relative flex size-7 items-center justify-center rounded-full before:absolute before:-inset-2 before:content-[''] bg-snow text-steel transition-colors duration-200 hover:text-obsidian disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
       )}
     >
       {glyph}

@@ -16,7 +16,7 @@ export const FlowSwitch = ({ checked, onChange, label }: SwitchProps) => (
     aria-label={label}
     onClick={() => onChange(!checked)}
     className={cn(
-      "relative h-6 min-h-11 w-11 shrink-0 rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
+      "relative h-6 w-11 shrink-0 rounded-full before:absolute before:-inset-x-1 before:-inset-y-2.5 before:content-[''] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
       checked ? "bg-obsidian" : "bg-cloud",
     )}
   >
