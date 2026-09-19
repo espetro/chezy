@@ -1,25 +1,30 @@
 # Norma compliance pass, 2026-09-19
 
-Branch `chore/norma-compliance-pass` off `origin/main` (b476fdd). Scope: chezy authored
+Branch `chore/norma-compliance-pass` on top of the fork's main (`calohco/chezy2`, a fork of
+`espetro/chezy` imported into the Norma portal because `espetro/chezy` could not be rescanned). Scope: chezy authored
 code in `apps/web`. Vendor and untouched upstream files are accepted, see the register.
 
 ## Scores
 
 | | Production-Ready Score | Open issues |
 |---|---|---|
-| Before (portal Full Scan) | TBD, needs the portal scan | TBD |
-| After (portal rescan) | TBD | TBD |
+| Before (portal Full Scan of `calohco/chezy2`) | 62/100, Conditional | 366 |
+| After (portal rescan) | TBD, needs the rescan after merge | TBD |
 
-`link_repository` for `espetro/chezy` returned `auto_import_not_available`, so the repo has
-to be imported from the Norma portal before `get_open_issues` and scans work. Everything
-below was measured per file with `live_check`, which works without a linked repo.
-`live_check` reported reduced coverage (1 semgrep rule could not be evaluated) on every call.
+Before, per dimension: Performance 77%, Scalability 65%, Manageability 83%, Security 24%
+(FAIL), Maintainability 88%, Architecture 100%. The portal also shows 130 AI generated
+prompt findings; those are not part of the score.
+
+Per file findings during the fixes came from `live_check`, which works without a linked
+repo and reported reduced coverage (1 semgrep rule not evaluable) on every call. The
+repo is now linked (id 10146, reference branch main).
 
 ## Fixed
 
 | rule | severity | where | how |
 |---|---|---|---|
 | `js-fetch-no-timeout` | MEDIUM | `lib/ai/models.ts`, `lib/vonage.ts`, `lib/calendar.ts` (2 sites), `lib/slng.ts`, `lib/ai/tools/get-weather.ts` (2 sites), `lib/vision/extract.ts`, `lib/utils.ts` | `FETCH_TIMEOUT_MS` in `lib/constants.ts`; `AbortSignal.timeout` on server calls; client helpers bound time to headers only |
+| `rct-unsafe-href-binding` | HIGH (Security) | `components/chat/listing-results.tsx` | scraped `listing.url` went straight into `href`; now gated by `safeHttpUrl` (http/https only), link omitted otherwise |
 | `js-mng-loopback-url` | HIGH | `lib/ai/models.ts`, `lib/ai/providers.ts` | config read through `lib/env.ts`; the loopback default now lives once in `lib/constants.ts` |
 
 Norma re-check after the fixes: `providers.ts` and `errors.ts` clean; `models.ts` and
@@ -67,8 +72,18 @@ Every entry names its own reason.
   Their change is a one line `signal`; expect the same `js-no-error-handling-async` class
   as `calendar.ts`.
 
+## Security triage (the 10 highs, Security is 24% and the biggest lever)
+
+Only one was chezy authored and real (`listing-results.tsx`, fixed above). The rest:
+
+- `enrich-listings.ts`: a token count flagged as a secret, false positive.
+- `app/layout.tsx`: static theme bootstrap script, no user input reaches it.
+- diff view and functions `innerHTML`: upstream template code.
+- sidebar and multimodal cookies: non sensitive UI preferences, upstream.
+
 ## Verification
 
+- After the rebase onto the fork's main: typecheck clean, 103 tests pass in 14 files.
 - Baseline before changes: typecheck green, 42 web tests pass (`/tmp/chezy-norma-baseline-real-*.log`).
   The stock `mise run validate` baseline is vacuous on a fresh branch ("no changes vs
   origin/main"), so it was not used as the comparison.
