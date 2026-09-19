@@ -1,0 +1,42 @@
+[
+  {
+    "id": "fixture-1",
+    "priceEur": 1000,
+    "pricePeriod": "month",
+    "rooms": 2,
+    "builtM2": 70,
+    "amenities": ["elevator"]
+  },
+  {
+    "id": "fixture-2",
+    "priceEur": 1800,
+    "pricePeriod": "month",
+    "rooms": 3,
+    "builtM2": 85,
+    "amenities": ["terrace"]
+  },
+  {
+    "id": "fixture-3",
+    "priceEur": null,
+    "pricePeriod": null,
+    "rooms": 2,
+    "builtM2": 65,
+    "amenities": []
+  },
+  {
+    "id": "fixture-4",
+    "priceEur": 950,
+    "pricePeriod": "month",
+    "rooms": null,
+    "builtM2": 60,
+    "amenities": ["heating"]
+  },
+  {
+    "id": "fixture-5",
+    "priceEur": 1100,
+    "pricePeriod": "month",
+    "rooms": 1,
+    "builtM2": 45,
+    "amenities": ["balcony", "elevator"]
+  }
+]
