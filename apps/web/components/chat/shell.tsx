@@ -44,7 +44,7 @@ export function ChatShell() {
     setShowCreditCardAlert,
   } = useActiveChat();
 
-  const [editingMessage, setEditingMessage] = useState<ChatMessage | null>(null);
+  const [editingMessage, setEditingMessage] = useState<ChatMessage | undefined>(undefined);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const isArtifactVisible = useArtifactSelector((state) => state.isVisible);
   const { setArtifact } = useArtifact();
@@ -58,7 +58,7 @@ export function ChatShell() {
       prevChatIdRef.current = chatId;
       stopRef.current();
       setArtifact(initialArtifactData);
-      setEditingMessage(null);
+      setEditingMessage(undefined);
       setAttachments([]);
     }
   }, [chatId, setArtifact]);
@@ -76,7 +76,7 @@ export function ChatShell() {
   );
 
   const handleCancelEdit = useCallback(() => {
-    setEditingMessage(null);
+    setEditingMessage(undefined);
     setInput("");
   }, [setInput]);
 
@@ -86,7 +86,7 @@ export function ChatShell() {
     }
 
     const msg = editingMessage;
-    setEditingMessage(null);
+    setEditingMessage(undefined);
     await submitEditedMessage({
       message: msg,
       regenerate,

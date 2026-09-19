@@ -38,6 +38,8 @@ function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
     return () => {
       if (editorRef.current) {
         editorRef.current.destroy();
+        // Ref typed EditorView | null by CodeMirror.
+        // oxlint-disable-next-line unicorn/no-null
         editorRef.current = null;
       }
     };

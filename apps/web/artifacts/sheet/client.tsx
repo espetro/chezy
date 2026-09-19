@@ -61,7 +61,7 @@ export const sheetArtifact = new Artifact<"sheet", Metadata>({
     />
   ),
   description: "Useful for working with spreadsheets",
-  initialize: () => null,
+  initialize: () => undefined,
   kind: "sheet",
   onStreamPart: ({ setArtifact, streamPart }) => {
     if (streamPart.type === "data-sheetDelta") {

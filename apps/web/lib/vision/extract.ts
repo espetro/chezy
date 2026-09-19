@@ -75,7 +75,7 @@ function stripFences(text: string): string {
 export async function extractListingInsights(
   input: {
     listingId: string;
-    photos: { url: string; localPath: string | null }[];
+    photos: { url: string; localPath: string | undefined }[];
   },
   opts?: { modelId?: string },
 ): Promise<{

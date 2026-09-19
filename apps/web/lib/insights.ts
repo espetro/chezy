@@ -101,16 +101,16 @@ async function datasetLocalPaths(listingId: string): Promise<Map<string, string>
 export async function selectPhotos(row: {
   id: string;
   media: { url: string; kind: string; roomType: string | null }[];
-}): Promise<{ url: string; localPath: string | null; mediaIndex: number }[]> {
+}): Promise<{ url: string; localPath: string | undefined; mediaIndex: number }[]> {
   const localPaths = await datasetLocalPaths(row.id);
   return row.media
     .map((m, mediaIndex) => ({
       url: m.url,
-      localPath: localPaths.get(m.url) ?? null,
+      localPath: localPaths.get(m.url) ?? undefined,
       kind: m.kind,
       mediaIndex,
     }))
-    .filter((p) => p.kind === "photo" && (p.localPath !== null || isCdnImageUrl(p.url)))
+    .filter((p) => p.kind === "photo" && (p.localPath !== undefined || isCdnImageUrl(p.url)))
     .map(({ url, localPath, mediaIndex }) => ({ url, localPath, mediaIndex }));
 }
 

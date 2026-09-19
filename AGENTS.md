@@ -2,7 +2,9 @@
 
 Chat-centric AI webapp, 0→1 hackathon build. Chatbot UI lives in `apps/web` — it
 diverged from the `vercel/chatbot` import (PR #2 is the last sync point; see git
-history). NextAuth 5 guest auth is present and required. Neon is swapped for `pg0` and `@ai-sdk/gateway` for
+history). NextAuth 5 guest auth is present and required; zod and `useEffect` remain in
+upstream-derived template sources under a scoped oxlint override. Neon is swapped for
+`pg0` and `@ai-sdk/gateway` for
 `@ai-sdk/openai-compatible` (Nebius AI Studio). Idealista scraping pipeline lives in
 `apps/scraper` (uv-managed Python CLI). Shared TS/UI primitives live in `packages/*`.
 
@@ -71,9 +73,12 @@ Any change to one of these requires updating the corresponding gate marker.
   hatch is `useMountEffect` from
   `@chezy/ui/hooks/useMountEffect`. [gate: .oxlintrc.json]
 - `process.env` reads are banned in chezy code outside `packages/config` and known
-  `*.config-bound.ts` files (`apps/web` reads env directly as upstream does). Inject
-  config through a constructor / ctx. Enforced by `no-restricted-properties`.
-  [gate: .oxlintrc.json]
+  `*.config-bound.ts` files. In `apps/web`, only `NEXT_PUBLIC_*` (build-time inlined)
+  and `NODE_ENV` reads are allowed; `lib/env.ts` is the single `process.env` reader and
+  the listed config-bound files (`next.config.ts`, `drizzle.config.ts`,
+  `playwright.config.ts`, `proxy.ts`, `instrumentation.ts`, `lib/db/*`,
+  `lib/constants.ts`, `app/(auth)/auth.config.ts`) are exempt via scoped override.
+  Enforced by `no-restricted-properties`. [gate: .oxlintrc.json]
 - Drizzle schema lives in `packages/db/src/schema/*`. Components and routes must not
   value-import `packages/db`; reach the server via a `createServerFn` body. Enforced by
   `no-restricted-imports` (client graph ban). [gate: .oxlintrc.json]

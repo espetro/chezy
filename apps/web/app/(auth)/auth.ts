@@ -64,6 +64,8 @@ export const {
 
         if (users.length === 0) {
           await compare(password, DUMMY_PASSWORD);
+          // NextAuth Awaitable<User | null> contract.
+          // oxlint-disable-next-line unicorn/no-null
           return null;
         }
 
@@ -71,12 +73,16 @@ export const {
 
         if (!user.password) {
           await compare(password, DUMMY_PASSWORD);
+          // NextAuth Awaitable<User | null> contract.
+          // oxlint-disable-next-line unicorn/no-null
           return null;
         }
 
         const passwordsMatch = await compare(password, user.password);
 
         if (!passwordsMatch) {
+          // NextAuth Awaitable<User | null> contract.
+          // oxlint-disable-next-line unicorn/no-null
           return null;
         }
 

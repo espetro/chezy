@@ -68,7 +68,7 @@ function VisibilitySelectorItem({
         {visibility.label}
         {visibility.description ? (
           <div className="text-xs text-muted-foreground">{visibility.description}</div>
-        ) : null}
+        ) : undefined}
       </div>
       <div className="text-foreground opacity-0 group-data-[active=true]/item:opacity-100 dark:text-foreground">
         <CheckCircleFillIcon />

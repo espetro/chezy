@@ -7,14 +7,14 @@ import { ChatbotError } from "~/lib/errors";
 const MAX_MESSAGES = 10;
 const TTL_SECONDS = 60 * 60;
 
-let client: ReturnType<typeof createClient> | null = null;
+let client: ReturnType<typeof createClient> | undefined = undefined;
 
 function getClient() {
   if (!client && env.REDIS_URL) {
     client = createClient({ url: env.REDIS_URL });
     client.on("error", () => undefined);
     client.connect().catch(() => {
-      client = null;
+      client = undefined;
     });
   }
   return client;

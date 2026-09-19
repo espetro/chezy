@@ -56,12 +56,12 @@ export async function createGuestUser() {
   }
 }
 
-export async function getUserByUsername(username: string): Promise<User | null> {
+export async function getUserByUsername(username: string): Promise<User | undefined> {
   try {
     const [selectedUser] = await db.select().from(user).where(eq(user.username, username));
 
     if (!selectedUser) {
-      return null;
+      return undefined;
     }
 
     return selectedUser;
@@ -230,11 +230,11 @@ export async function getChatsByUserId({
   }
 }
 
-export async function getChatById({ id }: { id: string }) {
+export async function getChatById({ id }: { id: string }): Promise<Chat | undefined> {
   try {
     const [selectedChat] = await db.select().from(chat).where(eq(chat.id, id));
     if (!selectedChat) {
-      return null;
+      return undefined;
     }
 
     return selectedChat;

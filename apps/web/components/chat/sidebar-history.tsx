@@ -26,6 +26,8 @@ import {
 } from "~/components/ui/sidebar";
 import type { Chat } from "~/lib/db/schema";
 import { fetcher } from "~/lib/utils";
+export { getChatHistoryPaginationKey };
+export type { ChatHistory };
 import { LoaderIcon } from "./icons";
 import { ChatItem } from "./sidebar-history-item";
 
@@ -37,12 +39,7 @@ type GroupedChats = {
   older: Chat[];
 };
 
-export type ChatHistory = {
-  chats: Chat[];
-  hasMore: boolean;
-};
-
-const PAGE_SIZE = 20;
+import { getChatHistoryPaginationKey, type ChatHistory } from "~/lib/chat-helpers";
 
 const groupChatsByDate = (chats: Chat[]): GroupedChats => {
   const now = new Date();
@@ -77,28 +74,10 @@ const groupChatsByDate = (chats: Chat[]): GroupedChats => {
   );
 };
 
-export function getChatHistoryPaginationKey(pageIndex: number, previousPageData: ChatHistory) {
-  if (previousPageData && previousPageData.hasMore === false) {
-    return null;
-  }
-
-  if (pageIndex === 0) {
-    return `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/history?limit=${PAGE_SIZE}`;
-  }
-
-  const firstChatFromPage = previousPageData.chats.at(-1);
-
-  if (!firstChatFromPage) {
-    return null;
-  }
-
-  return `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/history?ending_before=${firstChatFromPage.id}&limit=${PAGE_SIZE}`;
-}
-
 export function SidebarHistory({ user }: { user: User | undefined }) {
   const { setOpenMobile } = useSidebar();
   const pathname = usePathname();
-  const id = pathname?.startsWith("/chat/") ? pathname.split("/")[2] : null;
+  const id = pathname?.startsWith("/chat/") ? pathname.split("/")[2] : undefined;
 
   const {
     data: paginatedChatHistories,
@@ -106,13 +85,13 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
     isValidating,
     isLoading,
     mutate,
-  } = useSWRInfinite<ChatHistory>(user ? getChatHistoryPaginationKey : () => null, fetcher, {
+  } = useSWRInfinite<ChatHistory>(user ? getChatHistoryPaginationKey : () => undefined, fetcher, {
     fallbackData: [],
     revalidateOnFocus: false,
   });
 
   const router = useRouter();
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | undefined>(undefined);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const hasReachedEnd = paginatedChatHistories
@@ -318,12 +297,12 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
                     </div>
                   );
                 })()
-              : null}
+              : undefined}
           </SidebarMenu>
 
           <motion.div onViewportEnter={handleViewportEnter} />
 
-          {hasReachedEnd ? null : (
+          {hasReachedEnd ? undefined : (
             <div className="mt-1 flex flex-row items-center gap-2 px-4 py-2 text-sidebar-foreground/50">
               <div className="animate-spin">
                 <LoaderIcon />

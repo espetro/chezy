@@ -10,10 +10,10 @@ export interface SlngDispatchResult {
 }
 
 export interface SlngAgentState {
-  readonly region: string | null;
-  readonly orchestrator: string | null;
-  readonly livekitDeployment: string | null;
-  readonly sipOutboundTrunkId: string | null;
+  readonly region: string | undefined;
+  readonly orchestrator: string | undefined;
+  readonly livekitDeployment: string | undefined;
+  readonly sipOutboundTrunkId: string | undefined;
 }
 
 interface SlngAgentResponse {
@@ -48,10 +48,10 @@ async function slngFetch(
 
 function toAgentState(json: SlngAgentResponse): SlngAgentState {
   return {
-    region: json.region ?? null,
-    orchestrator: json.orchestrator ?? null,
-    livekitDeployment: json.livekit_deployment ?? null,
-    sipOutboundTrunkId: json.sip_outbound_trunk_id ?? null,
+    region: json.region ?? undefined,
+    orchestrator: json.orchestrator ?? undefined,
+    livekitDeployment: json.livekit_deployment ?? undefined,
+    sipOutboundTrunkId: json.sip_outbound_trunk_id ?? undefined,
   };
 }
 
@@ -90,7 +90,7 @@ export async function dispatchSlngCall(input: {
   readonly variables?: Record<string, string>;
 }): Promise<SlngDispatchResult> {
   const state = await ensureSlngAgentPinned();
-  if (state.sipOutboundTrunkId === null) {
+  if (state.sipOutboundTrunkId === undefined) {
     throw new Error(
       "SLNG agent has no outbound SIP trunk attached; attach a connection in the SLNG dashboard (Telephony -> Outbound) or PATCH sip_outbound_trunk_id",
     );

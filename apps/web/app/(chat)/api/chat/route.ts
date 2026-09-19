@@ -69,7 +69,7 @@ function getStreamContext() {
   try {
     return createResumableStreamContext({ waitUntil: after });
   } catch {
-    return null;
+    return undefined;
   }
 }
 
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
   try {
     const { id, message, messages, selectedChatModel, selectedVisibilityType } = requestBody;
 
-    const [botIdResult, session] = await Promise.all([checkBotId().catch(() => null), auth()]);
+    const [botIdResult, session] = await Promise.all([checkBotId().catch(() => undefined), auth()]);
 
     if (botIdResult?.isBot) {
       return new ChatbotError("forbidden:api").toResponse();
@@ -119,7 +119,7 @@ export async function POST(request: Request) {
 
     const chat = await getChatById({ id });
     let messagesFromDb: DBMessage[] = [];
-    let titlePromise: Promise<string> | null = null;
+    let titlePromise: Promise<string> | undefined = undefined;
 
     if (chat) {
       if (chat.userId !== session.user.id) {

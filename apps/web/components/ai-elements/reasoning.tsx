@@ -31,7 +31,7 @@ interface ReasoningContextValue {
   duration: number | undefined;
 }
 
-const ReasoningContext = createContext<ReasoningContextValue | null>(null);
+const ReasoningContext = createContext<ReasoningContextValue | undefined>(undefined);
 
 export const useReasoning = () => {
   const context = useContext(ReasoningContext);
@@ -90,6 +90,8 @@ export const Reasoning = memo(
         }
       } else if (startTimeRef.current !== null) {
         setDuration(Math.ceil((Date.now() - startTimeRef.current) / MS_IN_S));
+        // Ref typed number | null by upstream context.
+        // oxlint-disable-next-line unicorn/no-null
         startTimeRef.current = null;
       }
     }, [isStreaming, setDuration]);
@@ -203,7 +205,7 @@ export const ReasoningContent = memo(({ className, children, ...props }: Reasoni
     }
   }, [children, isStreaming]);
 
-  if (!isOpen) return null;
+  if (!isOpen) return undefined;
 
   return (
     <div

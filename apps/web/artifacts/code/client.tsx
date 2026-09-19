@@ -83,7 +83,7 @@ const codeArtifactContent: Artifact<"code", Metadata>["content"] = function Code
 
       {metadata?.outputs ? (
         <Console consoleOutputs={metadata.outputs} setConsoleOutputs={clearConsoleOutputs} />
-      ) : null}
+      ) : undefined}
     </>
   );
 };

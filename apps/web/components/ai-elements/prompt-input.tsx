@@ -75,10 +75,13 @@ const convertBlobUrlToDataUrl = async (url: string): Promise<string | null> => {
       // oxlint-disable-next-line eslint-plugin-unicorn(prefer-add-event-listener)
       reader.onloadend = () => resolve(reader.result as string);
       // oxlint-disable-next-line eslint-plugin-unicorn(prefer-add-event-listener)
+      // FileReader promise contract resolves null on error.
+      // oxlint-disable-next-line unicorn/no-null
       reader.onerror = () => resolve(null);
       reader.readAsDataURL(blob);
     });
   } catch {
+    // oxlint-disable-next-line unicorn/no-null
     return null;
   }
 };
@@ -109,8 +112,8 @@ export interface PromptInputControllerProps {
   __registerFileInput: (ref: RefObject<HTMLInputElement | null>, open: () => void) => void;
 }
 
-const PromptInputController = createContext<PromptInputControllerProps | null>(null);
-const ProviderAttachmentsContext = createContext<AttachmentsContext | null>(null);
+const PromptInputController = createContext<PromptInputControllerProps | undefined>(undefined);
+const ProviderAttachmentsContext = createContext<AttachmentsContext | undefined>(undefined);
 
 export const usePromptInputController = () => {
   const ctx = useContext(PromptInputController);
@@ -267,7 +270,7 @@ export const PromptInputProvider = ({
 // Component Context & Hooks
 // ============================================================================
 
-const LocalAttachmentsContext = createContext<AttachmentsContext | null>(null);
+const LocalAttachmentsContext = createContext<AttachmentsContext | undefined>(undefined);
 
 export const usePromptInputAttachments = () => {
   // Prefer local context (inside PromptInput) as it has validation, fall back to provider
@@ -293,7 +296,9 @@ export interface ReferencedSourcesContext {
   clear: () => void;
 }
 
-export const LocalReferencedSourcesContext = createContext<ReferencedSourcesContext | null>(null);
+export const LocalReferencedSourcesContext = createContext<ReferencedSourcesContext | undefined>(
+  undefined,
+);
 
 export const usePromptInputReferencedSources = () => {
   const ctx = useContext(LocalReferencedSourcesContext);

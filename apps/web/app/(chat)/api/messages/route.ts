@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     return Response.json({
       isReadonly: false,
       messages: [],
-      userId: null,
+      userId: undefined,
       visibility: "private",
     });
   }

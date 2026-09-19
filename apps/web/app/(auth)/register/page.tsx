@@ -20,7 +20,7 @@ export default function Page() {
 
   const { update: updateSession } = useSession();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: router and updateSession are stable refs
+  // updateSession (next-auth useSession update) and router are stable refs.
   useEffect(() => {
     if (state.status === "user_exists") {
       toast({ description: "Account already exists!", type: "error" });
@@ -37,7 +37,7 @@ export default function Page() {
       updateSession();
       router.refresh();
     }
-  }, [state.status]);
+  }, [state.status, setIsSuccessful, updateSession, router]);
 
   const handleSubmit = (formData: FormData) => {
     setEmail(formData.get("email") as string);

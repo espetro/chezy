@@ -37,7 +37,7 @@ type EditorProps = {
 function PureEditor({ content, onSaveContent, suggestions, status }: EditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorView | null>(null);
-  const [activeSuggestion, setActiveSuggestion] = useState<UISuggestion | null>(null);
+  const [activeSuggestion, setActiveSuggestion] = useState<UISuggestion | undefined>(undefined);
   const suggestionsRef = useRef<UISuggestion[]>([]);
 
   useEffect(() => {
@@ -83,6 +83,8 @@ function PureEditor({ content, onSaveContent, suggestions, status }: EditorProps
     return () => {
       if (editorRef.current) {
         editorRef.current.destroy();
+        // Ref typed EditorView | null by CodeMirror.
+        // oxlint-disable-next-line unicorn/no-null
         editorRef.current = null;
       }
     };
@@ -172,7 +174,7 @@ function PureEditor({ content, onSaveContent, suggestions, status }: EditorProps
       const decorationTransaction = state.tr;
       decorationTransaction.setMeta(suggestionsPluginKey, {
         decorations: newDecorations,
-        selected: null,
+        selected: undefined,
       });
       dispatch(decorationTransaction);
     }
@@ -185,11 +187,11 @@ function PureEditor({ content, onSaveContent, suggestions, status }: EditorProps
     textTransaction.setMeta("no-debounce", true);
     dispatch(textTransaction);
 
-    setActiveSuggestion(null);
+    setActiveSuggestion(undefined);
   }, [activeSuggestion]);
 
   const handleCloseSuggestion = useCallback(() => {
-    setActiveSuggestion(null);
+    setActiveSuggestion(undefined);
   }, []);
 
   return (

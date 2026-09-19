@@ -125,7 +125,7 @@ export function PureMessageActions({
   }, [chatId, message.id, mutate]);
 
   if (isLoading) {
-    return null;
+    return undefined;
   }
 
   if (message.role === "user") {
@@ -141,7 +141,7 @@ export function PureMessageActions({
             >
               <PencilEditIcon />
             </Action>
-          ) : null}
+          ) : undefined}
           <Action
             className="size-7 text-muted-foreground/50 hover:text-foreground"
             onClick={handleCopy}

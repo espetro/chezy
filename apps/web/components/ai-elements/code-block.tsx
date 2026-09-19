@@ -226,6 +226,8 @@ export const highlightCode = (
       subscribers.delete(tokensCacheKey);
     });
 
+  // Tokenizer contract expects an explicit null sentinel.
+  // oxlint-disable-next-line unicorn/no-null
   return null;
 };
 

@@ -29,6 +29,8 @@ export const updateDocument = ({ session, dataStream, modelId }: UpdateDocumentP
       }
 
       dataStream.write({
+        // AI SDK requires a null payload for this transient chunk.
+        // oxlint-disable-next-line unicorn/no-null
         data: null,
         transient: true,
         type: "data-clear",
@@ -50,6 +52,8 @@ export const updateDocument = ({ session, dataStream, modelId }: UpdateDocumentP
         session,
       });
 
+      // AI SDK requires a null payload for this transient chunk.
+      // oxlint-disable-next-line unicorn/no-null
       dataStream.write({ data: null, transient: true, type: "data-finish" });
 
       return {

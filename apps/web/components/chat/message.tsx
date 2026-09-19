@@ -154,7 +154,7 @@ const PurePreviewMessage = ({
           />
         );
       }
-      return null;
+      return undefined;
     }
 
     if (type === "text") {
@@ -289,7 +289,7 @@ const PurePreviewMessage = ({
           );
         }
 
-        return null;
+        return undefined;
       }
 
       return (
@@ -381,7 +381,7 @@ const PurePreviewMessage = ({
       );
     }
 
-    return null;
+    return undefined;
   });
 
   const actions = !isReadonly && (

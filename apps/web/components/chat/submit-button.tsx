@@ -28,7 +28,7 @@ export function SubmitButton({
         <span className="absolute right-4 animate-spin">
           <LoaderIcon />
         </span>
-      ) : null}
+      ) : undefined}
 
       <output aria-live="polite" className="sr-only">
         {pending || isSuccessful ? "Loading" : "Submit form"}

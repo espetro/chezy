@@ -40,7 +40,7 @@ export const PreviewAttachment = ({
         >
           <Spinner className="size-5" />
         </div>
-      ) : null}
+      ) : undefined}
 
       {onRemove && !isUploading && (
         <button

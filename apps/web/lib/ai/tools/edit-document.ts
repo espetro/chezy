@@ -45,6 +45,8 @@ export const editDocument = ({ session, dataStream }: EditDocumentProps) =>
       });
 
       dataStream.write({
+        // AI SDK requires a null payload for this transient chunk.
+        // oxlint-disable-next-line unicorn/no-null
         data: null,
         transient: true,
         type: "data-clear",
@@ -70,6 +72,8 @@ export const editDocument = ({ session, dataStream }: EditDocumentProps) =>
         });
       }
 
+      // AI SDK requires a null payload for this transient chunk.
+      // oxlint-disable-next-line unicorn/no-null
       dataStream.write({ data: null, transient: true, type: "data-finish" });
 
       return {

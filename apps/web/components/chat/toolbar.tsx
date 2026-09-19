@@ -18,15 +18,15 @@ import {
 import { useOnClickOutside } from "usehooks-ts";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 import type { ChatMessage } from "~/lib/types";
-import { type ArtifactKind, artifactDefinitions } from "./artifact";
+import { type ArtifactKind, artifactDefinitions } from "./artifact-definitions";
 import type { ArtifactToolbarItem } from "./create-artifact";
 import { ArrowUpIcon, StopIcon, SummarizeIcon } from "./icons";
 
 type ToolProps = {
   description: string;
   icon: ReactNode;
-  selectedTool: string | null;
-  setSelectedTool: Dispatch<SetStateAction<string | null>>;
+  selectedTool: string | undefined;
+  setSelectedTool: Dispatch<SetStateAction<string | undefined>>;
   isToolbarVisible?: boolean;
   setIsToolbarVisible?: Dispatch<SetStateAction<boolean>>;
   isAnimating: boolean;
@@ -75,7 +75,7 @@ const Tool = ({
     }
 
     if (selectedTool === description) {
-      setSelectedTool(null);
+      setSelectedTool(undefined);
       onClick({ sendMessage });
     } else {
       setSelectedTool(description);
@@ -130,7 +130,7 @@ const Tool = ({
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
         >
-          {selectedTool === description ? <ArrowUpIcon /> : isValidElement(icon) ? icon : null}
+          {selectedTool === description ? <ArrowUpIcon /> : isValidElement(icon) ? icon : undefined}
         </motion.div>
       </TooltipTrigger>
       <TooltipContent
@@ -151,7 +151,7 @@ const ReadingLevelSelector = ({
   sendMessage,
   isAnimating,
 }: {
-  setSelectedTool: Dispatch<SetStateAction<string | null>>;
+  setSelectedTool: Dispatch<SetStateAction<string | undefined>>;
   isAnimating: boolean;
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
 }) => {
@@ -183,13 +183,13 @@ const ReadingLevelSelector = ({
         role: "user",
       });
 
-      setSelectedTool(null);
+      setSelectedTool(undefined);
     }
   }, [currentLevel, hasUserSelectedLevel, sendMessage, setSelectedTool]);
 
   const handleDragEnd = useCallback(() => {
     if (currentLevel === 2) {
-      setSelectedTool(null);
+      setSelectedTool(undefined);
     } else {
       setHasUserSelectedLevel(true);
     }
@@ -260,8 +260,8 @@ export const Tools = ({
   isAnimating,
   tools,
 }: {
-  selectedTool: string | null;
-  setSelectedTool: Dispatch<SetStateAction<string | null>>;
+  selectedTool: string | undefined;
+  setSelectedTool: Dispatch<SetStateAction<string | undefined>>;
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
   isAnimating: boolean;
   tools: ArtifactToolbarItem[];
@@ -331,12 +331,12 @@ const PureToolbar = ({
   const toolbarRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
-  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+  const [selectedTool, setSelectedTool] = useState<string | undefined>(undefined);
   const [isAnimating, setIsAnimating] = useState(false);
 
   useOnClickOutside(toolbarRef, () => {
     setIsToolbarVisible(false);
-    setSelectedTool(null);
+    setSelectedTool(undefined);
   });
 
   const startCloseTimer = useCallback(() => {
@@ -345,7 +345,7 @@ const PureToolbar = ({
     }
 
     timeoutRef.current = setTimeout(() => {
-      setSelectedTool(null);
+      setSelectedTool(undefined);
       setIsToolbarVisible(false);
     }, 2000);
   }, [setIsToolbarVisible]);
@@ -414,7 +414,7 @@ const PureToolbar = ({
     : artifactDefinition.toolbar;
 
   if (toolsByArtifactKind.length === 0) {
-    return null;
+    return undefined;
   }
 
   return (
@@ -440,7 +440,7 @@ const PureToolbar = ({
           >
             <XIcon className="size-4" />
           </motion.div>
-        ) : null}
+        ) : undefined}
 
         {status === "streaming" ? (
           <motion.div

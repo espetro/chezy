@@ -22,9 +22,12 @@ export const initialArtifactData: UIArtifact = {
 type Selector<T> = (state: UIArtifact) => T;
 
 export function useArtifactSelector<Selected>(selector: Selector<Selected>) {
-  const { data: localArtifact } = useSWR<UIArtifact>("artifact", null, {
-    fallbackData: initialArtifactData,
-  });
+  // SWR requires an explicit null fetcher for cache-only reads.
+  const { data: localArtifact } =
+    // oxlint-disable-next-line unicorn/no-null
+    useSWR<UIArtifact>("artifact", null, {
+      fallbackData: initialArtifactData,
+    });
 
   const selectedValue = useMemo(() => {
     if (!localArtifact) {
@@ -37,9 +40,15 @@ export function useArtifactSelector<Selected>(selector: Selector<Selected>) {
 }
 
 export function useArtifact() {
-  const { data: localArtifact, mutate: setLocalArtifact } = useSWR<UIArtifact>("artifact", null, {
-    fallbackData: initialArtifactData,
-  });
+  // SWR requires an explicit null fetcher for cache-only reads.
+  const { data: localArtifact, mutate: setLocalArtifact } = useSWR<UIArtifact>(
+    "artifact",
+    // oxlint-disable-next-line unicorn/no-null
+    null,
+    {
+      fallbackData: initialArtifactData,
+    },
+  );
 
   const artifact = useMemo(() => {
     if (!localArtifact) {
@@ -64,10 +73,12 @@ export function useArtifact() {
   );
 
   const { data: localArtifactMetadata, mutate: setLocalArtifactMetadata } = useSWR<any>(
-    () => (artifact.documentId ? `artifact-metadata-${artifact.documentId}` : null),
+    () => (artifact.documentId ? `artifact-metadata-${artifact.documentId}` : undefined),
+    // SWR requires an explicit null fetcher for cache-only reads.
+    // oxlint-disable-next-line unicorn/no-null
     null,
     {
-      fallbackData: null,
+      fallbackData: undefined,
     },
   );
 

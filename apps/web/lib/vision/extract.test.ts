@@ -59,8 +59,8 @@ const FIXTURE = {
 };
 
 const PHOTOS = [
-  { url: "https://cdn.test/0.webp", localPath: null },
-  { url: "https://cdn.test/1.webp", localPath: null },
+  { url: "https://cdn.test/0.webp", localPath: undefined },
+  { url: "https://cdn.test/1.webp", localPath: undefined },
 ];
 
 function okResponse(body: unknown, usage = { prompt_tokens: 10, completion_tokens: 5 }) {

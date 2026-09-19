@@ -1,20 +1,22 @@
 import { tool } from "ai";
 import { z } from "zod";
 
-async function geocodeCity(city: string): Promise<{ latitude: number; longitude: number } | null> {
+async function geocodeCity(
+  city: string,
+): Promise<{ latitude: number; longitude: number } | undefined> {
   try {
     const response = await fetch(
       `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`,
     );
 
     if (!response.ok) {
-      return null;
+      return undefined;
     }
 
     const data = await response.json();
 
     if (!data.results || data.results.length === 0) {
-      return null;
+      return undefined;
     }
 
     const [result] = data.results;
@@ -23,7 +25,7 @@ async function geocodeCity(city: string): Promise<{ latitude: number; longitude:
       longitude: result.longitude,
     };
   } catch {
-    return null;
+    return undefined;
   }
 }
 

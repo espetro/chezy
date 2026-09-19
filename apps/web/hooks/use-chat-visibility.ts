@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
 import { updateChatVisibility } from "~/app/(chat)/actions";
-import { type ChatHistory, getChatHistoryPaginationKey } from "~/components/chat/sidebar-history";
+import { type ChatHistory, getChatHistoryPaginationKey } from "~/lib/chat-helpers";
 import type { VisibilityType } from "~/components/chat/visibility-selector";
 
 export function useChatVisibility({
@@ -21,6 +21,8 @@ export function useChatVisibility({
 
   const { data: localVisibility, mutate: setLocalVisibility } = useSWR(
     `${chatId}-visibility`,
+    // SWR requires an explicit null fetcher for cache-only reads.
+    // oxlint-disable-next-line unicorn/no-null
     null,
     {
       fallbackData: initialVisibilityType,

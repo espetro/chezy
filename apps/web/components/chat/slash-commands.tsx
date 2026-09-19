@@ -109,7 +109,7 @@ function SlashCommandMenuItem({
       <span className="text-[12px] text-muted-foreground/50">{cmd.description}</span>
       {cmd.shortcut ? (
         <span className="ml-auto text-[11px] text-muted-foreground/30">{cmd.shortcut}</span>
-      ) : null}
+      ) : undefined}
     </button>
   );
 }
@@ -131,7 +131,7 @@ export function SlashCommandMenu({
   }, []);
 
   if (filtered.length === 0) {
-    return null;
+    return undefined;
   }
 
   return (

@@ -13,8 +13,8 @@ type Position = {
   end: number;
 };
 
-function findPositionsInDoc(doc: Node, searchText: string): Position | null {
-  let positions: { start: number; end: number } | null = null;
+function findPositionsInDoc(doc: Node, searchText: string): Position | undefined {
+  let positions: { start: number; end: number } | undefined = undefined;
 
   doc.nodesBetween(0, doc.content.size, (node, pos) => {
     if (node.isText && node.text) {
@@ -87,7 +87,7 @@ export const suggestionsPlugin = new Plugin({
       };
     },
     init() {
-      return { decorations: DecorationSet.empty, selected: null };
+      return { decorations: DecorationSet.empty, selected: undefined };
     },
   },
 });

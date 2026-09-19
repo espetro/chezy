@@ -429,7 +429,7 @@ function PureMultimodalInput({
             Cancel
           </button>
         </div>
-      ) : null}
+      ) : undefined}
 
       {!editingMessage &&
         !isLoading &&
@@ -460,7 +460,7 @@ function PureMultimodalInput({
             query={slashQuery}
             selectedIndex={slashIndex}
           />
-        ) : null}
+        ) : undefined}
       </div>
 
       <PromptInput
@@ -697,13 +697,13 @@ function ModelSelectorOption({
       <div className="ml-auto flex items-center gap-2 text-foreground/70">
         {capabilities?.[model.id]?.tools
           ? maybeWithTooltip(<WrenchIcon className="size-3.5" />, "Supports tool use")
-          : null}
+          : undefined}
         {capabilities?.[model.id]?.vision
           ? maybeWithTooltip(<EyeIcon className="size-3.5" />, "Supports vision")
-          : null}
+          : undefined}
         {capabilities?.[model.id]?.reasoning
           ? maybeWithTooltip(<BrainIcon className="size-3.5" />, "Supports reasoning")
-          : null}
+          : undefined}
         {!curated && <LockIcon className="size-3 text-muted-foreground/50" />}
       </div>
     </ModelSelectorItem>
@@ -758,7 +758,7 @@ function PureModelSelectorCompact({
           data-testid="model-selector"
           variant="ghost"
         >
-          {provider ? <ModelSelectorLogo provider={provider} /> : null}
+          {provider ? <ModelSelectorLogo provider={provider} /> : undefined}
           <ModelSelectorName>{selectedModel.name}</ModelSelectorName>
         </Button>
       </ModelSelectorTrigger>

@@ -12,7 +12,7 @@ type DataStreamContextValue = {
   setWaitingStatus: React.Dispatch<React.SetStateAction<WaitingStatusData | undefined>>;
 };
 
-const DataStreamContext = createContext<DataStreamContextValue | null>(null);
+const DataStreamContext = createContext<DataStreamContextValue | undefined>(undefined);
 
 export function DataStreamProvider({ children }: { children: React.ReactNode }) {
   const [dataStream, setDataStream] = useState<DataUIPart<CustomUIDataTypes>[]>([]);

@@ -91,6 +91,8 @@ export const DiffView = ({ oldContent, newContent }: DiffEditorProps) => {
     return () => {
       if (viewRef.current) {
         viewRef.current.destroy();
+        // Ref typed EditorView | null by CodeMirror.
+        // oxlint-disable-next-line unicorn/no-null
         viewRef.current = null;
       }
     };

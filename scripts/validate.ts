@@ -83,7 +83,7 @@ function changedFiles(): { files: string[] | null; base: string } {
 function affectedPackages(files: readonly string[]): ReadonlySet<string> {
   const out = new Set<string>();
   for (const f of files) {
-    if (f.startsWith("vendor/") || f.startsWith("apps/web/vendor/")) continue;
+    if (f.startsWith("vendor/")) continue;
     if (f.startsWith("tests/e2e/")) continue;
     const m = /^(apps|packages)\/([^/]+)\//.exec(f);
     if (m) {
@@ -138,30 +138,18 @@ if (skippedNoScope) {
   );
 }
 
-const appsWebOnly =
-  !skippedNoScope && scopedPackages.length === 1 && scopedPackages[0] === "apps/web";
-const scopedForFilter = appsWebOnly ? [] : scopedPackages.filter((p) => p !== "apps/web");
+// apps/web is a scoped package like any other since the lint un-ignoring: it
+// has typecheck/lint/test scripts and participates in the gate normally.
+const scopedForFilter = scopedPackages;
 const filterArgs =
   skippedNoScope || scopedForFilter.length === 0 ? [] : ["-r", "--filter", ...scopedForFilter];
-if (appsWebOnly) {
-  console.log(
-    "ts: only apps/web (verbatim template) changed; per-package steps skipped " +
-      "because the template surface is intentionally out of the chezy gate " +
-      "(see apps/web/AGENTS.md manual-review checklist).",
-  );
-}
 
 const rootChanged = affected.has("root");
 
 // Build a scoped format:check invocation: only the changed packages (and
 // the root scripts/ when present). Running pnpm format:check from the root
 // always scans the entire workspace, which means pre-existing format drift
-// (packages/observability LogTape v2 migration, apps/web verbatim template
-// which is intentionally not chezified) blocks unrelated PRs.
-//
-// apps/web is excluded entirely until the verbatim-template manual-review
-// checklist in apps/web/AGENTS.md is applied. Until then, format drift in
-// the template is expected and out of scope.
+// (packages/observability LogTape v2 migration) blocks unrelated PRs.
 const formatGlobs: readonly string[] = (() => {
   if (skippedNoScope && !rootChanged) return [];
   const globs: string[] = [];

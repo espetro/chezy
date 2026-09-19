@@ -97,7 +97,7 @@ interface MessageBranchContextType {
   setBranches: (branches: ReactElement[]) => void;
 }
 
-const MessageBranchContext = createContext<MessageBranchContextType | null>(null);
+const MessageBranchContext = createContext<MessageBranchContextType | undefined>(undefined);
 
 const useMessageBranch = () => {
   const context = useContext(MessageBranchContext);
@@ -197,7 +197,7 @@ export const MessageBranchSelector = ({ className, ...props }: MessageBranchSele
 
   // Don't render if there's only one branch
   if (totalBranches <= 1) {
-    return null;
+    return undefined;
   }
 
   return (

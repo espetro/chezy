@@ -134,14 +134,14 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                       <span className="text-[13px]">Delete all</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                ) : null}
+                ) : undefined}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
           <SidebarHistory user={user} />
         </SidebarContent>
         <SidebarFooter className="border-t border-sidebar-border pt-2 pb-3">
-          {user ? <SidebarUserNav user={user} /> : null}
+          {user ? <SidebarUserNav user={user} /> : undefined}
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>

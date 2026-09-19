@@ -31,7 +31,7 @@ export function DocumentPreview({ isReadonly: _isReadonly, result, args }: Docum
   const { artifact, setArtifact } = useArtifact();
 
   const { data: documents, isLoading: isDocumentsFetching } = useSWR<Document[]>(
-    result ? `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/document?id=${result.id}` : null,
+    result ? `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/document?id=${result.id}` : undefined,
     fetcher,
   );
 
@@ -78,7 +78,7 @@ export function DocumentPreview({ isReadonly: _isReadonly, result, args }: Docum
     );
   }
 
-  const document: Document | null = previewDocument
+  const document: Document | undefined = previewDocument
     ? previewDocument
     : artifact.status === "streaming"
       ? {
@@ -89,7 +89,7 @@ export function DocumentPreview({ isReadonly: _isReadonly, result, args }: Docum
           title: artifact.title,
           userId: "noop",
         }
-      : null;
+      : undefined;
 
   if (!document) {
     return <LoadingSkeleton artifactKind={artifact.kind} />;
@@ -239,12 +239,12 @@ const DocumentContent = ({ document }: { document: Document }) => {
     content: document.content ?? "",
     currentVersionIndex: 0,
     isCurrentVersion: true,
-    saveContent: () => null,
+    saveContent: () => undefined,
     status: artifact.status,
     suggestions: [],
   };
 
-  const handleSaveContent = () => null;
+  const handleSaveContent = () => undefined;
 
   return (
     <div className={cn(containerClassName, "relative")}>
@@ -271,7 +271,7 @@ const DocumentContent = ({ document }: { document: Document }) => {
           status={artifact.status}
           title={document.title}
         />
-      ) : null}
+      ) : undefined}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-muted to-transparent dark:from-muted" />
       {document.kind === "code" && (
         <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-muted to-transparent dark:from-muted" />

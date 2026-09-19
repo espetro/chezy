@@ -5,8 +5,7 @@
     "**/dist/**",
     "**/.next/**",
     "**/vendor/**",
-    "**/tests/e2e/**",
-    "apps/web/**"
+    "**/tests/e2e/**"
   ],
   "categories": {
     "correctness": "off",
@@ -66,6 +65,57 @@
     ]
   },
   "overrides": [
+    {
+      "files": ["apps/web/**"],
+      "rules": {
+        "no-restricted-properties": [
+          "error",
+          {
+            "object": "process.env",
+            "allowProperties": ["NEXT_PUBLIC_BASE_PATH", "NODE_ENV"],
+            "message": "Import `env` from `~/lib/env`. In apps/web only NEXT_PUBLIC_* (build-time inlined) and NODE_ENV reads are allowed; config-bound files are exempt via the scoped override below."
+          }
+        ],
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@biomejs/biome",
+                "message": "chezy uses oxlint + oxfmt. Do not import the Biome CLI from source."
+              }
+            ],
+            "patterns": [
+              {
+                "group": ["@/*"],
+                "message": "apps/web uses the `~/*` alias (tsconfig paths), not `@/*`."
+              },
+              {
+                "group": ["drizzle-orm/*"],
+                "message": "Server-only persistence. Reach the server via a Route Handler / Server Action; do not value-import drizzle from client components."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "apps/web/lib/db/**",
+        "apps/web/lib/env.ts",
+        "apps/web/lib/constants.ts",
+        "apps/web/next.config.ts",
+        "apps/web/drizzle.config.ts",
+        "apps/web/playwright.config.ts",
+        "apps/web/proxy.ts",
+        "apps/web/instrumentation.ts",
+        "apps/web/app/(auth)/auth.config.ts"
+      ],
+      "rules": {
+        "no-restricted-properties": "off",
+        "no-restricted-imports": "off"
+      }
+    },
     {
       "files": ["scripts/**", "**/*.test.ts", "**/*.test.tsx"],
       "rules": {

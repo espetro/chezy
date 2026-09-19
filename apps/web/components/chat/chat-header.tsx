@@ -20,7 +20,7 @@ function PureChatHeader({
   const { state, toggleSidebar, isMobile } = useSidebar();
 
   if (state === "collapsed" && !isMobile) {
-    return null;
+    return undefined;
   }
 
   return (

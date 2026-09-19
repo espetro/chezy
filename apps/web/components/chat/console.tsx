@@ -156,9 +156,9 @@ export function Console({ consoleOutputs, setConsoleOutputs }: ConsoleProps) {
                       ? "Initializing..."
                       : consoleOutput.status === "loading_packages"
                         ? consoleOutput.contents.map((content) =>
-                            content.type === "text" ? content.value : null,
+                            content.type === "text" ? content.value : undefined,
                           )
-                        : null}
+                        : undefined}
                   </span>
                 </div>
               ) : (
@@ -184,5 +184,5 @@ export function Console({ consoleOutputs, setConsoleOutputs }: ConsoleProps) {
         </div>
       </div>
     </>
-  ) : null;
+  ) : undefined;
 }

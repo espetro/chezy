@@ -111,7 +111,7 @@ export const textArtifact = new Artifact<"text", TextArtifactMetadata>({
 
         {metadata?.suggestions && metadata.suggestions.length > 0 ? (
           <div className="h-dvh w-12 shrink-0 md:hidden" />
-        ) : null}
+        ) : undefined}
       </div>
     );
   },

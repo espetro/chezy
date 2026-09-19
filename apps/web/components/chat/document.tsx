@@ -16,7 +16,7 @@ const getActionText = (
     case "request-suggestions":
       return tense === "present" ? "Adding suggestions" : "Added suggestions to";
     default:
-      return null;
+      return undefined;
   }
 };
 
@@ -70,7 +70,7 @@ function PureDocumentToolResult({ type, result, isReadonly }: DocumentToolResult
           <PencilEditIcon />
         ) : type === "request-suggestions" ? (
           <MessageIcon />
-        ) : null}
+        ) : undefined}
       </div>
       <div className="text-left">{`${getActionText(type, "past")} "${result.title}"`}</div>
     </button>
@@ -129,7 +129,7 @@ function PureDocumentToolCall({ type, args, isReadonly }: DocumentToolCallProps)
             <PencilEditIcon />
           ) : type === "request-suggestions" ? (
             <MessageIcon />
-          ) : null}
+          ) : undefined}
         </div>
 
         <div className="text-left">

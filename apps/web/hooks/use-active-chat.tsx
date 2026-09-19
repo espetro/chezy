@@ -49,11 +49,11 @@ type ActiveChatContextValue = {
   setShowCreditCardAlert: Dispatch<SetStateAction<boolean>>;
 };
 
-const ActiveChatContext = createContext<ActiveChatContextValue | null>(null);
+const ActiveChatContext = createContext<ActiveChatContextValue | undefined>(undefined);
 
-function extractChatId(pathname: string): string | null {
+function extractChatId(pathname: string): string | undefined {
   const match = pathname.match(/\/chat\/([^/]+)/);
-  return match ? match[1] : null;
+  return match ? match[1] : undefined;
 }
 
 export function ActiveChatProvider({ children }: { children: ReactNode }) {
@@ -83,7 +83,9 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
   const [showCreditCardAlert, setShowCreditCardAlert] = useState(false);
 
   const { data: chatData, isLoading } = useSWR(
-    isNewChat ? null : `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/messages?chatId=${chatId}`,
+    isNewChat
+      ? undefined
+      : `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/messages?chatId=${chatId}`,
     fetcher,
     { revalidateOnFocus: false },
   );
@@ -241,7 +243,7 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
   const { data: votes } = useSWR<Vote[]>(
     !isReadonly && messages.length >= 2
       ? `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/vote?chatId=${chatId}`
-      : null,
+      : undefined,
     fetcher,
     { revalidateOnFocus: false },
   );

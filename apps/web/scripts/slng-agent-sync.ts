@@ -4,7 +4,7 @@
 import { ensureSlngAgentPinned } from "~/lib/slng";
 
 const state = await ensureSlngAgentPinned();
-console.log(JSON.stringify(state, null, 2));
+console.log(JSON.stringify(state, undefined, 2));
 
 if (state.sipOutboundTrunkId === null) {
   console.error(

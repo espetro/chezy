@@ -13,11 +13,8 @@ import {
 } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { useWindowSize } from "usehooks-ts";
-import { codeArtifact } from "~/artifacts/code/client";
-import { imageArtifact } from "~/artifacts/image/client";
-import { sheetArtifact } from "~/artifacts/sheet/client";
-import { textArtifact } from "~/artifacts/text/client";
 import { useArtifact } from "~/hooks/use-artifact";
+import { artifactDefinitions } from "./artifact-definitions";
 import type { Document, Vote } from "~/lib/db/schema";
 import type { Attachment, ChatMessage } from "~/lib/types";
 import { fetcher } from "~/lib/utils";
@@ -29,23 +26,7 @@ import { Toolbar } from "./toolbar";
 import { VersionFooter } from "./version-footer";
 import type { VisibilityType } from "./visibility-selector";
 
-export const artifactDefinitions = [textArtifact, codeArtifact, imageArtifact, sheetArtifact];
-export type ArtifactKind = (typeof artifactDefinitions)[number]["kind"];
-
-export type UIArtifact = {
-  title: string;
-  documentId: string;
-  kind: ArtifactKind;
-  content: string;
-  isVisible: boolean;
-  status: "streaming" | "idle";
-  boundingBox: {
-    top: number;
-    left: number;
-    width: number;
-    height: number;
-  };
-};
+export { type ArtifactKind, type UIArtifact } from "./artifact-definitions";
 
 function PureArtifact({
   addToolApprovalResponse: _addToolApprovalResponse,
@@ -91,12 +72,12 @@ function PureArtifact({
   } = useSWR<Document[]>(
     artifact.documentId !== "init" && artifact.status !== "streaming"
       ? `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/document?id=${artifact.documentId}`
-      : null,
+      : undefined,
     fetcher,
   );
 
   const [mode, setMode] = useState<"edit" | "diff">("edit");
-  const [document, setDocument] = useState<Document | null>(null);
+  const [document, setDocument] = useState<Document | undefined>(undefined);
   const [currentVersionIndex, setCurrentVersionIndex] = useState(-1);
 
   const { state: sidebarState } = useSidebar();
@@ -202,12 +183,16 @@ function PureArtifact({
 
       if (saveTimerRef.current) {
         clearTimeout(saveTimerRef.current);
+        // Ref typed Timeout | null.
+        // oxlint-disable-next-line unicorn/no-null
         saveTimerRef.current = null;
       }
 
       if (debounce) {
         saveTimerRef.current = setTimeout(() => {
           handleContentChange(latestContentRef.current);
+          // Ref typed Timeout | null.
+          // oxlint-disable-next-line unicorn/no-null
           saveTimerRef.current = null;
         }, 2000);
       } else {
@@ -304,7 +289,7 @@ function PureArtifact({
   }
 
   if (!artifact.isVisible) {
-    return null;
+    return undefined;
   }
 
   const consoleError =
@@ -403,7 +388,7 @@ function PureArtifact({
               status={status}
               stop={stop}
             />
-          ) : null}
+          ) : undefined}
         </AnimatePresence>
       </div>
       <AnimatePresence>

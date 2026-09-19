@@ -30,7 +30,7 @@ export const myProvider = isTestEnvironment
         },
       });
     })()
-  : null;
+  : undefined;
 
 export function getLanguageModel(modelId: string) {
   if (isTestEnvironment && myProvider) {

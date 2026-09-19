@@ -67,15 +67,16 @@ export function toListingRow(record: ListingRecord): typeof listing.$inferInsert
     // description so the column can stay notNull.
     title: record.title ?? record.description?.split("\n", 1)[0]?.slice(0, 120) ?? "",
     description: record.description,
-    publisherName: record.publisher?.name ?? null,
-    publisherKind: record.publisher?.kind ?? null,
-    coverUrl: record.media.find((m) => m.kind === "photo")?.url ?? record.media[0]?.url ?? null,
+    publisherName: record.publisher?.name ?? undefined,
+    publisherKind: record.publisher?.kind ?? undefined,
+    coverUrl:
+      record.media.find((m) => m.kind === "photo")?.url ?? record.media[0]?.url ?? undefined,
     media: record.media.map((m) => ({
       url: m.url,
       kind: m.kind,
       roomType: m.room_type,
     })),
-    publishedAt: record.published_at ? new Date(record.published_at) : null,
+    publishedAt: record.published_at ? new Date(record.published_at) : undefined,
   };
 }
 

@@ -34,8 +34,8 @@ export const identifyUser = tool({
     return {
       userId: createdUser.id,
       username,
-      profile: null,
-      missingFields: missingProfileFields(null),
+      profile: undefined,
+      missingFields: missingProfileFields(undefined),
       isNewUser: true,
     };
   },

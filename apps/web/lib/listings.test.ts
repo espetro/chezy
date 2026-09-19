@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import * as v from "valibot";
 
 import type { Listing } from "~/lib/db/schema";
+import type { ListingSearch } from "~/lib/listings";
 import {
   ListingRecordSchema,
   listingToCallVariables,
@@ -178,7 +179,7 @@ const STOCK: Listing[] = [
 
 // Mirrors the SQL: operation eq, query ILIKE on district/neighbourhood/title/
 // description, price bounds, rooms >=. Ordered by price asc.
-function fakeRun(search: import("~/lib/listings").ListingSearch) {
+function fakeRun(search: ListingSearch) {
   const q = search.query?.toLowerCase();
   const rows = STOCK.filter(
     (r) =>

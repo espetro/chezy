@@ -88,7 +88,7 @@ export const VersionFooter = ({
   }, [handleVersionChange, setMode]);
 
   if (!documents) {
-    return null;
+    return undefined;
   }
 
   return (
@@ -147,7 +147,7 @@ export const VersionFooter = ({
             <div className="animate-spin">
               <LoaderIcon size={14} />
             </div>
-          ) : null}
+          ) : undefined}
         </button>
         <button
           className="inline-flex items-center justify-center rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition-all duration-150 hover:bg-muted active:scale-[0.98]"

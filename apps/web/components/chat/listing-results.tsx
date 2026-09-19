@@ -14,13 +14,13 @@ const priceFormatter = new Intl.NumberFormat("es-ES", {
 
 export function ListingCard({ listing }: { listing: ListingSummary }) {
   const price =
-    listing.priceEur != null
+    listing.priceEur != undefined
       ? `${priceFormatter.format(listing.priceEur)}${listing.operation === "rent" ? "/mes" : ""}`
       : undefined;
   const headline = [
-    listing.rooms != null ? `${listing.rooms} hab` : undefined,
-    listing.builtM2 != null ? `${listing.builtM2} m²` : undefined,
-    listing.bathrooms != null ? `${listing.bathrooms} baños` : undefined,
+    listing.rooms != undefined ? `${listing.rooms} hab` : undefined,
+    listing.builtM2 != undefined ? `${listing.builtM2} m²` : undefined,
+    listing.bathrooms != undefined ? `${listing.bathrooms} baños` : undefined,
   ]
     .filter(Boolean)
     .join(" · ");
