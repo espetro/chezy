@@ -40,14 +40,8 @@ const EnvSchema = v.object({
   // Vision model for photo insights. Kimi-K3 needs thinking off; gemma-3-27b
   // is the cheap fallback.
   VISION_MODEL_ID: v.fallback(v.string(), "moonshotai/Kimi-K3"),
-  CHEZY_EMBEDDING_MODEL_ID: v.fallback(
-    v.string(),
-    "Qwen/Qwen3-Embedding-8B",
-  ),
-  CHEZY_MEMORY_RECALL_LIMIT: v.fallback(
-    v.pipe(v.string(), v.transform(Number)),
-    8,
-  ),
+  CHEZY_EMBEDDING_MODEL_ID: v.fallback(v.string(), "Qwen/Qwen3-Embedding-8B"),
+  CHEZY_MEMORY_RECALL_LIMIT: v.fallback(v.pipe(v.string(), v.transform(Number)), 8),
 });
 
 export const env = v.parse(EnvSchema, process.env);
