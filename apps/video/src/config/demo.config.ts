@@ -1,0 +1,168 @@
+// Structure and timing only — every viewer-facing string lives in
+// src/copy/en.json (read via copy.checkpoints[cp.id], copy.intro, copy.footer).
+// The prose fields below are the handoff contract for real captures; they are
+// rendered into CAPTURE.md by scripts/capture-doc.ts, never on screen.
+
+export type CheckpointId =
+  | "brief"
+  | "shortlist"
+  | "forensic"
+  | "call"
+  | "booked";
+export type SegmentId = "intro" | CheckpointId;
+
+export type Badge = {
+  label: string;
+  // File name under public/badges/ (e.g. "nebius.png"). Undefined renders a
+  // text chip; fill it in once the extracted logo file exists.
+  logo?: string;
+  tone?: "neutral" | "accent";
+};
+
+export type ClipSource =
+  | { kind: "placeholder" }
+  | { kind: "clip"; file: string; trimStartSec?: number };
+
+export type Checkpoint = {
+  id: CheckpointId;
+  tailFrames?: number; // breathing room after the VO ends, default 15
+  badges: Badge[]; // sponsor/tech fired in this step
+  mustShow: string[]; // handoff checklist for the real capture
+  startState: string; // handoff prose, not on screen
+  actions: string[];
+  endState: string;
+  transition: string;
+  source: ClipSource;
+};
+
+export type DemoConfig = {
+  fps: 30;
+  width: 1920;
+  height: 1080;
+  voice: { engine: "pocket-tts" | "slng"; voice: string };
+  music: { file: string | undefined; duckDb: number; swellDb: number };
+  footer: { repoUrl: string | undefined; showFromSecBeforeEnd: number };
+  showMockTags: boolean;
+  // Sponsor strip rendered in the booked sidebar footer. All logos share one
+  // fixed height; undefined logo fields render as text chips until the files
+  // land in public/badges/.
+  sponsors: Badge[];
+  intro: { tailFrames?: number };
+  checkpoints: Checkpoint[];
+};
+
+export const demoConfig: DemoConfig = {
+  fps: 30,
+  width: 1920,
+  height: 1080,
+  voice: { engine: "pocket-tts", voice: "alba" },
+  // music.file stays undefined until `video:music` generates
+  // public/audio/music/bed.wav; MusicBed mounts only when a file is set.
+  music: { file: undefined, duckDb: -24, swellDb: -14 },
+  footer: {
+    repoUrl: "https://github.com/espetro/chezy",
+    showFromSecBeforeEnd: 8,
+  },
+  showMockTags: true,
+  sponsors: [
+    { label: "Vonage" },
+    { label: "Nebius" },
+    { label: "Cognition" },
+    { label: "QualityClouds" },
+    { label: "SLNG" },
+  ],
+  intro: { tailFrames: 15 },
+  checkpoints: [
+    {
+      id: "brief",
+      badges: [{ label: "Nebius" }],
+      mustShow: ["identity line", "three profile fields", "confirmation"],
+      startState:
+        'Empty chat, greeting "What flat are you looking for?", composer focused.',
+      actions: [
+        'User bubble "Hi, I\'m Jessie" types in (40 ms/char).',
+        "Assistant asks for neighbourhoods, monthly budget, bedrooms.",
+        'User answers "Gràcia or Eixample, 1,800 a month, 2 bedrooms."',
+        "Assistant confirms the saved profile and asks what else matters.",
+      ],
+      endState: "Four bubbles visible, profile confirmation last.",
+      transition:
+        "Chat scrolls up 300 ms ease-out, next user bubble appears.",
+      source: { kind: "placeholder" },
+    },
+    {
+      id: "shortlist",
+      badges: [{ label: "Nebius" }],
+      mustShow: ["query bubble", "3 cards", "price/m² vs average on each"],
+      startState:
+        "Previous chat scrolled so the last confirmation is at the top.",
+      actions: [
+        'User asks "Find me a bright 2-bed in Gràcia under €1,800."',
+        'Assistant replies "Three candidates."',
+        "Three ListingCard-shaped cards stagger in 80 ms apart: photo block, price, specs, zone, price/m² line with barrio average.",
+      ],
+      endState: "Three cards visible, card 1 top.",
+      transition:
+        "Cards 1 and 2 stay, card 3 fades; insight cards attach beneath 1 and 2.",
+      source: { kind: "placeholder" },
+    },
+    {
+      id: "forensic",
+      badges: [{ label: "Nebius" }],
+      mustShow: [
+        "amber warning with the three facts",
+        "green pass",
+        "both cards",
+      ],
+      startState: "Cards 1 and 2 visible.",
+      actions: [
+        'Assistant says "I checked both."',
+        "Amber insight card under card 1: 0% direct sunlight, windows onto a 1.5 m interior lightwell, 13% over the Gràcia average; three bullets in Spanish italic.",
+        "Green line under card 2: forensic check passed, south facing, 17% under the Eixample average.",
+        "Stage push-in on the phone from scale 1.0 to 1.12 over 6 s while the amber card is read, then back.",
+      ],
+      endState: "Amber card and green line visible.",
+      transition: "Push-out, user bubble appears.",
+      source: { kind: "placeholder" },
+    },
+    {
+      id: "call",
+      badges: [{ label: "SLNG" }, { label: "Vonage" }],
+      mustShow: [
+        "approval bubble",
+        "dialing state",
+        "AI disclosure line",
+        "agreed slot",
+      ],
+      startState: "Forensic end state.",
+      actions: [
+        'User asks "Book a viewing for the Eixample one." (0 to ~10 s)',
+        'Assistant: "Calling the agency now, in Spanish. I\'ll say I\'m an AI assistant."',
+        "Dialing card: phone icon, masked +34 number, pulsing dot, badges from config.",
+        "Dialing card expands to a call sheet (~10 s to end): synthetic waveform keyed to transcript lines; four es/en transcript lines appear in sync with the VO; footer line shows the agreed slot.",
+      ],
+      endState: "Call sheet with four lines and the agreed slot.",
+      transition:
+        'Call sheet collapses into a "Call ended · 1:12" chip, chat continues.',
+      source: { kind: "placeholder" },
+    },
+    {
+      id: "booked",
+      badges: [],
+      mustShow: [
+        "booked message with the slot",
+        "calendar card",
+        "all five sidebar items checked",
+      ],
+      startState: "Chat with the call-ended chip.",
+      actions: [
+        'Assistant: "Viewing booked: Tuesday 22 September, 18:30. Added to your calendar."',
+        'Calendar card: "22 SEP" tile, "Viewing · Eixample 2-bed", "18:30 to 19:00", green check.',
+        "Last 8 s: sidebar footer fades in the tagline, the sponsor strip and the repo URL.",
+      ],
+      endState: "Calendar card + footer.",
+      transition: "End of video (no outro card).",
+      source: { kind: "placeholder" },
+    },
+  ],
+};
