@@ -1,7 +1,8 @@
 # `@chezy/video` — agent instructions
 
 Remotion package producing the chezy demo video (see
-`.agents/plans/2026-09-19-demo-video.md`). Inherits the root
+`.agents/plans/2026-09-19-demo-video.md`). Teammate-facing setup and the
+pipeline walkthrough live in [`README.md`](README.md). Inherits the root
 [`AGENTS.md`](../../AGENTS.md) rules — this is chezy code, NOT inside the
 `apps/web` exemption: no `zod` (use `valibot`), no `@biomejs/*`, no
 `useEffect` (use `useCurrentFrame` / `interpolate` / `spring`), no `process.env`

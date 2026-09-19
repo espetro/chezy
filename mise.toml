@@ -27,7 +27,16 @@ linux-x64   = { url = "https://github.com/vectorize-io/pg0/releases/download/v{{
 linux-arm64 = { url = "https://github.com/vectorize-io/pg0/releases/download/v{{ version }}/pg0-linux-aarch64-gnu" }
 windows-x64 = { url = "https://github.com/vectorize-io/pg0/releases/download/v{{ version }}/pg0-windows-x86_64.exe", bin = "pg0.exe" }
 
-ffmpeg = "latest"          # Screenshot/video capture for the AI SDK tests
+ffmpeg = "latest"          # Screenshot/video capture; also ffprobe for video:durations
+
+# ── Demo video audio (apps/video) ──────────────────────────────────────────
+# pocket-tts narrates the demo VO (`mise run video:tts`). The pypi backend
+# resolves it via `uv tool`; `brew install pocket-tts` is the fallback if
+# the pin misbehaves on a host. audio.cpp (music bed, `mise run
+# video:music`) has no usable mise backend: its GitHub releases ship the
+# CLI, model manager and framework as separate tarballs the github backend
+# cannot assemble, so it stays brew-only. See apps/video/README.md.
+"pypi:pocket-tts" = "3.1.0"
 
 # ── Repo automation ────────────────────────────────────────────────────────
 lefthook = "latest"        # Pre-push hook → `mise run validate`
