@@ -48,6 +48,9 @@ const FlowLandingPage = () => (
             </FlowButton>
           </Link>
         </div>
+        <p className="text-sm text-fog">
+          About 1 minute to set up · you&apos;re always in control
+        </p>
       </div>
 
       <div className="rounded-cards border border-cloud bg-slate p-5 text-snow sm:p-7">
