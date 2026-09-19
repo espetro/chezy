@@ -53,9 +53,9 @@ export const FlowDropdown = <T extends string>({
         aria-expanded={isOpen}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex h-11 w-full items-center gap-2 rounded-inputs bg-paper text-label-md text-graphite transition-colors duration-200 hover:text-obsidian focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
+          "flex h-11 w-full items-center gap-2 rounded-inputs border border-mist bg-snow text-label-md text-obsidian transition-colors duration-200 hover:border-ash focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian",
           compact ? "w-11 justify-center px-0" : "justify-between px-3.5",
-          isOpen && "text-obsidian",
+          isOpen && "border-obsidian",
         )}
       >
         {icon}
@@ -65,7 +65,7 @@ export const FlowDropdown = <T extends string>({
             <ChevronDown
               size={16}
               aria-hidden
-              className={cn("shrink-0 text-fog transition-transform", isOpen && "rotate-180")}
+              className={cn("shrink-0 text-steel transition-transform", isOpen && "rotate-180")}
             />
           </>
         )}
@@ -76,7 +76,7 @@ export const FlowDropdown = <T extends string>({
           role="listbox"
           aria-label={label}
           className={cn(
-            "absolute top-[calc(100%+6px)] z-20 flex min-w-full max-w-[280px] flex-col gap-0.5 rounded-[14px] bg-snow p-1.5 shadow-float",
+            "absolute top-[calc(100%+6px)] z-20 flex min-w-full max-w-[280px] flex-col gap-0.5 rounded-[14px] border border-mist bg-snow p-1.5 shadow-float",
             align === "end" ? "right-0" : "left-0",
           )}
         >
