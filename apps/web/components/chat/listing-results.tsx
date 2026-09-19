@@ -14,7 +14,6 @@ const priceFormatter = new Intl.NumberFormat("es-ES", {
 });
 
 export function ListingCard({ listing }: { listing: ListingSummary }) {
-  const listingUrl = safeHttpUrl(listing.url);
   const price =
     listing.priceEur != null
       ? `${priceFormatter.format(listing.priceEur)}${listing.operation === "rent" ? "/mes" : ""}`
@@ -57,10 +56,10 @@ export function ListingCard({ listing }: { listing: ListingSummary }) {
           <span className="font-mono text-[10px] text-muted-foreground">
             {listing.id}
           </span>
-          {listingUrl && (
+          {safeHttpUrl(listing.url) && (
             <a
               className="text-primary text-xs hover:underline"
-              href={listingUrl}
+              href={safeHttpUrl(listing.url)}
               rel="noreferrer"
               target="_blank"
             >
