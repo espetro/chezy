@@ -23,7 +23,7 @@ describe("fetch deadlines", () => {
     vi.unstubAllGlobals();
   });
 
-  it("maps a stalled chat request to timeout:chat", async () => {
+  it("maps a stalled chat request to timeout:chat", () => {
     vi.stubGlobal("fetch", vi.fn(stalledFetch));
 
     const pending = fetchWithErrorHandlers("/api/chat", { method: "POST" });
@@ -32,12 +32,13 @@ describe("fetch deadlines", () => {
       surface: "chat",
       type: "timeout",
     });
-    await vi.advanceTimersByTimeAsync(FETCH_TIMEOUT_MS);
-    await assertion;
-    await expect(pending).rejects.toBeInstanceOf(ChatbotError);
+    return vi
+      .advanceTimersByTimeAsync(FETCH_TIMEOUT_MS)
+      .then(() => assertion)
+      .then(() => expect(pending).rejects.toBeInstanceOf(ChatbotError));
   });
 
-  it("maps a stalled SWR request to timeout:api", async () => {
+  it("maps a stalled SWR request to timeout:api", () => {
     vi.stubGlobal("fetch", vi.fn(stalledFetch));
 
     const pending = fetcher("/api/history");
@@ -45,22 +46,24 @@ describe("fetch deadlines", () => {
       surface: "api",
       type: "timeout",
     });
-    await vi.advanceTimersByTimeAsync(FETCH_TIMEOUT_MS);
-    await assertion;
+    return vi.advanceTimersByTimeAsync(FETCH_TIMEOUT_MS).then(() => assertion);
   });
 
-  it("does not cut off a response whose headers already arrived", async () => {
+  it("does not cut off a response whose headers already arrived", () => {
     const response = new Response("streaming");
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response));
 
-    const result = await fetchWithErrorHandlers("/api/chat");
-    await vi.advanceTimersByTimeAsync(FETCH_TIMEOUT_MS * 2);
-
-    expect(result).toBe(response);
-    expect(vi.getTimerCount()).toBe(0);
+    return fetchWithErrorHandlers("/api/chat")
+      .then((result) =>
+        vi.advanceTimersByTimeAsync(FETCH_TIMEOUT_MS * 2).then(() => result),
+      )
+      .then((result) => {
+        expect(result).toBe(response);
+        expect(vi.getTimerCount()).toBe(0);
+      });
   });
 
-  it("still honours a caller supplied abort signal", async () => {
+  it("still honours a caller supplied abort signal", () => {
     vi.stubGlobal("fetch", vi.fn(stalledFetch));
     const caller = new AbortController();
 
@@ -71,7 +74,7 @@ describe("fetch deadlines", () => {
       name: "AbortError",
     });
     caller.abort();
-    await assertion;
+    return assertion;
   });
 });
 
