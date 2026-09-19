@@ -67,6 +67,9 @@ pyinfra-debug.log
 tmp/
 scratch/
 
+# betterleaks report — written by the workflow; never track locally
+betterleaks-report.sarif
+
 # Vercel CLI link state — never tracked
 .vercel/
 
