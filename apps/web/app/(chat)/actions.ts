@@ -30,7 +30,9 @@ export async function generateTitleFromUserMessage({
     model: getTitleModel(),
     prompt: getTextFromMessage(message),
     providerOptions: {
-      gateway: { order: titleModel.gatewayOrder },
+      ...(titleModel.gatewayOrder && {
+        gateway: { order: titleModel.gatewayOrder },
+      }),
     },
   });
   return text

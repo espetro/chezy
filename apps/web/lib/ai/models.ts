@@ -16,7 +16,7 @@ const PROVIDER_API_KEY =
 export const DEFAULT_CHAT_MODEL =
   process.env.CHEZY_MODEL_ID ?? "minimax-coding-plan/MiniMax-M3";
 
-export const titleModel = {
+export const titleModel: ChatModel = {
   description: "Fast model for title generation",
   id: process.env.CHEZY_TITLE_MODEL_ID ?? DEFAULT_CHAT_MODEL,
   name: "Default",
