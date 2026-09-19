@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
+import { FlowMotion } from "~/components/flow/ui/FlowMotion";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -24,7 +25,7 @@ interface FlowLayoutProps {
 // is unaffected.
 const FlowLayout = ({ children }: FlowLayoutProps) => (
   <div className={`${dmSans.variable} min-h-[100dvh] bg-paper font-flow text-obsidian`}>
-    {children}
+    <FlowMotion>{children}</FlowMotion>
   </div>
 );
 
