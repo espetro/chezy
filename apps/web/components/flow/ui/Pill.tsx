@@ -9,7 +9,7 @@ interface PillProps extends React.HTMLAttributes<HTMLSpanElement> {
 const variantClasses: Record<PillVariant, string> = {
   outline: "border border-cloud text-graphite bg-transparent",
   filled: "bg-iron text-[#fafafa] border-transparent",
-  accent: "bg-ember text-snow border-transparent",
+  accent: "bg-ember-soft text-ember-deep border-transparent",
 };
 
 export const FlowPill = ({ variant = "outline", className, ...props }: PillProps) => (

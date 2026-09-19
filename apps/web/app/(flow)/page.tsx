@@ -27,8 +27,8 @@ const FlowLandingPage = () => (
 
     <section className="grid gap-10 md:grid-cols-2 md:items-center">
       <div className="flex flex-col gap-6">
-        <FlowPill variant="accent" className="w-fit">
-          Rental agent
+        <FlowPill variant="accent" className="w-fit rounded-full px-3">
+          AI rental agent
         </FlowPill>
         <h1 className="text-3xl leading-tight font-extrabold tracking-tight text-obsidian sm:text-4xl lg:text-5xl">
           Find your next home without chasing it yourself
