@@ -65,17 +65,17 @@ export const demoConfig: DemoConfig = {
   },
   showMockTags: true,
   sponsors: [
-    { label: "Vonage" },
-    { label: "Nebius" },
-    { label: "Cognition" },
-    { label: "QualityClouds" },
-    { label: "SLNG" },
+    { label: "Vonage", logo: "vonage.png" },
+    { label: "Nebius", logo: "nebius.png" },
+    { label: "Cognition", logo: "cognition.png" },
+    { label: "QualityClouds", logo: "qualityclouds.png" },
+    { label: "SLNG", logo: "slng.png" },
   ],
   intro: { tailFrames: 15 },
   checkpoints: [
     {
       id: "brief",
-      badges: [{ label: "Nebius" }],
+      badges: [{ label: "Nebius", logo: "nebius.png" }],
       mustShow: ["identity line", "three profile fields", "confirmation"],
       startState:
         'Empty chat, greeting "What flat are you looking for?", composer focused.',
@@ -92,7 +92,7 @@ export const demoConfig: DemoConfig = {
     },
     {
       id: "shortlist",
-      badges: [{ label: "Nebius" }],
+      badges: [{ label: "Nebius", logo: "nebius.png" }],
       mustShow: ["query bubble", "3 cards", "price/m² vs average on each"],
       startState:
         "Previous chat scrolled so the last confirmation is at the top.",
@@ -108,7 +108,7 @@ export const demoConfig: DemoConfig = {
     },
     {
       id: "forensic",
-      badges: [{ label: "Nebius" }],
+      badges: [{ label: "Nebius", logo: "nebius.png" }],
       mustShow: [
         "amber warning with the three facts",
         "green pass",
@@ -127,7 +127,7 @@ export const demoConfig: DemoConfig = {
     },
     {
       id: "call",
-      badges: [{ label: "SLNG" }, { label: "Vonage" }],
+      badges: [{ label: "SLNG", logo: "slng.png" }, { label: "Vonage", logo: "vonage.png" }],
       mustShow: [
         "approval bubble",
         "dialing state",
