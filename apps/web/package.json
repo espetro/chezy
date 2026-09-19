@@ -10,7 +10,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx lib/db/migrate.ts",
     "db:studio": "drizzle-kit studio",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "test:unit": "vitest run"
   },
   "dependencies": {
     "@ai-sdk/otel": "^1.0.107",
@@ -24,6 +25,7 @@
     "@opentelemetry/api-logs": "^0.200.0",
     "@ai-sdk/openai-compatible": "^3.0.53",
     "@chezy/contract": "workspace:*",
+    "@chezy/ui": "workspace:*",
     "@radix-ui/react-use-controllable-state": "^1.2.3",
     "@streamdown/cjk": "^1.0.3",
     "@streamdown/code": "^1.0.3",
@@ -98,6 +100,7 @@
     "postcss": "^8",
     "tailwindcss": "^4.3.2",
     "tsx": "^4.23.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "catalog:default"
   }
 }

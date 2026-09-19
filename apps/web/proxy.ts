@@ -13,6 +13,13 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // /flow is an isolated, no-backend UX exploration (onboarding/explore/match) — see
+  // .agents/plans/2026-09-19-port-to-main.md. It doesn't touch packages/db or auth, so it
+  // must stay reachable without a session; don't route it through guest auto-login.
+  if (pathname.startsWith("/flow")) {
+    return NextResponse.next();
+  }
+
   const token = await getToken({
     req: request,
     secret: process.env.AUTH_SECRET,
