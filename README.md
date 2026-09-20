@@ -83,6 +83,46 @@ If you are new in town, do not know barrio price norms, cannot read a lightwell 
 photos, and cannot call agencies in Spanish during your workday, every step of the funnel
 is stacked against you. chezy is the agent on your side of the table.
 
+## Message chezy on Telegram
+
+Bot handle: [@hackbarna_chezybot](https://t.me/hackbarna_chezybot). Open the link on
+your phone, say hi, and it onboards you in chat (areas, budget, bedrooms), then
+searches Barcelona rentals and offers to call the agency for a viewing (approval
+card first). Built on Mastra (`@mastra/core`, model router to Nebius AI Studio,
+Telegram via Mastra Channels) for the HackBarna 2026 Mastra challenge.
+
+`apps/bot` (`@chezy/bot`) is a second client for the same concierge: a Mastra
+agent reachable from Telegram, running alongside `apps/web` and reusing its
+tools, listings and Postgres store. It is an adapter, not a fork: the bot imports
+`apps/web/lib` read-only and adds only Telegram-specific pieces (identity
+mapping, approval cards, radar alerts) in a `bot` Postgres schema.
+
+How it maps to the "build an agent people can message" criteria:
+
+- **Works from a stranger's phone**: polling mode, no webhook or tunnel needed.
+  Any Telegram user can DM the bot; `TELEGRAM_ALLOWED_USER_IDS` stays empty.
+- **Memory**: Mastra `Memory` on `@mastra/pg` (dedicated `mastra` schema), 20
+  last messages plus a working-memory template that persists budget,
+  neighbourhoods, must-haves and red lines across sessions.
+- **Approval-gated actions**: `arrangeViewing` never runs on its own. The agent
+  proposes, Telegram shows an approve/deny inline keyboard, and only approval
+  dispatches the call (mocked with `VIEWING_MODE=mock`).
+- **Proactive**: a radar loop re-scores `buildFeed` for every linked Telegram
+  user and DMs fresh matches above `RADAR_MIN_SCORE`, deduped via
+  `bot.radar_seen`. `mise run bot:radar` triggers a pass on demand.
+
+Run it locally:
+
+```sh
+cp apps/bot/.env.example apps/bot/.env   # add TELEGRAM_BOT_API_KEY + TELEGRAM_BOT_NAME
+mise run db:start
+mise run bot:dev
+```
+
+Headless verification uses `apps/bot/test/fake-telegram.ts`, an in-memory Bot
+API server: `mise run bot:test` covers a plain DM, the approval-gated viewing
+flow and radar dedupe with no network.
+
 ## Built with
 
 <p>
@@ -93,20 +133,39 @@ is stacked against you. chezy is the agent on your side of the table.
   <img src="apps/video/public/badges/qualityclouds.png" height="28" alt="QualityClouds" valign="middle" />
 </p>
 
-| Layer | Choice |
-|:------|:-------|
-| App | Next.js 16, React 19, AI SDK 7, shadcn/ui, Tailwind 4 |
-| LLM | Nebius AI Studio through `@ai-sdk/openai-compatible` (DeepSeek-V4.1-Flash by default) |
-| Voice | SLNG managed agent on LiveKit SIP, Vonage Voice API for the PSTN leg |
-| Data | Drizzle + postgres-js on pg0 (embedded Postgres 18 + pgvector), 300 committed Barcelona listings |
-| Calendar | Google Calendar via service account |
-| Scraper | uv-managed Python CLI (httpx, parsel, pydantic) with fotocasa, habitaclia, idealista and milanuncios adapters |
-| Evals | Galtea and QualityClouds runs against the concierge |
+| Layer | Choice | Evidence |
+|:------|:-------|:---------|
+| App | Next.js 16, React 19, AI SDK 7, shadcn/ui, Tailwind 4 | [PRD tracks](PRD.md#hackathon-tracks) |
+| LLM | Nebius AI Studio through `@ai-sdk/openai-compatible` (DeepSeek-V4.1-Flash by default) | [PRD tracks](PRD.md#hackathon-tracks) |
+| Voice | SLNG managed agent on LiveKit SIP, Vonage Voice API for the PSTN leg | [PRD tracks](PRD.md#hackathon-tracks) |
+| Data | Drizzle + postgres-js on pg0 (embedded Postgres 18 + pgvector), 300 committed Barcelona listings | [PRD tracks](PRD.md#hackathon-tracks) |
+| Calendar | Google Calendar via service account | [PRD tracks](PRD.md#hackathon-tracks) |
+| Scraper | uv-managed Python CLI (httpx, parsel, pydantic) with fotocasa, habitaclia, idealista, milanuncios and pisos.com adapters | pisos.com adapter written by Devin, see below |
+| Autonomy | Chezy Forge: Devin sessions driven through the v3 API, verified by pytest + hidden hold-outs, failures fed back until the verifier passes (`scripts/devin-forge`) | **[Cognition (Devin) track evidence](#cognition-devin-track-evidence)**: [write-up](.agents/notes/2026-09-20-devin-forge-run.md), [raw logs](.agents/evidence/devin-forge/), PRs [#66](https://github.com/espetro/chezy/pull/66) [#70](https://github.com/espetro/chezy/pull/70) [#71](https://github.com/espetro/chezy/pull/71) |
+| Evals | Galtea and QualityClouds runs against the concierge | [PRD tracks](PRD.md#hackathon-tracks) |
+
+### Cognition (Devin) track evidence
+
+Chezy Forge creates Devin cloud sessions through the Devin v3 API, verifies what Devin ships with pytest, pydantic, ruff, basedpyright, hidden hold-out fixtures and a path allowlist, and feeds failures back into the same session until the verifier passes. No person or model decides.
+
+- Write-up with both run timelines, the run logs pasted verbatim and the judging-criteria table: [`.agents/notes/2026-09-20-devin-forge-run.md`](.agents/notes/2026-09-20-devin-forge-run.md)
+- Plan: [`.agents/plans/2026-09-20-devin-adapter-forge.md`](.agents/plans/2026-09-20-devin-adapter-forge.md)
+- The layer: [`scripts/devin-forge/`](scripts/devin-forge/) (`forge.ts` loop, `devin.ts` v3 client, `verify.ts` gates, `tasks.ts` standards, `prompt.ts`), run with `mise run forge:pisos` or `mise run forge:pisos-detail`
+- Standards Devin had to meet and the hold-outs it never saw (now regression tests): [`apps/scraper/tests/test_pisos.py`](apps/scraper/tests/test_pisos.py), [`test_pisos_holdout.py`](apps/scraper/tests/test_pisos_holdout.py), [`test_pisos_detail.py`](apps/scraper/tests/test_pisos_detail.py), [`test_pisos_detail_holdout.py`](apps/scraper/tests/test_pisos_detail_holdout.py), [`test_pisos_detail_holdout2.py`](apps/scraper/tests/test_pisos_detail_holdout2.py), fixtures under [`apps/scraper/tests/fixtures/`](apps/scraper/tests/fixtures/) (`pisos_*`)
+- The artifact Devin built: [`apps/scraper/src/chezy_scraper/adapters/pisos.py`](apps/scraper/src/chezy_scraper/adapters/pisos.py), a fifth listing source (`uv run scraper scrape --platform pisos --operation rent --tier small` pulled 61 live listings)
+- Raw machine logs: [`.agents/evidence/devin-forge/`](.agents/evidence/devin-forge/)
+  - `run-20260920-1239-list-adapter.jsonl.txt`: session created via API, verdict pass, merged
+  - `run-20260920-1304-detail-parser.jsonl.txt`: created, pass, merged, session resumed, attempt 0 FAIL fed back (seed), attempt 1 pass, merged
+  - `gate-logs/20260920-1304-attempt-0-pytest.log`: the real first failure (4 failed, `ValidationError: heating`), `gate-logs/20260920-1304-attempt-1-pytest.log`: 17 passed after Devin's fix; plus `uv_sync`, `ruff_check`, `ruff_format`, `basedpyright` logs per attempt
+  - `forge-stdout-run1.log`, `forge-stdout-run2.log`: the forge process output
+- Pull requests Devin opened and the forge verified and merged: [#66](https://github.com/espetro/chezy/pull/66) search-page adapter, [#70](https://github.com/espetro/chezy/pull/70) detail-page parser, [#71](https://github.com/espetro/chezy/pull/71) the retry that fixed a crash found on a live page; umbrella [#73](https://github.com/espetro/chezy/pull/73)
+- Devin sessions (origin `api`): [run 1](https://app.devin.ai/sessions/2e94eafbe2374f70a9042ec04e8bca14), [run 2 with the fed-back regression](https://app.devin.ai/sessions/348990fec7134544a9519a8dc18d6c7a)
 
 ## Repo map
 
 ```
 apps/web         the product: chat, onboarding, explore, viewing + calendar routes
+apps/bot         Telegram client (Mastra + polling adapter), second surface for the concierge
 apps/scraper     listings pipeline and the committed dataset builder
 apps/video       Remotion demo video
 packages/*       contract (Valibot), db (Drizzle), config, ui, observability

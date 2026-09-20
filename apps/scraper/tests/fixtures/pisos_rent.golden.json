@@ -1,0 +1,62 @@
+{
+  "source": "https://www.pisos.com/alquiler/pisos-barcelona_capital/ captured 2026-09-20 12:05 CEST",
+  "operation": "rent",
+  "card_count": 33,
+  "total_count": 907,
+  "listings": [
+    {
+      "platform_id": "52507851504.101800",
+      "url": "https://www.pisos.com/alquilar/piso-la_vila_de_gracia08012-52507851504_101800/",
+      "price_eur": 3397.0,
+      "price_period": "month",
+      "rooms": 3,
+      "bathrooms": 2,
+      "built_m2": 70.0,
+      "floor_raw": "2ª planta",
+      "property_type": "piso",
+      "title": "Piso en La Vila de Gràcia",
+      "neighbourhood": "La Vila de Gràcia",
+      "district": "Gràcia",
+      "municipality": "Barcelona",
+      "lat": 41.4039398,
+      "lon": 2.161636,
+      "first_photo": "https://fotos.imghs.net/mm-wp/1018/408/1018_106272408_1_2025033110034326444.jpg"
+    },
+    {
+      "platform_id": "65914432493.501025",
+      "url": "https://www.pisos.com/alquilar/piso-sant_andreu_barrio08030-65914432493_501025/",
+      "price_eur": 1029.0,
+      "price_period": "month",
+      "rooms": 1,
+      "bathrooms": 1,
+      "built_m2": 63.0,
+      "floor_raw": "Bajo",
+      "property_type": "piso",
+      "title": "Piso en Plaça del Mercadal",
+      "neighbourhood": "Sant Andreu",
+      "district": "Sant Andreu",
+      "municipality": "Barcelona",
+      "lat": 41.4349597,
+      "lon": 2.1884732,
+      "first_photo": "https://fotos.imghs.net/mm-wp/501025/65914432493.501025/501025_65914432493_628c7b8d-761f-45b2-9587-bcd357bd316a.jpg"
+    },
+    {
+      "platform_id": "64230911844.109200",
+      "url": "https://www.pisos.com/alquilar/piso-gracia_la_salut08024-64230911844_109200/",
+      "price_eur": 2199.0,
+      "price_period": "month",
+      "rooms": null,
+      "bathrooms": null,
+      "built_m2": 60.0,
+      "floor_raw": null,
+      "property_type": "piso",
+      "title": "Piso en La Salut",
+      "neighbourhood": "La Salut",
+      "district": "Gràcia",
+      "municipality": "Barcelona",
+      "lat": 41.4131497,
+      "lon": 2.1530363,
+      "first_photo": "https://fotos.imghs.net/mm-wp/1092/3230323630353037/7afa36dc-70e4-4444-9cd1-89707a763f8f.jpg"
+    }
+  ]
+}

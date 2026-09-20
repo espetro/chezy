@@ -132,6 +132,33 @@ description = "Pin the SLNG agent to eu-central/livekit and report its outbound 
 # cd into apps/web so tsx picks up its tsconfig `@/*` paths.
 run = "cd apps/web && node --env-file-if-exists=.env.local --import=tsx scripts/slng-agent-sync.ts"
 
+[tasks."bot:dev"]
+description = "Run the Telegram bot (polling) via tsx watch"
+run = "pnpm --filter @chezy/bot dev"
+
+[tasks."bot:start"]
+description = "Run the Telegram bot (polling) via tsx"
+run = "pnpm --filter @chezy/bot start"
+
+[tasks."bot:test"]
+description = "Run the apps/bot vitest suite against the fake Telegram"
+run = "pnpm --filter @chezy/bot test"
+
+[tasks."bot:radar"]
+description = "Trigger one radar pass via POST /internal/radar/run (needs BOT_INTERNAL_TOKEN)"
+run = "curl -sf -X POST -H \"x-internal-token: ${BOT_INTERNAL_TOKEN:?set BOT_INTERNAL_TOKEN}\" \"http://127.0.0.1:${BOT_PORT:-4111}/internal/radar/run\""
+
+[tasks."audit:turns"]
+description = "Tabulate chat.turn.complete audit records (channel, model, latency, tools, citations)"
+# The audit sink flattens ctx into the record root (properties: "flatten"),
+# so the jq projection reads .model/.latency_ms directly, not .ctx.*.
+usage = 'arg "[date]" help="YYYY-MM-DD to read (default: today)"'
+run = """
+DATE="{{arg(name="date", default="")}}"
+DATE="${DATE:-$(date +%F)}"
+jq -r 'select(.action=="chat.turn.complete") | [.channel, .model, .latency_ms, (.tools|map(.name)|join(",")), (.cited_listing_ids|length), (.grounding.score // "-")] | @tsv' "${CHEZY_AUDIT_DIR:-.audit}"/chezy-*-"${DATE}".jsonl
+"""
+
 [tasks.lint]
 description = "Lint TS (oxlint) + Python (ruff) workspaces"
 run = "pnpm lint && uv run --all-packages ruff check ."
@@ -216,6 +243,14 @@ run = "lefthook install"
 [tasks."wt:init"]
 description = "Initialize a new worktree: copy .env, run pnpm install, uv sync --all-packages, then db:start"
 run = "bash scripts/worktree-init.sh"
+
+[tasks."forge:pisos"]
+description = "Devin forge: pisos.com adapter, verified by pytest + hold-out"
+run = "node --env-file-if-exists=.env --import=tsx scripts/devin-forge/forge.ts pisos"
+
+[tasks."forge:pisos-detail"]
+description = "Devin forge: pisos.com detail-page parser, verified by pytest + hold-out"
+run = "node --env-file-if-exists=.env --import=tsx scripts/devin-forge/forge.ts detail"
 
 [tasks.setup]
 description = "First-time setup: wt:init (deps, .env.local, pg0), then migrate and seed the listings"

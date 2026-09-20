@@ -24,11 +24,18 @@ Notes on pocket-tts:
 
 - First `generate` run downloads the English model from Hugging Face
   (~1 GB into `~/.cache/huggingface`). Every later run is CPU-local.
-- `--voice` takes a built-in voice name (`alba` is the narrator), an
-  `hf://` path, or a local `.safetensors` / `.wav` file.
-- Built-in voice cloning (a `.wav` input) needs the gated
+- `--voice` takes a built-in voice name (`alba`), an `hf://` path, or a
+  local `.safetensors` / `.wav` file (the shipped narrator).
+- Built-in voice cloning (a `.wav` input, or `export-voice`) needs the gated
   `kyutai/pocket-tts` HF repo: accept its terms and run `hf auth login`
-  once. `.safetensors` voices and built-in names work without it.
+  once. `.safetensors` voices and built-in names work without it: pocket-tts
+  falls back to the public `kyutai/pocket-tts-without-voice-cloning`
+  weights and loads the voice state directly, so the shipped
+  `voices/anabel.safetensors` narrates on a fresh machine with no HF
+  account (verified against an isolated `HF_HOME` with no token).
+- The pinned install is the pypi package through mise (`mise install`), not
+  brew and not pocket-tts.cpp; `which pocket-tts` should resolve to the mise
+  shim.
 - pocket-tts has no speaking-rate flag; `voice.tempo` in `demo.config.ts`
   slows each WAV in post via ffmpeg `atempo` (recommended 0.80 to 0.85 for
   narration, 1.0 to disable). Raw pre-atempo WAVs land in
@@ -45,9 +52,10 @@ Notes on pocket-tts:
 - A path to a `.safetensors` or `.wav` voice file, resolved relative to
   `apps/video` (absolute paths work too), or an `hf://` path.
 
-The default is `voices/chezy-narrator.safetensors`: alba's precomputed
-voice state, committed so narration is identical on every machine and does
-not depend on the HF voice catalog staying stable. `mise run video:tts`
+The default is `voices/anabel.safetensors`: Anabel's cloned voice state,
+committed so narration is identical on every machine and nobody else needs
+the gated cloning model. `voices/chezy-narrator.safetensors` (alba's
+precomputed state) stays in the repo as a fallback. `mise run video:tts`
 emits intro-line samples for `alba`/`marius`/`jean` under
 `public/audio/vo/samples/` if you want to audition alternates.
 

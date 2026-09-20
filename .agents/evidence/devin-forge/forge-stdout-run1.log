@@ -1,0 +1,93 @@
+session: https://app.devin.ai/sessions/2e94eafbe2374f70a9042ec04e8bca14
+run log: /Users/josocjoq/.worktrees/chezy-forge/standard/scripts/devin-forge/runs/20260920-1239.jsonl
+[poll] running/
+[poll] running/working
+file:///Users/josocjoq/.worktrees/chezy-forge/standard/node_modules/.pnpm/valibot@1.5.0_typescript@5.9.3/node_modules/valibot/dist/index.mjs:7320
+	if (dataset.issues) throw new ValiError(dataset.issues);
+	                          ^
+
+ValiError: Invalid key: Expected "url" but received undefined
+    at Module.parse (file:///Users/josocjoq/.worktrees/chezy-forge/standard/node_modules/.pnpm/valibot@1.5.0_typescript@5.9.3/node_modules/valibot/dist/index.mjs:7320:28)
+    at getSession (/Users/josocjoq/.worktrees/chezy-forge/standard/scripts/devin-forge/devin.ts:75:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async waitForSession (/Users/josocjoq/.worktrees/chezy-forge/standard/scripts/devin-forge/forge.ts:76:15)
+    at async main (/Users/josocjoq/.worktrees/chezy-forge/standard/scripts/devin-forge/forge.ts:183:18)
+    at async <anonymous> (/Users/josocjoq/.worktrees/chezy-forge/standard/scripts/devin-forge/forge.ts:311:14) {
+  issues: [
+    {
+      kind: 'schema',
+      type: 'loose_object',
+      input: undefined,
+      expected: '"url"',
+      received: 'undefined',
+      message: 'Invalid key: Expected "url" but received undefined',
+      requirement: undefined,
+      path: [
+        {
+          type: 'object',
+          origin: 'value',
+          input: {
+            session_id: '2e94eafbe2374f70a9042ec04e8bca14',
+            url: 'https://app.devin.ai/sessions/2e94eafbe2374f70a9042ec04e8bca14',
+            status: 'running',
+            title: 'forge:pisos 20260920-1239',
+            tags: [Array],
+            playbook_id: null,
+            user_id: 'user-7ce5073b6d544796a7da8cd56ffe5bb6',
+            org_id: 'org-4caa7f52de20476abf5fefc427f2fe16',
+            created_at: 1789900753,
+            updated_at: 1789900986,
+            is_archived: false,
+            acus_consumed: 0,
+            pull_requests: [Array],
+            parent_session_id: null,
+            child_session_ids: [],
+            service_user_id: null,
+            category: null,
+            subcategory: null,
+            origin: 'api',
+            automation_id: null,
+            structured_output: [Object],
+            devin_mode: 'normal',
+            status_detail: 'working',
+            security_profile: [Object]
+          },
+          key: 'pull_requests',
+          value: [ [Object] ]
+        },
+        {
+          type: 'array',
+          origin: 'value',
+          input: [ [Object] ],
+          key: 0,
+          value: {
+            pr_url: 'https://github.com/espetro/chezy/pull/66',
+            pr_state: 'open'
+          }
+        },
+        {
+          type: 'object',
+          origin: 'key',
+          input: {
+            pr_url: 'https://github.com/espetro/chezy/pull/66',
+            pr_state: 'open'
+          },
+          key: 'url',
+          value: undefined
+        }
+      ],
+      issues: undefined,
+      lang: undefined,
+      abortEarly: undefined,
+      abortPipeEarly: undefined
+    }
+  ]
+}
+
+Node.js v24.20.0
+exit=1
+session: https://app.devin.ai/sessions/2e94eafbe2374f70a9042ec04e8bca14
+run log: /Users/josocjoq/.worktrees/chezy-forge/standard/scripts/devin-forge/runs/20260920-1239.jsonl
+[poll] running/waiting_for_user
+merged https://github.com/espetro/chezy/pull/66 (gh exit 0)
+exit=0

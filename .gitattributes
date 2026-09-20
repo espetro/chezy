@@ -9,6 +9,7 @@
 *.pdf binary
 *.woff2 binary
 *.ttf binary
+*.safetensors binary
 
 *.json linguist-generated
 pnpm-lock.yaml linguist-generated

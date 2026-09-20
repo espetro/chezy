@@ -136,6 +136,24 @@
       }
     },
     {
+      "files": ["packages/config/src/**/*.ts"],
+      "rules": {
+        "no-restricted-properties": "off"
+      }
+    },
+    {
+      "files": ["apps/bot/src/env.ts"],
+      "rules": {
+        "no-restricted-properties": "off"
+      }
+    },
+    {
+      "files": ["apps/bot/src/identity.ts", "apps/bot/src/radar/**/*.ts"],
+      "rules": {
+        "unicorn/no-null": "off"
+      }
+    },
+    {
       "files": ["packages/observability/src/**/*.ts"],
       "rules": {
         "no-restricted-properties": "off"

@@ -66,6 +66,10 @@ const EnvSchema = v.object({
   CHEZY_TITLE_MODEL_ID: v.optional(v.string()),
   // Template flag: "1" hides model choice in the demo deployment.
   IS_DEMO: v.optional(v.string()),
+  // Dev shortcut: "1" makes /explore load the demo persona for a guest with no
+  // profile instead of redirecting to /onboarding. Only honoured where the demo
+  // reset tools are enabled (development or IS_DEMO=1).
+  CHEZY_SKIP_ONBOARDING: v.optional(v.picklist(["0", "1"]), "0"),
   // Vision model for photo insights. Kimi-K3 needs thinking off; gemma-3-27b
   // is the cheap fallback.
   VISION_MODEL_ID: v.fallback(v.string(), "moonshotai/Kimi-K3"),

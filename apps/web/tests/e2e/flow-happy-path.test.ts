@@ -84,7 +84,10 @@ test.describe("flow happy path", () => {
     const fresh = await browser.newContext();
     const freshPage = await fresh.newPage();
     await freshPage.goto("/explore");
-    await expect(freshPage).toHaveURL(/\/onboarding/);
+    // CHEZY_SKIP_ONBOARDING=1 (dev shortcut) auto-loads the demo persona instead.
+    const envLocal = readFileSync(path.resolve(process.cwd(), ".env.local"), "utf8");
+    const skipOnboarding = /^CHEZY_SKIP_ONBOARDING="?1"?$/m.test(envLocal);
+    await expect(freshPage).toHaveURL(skipOnboarding ? /\/explore$/ : /\/onboarding/);
     await fresh.close();
 
     // 1. / landing → "Find my home". Flow routes carry the flow title.

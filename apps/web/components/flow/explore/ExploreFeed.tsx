@@ -15,6 +15,7 @@ import { FlowButton } from "~/components/flow/ui/Button";
 import { FlowDropdown, FlowMultiDropdown } from "~/components/flow/ui/Dropdown";
 import { CandidateCarousel } from "~/components/flow/explore/CandidateCarousel";
 import { AdaptationStatus } from "~/components/flow/explore/AdaptationStatus";
+import { FlowChatBar } from "~/components/flow/explore/ChatBar";
 import { ComparisonPanel } from "~/components/flow/explore/ComparisonPanel";
 import type { FlowListing } from "~/lib/flow/types";
 
@@ -78,7 +79,7 @@ export const ExploreFeed = ({
     <div
       ref={feedRef}
       tabIndex={-1}
-      className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-10 md:max-w-[1200px]"
+      className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col gap-6 px-4 pt-6 pb-[calc(6.5rem+env(safe-area-inset-bottom))] sm:gap-8 sm:px-6 sm:pt-10 md:max-w-[1200px]"
     >
       <div className="flex items-start gap-3 rounded-cards bg-snow px-4 py-4 shadow-sm sm:px-6 sm:py-5">
         <FlowAgentMark size="sm" className="mt-0.5" />
@@ -171,6 +172,7 @@ export const ExploreFeed = ({
           </Link>
         </div>
       )}
+      <FlowChatBar />
     </div>
   );
 };
