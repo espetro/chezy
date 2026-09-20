@@ -152,3 +152,15 @@ the reload persistence checkpoint 4 asks for).
 `mise run validate:quick`, `pnpm exec vitest run lib/booking.test.ts lib/viewing.test.ts`,
 the two e2e files serially, screenshots at 375 px of `calling`, `booked`, and
 `prefers-reduced-motion` variants, zero console errors, no horizontal overflow.
+
+## Addendum (same day): live by default
+
+Owner decision after the first review on the phone build: the call is no longer a
+simulation with an opt-in. Every request is `live: true`; `VIEWING_MODE=mock` degrades
+it server-side to the simulated slot (dev and e2e keep working, the `Demo` pill appears
+only on that path). The checkbox, "Request live demo call" and the `awaiting` phase are
+gone. `POST /api/viewing` inserts the `Viewing` row on dispatch and
+`GET /api/viewing/status` exposes it; the gate polls it and advances a predefined
+transcript (calling, asking about the listing, proposing a date and time, confirming the
+visit) on the `LIVE_STAGE_AT_MS` timeline until the booking webhook lands. Provider
+event streaming can later drive `stage` directly; the UI contract is the stage index.

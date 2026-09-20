@@ -36,10 +36,12 @@ optional `durationMinutes`, `summary`, `description`. Output is `BookingResult`:
 - UI: `apps/web/components/chat/viewing-card.tsx` (PR #47). Flow surface: the
   "Visit booked" phase in `components/flow/match/AgentCallGate.tsx` and the
   "Booked · {slot}" pill in `components/flow/explore/CandidateCard.tsx`, both driven by
-  `lib/flow/use-viewing-booking.ts`, which POSTs the mock slot to `/api/calendar` and
-  keeps the receipt in `localStorage["chezy:booking:<listingId>"]` so it survives a
-  reload. Mock `/api/viewing` inserts no `Viewing` row, so `markLatestViewingBooked` is
-  a no-op in mock mode; the client receipt is the persistence today.
+  `lib/flow/use-viewing-booking.ts`, which POSTs a mock slot to `/api/calendar` itself
+  or, after a live dispatch, polls `GET /api/viewing/status` until the SLNG
+  `book_viewing` webhook has marked the `Viewing` row booked. The receipt is kept in
+  `localStorage["chezy:booking:<listingId>"]` so it survives a reload. Mock
+  `/api/viewing` inserts no `Viewing` row, so `markLatestViewingBooked` is a no-op in
+  mock mode; the client receipt is the persistence there.
 - Env: `CALENDAR_MODE`, `GOOGLE_*` service-account vars in `apps/web/lib/env.ts`.
 
 ## Mock / real

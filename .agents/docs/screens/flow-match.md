@@ -36,9 +36,11 @@ State 1 — detail:
 ```
 
 State 2a: **auto-call** (score ≥95%, e.g. Gràcia at 96%): the gate fires one call on
-mount, no click needed. Automatic requests always simulate (`live: false`); they never
-dial. Disclosure is one quiet `Demo` pill in the header (product decision 2026-09-20,
-`.agents/plans/2026-09-20-call-flow-motion.md`); no other simulation copy remains.
+mount, no click needed. Every request asks for a live call (`live: true`); under
+`VIEWING_MODE=mock` the server answers with a simulated slot instead, and only then does
+the header show a quiet `Demo` pill (product decision 2026-09-20,
+`.agents/plans/2026-09-20-call-flow-motion.md`). With `slng`/`vonage` configured, a real
+phone rings, so the auto-call guard (one per listing per browser) matters.
 
 ```
 +---------------------------------------------------------------+
@@ -47,19 +49,24 @@ dial. Disclosure is one quiet `Demo` pill in the header (product decision 2026-0
 |                                                                |
 |  +------------------------------------------------------------+|
 |  |                    ((( (•) )))                              ||  <- CallProgress: ember rings
-|  |                 Calling the agency                          ||
-|  |                 Dialing the agency                          ||  <- steps fade up at
-|  |        Introducing itself as Chezy's AI assistant           ||     0 / 900 / 1800 ms
-|  |               Asking for a viewing slot                     ||
+|  |                     AI calling                              ||
+|  |            Calling aProperties Real Estate                  ||  <- transcript lines slide
+|  |               Asking about the listing                      ||     down (motion/react) as
+|  |            Proposing Monday 13:00                           ||     the stage advances
+|  |               Confirming the visit                          ||
 |  +------------------------------------------------------------+|
 |                                                                |
 |  [ Not for me ]   (disabled while calling)                     |
 +---------------------------------------------------------------+
 ```
 
-The calling state holds for at least `CALL_SEQUENCE_MS` (2600 ms) even though the mock
-provider answers in under 100 ms. A simulated slot is then handed to `POST /api/calendar`
-("Booking the visit…"), which resolves to:
+Stages: mock calls advance one line every `MOCK_STAGE_MS` (800 ms); live calls advance
+the middle lines on `LIVE_STAGE_AT_MS` (0 / 12 s / 35 s) while the gate polls
+`GET /api/viewing/status` every `LIVE_POLL_MS` until the voice agent's `book_viewing`
+webhook marks the `Viewing` row booked (or `LIVE_CALL_TIMEOUT_MS` passes). Dispatch and
+that webhook are the only two real signals today; the middle stages are a timeline until
+the provider streams events. A simulated slot is booked by the client via
+`POST /api/calendar` ("Booking the visit…"); either path resolves to:
 
 ```
 +---------------------------------------------------------------+
@@ -75,27 +82,14 @@ provider answers in under 100 ms. A simulated slot is then handed to `POST /api/
 |  +------------------------------------------------------------+|
 |                                                                |
 |  [ Not for me ]                                                |
-|  › Place a real call                                           |  <- collapsed <details>
 +---------------------------------------------------------------+
 ```
 
-A live demo call (opt-in checked under "Place a real call" + `VIEWING_LIVE_ENABLED=true`
-+ configured team target) lands on the awaiting state instead; the client never books a
-live call (the SLNG `book_viewing` webhook does):
-
-```
-|  +------------------------------------------------------------+|
-|  | (phone) Call in progress                                    ||
-|  |         The agency is being asked for a slot.               ||
-|  +------------------------------------------------------------+|
-```
-
-Failures land on "Couldn't reach the agency" plus the server's detail line. A
-retryable live failure (provider rejection, network error) adds "Try again", which
-retries live with the same requestId. A pre-dispatch rejection (live disabled, bad target,
-auth) instead restores "Call the agency" and the opt-in controls, since no live attempt
-is on record. A failed booking after a simulated call shows the calendar detail and "Try
-again" re-posts the same slot.
+Live calls need `VIEWING_LIVE_ENABLED=true` and the configured `DEMO_AGENCY_PHONE`
+target on the server; there is no client opt-in anymore (removed 2026-09-20). Failures
+land on "Couldn't reach the agency" plus the server's detail line and "Try again", which
+retries with the same requestId. A failed booking after a simulated call shows the
+calendar detail and "Try again" re-posts the same slot.
 
 State 2b: **below threshold** (score <95%, e.g. Eixample at 75%): nothing happens until
 the user asks.
@@ -111,13 +105,10 @@ the user asks.
 |  +------------------------------------------------------------+|
 |                                                                |
 |  [ Call the agency ]   [ Not for me ]                          |
-|  › Place a real call                                           |
 +---------------------------------------------------------------+
 ```
 
-"Request live demo call" is disabled until the checkbox is checked, and the checkbox
-clears again after each attempt. "Call the agency" runs the same calling → booking →
-booked sequence as State 2a.
+"Call the agency" runs the same calling → booking → booked sequence as State 2a.
 
 State 3: "Not for me" (either path): "Candidate rejected." with "Undo".
 
@@ -138,20 +129,21 @@ State 3: "Not for me" (either path): "Candidate rejected." with "Undo".
   `localStorage["chezy:autocall:<listingId>"]` is unset, `useMountEffect` sets the key
   and fires `start()` on mount. The guard keeps the auto request to one per listing per
   browser, and it is always `live: false`, so no real phone ever rings from a page load.
-- `start(live)` POSTs `/api/viewing` with `{ propertyRef, live, requestId?, retry }`,
-  awaits at least `CALL_SEQUENCE_MS`, and on a `mock` result POSTs
-  `{ propertyRef, slotIso }` to `/api/calendar`. A `booked` result is persisted to
+- `start()` POSTs `/api/viewing` with `{ propertyRef, live: true, requestId, retry }`. On
+  a `mock` result the client walks the stages and POSTs `{ propertyRef, slotIso }` to
+  `/api/calendar`; on `dispatched` the server has inserted a `Viewing` row and the client
+  polls `GET /api/viewing/status?propertyRef=` until it reads `booked` (set by
+  `/api/calendar` when the voice agent books). A `booked` result is persisted to
   `localStorage["chezy:booking:<listingId>"]` and restored on reload, so "Visit booked"
-  survives navigation (checkpoint 4). Live results persist to
-  `localStorage["chezy:viewing:<listingId>"]` (`{ requestId, result?, retry }`) as before.
+  survives navigation (checkpoint 4). Live receipts persist to
+  `localStorage["chezy:viewing:<listingId>"]` (`{ requestId, result?, retry }`) as before,
+  and a restored `dispatched` receipt resumes polling.
 - The same hook drives `BookVisitAction` in `components/flow/explore/CandidateCard.tsx`:
-  "Book a visit" → "Calling…" (ring pulse) → "Booking…" → pill "Booked · Mon 13:00".
-- Live calls require the explicit opt-in checkbox on the client plus
-  `VIEWING_LIVE_ENABLED=true` and the configured `DEMO_AGENCY_PHONE` team target on the
-  server. A pre-dispatch rejection (400/401/403/503) clears the live flag: the failed
-  state offers "Call the agency" and the opt-in block again, with no "Try again".
-  A retryable provider rejection (502) or a network error keeps `live` on record, so
-  "Try again" retries live with the same `requestId` and `retry: true`.
+  "Book a visit" → "AI calling…" (ring pulse) → "Booking…" → pill "Booked · Mon 13:00".
+- Live calls require `VIEWING_LIVE_ENABLED=true` and the configured `DEMO_AGENCY_PHONE`
+  team target on the server; `VIEWING_MODE=mock` degrades every request to the simulated
+  slot. A retryable failure keeps `live` on record, so "Try again" retries with the same
+  `requestId` and `retry: true`.
 - "Not for me" is available from any non-rejected status; "Undo" restores whatever the
   status box showed before the rejection (it does not replay the request).
 
@@ -180,16 +172,13 @@ State 3: "Not for me" (either path): "Candidate rejected." with "Undo".
 ```
 /explore/[id] entry -> read match reasons + neighborhood profile
   -> if matchScore >= 95%: gate auto-fires one call per listing per browser
-     (localStorage guard) -> "Calling the agency" (≥2.6 s) -> "Booking the visit…"
+     (localStorage guard) -> "AI calling" transcript -> "Booking the visit…"
      -> "Visit booked" + slot + "added to your calendar"
   -> if matchScore < 95%: gate shows "Ready to call the agency for you." +
      [Call the agency] -> click -> same sequence, on demand
-  -> live path (both): open "Place a real call" -> check "I authorize a real call…"
-     -> [Request live demo call]
-     -> dispatched: "Call in progress" + "The agency is being asked for a slot."
-     -> failed: "Couldn't reach the agency" + detail
-        -> retryable live failure: [Try again] retries live, same requestId
-        -> config rejection: [Call the agency] + opt-in controls return, no live lock-in
+  -> live provider configured: same transcript, stages on the live timeline, gate polls
+     /api/viewing/status until the book_viewing webhook marks the row booked
+     -> failed / timeout: "Couldn't reach the agency" + detail -> [Try again], same requestId
   -> reload after booked: "Visit booked" restored from the booking receipt
   -> [Not for me] (either path) -> "Candidate rejected." -> [Undo] -> back to the
      prior status box state
