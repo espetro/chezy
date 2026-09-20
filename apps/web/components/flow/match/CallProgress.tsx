@@ -22,9 +22,9 @@ export const callTranscript = (agency: string, slotIso?: string): string[] => [
 
 const CALL_STAGE_LABELS = [
   "AI calling…",
-  "Asking about the listing…",
+  "Asking availability…",
   "Proposing a slot…",
-  "Confirming the visit…",
+  "Confirming visit…",
 ] as const;
 
 export const callStageLabel = (stage: number): string =>
