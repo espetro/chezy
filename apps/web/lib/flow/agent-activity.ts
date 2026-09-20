@@ -21,7 +21,7 @@ const ACTIVITY_KEY = "chezy-flow-agent-activity";
 
 const readRaw = (): string => {
   try {
-    return sessionStorage.getItem(ACTIVITY_KEY) ?? "[]";
+    return localStorage.getItem(ACTIVITY_KEY) ?? "[]";
   } catch {
     return "[]";
   }
@@ -39,12 +39,14 @@ export const readActivity = (): AgentActivityEntry[] => parseActivity(readRaw())
 
 const subscribers = new Set<() => void>();
 
-// Cross-surface log: AgentCallGate (listing detail), AutoCallBanner (explore carousel),
-// AgentActivityToast (any other page), and OnboardingFlow's chat thread all read this same
-// store, so wherever the user is when a ≥95% match calls, books, or fails, they see it.
+// Cross-surface AND cross-tab log: AgentCallGate (listing detail), AutoCallBanner (explore
+// carousel), AgentActivityToast (any other page), and OnboardingFlow's chat thread all read
+// this same store — localStorage, not sessionStorage, so a call placed in one tab (or one
+// claimed by claimAutoCall's shared guard) is still visible from any other tab open on the
+// same listing, instead of that tab seeing a guard it can't dial past and nothing to show.
 export const appendActivity = (entry: AgentActivityEntry) => {
   try {
-    sessionStorage.setItem(ACTIVITY_KEY, JSON.stringify([...readActivity(), entry]));
+    localStorage.setItem(ACTIVITY_KEY, JSON.stringify([...readActivity(), entry]));
   } catch {
     // Storage unavailable (private tab, quota) — this tick's entry just won't persist.
   }
@@ -53,7 +55,14 @@ export const appendActivity = (entry: AgentActivityEntry) => {
 
 const subscribe = (callback: () => void) => {
   subscribers.add(callback);
-  return () => subscribers.delete(callback);
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === null || event.key === ACTIVITY_KEY) callback();
+  };
+  window.addEventListener("storage", onStorage);
+  return () => {
+    subscribers.delete(callback);
+    window.removeEventListener("storage", onStorage);
+  };
 };
 
 const getServerSnapshot = () => "[]";

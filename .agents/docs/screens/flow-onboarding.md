@@ -141,10 +141,10 @@ Step cards (each `FlowSectionCard`, numbered, with the Stitch aside):
   extra agent bubbles, live: a ≥95% match calling from either `/explore`'s `AutoCallBanner`
   or a listing's own `AgentCallGate` pushes "Calling {agency}…" (with the same pulsing-dot
   animation as `ThinkingBubble`), then "Called {agency} — visit booked for …" / "…awaiting
-  their confirmation" / "The call to {agency} failed — …". Cross-surface only within the
-  same tab (`sessionStorage`); the wizard's own `stepIndex`/`history` are not persisted, so
-  navigating back here after finishing still restarts the wizard, but any activity already
-  logged this session still replays above it.
+  their confirmation" / "The call to {agency} failed — …". Cross-surface AND cross-tab
+  (`localStorage`, with a `storage`-event listener so another open tab reacts live); the
+  wizard's own `stepIndex`/`history` are not persisted, so navigating back here after
+  finishing still restarts the wizard, but any activity already logged replays above it.
 
 ## User flow checkpoints
 
