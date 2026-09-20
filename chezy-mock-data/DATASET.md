@@ -63,4 +63,24 @@ Nothing here is deduplicated or validated yet. Expect:
 - `location_accuracy` is a per portal heuristic. Fotocasa `zone` pins are usually within about
   20 m of the street pin.
 
+## Enriched tables (2026-09-19 snapshot)
+
+`enriched/` holds derived tables computed once over the 300 listings above. They are a one-off
+snapshot: the pipeline that produced them is not in this repository, so treat them as fixtures,
+not as reproducible output. Join key is `(platform, platform_id)`; `media_features` also carries
+`position` and `path` to join `media.parquet`. Checksums: `enriched/SHA256SUMS`.
+
+| path | rows | what |
+|---|---|---|
+| `enriched/listing_geo.parquet` | 300 | `lat`, `lon`, `location_accuracy`, `geo_source`, `matched_place` (Nominatim) |
+| `enriched/listing_poi.parquet` | 300 | OSM POI counts at 400 m and 800 m plus nearest distance for gym, bus stop, station, school, supermarket |
+| `enriched/listing_dedup.parquet` | 300 | `cluster_id`, `cluster_size`: cross-portal duplicate clusters |
+| `enriched/listing_text.parquet` | 300 | `text_flags`, `inconsistency_flags`, `mentioned_places` from title and description |
+| `enriched/media_features.parquet` | 6530 | per photo VLM output (`room_type_pred`, `brightness`, `condition`, `kitchen_modern`, `bath_modern`, `outdoor_space`, `view`, ...) plus `luminance`, `sharpness`, `phash`, `model`, `ok` |
+| `enriched/listing_enrichment.parquet` | 300 | the join of all of the above plus `price_per_m2`, `area_median_ppm2`, `deal_percentile`, `days_on_market`, `has_price_drop`, `photo_quality`, `has_balcony_photo`, `has_terrace_photo` |
+| `enriched/poi_bcn.parquet` | 6965 | the OSM POIs used for `listing_poi` (`category`, `osm_type`, `osm_id`, `name`, `lat`, `lon`) |
+
+Nothing in `apps/web` reads these yet. The VLM columns are model output, not ground truth; the
+`ok` flag in `media_features` marks rows where the model call succeeded.
+
 Scraped from public listing pages for internal development. Respect each portal's terms.
