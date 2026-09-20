@@ -8,6 +8,8 @@ import { MessageContent, MessageResponse } from "../ai-elements/message";
 import { Shimmer } from "../ai-elements/shimmer";
 import { Tool, ToolContent, ToolHeader, ToolInput, ToolOutput } from "../ai-elements/tool";
 import { useDataStream } from "./data-stream-provider";
+import { ListingMiniBar } from "~/components/flow/ui/ListingMiniBar";
+import { useIsEmbeddedChat } from "~/components/flow/ui/EmbeddedChatContext";
 import { ListingCard, ListingResults, type ListingSearchOutput } from "./listing-results";
 import { ViewingCard, type ArrangeViewingOutput } from "./viewing-card";
 import { DocumentToolResult } from "./document";
@@ -101,6 +103,7 @@ const PurePreviewMessage = ({
   const attachmentsFromMessage = message.parts.filter((part) => part.type === "file");
 
   useDataStream();
+  const embedded = useIsEmbeddedChat();
 
   const isUser = message.role === "user";
   const isAssistant = message.role === "assistant";
@@ -288,6 +291,24 @@ const PurePreviewMessage = ({
         }
 
         if (part.type === "tool-searchListings" && part.output) {
+          if (embedded) {
+            // Flow chat sheet: one compact row for the top match, no images.
+            const result = part.output as ListingSearchOutput;
+            const top = result.listings.find((listing) => !rejectedListingIds?.has(listing.id));
+            return (
+              <div className="w-full" key={toolCallId}>
+                {top ? (
+                  <ListingMiniBar
+                    listing={top}
+                    score={top.score}
+                    caption={`Top match of ${result.total}`}
+                  />
+                ) : (
+                  <p className="text-[13px] text-fog">No listings match right now.</p>
+                )}
+              </div>
+            );
+          }
           return (
             <div className="w-full max-w-2xl" key={toolCallId}>
               <ListingResults
@@ -302,7 +323,11 @@ const PurePreviewMessage = ({
         if (part.type === "tool-getListing" && part.output && !("error" in part.output)) {
           return (
             <div className="w-full max-w-sm" key={toolCallId}>
-              <ListingCard listing={part.output} />
+              {embedded ? (
+                <ListingMiniBar listing={part.output} />
+              ) : (
+                <ListingCard listing={part.output} />
+              )}
             </div>
           );
         }
