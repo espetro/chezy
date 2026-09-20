@@ -33,9 +33,13 @@ optional `durationMinutes`, `summary`, `description`. Output is `BookingResult`:
   `createGoogleEvent`, `nextSlotIso`). Route `apps/web/app/api/calendar/route.ts`.
 - Persistence: `Viewing` table in `apps/web/lib/db/schema.ts`, queries
   `insertViewing`, `markViewingBooked` in `apps/web/lib/db/queries.ts` (PR #47).
-- UI: `apps/web/components/chat/viewing-card.tsx` (PR #47). Frozen-surface
-  equivalent: the "Visit booked for {slot}" state in
-  `components/flow/match/AgentCallGate.tsx`.
+- UI: `apps/web/components/chat/viewing-card.tsx` (PR #47). Flow surface: the
+  "Visit booked" phase in `components/flow/match/AgentCallGate.tsx` and the
+  "Booked · {slot}" pill in `components/flow/explore/CandidateCard.tsx`, both driven by
+  `lib/flow/use-viewing-booking.ts`, which POSTs the mock slot to `/api/calendar` and
+  keeps the receipt in `localStorage["chezy:booking:<listingId>"]` so it survives a
+  reload. Mock `/api/viewing` inserts no `Viewing` row, so `markLatestViewingBooked` is
+  a no-op in mock mode; the client receipt is the persistence today.
 - Env: `CALENDAR_MODE`, `GOOGLE_*` service-account vars in `apps/web/lib/env.ts`.
 
 ## Mock / real

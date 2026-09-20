@@ -45,9 +45,10 @@ ids contain `:`).
   message; the feed reserves bottom padding so the carousel controls stay clear. The
   floating launcher is not rendered here. Step 2 grows the bar into the conversation.
 - Card action row (2026-09-20, from the designer's PR #32, wired to the backend):
-  - **Book a visit**: same `createViewingController` as the detail gate, never live. Mock
-    mode renders "Simulated · <slot>" with a tooltip stating no call or booking was made;
-    live mode renders "Call requested · awaiting confirmation". Nothing says "booked".
+  - **Book a visit**: same `useViewingBooking` state machine as the detail gate, never
+    live. "Calling…" (ring pulse, at least `CALL_SEQUENCE_MS`) → "Booking…" → pill
+    "Booked · <slot>" once `/api/calendar` confirms; the receipt is restored on reload.
+    A live dispatch renders "Call in progress".
   - **Heart**: per-session bookmark via `PUT /api/saved` (`listing_save` table), optimistic
     with rollback, `aria-pressed`. No ranking effect; cleared by the demo reset.
   - **X**: records a persisted `other` rejection (`POST /api/feedback`), hides the
