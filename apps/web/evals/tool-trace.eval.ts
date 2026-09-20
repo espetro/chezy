@@ -264,6 +264,34 @@ async function main() {
       detail: `t3=${t3.join(">")} t4=${t4.join(">")}`,
     },
     {
+      name: "the rejected listing is absent from every later search (JES-8 exclusion)",
+      pass: (() => {
+        const later = turns
+          .filter((t) => t.turn >= 3)
+          .flatMap((t) => t.toolCalls.filter((c) => c.toolName === "searchListings"));
+        return (
+          later.length > 0 &&
+          later.every((c) => {
+            const out = c.output as { listings?: Array<{ id?: string }> } | undefined;
+            return !(out?.listings ?? []).some((l) => l.id === rejectId);
+          })
+        );
+      })(),
+      detail: `rejected=${rejectId}`,
+    },
+    {
+      name: "the rejection is stored as a JES-8 event with a mapped reason",
+      pass: turns.some((t) =>
+        t.toolCalls.some((c) => {
+          if (c.toolName !== "recordListingFeedback") {
+            return false;
+          }
+          const out = c.output as { eventId?: unknown; reason?: unknown } | undefined;
+          return typeof out?.eventId === "string" && out?.reason === "wrong_area";
+        }),
+      ),
+    },
+    {
       name: "arrangeViewing is never called before the user is asked / asks",
       pass: !beforeAsk.includes("arrangeViewing"),
       detail: beforeAsk.join(" > "),
