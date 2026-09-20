@@ -9,6 +9,7 @@ import { Shimmer } from "../ai-elements/shimmer";
 import { Tool, ToolContent, ToolHeader, ToolInput, ToolOutput } from "../ai-elements/tool";
 import { useDataStream } from "./data-stream-provider";
 import { ListingCard, ListingResults } from "./listing-results";
+import { ViewingCard } from "./viewing-card";
 import { DocumentToolResult } from "./document";
 import { DocumentPreview } from "./document-preview";
 import { SparklesIcon } from "./icons";
@@ -83,12 +84,14 @@ const PurePreviewMessage = ({
   isReadonly,
   requiresScrollPadding: _requiresScrollPadding,
   onEdit,
+  sendMessage,
 }: {
   addToolApprovalResponse: UseChatHelpers<ChatMessage>["addToolApprovalResponse"];
   chatId: string;
   message: ChatMessage;
   vote: Vote | undefined;
   isLoading: boolean;
+  sendMessage?: UseChatHelpers<ChatMessage>["sendMessage"];
   setMessages: UseChatHelpers<ChatMessage>["setMessages"];
   regenerate: UseChatHelpers<ChatMessage>["regenerate"];
   isReadonly: boolean;
@@ -138,6 +141,20 @@ const PurePreviewMessage = ({
     },
     { isStreaming: false, rendered: false, text: "" },
   ) ?? { isStreaming: false, rendered: false, text: "" };
+
+  // Listings the user already rejected in this turn render dimmed.
+  const rejectedListingIds = new Set(
+    message.parts
+      ?.filter(
+        (part) =>
+          part.type === "tool-recordListingFeedback" &&
+          "output" in part &&
+          part.output !== undefined &&
+          (part.output as { verdict?: string }).verdict === "rejected",
+      )
+      .map((part) => (part.output as { listingId?: string }).listingId)
+      .filter((id): id is string => Boolean(id)) ?? [],
+  );
 
   const parts = message.parts?.map((part, index) => {
     const { type } = part;
@@ -276,7 +293,11 @@ const PurePreviewMessage = ({
         if (part.type === "tool-searchListings" && part.output) {
           return (
             <div className="w-full max-w-2xl" key={toolCallId}>
-              <ListingResults result={part.output} />
+              <ListingResults
+                rejectedIds={rejectedListingIds}
+                result={part.output}
+                sendMessage={sendMessage}
+              />
             </div>
           );
         }
@@ -297,8 +318,77 @@ const PurePreviewMessage = ({
           <Tool className="w-full" defaultOpen={false}>
             <ToolHeader
               state={state}
-              title={type === "tool-searchListings" ? "Buscando anuncios…" : undefined}
+              title={type === "tool-searchListings" ? "Searching listings…" : undefined}
               type={type}
+            />
+            <ToolContent>
+              {state === "input-available" && <ToolInput input={part.input} />}
+            </ToolContent>
+          </Tool>
+        </div>
+      );
+    }
+
+    if (type === "tool-recordListingFeedback") {
+      const { toolCallId, state } = part;
+
+      if (state === "output-available" && part.output && typeof part.output === "object") {
+        const output = part.output as {
+          verdict?: string;
+          listingId?: string;
+          error?: string;
+        };
+        if (output.error) {
+          return (
+            <div className="w-[min(100%,450px)]" key={toolCallId}>
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-500 dark:bg-red-950/50">
+                Error: {output.error}
+              </div>
+            </div>
+          );
+        }
+        return (
+          <div className="w-[min(100%,450px)]" key={toolCallId}>
+            <div className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs text-muted-foreground">
+              {output.verdict === "rejected" ? "Rejected" : "Accepted"} {output.listingId}
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="w-[min(100%,450px)]" key={toolCallId}>
+          <Tool className="w-full" defaultOpen={false}>
+            <ToolHeader state={state} type="tool-recordListingFeedback" />
+          </Tool>
+        </div>
+      );
+    }
+
+    if (type === "tool-arrangeViewing") {
+      const { toolCallId, state } = part;
+
+      if (state === "output-available" && part.output && typeof part.output === "object") {
+        const output = part.output as { error?: string };
+        if (output.error) {
+          return (
+            <div className="w-[min(100%,450px)]" key={toolCallId}>
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-500 dark:bg-red-950/50">
+                Error: {output.error}
+              </div>
+            </div>
+          );
+        }
+        return <ViewingCard key={toolCallId} result={part.output} />;
+      }
+
+      return (
+        <div className="w-[min(100%,450px)]" key={toolCallId}>
+          <Tool className="w-full" defaultOpen={false}>
+            <ToolHeader
+              state={state}
+              title="Arranging the visit…"
+              type="tool-arrangeViewing"
             />
             <ToolContent>
               {state === "input-available" && <ToolInput input={part.input} />}
