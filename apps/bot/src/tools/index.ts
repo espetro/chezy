@@ -1,5 +1,6 @@
+import { saveUserProfileInputSchema } from "@chezy/contract";
+
 import { saveUserProfile as saveUserProfileTool } from "~/lib/ai/tools/save-user-profile";
-import { saveUserProfileInput } from "~/lib/ai/tools/save-user-profile";
 import { searchListingsInput, searchListingsTool } from "~/lib/ai/tools/search-listings";
 
 import { adaptTool } from "./adapt";
@@ -15,7 +16,7 @@ export const searchListings = adaptTool({
 export const saveUserProfile = adaptTool({
   id: "saveUserProfile",
   source: saveUserProfileTool,
-  input: saveUserProfileInput,
+  input: saveUserProfileInputSchema,
 });
 
 export const chezyTools = {

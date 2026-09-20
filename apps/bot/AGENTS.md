@@ -37,7 +37,9 @@ cross-package `~/*` imports).
 - Repo rules apply (Valibot not zod, no `useEffect`, no `process.env` outside
   `src/env.ts`, Conventional Commits, no Co-Authored-By).
 - `apps/web` is imported read-only via the `~/*` tsconfig path. The only web
-  edits allowed are the exported `*Input` schemas in `lib/ai/tools/*`.
+  edit is the exported `searchListingsInput` schema in
+  `lib/ai/tools/search-listings.ts` (the `saveUserProfile` input schema comes
+  from `@chezy/contract`).
 - Tests run against the fake Telegram only, never hit api.telegram.org in
   vitest. `test/harness.ts` stubs env before importing `src/`.
 
