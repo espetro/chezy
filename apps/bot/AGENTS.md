@@ -17,13 +17,16 @@ cross-package `~/*` imports).
   (lastMessages 20, working memory on, semantic recall off), Agent `chezy`.
 - `src/telegram.ts`, `TelegramProvider` in polling mode, `toolDisplay: "cards"`
   (required for approve/deny inline keyboards), `onDirectMessage` stamps the
-  resolved username into `requestContext`.
+  resolved username and the telegram user id (as `sessionUserId`) into
+  `requestContext`.
 - `src/identity.ts`, `bot.telegram_users` mapping + `CREATE SCHEMA/TABLE IF NOT
-  EXISTS` for `bot.*` (telegram_users, radar_seen, viewings, listing_feedback).
+  EXISTS` for `bot.*` (telegram_users, radar_seen). `bot.viewings` and
+  `bot.listing_feedback` are dropped at startup: the adapted web tools write to
+  `Viewing` and `listing_feedback` instead.
 - `src/tools/`, `adapt.ts` strips `username` from the web tool input schema and
-  injects it from `requestContext`; `arrange-viewing.ts` and
-  `record-feedback.ts` are bot-local (no web tool exists; they mirror the web
-  route logic against the same lib functions). `identifyUser` is NOT exposed.
+  injects it (and `sessionUserId`) from `requestContext`; all four tools are
+  the web ones — `arrangeViewing` carries `requireApproval: true`.
+  `identifyUser` is NOT exposed.
 - `src/radar/`, interval loop + dedupe via `bot.radar_seen`; sender tries the
   Chat SDK adapter `openDM`/`postMessage` first, falls back to raw Bot API
   `sendMessage`.
@@ -37,9 +40,9 @@ cross-package `~/*` imports).
 - Repo rules apply (Valibot not zod, no `useEffect`, no `process.env` outside
   `src/env.ts`, Conventional Commits, no Co-Authored-By).
 - `apps/web` is imported read-only via the `~/*` tsconfig path. The only web
-  edit is the exported `searchListingsInput` schema in
-  `lib/ai/tools/search-listings.ts` (the `saveUserProfile` input schema comes
-  from `@chezy/contract`).
+  edits are the exported `*Input` schemas in `lib/ai/tools/search-listings.ts`
+  and `lib/ai/tools/arrange-viewing.ts` (`saveUserProfile` and
+  `recordListingFeedback` inputs come from `@chezy/contract`).
 - Tests run against the fake Telegram only, never hit api.telegram.org in
   vitest. `test/harness.ts` stubs env before importing `src/`.
 
