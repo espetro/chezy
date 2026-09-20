@@ -104,11 +104,10 @@ class PisosAdapter:
         description = _detail_description(page)
         coordinates = _detail_coordinates(page)
         raw_features = cast("dict[str, JsonValue]", features["raw_features"])
-        feature_values = cast("dict[str, str]", raw_features)
-        built_m2 = _spanish_number(feature_values.get("Superficie construida", ""))
-        usable_m2 = _spanish_number(feature_values.get("Superficie útil", ""))
-        rooms = _feature_int(feature_values, "Habitaciones")
-        bathrooms = _feature_int(feature_values, "Baños")
+        built_m2 = _spanish_number(_feature_text(raw_features, "Superficie construida") or "")
+        usable_m2 = _spanish_number(_feature_text(raw_features, "Superficie útil") or "")
+        rooms = _feature_int(raw_features, "Habitaciones")
+        bathrooms = _feature_int(raw_features, "Baños")
         property_type = _property_type(path[1:] if path.startswith("~") else path)
         period: PricePeriod = "month" if monthly or operation == "rent" else "total"
         raw: JsonObj = {
@@ -143,9 +142,9 @@ class PisosAdapter:
             usable_m2=usable_m2,
             rooms=rooms,
             bathrooms=bathrooms,
-            floor=feature_values.get("Planta"),
+            floor=_feature_text(raw_features, "Planta"),
             furnished=cast("bool | None", features["furnished"]),
-            heating=feature_values.get("Calefacción"),
+            heating=_feature_text(raw_features, "Calefacción"),
             energy_consumption_label=cast("str | None", energy["consumption_label"]),
             energy_consumption_value=cast("float | None", energy["consumption_value"]),
             energy_emissions_label=cast("str | None", energy["emissions_label"]),
@@ -222,9 +221,14 @@ def _price_text(raw: str | None) -> tuple[float | None, bool]:
     return _amount(raw), bool(raw and _MONTHLY.search(raw))
 
 
-def _feature_int(features: dict[str, str], label: str) -> int | None:
+def _feature_text(features: dict[str, JsonValue], label: str) -> str | None:
     value = features.get(label)
-    if value is None:
+    return value if isinstance(value, str) else None
+
+
+def _feature_int(features: dict[str, JsonValue], label: str) -> int | None:
+    value = features.get(label)
+    if not isinstance(value, str):
         return None
     match = re.search(r"\d+", value)
     return int(match.group()) if match else None
