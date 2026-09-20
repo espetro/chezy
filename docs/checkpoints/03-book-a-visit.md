@@ -37,7 +37,9 @@ the SLNG agent's `book_viewing` tool POSTs exactly that to `APP_BASE_URL/api/cal
 - Vonage: `apps/web/lib/vonage.ts` (`placeVonageCall`, NCCO talk action).
 - Tool: `apps/web/lib/ai/tools/arrange-viewing.ts` (PR #47). Frozen-surface
   equivalent: `components/flow/match/AgentCallGate.tsx` (auto-calls at 95, localStorage
-  guard so a real phone rings once per listing per browser).
+  guard so a real phone rings once per listing per browser; every request is `live: true`
+  and mock mode degrades it to a simulated slot). Progress: `GET /api/viewing/status`
+  reads the `Viewing` row that `POST /api/viewing` inserts on dispatch.
 - Env: `VIEWING_MODE`, `DEMO_AGENCY_PHONE`, `SLNG_*`, `VONAGE_*`, `APP_BASE_URL` in
   `apps/web/lib/env.ts` and `.env.example`.
 

@@ -5,24 +5,29 @@ import type { FeedbackEvent } from "@chezy/contract";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { RejectionControl } from "~/components/flow/explore/RejectionControl";
-import { useListingFeedback } from "~/lib/flow/use-listing-feedback";
+import { CallProgress } from "~/components/flow/match/CallProgress";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
-import { FlowBadge } from "~/components/flow/ui/Badge";
+import { BookedCheck } from "~/components/flow/ui/BookedCheck";
 import { FlowButton } from "~/components/flow/ui/Button";
 import { FlowStateTransition } from "~/components/flow/ui/FlowMotion";
+import { FlowPill } from "~/components/flow/ui/Pill";
 import { AUTO_CALL_MATCH_THRESHOLD } from "~/lib/flow/constants";
 import type { FlowListing } from "~/lib/flow/types";
-import { createViewingController, type ViewingState } from "~/lib/viewing";
+import { useListingFeedback } from "~/lib/flow/use-listing-feedback";
+import { useViewingBooking } from "~/lib/flow/use-viewing-booking";
 
 interface AgentCallGateProps {
   listing: FlowListing;
   onDismiss?: (listingId: string) => void;
 }
 
-const slotFormatter = new Intl.DateTimeFormat("en-US", {
+const slotFormatter = new Intl.DateTimeFormat("en-GB", {
   weekday: "long",
-  hour: "numeric",
+  day: "numeric",
+  month: "long",
+  hour: "2-digit",
   minute: "2-digit",
+  hour12: false,
   timeZone: "Europe/Madrid",
 });
 
@@ -30,52 +35,34 @@ const autoCallKey = (listingId: string) => `chezy:autocall:${listingId}`;
 
 const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
   const isAutoCall = listing.matchScore >= AUTO_CALL_MATCH_THRESHOLD;
-  const [state, setState] = useState<ViewingState>({ status: "idle" });
+  const { call, booking, phase, stage, slotIso, start, restore, retryBooking } = useViewingBooking(
+    listing.id,
+  );
   const [feedback, setFeedback] = useState<FeedbackEvent>();
   const { reject, undo, busy, error } = useListingFeedback(setFeedback);
-  const [liveOptIn, setLiveOptIn] = useState(false);
-  const controller = useRef<ReturnType<typeof createViewingController> | undefined>(undefined);
   const restoreFocus = useRef(false);
-  const { status } = state;
-  // A retryable failure with no live attempt on record (e.g. the server
-  // rejected the opt-in before dispatching) falls back to the simulate path.
-  const canSimulate =
-    status === "idle" || (state.status === "failed" && state.retryable && !state.live);
-  const canOptInLive = canSimulate || status === "simulated";
-
-  function getController() {
-    controller.current ??= createViewingController(listing.id, {
-      getItem: (key) => localStorage.getItem(key) ?? undefined,
-      setItem: (key, value) => localStorage.setItem(key, value),
-    });
-    return controller.current;
-  }
-
-  const startCall = async (live = false) => {
-    if (live) setLiveOptIn(false);
-    const pending = getController().start(live);
-    setState({ status: "dispatching" });
-    setState(await pending);
-  };
+  const canCall = call.status === "idle";
+  const startCall = () => void start();
 
   useMountEffect(function autoCallOnMount() {
-    const restored = getController().restore();
-    setState(restored);
-    if (restored.status !== "idle" || !isAutoCall) return;
+    const restored = restore();
+    if (restored.call.status !== "idle" || restored.booking.status !== "idle" || !isAutoCall) {
+      return;
+    }
     try {
       if (localStorage.getItem(autoCallKey(listing.id))) return;
       localStorage.setItem(autoCallKey(listing.id), new Date().toISOString());
     } catch {
       // Automatic requests only simulate; blocked storage cannot cause a live call.
     }
-    void startCall();
+    startCall();
   });
 
   if (feedback && !feedback.undoneAt) {
     return (
       <div
         ref={(node) => node?.querySelector("button")?.focus({ preventScroll: true })}
-        className="flex min-h-[42rem] flex-col items-start justify-center gap-4 rounded-cards bg-snow p-5 shadow-sm sm:min-h-[34rem] sm:p-7"
+        className="flex min-h-[22rem] flex-col items-start justify-center gap-4 rounded-cards bg-snow p-5 shadow-sm sm:p-7"
       >
         <p role="status">Candidate rejected. Your comparison has been updated.</p>
         <FlowButton
@@ -96,6 +83,14 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
     );
   }
 
+  const failedDetail =
+    booking.status === "failed"
+      ? booking.detail
+      : call.status === "failed"
+        ? call.detail
+        : undefined;
+  const canRetry = booking.status === "failed" || (call.status === "failed" && call.retryable);
+
   return (
     <div
       tabIndex={-1}
@@ -105,113 +100,80 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
           restoreFocus.current = false;
         }
       }}
-      className="flex min-h-[42rem] flex-col gap-4 rounded-cards bg-snow p-5 shadow-sm focus-visible:outline-2 focus-visible:outline-obsidian sm:min-h-[34rem] sm:p-7"
+      className="flex flex-col gap-5 rounded-cards bg-snow p-5 shadow-sm focus-visible:outline-2 focus-visible:outline-obsidian sm:p-7"
     >
-      {isAutoCall ? (
-        <div className="flex items-start gap-3">
-          <FlowAgentMark size="sm" className="mt-0.5" />
-          <div className="flex min-w-0 flex-col gap-1">
-            <FlowBadge variant="accent" className="w-fit whitespace-normal">
-              Auto-call simulation · ≥{AUTO_CALL_MATCH_THRESHOLD}% match
-            </FlowBadge>
-            <p className="text-[13px] text-fog">
-              This match cleared the {AUTO_CALL_MATCH_THRESHOLD}% confidence bar. Rehearsal
-              simulates the call; a live demo call requires your explicit approval.
-            </p>
+      <div className="flex items-start gap-3">
+        <FlowAgentMark size="sm" className="mt-0.5" />
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[15px] font-medium text-obsidian">Chezy agent</p>
+            {call.status === "simulated" ? <FlowPill>Demo</FlowPill> : undefined}
           </div>
+          <p className="text-[13px] text-fog">
+            {isAutoCall
+              ? `Matched above ${AUTO_CALL_MATCH_THRESHOLD}%, so Chezy called the agency on its own.`
+              : `${listing.matchScore}% match. Below Chezy's ${AUTO_CALL_MATCH_THRESHOLD}% bar to call alone; you can start the call.`}
+          </p>
         </div>
-      ) : (
-        <div className="flex items-start gap-3">
-          <FlowAgentMark size="sm" className="mt-0.5" />
-          <div className="flex flex-col gap-1">
-            <p className="text-[15px] font-medium text-obsidian">{listing.matchScore}% match</p>
-            <p className="text-[13px] text-fog">
-              This is below my {AUTO_CALL_MATCH_THRESHOLD}% bar for calling on my own. I'll keep
-              watching it, or you can simulate the call.
-            </p>
-          </div>
-        </div>
-      )}
+      </div>
 
       <div
-        className="h-56 overflow-y-auto rounded-[20px] bg-paper p-5 focus-visible:outline-2 focus-visible:outline-obsidian"
+        className="flex min-h-[15rem] flex-col justify-center rounded-[20px] bg-paper p-5 focus-visible:outline-2 focus-visible:outline-obsidian"
         tabIndex={0}
         role="status"
         aria-live="polite"
       >
-        <FlowStateTransition state={status}>
-          {status === "idle" ? (
-            <p className="text-[14px] text-iron">No call requested.</p>
-          ) : status === "dispatching" ? (
+        <FlowStateTransition state={phase}>
+          {phase === "idle" ? (
+            <p className="text-[14px] text-iron">Ready to call the agency for you.</p>
+          ) : phase === "calling" ? (
+            <CallProgress agency={listing.agency} stage={stage} slotIso={slotIso} />
+          ) : phase === "booking" ? (
             <div className="flex items-center gap-2">
               <span className="size-2 animate-pulse rounded-full bg-ember motion-reduce:animate-none" />
-              <p className="text-[14px] font-medium text-graphite">Requesting call…</p>
+              <p className="text-[14px] font-medium text-graphite">Booking the visit…</p>
             </div>
-          ) : status === "failed" ? (
-            <div className="flex flex-col gap-1">
-              <p className="text-[14px] font-medium text-graphite">
-                Call request could not be confirmed
-              </p>
-              <p className="text-[13px] text-fog">{state.detail}</p>
+          ) : phase === "booked" && booking.status === "booked" ? (
+            <div className="flex flex-col items-center gap-4 text-center">
+              <BookedCheck size="lg" />
+              <div>
+                <p className="text-[17px] font-semibold text-obsidian">Visit booked</p>
+                <p className="mt-1 text-[15px] text-graphite">
+                  {slotFormatter.format(new Date(booking.result.slotIso))}
+                </p>
+                <p className="mt-2 text-[13px] text-fog">
+                  {listing.title} · {listing.neighborhood}
+                </p>
+                <p className="text-[13px] text-fog">30 min · added to your calendar</p>
+              </div>
             </div>
-          ) : state.status === "dispatched" ? (
+          ) : phase === "failed" ? (
             <div className="flex flex-col gap-1">
-              <p className="text-[14px] font-medium text-graphite">Call requested</p>
-              <p className="text-[13px] text-fog">
-                Awaiting agency confirmation. No appointment is booked.
-              </p>
-              <p className="text-[13px] text-fog">
-                {state.result.channel.toUpperCase()} · {state.result.callId}
-              </p>
-              <p className="text-[13px] text-fog">
-                Request-to-dispatch: {state.result.latencyMs} ms (server receipt to provider
-                acknowledgement, including lookup). This is not conversational latency.
-              </p>
-            </div>
-          ) : state.status === "simulated" ? (
-            <div className="flex flex-col gap-1">
-              <FlowBadge variant="accent" className="w-fit">
-                Simulated
-              </FlowBadge>
-              <p className="text-[14px] font-medium text-graphite">
-                Example viewing: {slotFormatter.format(new Date(state.result.slotIso))}
-              </p>
-              <p className="text-[13px] text-fog">No phone call or calendar booking was made.</p>
+              <p className="text-[14px] font-medium text-graphite">Couldn't reach the agency</p>
+              <p className="text-[13px] text-fog">{failedDetail}</p>
             </div>
           ) : undefined}
         </FlowStateTransition>
       </div>
 
-      <div className="flex min-h-64 w-full flex-col gap-2.5 sm:min-h-40 sm:flex-row sm:flex-wrap sm:content-start sm:gap-3">
-        {canSimulate ? (
-          <FlowButton className="w-full sm:w-auto" onClick={() => void startCall()}>
-            Simulate viewing call
+      <div className="flex w-full flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:content-start sm:gap-3">
+        {canCall ? (
+          <FlowButton className="w-full sm:w-auto" onClick={() => startCall()}>
+            Call the agency
           </FlowButton>
         ) : undefined}
-        {state.status === "failed" && state.retryable && state.live ? (
-          <FlowButton className="w-full sm:w-auto" onClick={() => void startCall()}>
+        {canRetry ? (
+          <FlowButton
+            className="w-full sm:w-auto"
+            onClick={() => (booking.status === "failed" ? void retryBooking() : startCall())}
+          >
             Try again
           </FlowButton>
-        ) : undefined}
-        {canOptInLive ? (
-          <div className="flex flex-col gap-2">
-            <label className="flex min-h-11 items-center gap-2 text-[13px] text-fog">
-              <input
-                type="checkbox"
-                checked={liveOptIn}
-                onChange={(event) => setLiveOptIn(event.target.checked)}
-              />
-              I authorize a real call to the configured team test number.
-            </label>
-            <FlowButton variant="ghost" disabled={!liveOptIn} onClick={() => void startCall(true)}>
-              Request live demo call
-            </FlowButton>
-          </div>
         ) : undefined}
         <RejectionControl
           listingId={listing.id}
           title={listing.title}
-          disabled={status === "dispatching" || busy}
+          disabled={phase === "calling" || phase === "booking" || busy}
           onReject={async (listingId, reason) => {
             const saved = await reject(listingId, reason);
             if (saved) onDismiss?.(listingId);

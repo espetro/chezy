@@ -149,6 +149,26 @@ export async function updateViewingStatus({
   }
 }
 
+export async function getLatestViewing({
+  userId,
+  listingId,
+}: {
+  userId: string;
+  listingId: string;
+}): Promise<Viewing | undefined> {
+  try {
+    const [row] = await db
+      .select()
+      .from(viewing)
+      .where(and(eq(viewing.userId, userId), eq(viewing.listingId, listingId)))
+      .orderBy(desc(viewing.createdAt))
+      .limit(1);
+    return row;
+  } catch (error) {
+    throw new ChatbotError("bad_request:database", { cause: error });
+  }
+}
+
 // The SLNG `book_viewing` webhook hits /api/calendar with only a propertyRef:
 // resolve the newest still-open viewing for that listing.
 export async function markLatestViewingBooked({
