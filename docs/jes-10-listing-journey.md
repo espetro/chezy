@@ -31,8 +31,8 @@ JES-8 should replace the ownership with its persistent rejection workflow and wi
 undo to that workflow, rather than run both mechanisms. Callback props must come
 from a client owner, not an ordinary server component.
 
-Carousel exits temporarily make the departing slide inert, then focus the next
-remaining card (or the empty message). Undo restores card focus. Existing scroll,
+Carousel exits focus the next remaining card (or the empty message) when complete.
+Undo restores card focus, or the feed if filters hide that card. Existing scroll,
 previous/next and indicator controls remain; indicators now have 44px targets.
 
 ## Motion and dimensions

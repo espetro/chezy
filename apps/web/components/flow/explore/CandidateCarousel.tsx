@@ -92,7 +92,7 @@ export const CandidateCarousel = ({ listings, label, onDismiss }: CandidateCarou
             pendingFocus.current = undefined;
           }
         }}
-        className="flex min-h-96 items-center justify-center rounded-cards bg-snow px-4 py-8 text-center text-[14px] text-fog shadow-sm sm:px-6"
+        className="flex min-h-96 items-center justify-center rounded-cards bg-snow px-4 py-8 text-center text-[14px] text-fog shadow-sm focus-visible:outline-2 focus-visible:outline-obsidian sm:px-6"
       >
         No candidates match these filters yet.
       </p>
@@ -126,9 +126,7 @@ export const CandidateCarousel = ({ listings, label, onDismiss }: CandidateCarou
                 <FlowButton
                   variant="ghost"
                   aria-label={`Not for me: ${listing.title}`}
-                  onClick={(event) => {
-                    const slide = event.currentTarget.closest<HTMLElement>("[data-listing-id]");
-                    if (slide) slide.inert = true;
+                  onClick={() => {
                     pendingFocus.current =
                       listings[index + 1]?.id ?? listings[index - 1]?.id ?? listing.id;
                     onDismiss(listing.id);
@@ -146,9 +144,9 @@ export const CandidateCarousel = ({ listings, label, onDismiss }: CandidateCarou
         Showing match {currentIndex + 1} of {total}
       </div>
 
-      <div className="mt-4 flex items-center justify-between">
+      <div className="mt-4 flex items-center justify-between gap-3">
         <div
-          className="flex [scrollbar-width:none] gap-1.5 overflow-x-auto"
+          className="flex min-w-0 flex-1 [scrollbar-width:none] gap-1.5 overflow-x-auto"
           role="group"
           aria-label="Choose a match to view"
         >
@@ -172,7 +170,7 @@ export const CandidateCarousel = ({ listings, label, onDismiss }: CandidateCarou
           ))}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex shrink-0 gap-2">
           <button
             type="button"
             onClick={goPrevious}

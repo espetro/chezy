@@ -48,6 +48,7 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
   return (
     <div
       ref={feedRef}
+      tabIndex={-1}
       className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-10 md:max-w-[1200px]"
     >
       <div className="flex items-start gap-3 rounded-cards bg-snow px-4 py-4 shadow-sm sm:px-6 sm:py-5">
@@ -99,11 +100,10 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
             onClick={() => {
               restoreCandidate(lastDismissed);
               requestAnimationFrame(() => {
-                feedRef.current
-                  ?.querySelector<HTMLAnchorElement>(
-                    `[data-listing-id="${CSS.escape(lastDismissed)}"] a`,
-                  )
-                  ?.focus();
+                const restoredCard = feedRef.current?.querySelector<HTMLAnchorElement>(
+                  `[data-listing-id="${CSS.escape(lastDismissed)}"] a`,
+                );
+                (restoredCard ?? feedRef.current)?.focus();
               });
             }}
           >
