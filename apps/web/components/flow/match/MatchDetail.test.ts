@@ -61,7 +61,7 @@ describe("production match detail composition", () => {
     expect(html).toContain('href="#agency-actions"');
     expect(html).toContain('id="agency-actions"');
     expect(html).toContain("Ready to call the agency for you.");
-    expect(html).toContain(">Demo<");
+    expect(html).not.toContain(">Demo<");
     expect(html).toContain("Call the agency");
     expect(html).not.toContain("Simulat");
     expect(html).not.toContain("available Now");

@@ -2,7 +2,6 @@
 
 import { useMountEffect } from "@chezy/ui/hooks/useMountEffect";
 import type { FeedbackEvent } from "@chezy/contract";
-import { PhoneOutgoing } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { RejectionControl } from "~/components/flow/explore/RejectionControl";
@@ -36,20 +35,14 @@ const autoCallKey = (listingId: string) => `chezy:autocall:${listingId}`;
 
 const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
   const isAutoCall = listing.matchScore >= AUTO_CALL_MATCH_THRESHOLD;
-  const { call, booking, phase, start, restore, retryBooking } = useViewingBooking(listing.id);
+  const { call, booking, phase, stage, slotIso, start, restore, retryBooking } = useViewingBooking(
+    listing.id,
+  );
   const [feedback, setFeedback] = useState<FeedbackEvent>();
   const { reject, undo, busy, error } = useListingFeedback(setFeedback);
-  const [liveOptIn, setLiveOptIn] = useState(false);
   const restoreFocus = useRef(false);
-  // A retryable failure with no live attempt on record (e.g. the server
-  // rejected the opt-in before dispatching) falls back to the simulate path.
-  const canCall =
-    call.status === "idle" || (call.status === "failed" && call.retryable && !call.live);
-  const canOptInLive = canCall || call.status === "simulated";
-  const startCall = (live = false) => {
-    if (live) setLiveOptIn(false);
-    void start(live);
-  };
+  const canCall = call.status === "idle";
+  const startCall = () => void start();
 
   useMountEffect(function autoCallOnMount() {
     const restored = restore();
@@ -96,8 +89,7 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
       : call.status === "failed"
         ? call.detail
         : undefined;
-  const canRetry =
-    booking.status === "failed" || (call.status === "failed" && call.retryable && call.live);
+  const canRetry = booking.status === "failed" || (call.status === "failed" && call.retryable);
 
   return (
     <div
@@ -115,7 +107,7 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <div className="flex items-center justify-between gap-2">
             <p className="text-[15px] font-medium text-obsidian">Chezy agent</p>
-            <FlowPill>Demo</FlowPill>
+            {call.status === "simulated" ? <FlowPill>Demo</FlowPill> : undefined}
           </div>
           <p className="text-[13px] text-fog">
             {isAutoCall
@@ -135,7 +127,7 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
           {phase === "idle" ? (
             <p className="text-[14px] text-iron">Ready to call the agency for you.</p>
           ) : phase === "calling" ? (
-            <CallProgress />
+            <CallProgress agency={listing.agency} stage={stage} slotIso={slotIso} />
           ) : phase === "booking" ? (
             <div className="flex items-center gap-2">
               <span className="size-2 animate-pulse rounded-full bg-ember motion-reduce:animate-none" />
@@ -153,14 +145,6 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
                   {listing.title} · {listing.neighborhood}
                 </p>
                 <p className="text-[13px] text-fog">30 min · added to your calendar</p>
-              </div>
-            </div>
-          ) : phase === "awaiting" ? (
-            <div className="flex items-start gap-3">
-              <PhoneOutgoing size={18} aria-hidden className="mt-0.5 shrink-0 text-ember" />
-              <div>
-                <p className="text-[14px] font-medium text-graphite">Call in progress</p>
-                <p className="text-[13px] text-fog">The agency is being asked for a slot.</p>
               </div>
             </div>
           ) : phase === "failed" ? (
@@ -199,28 +183,6 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
         {error && <p role="alert">{error}</p>}
         {busy && <p role="status">Updating your comparison…</p>}
       </div>
-
-      {canOptInLive ? (
-        <details className="group text-[13px] text-fog">
-          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 select-none">
-            <span className="transition-transform group-open:rotate-90">›</span>
-            Place a real call
-          </summary>
-          <div className="flex flex-col gap-2 pt-1 pl-4">
-            <label className="flex min-h-11 items-center gap-2">
-              <input
-                type="checkbox"
-                checked={liveOptIn}
-                onChange={(event) => setLiveOptIn(event.target.checked)}
-              />
-              I authorize a real call to the configured team test number.
-            </label>
-            <FlowButton variant="ghost" disabled={!liveOptIn} onClick={() => startCall(true)}>
-              Request live demo call
-            </FlowButton>
-          </div>
-        </details>
-      ) : undefined}
     </div>
   );
 };
