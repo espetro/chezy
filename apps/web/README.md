@@ -86,7 +86,7 @@ reads the env parser before dotenv runs; `demo:setup` avoids that import-order i
 
 1. Open `/onboarding` in an incognito window. The existing guest-auth redirect
    creates a new identity; clearing browser cookies creates another identity.
-2. At the top of onboarding, click **Reset and load demo**. The current guest's two profile stores are
+2. At the top of onboarding, expand **Demo tools** and click **Reset and load demo**. The current guest's two profile stores are
    replaced, old auto-call markers are removed, and the app opens `/explore`.
 3. Inspect the candidates, then return to `/onboarding` and click the same button.
    The persona and candidate IDs should match the first run. Row UUIDs and
