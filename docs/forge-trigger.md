@@ -21,9 +21,8 @@ rejection reuses the existing job instead of opening another session.
 
 ## Status
 
-The shipped demo seed has outdoor-space amenity evidence on about 47% of
-listings (roughly 4 of the 6 candidates in the demo rejection), so it does not
-cross the 20% coverage threshold and will not trigger the forge job. The
-trigger fires on feeds where outdoor-space evidence is scarce.
+Evidence is the populated `outdoorSpace` column only. The current seed has 0%
+coverage in that column, so the gap fires on every `missing_balcony` rejection
+until the capability PR lands. Amenity text is deliberately not counted.
 
 <!-- live run: session URL / PR URL -->
