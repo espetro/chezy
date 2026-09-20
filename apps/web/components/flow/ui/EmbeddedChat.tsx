@@ -11,7 +11,7 @@ import { ActiveChatProvider } from "~/hooks/use-active-chat";
 // former app/(chat)/layout.tsx provider stack minus the sidebar: nothing under
 // ChatShell in embedded mode calls useSidebar (only ChatHeader, Artifact and the
 // sidebar files do, all unmounted here), so no SidebarProvider is needed.
-export const EmbeddedChat = () => (
+export const EmbeddedChat = ({ initialQuery }: { initialQuery?: string }) => (
   <DataStreamProvider>
     <Toaster
       position="top-center"
@@ -21,7 +21,7 @@ export const EmbeddedChat = () => (
       }}
     />
     <Suspense fallback={<div className="h-full bg-background" />}>
-      <ActiveChatProvider>
+      <ActiveChatProvider initialQuery={initialQuery}>
         <ChatShell embedded />
       </ActiveChatProvider>
     </Suspense>

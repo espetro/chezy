@@ -83,6 +83,46 @@ If you are new in town, do not know barrio price norms, cannot read a lightwell 
 photos, and cannot call agencies in Spanish during your workday, every step of the funnel
 is stacked against you. chezy is the agent on your side of the table.
 
+## Message chezy on Telegram
+
+Bot handle: [@hackbarna_chezybot](https://t.me/hackbarna_chezybot). Open the link on
+your phone, say hi, and it onboards you in chat (areas, budget, bedrooms), then
+searches Barcelona rentals and offers to call the agency for a viewing (approval
+card first). Built on Mastra (`@mastra/core`, model router to Nebius AI Studio,
+Telegram via Mastra Channels) for the HackBarna 2026 Mastra challenge.
+
+`apps/bot` (`@chezy/bot`) is a second client for the same concierge: a Mastra
+agent reachable from Telegram, running alongside `apps/web` and reusing its
+tools, listings and Postgres store. It is an adapter, not a fork: the bot imports
+`apps/web/lib` read-only and adds only Telegram-specific pieces (identity
+mapping, approval cards, radar alerts) in a `bot` Postgres schema.
+
+How it maps to the "build an agent people can message" criteria:
+
+- **Works from a stranger's phone**: polling mode, no webhook or tunnel needed.
+  Any Telegram user can DM the bot; `TELEGRAM_ALLOWED_USER_IDS` stays empty.
+- **Memory**: Mastra `Memory` on `@mastra/pg` (dedicated `mastra` schema), 20
+  last messages plus a working-memory template that persists budget,
+  neighbourhoods, must-haves and red lines across sessions.
+- **Approval-gated actions**: `arrangeViewing` never runs on its own. The agent
+  proposes, Telegram shows an approve/deny inline keyboard, and only approval
+  dispatches the call (mocked with `VIEWING_MODE=mock`).
+- **Proactive**: a radar loop re-scores `buildFeed` for every linked Telegram
+  user and DMs fresh matches above `RADAR_MIN_SCORE`, deduped via
+  `bot.radar_seen`. `mise run bot:radar` triggers a pass on demand.
+
+Run it locally:
+
+```sh
+cp apps/bot/.env.example apps/bot/.env   # add TELEGRAM_BOT_API_KEY + TELEGRAM_BOT_NAME
+mise run db:start
+mise run bot:dev
+```
+
+Headless verification uses `apps/bot/test/fake-telegram.ts`, an in-memory Bot
+API server: `mise run bot:test` covers a plain DM, the approval-gated viewing
+flow and radar dedupe with no network.
+
 ## Built with
 
 <p>
@@ -107,10 +147,11 @@ is stacked against you. chezy is the agent on your side of the table.
 
 ```
 apps/web         the product: chat, onboarding, explore, viewing + calendar routes
+apps/bot         Telegram client (Mastra + polling adapter), second surface for the concierge
 apps/scraper     listings pipeline and the committed dataset builder
 apps/video       Remotion demo video
 packages/*       contract (Valibot), db (Drizzle), config, ui, observability
-chezy-mock-data  the 300-listing Barcelona snapshot (JSONL + Parquet)
+chezy-mock-data  the 300-listing Barcelona snapshot (JSONL + Parquet) plus derived enrichment tables
 assets/          brand: logo at every size, Outfit and DM Sans fonts
 ```
 

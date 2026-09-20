@@ -1,0 +1,39 @@
+{
+  "name": "@chezy/bot",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "lint": "oxlint .",
+    "typecheck": "tsc -b --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "format": "oxfmt \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format:check": "oxfmt --check \"src/**/*.ts\" \"test/**/*.ts\""
+  },
+  "dependencies": {
+    "@chat-adapter/state-memory": "4.40.0",
+    "@chat-adapter/telegram": "4.40.0",
+    "@chezy/contract": "workspace:*",
+    "@hono/node-server": "1.19.17",
+    "@mastra/core": "1.66.0",
+    "@mastra/hono": "1.7.8",
+    "@mastra/memory": "1.29.0",
+    "@mastra/pg": "1.24.0",
+    "@mastra/telegram": "0.1.1",
+    "@valibot/to-json-schema": "1.8.0",
+    "ai": "7.0.107",
+    "dotenv": "17.4.2",
+    "hono": "4.13.7",
+    "valibot": "catalog:default"
+  },
+  "devDependencies": {
+    "@chat-adapter/tests": "4.40.0",
+    "oxfmt": "catalog:default",
+    "oxlint": "catalog:default",
+    "tsx": "^4.20.0",
+    "typescript": "catalog:default",
+    "vitest": "catalog:default"
+  }
+}

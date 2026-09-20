@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 
-const SHOT_DIR = "/tmp/chat-launcher";
+const SHOT_DIR = "/tmp/card-chat";
 
 // The send flow needs a working model key; read .env.local the same way
 // flow-happy-path.test.ts does (playwright.config.ts also dotenv-loads it, but a
@@ -70,13 +70,20 @@ async function completeOnboarding(page: import("@playwright/test").Page) {
 test.describe("flow chat launcher (desktop)", () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
-  test("opens and closes the chat drawer on the landing page", async ({ page }) => {
+  test("opens and closes the chat drawer on the listing detail page", async ({ page }) => {
     const consoleErrors = collectConsoleErrors(page);
 
     await page.goto("/");
     const launcher = page.getByRole("button", { name: "Chat with Chezy" });
-    await expect(launcher).toBeVisible();
+    // The landing has nothing to chat about yet.
+    await expect(launcher).toHaveCount(0);
     await page.screenshot({ path: `${SHOT_DIR}/landing-desktop.png` });
+
+    await completeOnboarding(page);
+    await page.locator("a[href^='/explore/']").first().click();
+    await expect(page).toHaveURL(/\/explore\/.+/);
+    await expect(launcher).toBeVisible();
+    await page.screenshot({ path: `${SHOT_DIR}/detail-desktop.png` });
 
     await launcher.click();
     const dialog = page.getByRole("dialog");
@@ -96,6 +103,17 @@ test.describe("flow chat launcher (desktop)", () => {
 
     expect(consoleErrors).toEqual([]);
   });
+
+  test("hides the launcher on /explore where cards carry the ask input", async ({ page }) => {
+    const consoleErrors = collectConsoleErrors(page);
+    await completeOnboarding(page);
+    await expect(page.getByRole("button", { name: "Chat with Chezy" })).toHaveCount(0);
+    const card = page.locator("article", { has: page.locator("a[href^='/explore/']") }).first();
+    await expect(card.getByRole("textbox", { name: /^Ask Chezy about / })).toBeVisible();
+    await expect(card.getByRole("button", { name: "Ask Chezy" })).toBeDisabled();
+    await page.screenshot({ path: `${SHOT_DIR}/card-with-input-desktop.png` });
+    expect(consoleErrors).toEqual([]);
+  });
 });
 
 test.describe("flow chat launcher (mobile)", () => {
@@ -106,16 +124,27 @@ test.describe("flow chat launcher (mobile)", () => {
     const launcher = page.getByRole("button", { name: "Chat with Chezy" });
 
     await completeOnboarding(page);
-    await expect(launcher).toBeVisible();
-    await page.screenshot({ path: `${SHOT_DIR}/explore-mobile.png` });
+    // /explore has no floating launcher: every card carries its own ask input,
+    // and the button used to cover the carousel's Next control.
+    await expect(launcher).toHaveCount(0);
+    const nextMatch = page.getByRole("button", { name: "Next match" });
+    await nextMatch.scrollIntoViewIfNeeded();
+    await expect(nextMatch).toBeInViewport();
+    await nextMatch.click();
+    await expect(page.getByText(/Showing match 2 of \d+/)).toBeAttached();
+    await page.screenshot({ path: `${SHOT_DIR}/explore-controls-mobile.png` });
 
     await page.goto("/onboarding");
+    await expect(launcher).toHaveCount(0);
+
+    await page.goto("/");
     await expect(launcher).toHaveCount(0);
 
     await page.goto("/explore");
     const firstListing = page.locator("a[href^='/explore/']").first();
     await firstListing.click();
     await expect(page).toHaveURL(/\/explore\/.+/);
+    await expect(launcher).toBeVisible();
 
     const launcherBox = await launcher.boundingBox();
     // The fixed mobile action bar in MatchDetail wraps the "Review viewing options" anchor.
@@ -142,23 +171,29 @@ test.describe("flow chat launcher (mobile)", () => {
     expect(consoleErrors).toEqual([]);
   });
 
-  test("sends a message from the drawer", async ({ page }) => {
+  test("asks about a listing from its card", async ({ page }) => {
     test.skip(!hasModelKey, "requires OPENAI_COMPATIBLE_API_KEY in apps/web/.env.local");
     const consoleErrors = collectConsoleErrors(page);
 
     await completeOnboarding(page);
-    await page.getByRole("button", { name: "Chat with Chezy" }).click();
+    const card = page.locator("article", { has: page.locator("a[href^='/explore/']") }).first();
+    const title = (await card.locator("h3").innerText()).trim();
+    const ask = card.getByRole("textbox", { name: /^Ask Chezy about / });
+    await ask.fill("Is the deposit negotiable?");
+    await ask.press("Enter");
+
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
-
-    const input = dialog.getByTestId("multimodal-input");
-    await expect(input).toBeVisible({ timeout: 15000 });
-    await input.fill("What neighbourhoods am I searching in?");
-    await dialog.getByTestId("send-button").click();
+    await expect(dialog.getByText(`About: ${title}`)).toBeVisible();
+    // The open drawer marks the page aria-hidden, so check the cleared input by CSS.
+    await expect(card.locator("input[aria-label^='Ask Chezy about']")).toHaveValue("");
 
     const userMessage = dialog.getByTestId("message-user");
-    await expect(userMessage).toBeVisible();
-    await expect(userMessage).toContainText("What neighbourhoods am I searching in?");
+    await expect(userMessage).toBeVisible({ timeout: 15000 });
+    await expect(userMessage).toContainText("Regarding listing ");
+    await expect(userMessage).toContainText(title);
+    await expect(userMessage).toContainText("Is the deposit negotiable?");
+    await page.screenshot({ path: `${SHOT_DIR}/drawer-from-card-mobile.png` });
 
     await expect(dialog.getByTestId("message-assistant")).toBeVisible({ timeout: 60000 });
     // Embedded mode must not rewrite the host URL to /chat/[id].
