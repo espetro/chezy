@@ -3,6 +3,7 @@ import Link from "next/link";
 import { UNKNOWN_LISTING_TITLE, type ResolvedPanel } from "~/lib/adaptation/resolve";
 import { AdaptationTrace } from "~/components/flow/explore/AdaptationTrace";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
+import { CapabilityLine } from "~/components/flow/explore/CapabilityLine";
 
 // How the accepted candidate got through the validator gate.
 const provenance = (job: AdaptationJob) => {
@@ -38,6 +39,7 @@ export const ComparisonPanel = ({ panel, job }: ComparisonPanelProps) => (
           )}{" "}
           {provenance(job)}
         </p>
+        {job.capability ? <CapabilityLine capability={job.capability} /> : undefined}
         {job.trace.length > 1 ? (
           <details className="text-[13px]">
             <summary className="cursor-pointer text-fog">Run trace</summary>
