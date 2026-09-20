@@ -4,7 +4,7 @@ import { slide } from "@remotion/transitions/slide";
 import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
 import { MusicBed } from "./components/MusicBed";
 import { SplitScreenDemo } from "./components/SplitScreenDemo";
-import type { DemoConfig } from "./config/demo.config";
+import type { Checkpoint, DemoConfig } from "./config/demo.config";
 import { buildTimeline, TRANSITION_FRAMES } from "./config/timeline";
 import durations from "./generated/durations.json";
 import { IntroCard } from "./scenes/IntroCard";
@@ -15,12 +15,11 @@ import { theme } from "./theme";
 // timeline.segments[i].start and the total equals timeline.total. The VO stays
 // on its own absolutely positioned layer, keyed off the same starts, so a
 // transition can never drift the audio away from durations.json.
-// Cross-dissolve in and out of the two title-like beats (intro card, stack
-// diagram); slide between the product beats, which are all phone captures.
-const presentationFor = (checkpointIndex: number) =>
-  checkpointIndex === 0 || checkpointIndex === 5
-    ? fade()
-    : slide({ direction: "from-right" });
+// Cross-dissolve into the title-like beats (the first one after the intro
+// card, and the synthetic full-zone diagram); slide between the product
+// beats, which are all phone captures moving in the same direction.
+const presentationFor = (checkpoint: Checkpoint, index: number) =>
+  index === 0 || checkpoint.showPhone === false ? fade() : slide({ direction: "from-right" });
 
 const timing = linearTiming({ durationInFrames: TRANSITION_FRAMES });
 
@@ -39,7 +38,7 @@ export const DemoComposition = ({ config }: { config: DemoConfig }) => {
         {config.checkpoints.flatMap((cp, i) => [
           <TransitionSeries.Transition
             key={`${cp.id}-transition`}
-            presentation={presentationFor(i)}
+            presentation={presentationFor(cp, i)}
             timing={timing}
           />,
           <TransitionSeries.Sequence
