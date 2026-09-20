@@ -101,6 +101,13 @@ describe("feedback ranking", () => {
       rankListings(profile, rows, [event]),
     );
   });
+  it("not_interested hides the listing without reranking the rest", () => {
+    const hidden: FeedbackEvent = { ...event, reason: "not_interested" };
+    const ranked = rankListings(profile, rows, [hidden]);
+    expect(ranked.map(({ listing }) => listing.id)).toEqual(["ordinary", "balcony"]);
+    expect(ranked.map(({ listing }) => feedbackBoost(listing, [hidden]))).toEqual([0, 0]);
+    expect(describeFeedback(hidden)).toBe("Candidate hidden. Your comparison is unchanged.");
+  });
   it("prices remain bounded and unknown prices are not rewarded", () => {
     const priceEvent = { ...event, reason: "too_expensive" } as const;
     expect(feedbackBoost(home("cheap", { priceEur: 750 }), [priceEvent])).toBe(12.5);
