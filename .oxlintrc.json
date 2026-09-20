@@ -142,7 +142,12 @@
       }
     },
     {
-      "files": ["apps/bot/src/**/*.ts"],
+      "files": [
+        "apps/bot/src/identity.ts",
+        "apps/bot/src/radar/**/*.ts",
+        "apps/bot/src/tools/arrange-viewing.ts",
+        "apps/bot/src/tools/record-feedback.ts"
+      ],
       "rules": {
         "unicorn/no-null": "off"
       }
