@@ -3,13 +3,14 @@ import { eq } from "drizzle-orm";
 import { db } from "~/lib/db/client";
 import { user } from "~/lib/db/schema";
 import { DEMO_PERSONA } from "~/lib/demo/persona";
+import { clearUserFeedback } from "~/lib/feedback";
 import { geocodeWorkAddress } from "~/lib/geocode";
 import { resetProfile, upsertProfile } from "~/lib/profile";
 
 export type DemoResetTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 export type DemoUserCleanup = (transaction: DemoResetTransaction, userId: string) => Promise<void>;
 
-export const demoUserCleanups: readonly DemoUserCleanup[] = [];
+export const demoUserCleanups: readonly DemoUserCleanup[] = [clearUserFeedback];
 
 export const resetDemo = async (
   userId: string,

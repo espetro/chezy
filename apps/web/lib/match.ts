@@ -1,3 +1,5 @@
+import type { FeedbackEvent } from "@chezy/contract";
+import { feedbackBoost } from "~/lib/feedback-ranking";
 import { COMMUTE_MIN_PER_KM, COMMUTE_OVERHEAD_MIN } from "~/lib/constants";
 import type { Listing, SearchProfile } from "~/lib/db/schema";
 import { eur } from "~/lib/format";
@@ -139,17 +141,27 @@ export function scoreListing(profile: SearchProfile, row: Listing): MatchResult 
 export function rankListings(
   profile: SearchProfile,
   rows: Listing[],
+  feedback: readonly FeedbackEvent[] = [],
 ): Array<{ listing: Listing; match: MatchResult }> {
   const redLines = new Set(profile.redLines);
+  const rejected = new Set(
+    feedback.filter((event) => !event.undoneAt).map((event) => event.listingId),
+  );
   const eligible = rows.filter(
     // Only no_interior is computable today; the other red lines are stored
     // for display only (the dataset has no deposit or flatmate data).
-    (row) => !(redLines.has("no_interior") && !row.amenities.includes("exterior")),
+    (row) =>
+      !rejected.has(row.id) &&
+      !(redLines.has("no_interior") && !row.amenities.includes("exterior")),
   );
   return dedupeListings(eligible)
     .map((listing) => ({ listing, match: scoreListing(profile, listing) }))
     .sort(
       (a, b) =>
-        b.match.score - a.match.score || (a.listing.priceEur ?? 0) - (b.listing.priceEur ?? 0),
+        b.match.score +
+          feedbackBoost(b.listing, feedback) -
+          (a.match.score + feedbackBoost(a.listing, feedback)) ||
+        (a.listing.priceEur ?? 0) - (b.listing.priceEur ?? 0) ||
+        a.listing.id.localeCompare(b.listing.id),
     );
 }

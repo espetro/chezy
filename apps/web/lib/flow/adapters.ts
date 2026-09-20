@@ -137,6 +137,11 @@ export function toFlowListing(
     depositMonths: 1,
     sharedFlat: false,
     matchScore: match.score,
+    outdoorEvidence: row.amenities.includes("balcony")
+      ? "Balcony reported in listing amenities"
+      : row.amenities.includes("terrace")
+        ? "Terrace reported in listing amenities"
+        : undefined,
     matchReasons: match.reasons.map((label) => ({ label, detail: "" })),
     neighborhoodProfile: neighborhoodProfile(
       row.district,

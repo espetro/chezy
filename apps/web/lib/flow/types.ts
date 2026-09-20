@@ -64,6 +64,7 @@ export interface FlowListing {
   sharedFlat: boolean;
   matchScore: number;
   matchReasons: MatchReason[];
+  outdoorEvidence?: string;
   neighborhoodProfile: NeighborhoodProfile;
   availableFrom: string;
 }

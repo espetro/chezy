@@ -1,22 +1,22 @@
 "use client";
 
 import { useMountEffect } from "@chezy/ui/hooks/useMountEffect";
+import type { FeedbackEvent } from "@chezy/contract";
+import Link from "next/link";
 import { useRef, useState } from "react";
+import { RejectionControl } from "~/components/flow/explore/RejectionControl";
+import { useListingFeedback } from "~/lib/flow/use-listing-feedback";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
 import { FlowBadge } from "~/components/flow/ui/Badge";
 import { FlowButton } from "~/components/flow/ui/Button";
 import { FlowStateTransition } from "~/components/flow/ui/FlowMotion";
 import { AUTO_CALL_MATCH_THRESHOLD } from "~/lib/flow/constants";
 import type { FlowListing } from "~/lib/flow/types";
-import {
-  useCandidateDismissal,
-  type CandidateDismissHandler,
-} from "~/lib/flow/use-candidate-dismissal";
 import { createViewingController, type ViewingState } from "~/lib/viewing";
 
 interface AgentCallGateProps {
   listing: FlowListing;
-  onDismiss?: CandidateDismissHandler;
+  onDismiss?: (listingId: string) => void;
 }
 
 const slotFormatter = new Intl.DateTimeFormat("en-US", {
@@ -31,7 +31,8 @@ const autoCallKey = (listingId: string) => `chezy:autocall:${listingId}`;
 const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
   const isAutoCall = listing.matchScore >= AUTO_CALL_MATCH_THRESHOLD;
   const [state, setState] = useState<ViewingState>({ status: "idle" });
-  const { dismissedIds, dismissCandidate, restoreCandidate } = useCandidateDismissal();
+  const [feedback, setFeedback] = useState<FeedbackEvent>();
+  const { reject, undo, busy, error } = useListingFeedback(setFeedback);
   const [liveOptIn, setLiveOptIn] = useState(false);
   const controller = useRef<ReturnType<typeof createViewingController> | undefined>(undefined);
   const restoreFocus = useRef(false);
@@ -70,22 +71,27 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
     void startCall();
   });
 
-  if (dismissedIds.includes(listing.id)) {
+  if (feedback && !feedback.undoneAt) {
     return (
       <div
         ref={(node) => node?.querySelector("button")?.focus({ preventScroll: true })}
-        className="flex min-h-[42rem] items-center justify-between rounded-cards bg-card-subtle px-4 py-4 shadow-sm sm:min-h-[34rem] sm:px-6 sm:py-5"
+        className="flex min-h-[42rem] flex-col items-start justify-center gap-4 rounded-cards bg-snow p-5 shadow-sm sm:min-h-[34rem] sm:p-7"
       >
-        <p className="text-[14px] text-fog">Candidate discarded.</p>
+        <p role="status">Candidate rejected. Your comparison has been updated.</p>
         <FlowButton
           variant="ghost"
-          onClick={() => {
+          disabled={busy}
+          onClick={async () => {
             restoreFocus.current = true;
-            restoreCandidate(listing.id);
+            if (!(await undo(feedback.eventId))) restoreFocus.current = false;
           }}
         >
           Undo
         </FlowButton>
+        <Link href="/explore" className="inline-flex min-h-11 items-center underline">
+          See updated comparison
+        </Link>
+        {error && <p role="alert">{error}</p>}
       </div>
     );
   }
@@ -202,17 +208,18 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
             </FlowButton>
           </div>
         ) : undefined}
-        <FlowButton
-          className="w-full sm:w-auto"
-          variant="ghost"
-          disabled={status === "dispatching"}
-          onClick={() => {
-            dismissCandidate(listing.id);
-            onDismiss?.(listing.id);
+        <RejectionControl
+          listingId={listing.id}
+          title={listing.title}
+          disabled={status === "dispatching" || busy}
+          onReject={async (listingId, reason) => {
+            const saved = await reject(listingId, reason);
+            if (saved) onDismiss?.(listingId);
+            return saved;
           }}
-        >
-          Discard candidate
-        </FlowButton>
+        />
+        {error && <p role="alert">{error}</p>}
+        {busy && <p role="status">Updating your comparison…</p>}
       </div>
     </div>
   );
