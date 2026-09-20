@@ -1,8 +1,12 @@
 "use client";
 
-import { AnimatePresence, motion, MotionConfig, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import type { ReactNode } from "react";
 
+// Constant initial/animate values: reducedMotion="user" on MotionConfig already
+// neutralises transform animations for users who prefer reduced motion, and
+// deriving them from useReducedMotion() would render different markup on the
+// server (null) than the client (boolean), breaking hydration.
 export const FlowMotion = ({ children }: { children: ReactNode }) => (
   <MotionConfig reducedMotion="user" transition={{ duration: 0.2, ease: "easeOut" }}>
     {children}
@@ -15,19 +19,16 @@ export const FlowReveal = ({
 }: {
   children: ReactNode;
   className?: string;
-}) => {
-  const reducedMotion = useReducedMotion();
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: reducedMotion !== false ? 0 : 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: reducedMotion ? 0 : 0.2 }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-};
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 8 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.2 }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);
 
 export const FlowStateTransition = ({
   children,
@@ -35,19 +36,16 @@ export const FlowStateTransition = ({
 }: {
   children: ReactNode;
   state: string;
-}) => {
-  const reducedMotion = useReducedMotion();
-  return (
-    <AnimatePresence initial={false} mode="wait">
-      <motion.div
-        key={state}
-        initial={{ opacity: 0, y: reducedMotion !== false ? 0 : 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: reducedMotion ? 0 : 0.16 }}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
-  );
-};
+}) => (
+  <AnimatePresence initial={false} mode="wait">
+    <motion.div
+      key={state}
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.16 }}
+    >
+      {children}
+    </motion.div>
+  </AnimatePresence>
+);

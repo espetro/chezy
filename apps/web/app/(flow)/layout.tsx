@@ -4,7 +4,7 @@ import { FlowChatLauncher } from "~/components/flow/ui/ChatLauncher";
 import { FlowMotion } from "~/components/flow/ui/FlowMotion";
 
 export const metadata: Metadata = {
-  title: "Chezy — your rental agent",
+  title: { absolute: "Chezy — your rental agent" },
   description:
     "Chezy searches, scores, and negotiates your next rental for you, with you approving what matters.",
 };
