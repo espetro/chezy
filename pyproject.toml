@@ -23,6 +23,8 @@ link-mode = "symlink"
 compile-bytecode = false
 # Keep uv-managed Python installations; don't reach for /usr/bin/python3.
 managed = true
+# The root is a virtual workspace, not a buildable package (no wheel contents).
+package = false
 
 [tool.uv.workspace]
 members = ["apps/scraper"]
@@ -47,12 +49,12 @@ max-args = 6
 max-complexity = 10
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "PLR2004"]
-"scripts/**" = ["INP001"]
+"**/tests/**" = ["S101", "PLR2004", "INP001"]
+# Gate scripts shell out to git/uv/pnpm by name on purpose.
+"scripts/**" = ["INP001", "S603", "S607"]
 
 [tool.basedpyright]
 include = ["apps", "tests", "scripts"]
-stubPath = "typings"
 typeCheckingMode = "strict"
 
 [tool.pytest.ini_options]

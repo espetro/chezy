@@ -3,6 +3,7 @@ import type { InferSelectModel } from "drizzle-orm";
 import type { ListingInsights } from "~/lib/vision/schema";
 import {
   boolean,
+  customType,
   doublePrecision,
   foreignKey,
   integer,
@@ -204,6 +205,39 @@ export const listingInsight = pgTable("ListingInsight", {
 });
 
 export type ListingInsight = InferSelectModel<typeof listingInsight>;
+
+// pgvector column: fixed 4096 dims (Qwen3-embedding). toDriver serializes
+// number[] to the literal form pgvector accepts; fromDriver keeps the raw
+// "[1,2,3]" string so callers parse on demand.
+export const vector = customType<{ data: number[]; driverData: string }>({
+  dataType() {
+    return "vector(4096)";
+  },
+  toDriver(values) {
+    return `[${values.join(",")}]`;
+  },
+});
+
+export const memory = pgTable("Memory", {
+  chatId: uuid("chatId").references(() => chat.id, {
+    onDelete: "set null",
+  }),
+  content: text("content").notNull(),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  embedding: vector("embedding"),
+  embeddingModel: varchar("embeddingModel", { length: 64 }).notNull(),
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  kind: varchar("kind", { enum: ["summary", "fact", "property"] })
+    .notNull()
+    .default("fact"),
+  userId: uuid("userId")
+    .notNull()
+    .references(() => user.id),
+});
+
+export type MemoryKind = NonNullable<Memory["kind"]>;
+
+export type Memory = InferSelectModel<typeof memory>;
 
 export const searchProfile = pgTable("SearchProfile", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
