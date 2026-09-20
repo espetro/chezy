@@ -117,7 +117,7 @@ export const CandidateCarousel = ({
   }
 
   return (
-    <section aria-label={label} aria-roledescription="carousel" className="relative">
+    <section aria-label={label} aria-roledescription="carousel" className="relative flex flex-col">
       <div
         ref={trackRef}
         onScroll={handleTrackScroll}
@@ -182,7 +182,7 @@ export const CandidateCarousel = ({
         Showing match {currentIndex + 1} of {total}
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-3">
+      <div className="order-first mb-4 flex items-center justify-between gap-3 sm:order-none sm:mt-4 sm:mb-0">
         <div
           className="flex min-w-0 flex-1 [scrollbar-width:none] gap-1.5 overflow-x-auto"
           role="group"
