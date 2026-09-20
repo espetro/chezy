@@ -37,15 +37,7 @@ export function stubTelegramEnv(apiBaseUrl: string) {
 export async function cleanBotState(...telegramUserIds: number[]) {
   const { client } = await import("~/lib/db/client");
   const usernames = telegramUserIds.map((id) => `tg-${id}`);
-  for (const table of [
-    "viewings",
-    "listing_feedback",
-    "radar_seen",
-    "telegram_users",
-  ]) {
-    await client.unsafe(
-      `DELETE FROM bot.${table} WHERE username = ANY($1)`,
-      [usernames],
-    );
+  for (const table of ["viewings", "listing_feedback", "radar_seen", "telegram_users"]) {
+    await client.unsafe(`DELETE FROM bot.${table} WHERE username = ANY($1)`, [usernames]);
   }
 }
