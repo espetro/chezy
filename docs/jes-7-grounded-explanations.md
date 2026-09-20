@@ -14,7 +14,7 @@ import { MatchExplanation } from "~/components/flow/match/MatchExplanation";
   matchScore={existingMatchResult.score}
   preferences={searchProfile}
   profileKey={`${searchProfile.userId}:${searchProfile.updatedAt.toISOString()}`}
-/>
+/>;
 ```
 
 - `listing`: `ExplanationSource` requires `id`, `priceEur`, `pricePeriod`, `rooms`,
