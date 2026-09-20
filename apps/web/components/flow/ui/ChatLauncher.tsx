@@ -1,9 +1,8 @@
 "use client";
 
-import { MessageCircle, RotateCcw, X } from "lucide-react";
+import { RotateCcw, X } from "lucide-react";
 import dynamic from "next/dynamic";
-import { usePathname } from "next/navigation";
-import { createContext, type ReactNode, Suspense, useContext, useState } from "react";
+import { createContext, type ReactNode, useContext, useState } from "react";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
 import { Sheet, SheetClose, SheetContent, SheetTitle } from "~/components/ui/sheet";
 import { cn } from "~/lib/utils";
@@ -53,44 +52,8 @@ interface DrawerState {
   session: number;
 }
 
-// The floating button reads the pathname (uncached under Cache Components, so
-// it sits in its own Suspense boundary rather than dragging the page into one).
-const LauncherButton = ({ open, onOpen }: { open: boolean; onOpen: () => void }) => {
-  const pathname = usePathname();
-
-  // Only the listing detail page gets the floating button: the landing has
-  // nothing to chat about yet, onboarding is itself the agent conversation, and
-  // on /explore every card carries its own "ask" input (the button would also
-  // cover the carousel's Next control there).
-  if (!/^\/explore\/.+/.test(pathname)) return undefined;
-
-  // /explore/[id] has a fixed bottom action bar below md; raise the launcher to
-  // clear it there, otherwise sit just above the safe-area edge.
-  const onMatchDetail = /^\/explore\/.+/.test(pathname);
-  const bottomOffset = onMatchDetail
-    ? "bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-6"
-    : "bottom-[calc(1rem+env(safe-area-inset-bottom))] sm:bottom-6";
-
-  return (
-    // Stays mounted while open (under the overlay) so Radix can return focus to it on close.
-    <button
-      type="button"
-      aria-label="Chat with Chezy"
-      aria-expanded={open}
-      onClick={onOpen}
-      className={cn(
-        "fixed right-4 z-30 inline-flex size-12 items-center justify-center rounded-full bg-obsidian text-snow shadow-lg shadow-obsidian/20 sm:right-6",
-        "hover:bg-graphite focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-obsidian motion-safe:transition-transform active:scale-95",
-        bottomOffset,
-      )}
-    >
-      <MessageCircle size={20} aria-hidden />
-    </button>
-  );
-};
-
-// Owns the floating launcher and the drawer for the whole (flow) surface, and
-// lets any flow component open the drawer with a seed message (the card input).
+// Owns the chat drawer for the whole (flow) surface and lets any flow component
+// open it with a seed message (the explore chat bar).
 export const FlowChatLauncherProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<DrawerState>({
     open: false,
@@ -127,9 +90,6 @@ export const FlowChatLauncherProvider = ({ children }: { children: ReactNode }) 
     <ChatLauncherContext.Provider value={{ open, reset }}>
       {children}
       <Sheet open={state.open} onOpenChange={setOpen}>
-        <Suspense>
-          <LauncherButton open={state.open} onOpen={() => open()} />
-        </Suspense>
         <SheetContent
           side={state.placement}
           showCloseButton={false}

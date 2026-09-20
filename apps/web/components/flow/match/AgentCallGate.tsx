@@ -103,7 +103,7 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
           restoreFocus.current = false;
         }
       }}
-      className="flex flex-col gap-5 rounded-cards bg-snow p-5 shadow-sm focus-visible:outline-2 focus-visible:outline-obsidian sm:p-7"
+      className="flex flex-col gap-4 rounded-cards bg-snow p-5 shadow-sm focus-visible:outline-2 focus-visible:outline-obsidian sm:p-6"
     >
       <div className="flex items-start gap-3">
         <FlowAgentMark size="sm" className="mt-0.5" />
@@ -121,7 +121,7 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
       </div>
 
       <div
-        className="flex min-h-[15rem] flex-col justify-center rounded-[20px] bg-paper p-5 focus-visible:outline-2 focus-visible:outline-obsidian"
+        className="flex min-h-[11rem] flex-col justify-center rounded-[16px] bg-paper p-4 focus-visible:outline-2 focus-visible:outline-obsidian"
         tabIndex={0}
         role="status"
         aria-live="polite"

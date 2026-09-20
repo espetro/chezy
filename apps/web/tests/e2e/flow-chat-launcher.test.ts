@@ -70,36 +70,21 @@ async function completeOnboarding(page: import("@playwright/test").Page) {
 test.describe("flow chat launcher (desktop)", () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
-  test("opens and closes the chat drawer on the listing detail page", async ({ page }) => {
+  test("has no floating launcher anywhere in the flow", async ({ page }) => {
     const consoleErrors = collectConsoleErrors(page);
 
     await page.goto("/");
     const launcher = page.getByRole("button", { name: "Chat with Chezy" });
-    // The landing has nothing to chat about yet.
     await expect(launcher).toHaveCount(0);
     await page.screenshot({ path: `${SHOT_DIR}/landing-desktop.png` });
 
     await completeOnboarding(page);
     await page.locator("a[href^='/explore/']").first().click();
     await expect(page).toHaveURL(/\/explore\/.+/);
-    await expect(launcher).toBeVisible();
+    // The chat bar on /explore replaced the floating bubble; the detail page has none.
+    await expect(launcher).toHaveCount(0);
+    await expect(page.getByRole("dialog")).toHaveCount(0);
     await page.screenshot({ path: `${SHOT_DIR}/detail-desktop.png` });
-
-    await launcher.click();
-    const dialog = page.getByRole("dialog");
-    await expect(dialog).toBeVisible();
-    await expect(dialog.getByText("Chezy", { exact: true })).toBeVisible();
-    await expect(dialog.getByText("Ask anything about your search")).toBeVisible();
-
-    const input = dialog.getByTestId("multimodal-input");
-    await expect(input).toBeVisible({ timeout: 15000 });
-    await input.focus();
-    await expect(input).toBeFocused();
-    await page.screenshot({ path: `${SHOT_DIR}/drawer-open-desktop.png` });
-
-    await page.keyboard.press("Escape");
-    await expect(dialog).toBeHidden();
-    await expect(launcher).toBeVisible();
 
     expect(consoleErrors).toEqual([]);
   });
@@ -148,29 +133,10 @@ test.describe("flow chat launcher (mobile)", () => {
     const firstListing = page.locator("a[href^='/explore/']").first();
     await firstListing.click();
     await expect(page).toHaveURL(/\/explore\/.+/);
-    await expect(launcher).toBeVisible();
-
-    const launcherBox = await launcher.boundingBox();
+    await expect(launcher).toHaveCount(0);
     // The fixed mobile action bar in MatchDetail wraps the "Review viewing options" anchor.
-    const actionsBar = page.locator("a[href='#agency-actions']");
-    await expect(actionsBar).toBeVisible();
-    const barBox = await actionsBar.boundingBox();
-    expect(launcherBox).not.toBeNull();
-    expect(barBox).not.toBeNull();
-    // Launcher bottom edge must sit above the fixed mobile action bar.
-    expect((launcherBox?.y ?? 0) + (launcherBox?.height ?? 0)).toBeLessThanOrEqual(
-      (barBox?.y ?? 0) + 1,
-    );
+    await expect(page.locator("a[href='#agency-actions']")).toBeVisible();
     await page.screenshot({ path: `${SHOT_DIR}/match-mobile.png` });
-
-    await launcher.click();
-    const dialog = page.getByRole("dialog");
-    await expect(dialog).toBeVisible();
-    // Full-width on phones; the chat input is the last thing to hydrate.
-    const dialogBox = await dialog.boundingBox();
-    expect(dialogBox?.width).toBe(390);
-    await expect(dialog.getByTestId("multimodal-input")).toBeVisible({ timeout: 15000 });
-    await page.screenshot({ path: `${SHOT_DIR}/drawer-open-mobile.png` });
 
     expect(consoleErrors).toEqual([]);
   });
