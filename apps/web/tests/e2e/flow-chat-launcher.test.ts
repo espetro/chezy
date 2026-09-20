@@ -70,13 +70,20 @@ async function completeOnboarding(page: import("@playwright/test").Page) {
 test.describe("flow chat launcher (desktop)", () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
-  test("opens and closes the chat drawer on the landing page", async ({ page }) => {
+  test("opens and closes the chat drawer on the listing detail page", async ({ page }) => {
     const consoleErrors = collectConsoleErrors(page);
 
     await page.goto("/");
     const launcher = page.getByRole("button", { name: "Chat with Chezy" });
-    await expect(launcher).toBeVisible();
+    // The landing has nothing to chat about yet.
+    await expect(launcher).toHaveCount(0);
     await page.screenshot({ path: `${SHOT_DIR}/landing-desktop.png` });
+
+    await completeOnboarding(page);
+    await page.locator("a[href^='/explore/']").first().click();
+    await expect(page).toHaveURL(/\/explore\/.+/);
+    await expect(launcher).toBeVisible();
+    await page.screenshot({ path: `${SHOT_DIR}/detail-desktop.png` });
 
     await launcher.click();
     const dialog = page.getByRole("dialog");
@@ -131,7 +138,7 @@ test.describe("flow chat launcher (mobile)", () => {
     await expect(launcher).toHaveCount(0);
 
     await page.goto("/");
-    await expect(launcher).toBeVisible();
+    await expect(launcher).toHaveCount(0);
 
     await page.goto("/explore");
     const firstListing = page.locator("a[href^='/explore/']").first();
