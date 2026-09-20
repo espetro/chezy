@@ -1,14 +1,12 @@
 // The SLNG `book_viewing` tool calls this endpoint (an API Request tool
 // pointed at APP_BASE_URL + /api/calendar). `mock` is the demo default;
 // `google` writes a real event with a service account.
-import { BookingRequestSchema, type BookingResult } from "@chezy/contract";
-import { getLogger } from "@chezy/observability";
+// Booking logic lives in ~/lib/calendar (shared with the arrangeViewing tool).
+import { BookingRequestSchema } from "@chezy/contract";
 import * as v from "valibot";
 
-import { createGoogleEvent, mockBooking } from "~/lib/calendar";
-import { env } from "~/lib/env";
-
-const logger = getLogger(["chezy", "calendar"]);
+import { bookViewing } from "~/lib/calendar";
+import { markLatestViewingBooked } from "~/lib/db/queries";
 
 export async function POST(request: Request): Promise<Response> {
   let body: unknown;
@@ -27,46 +25,13 @@ export async function POST(request: Request): Promise<Response> {
   }
   const input = parsed.output;
 
-  try {
-    if (env.CALENDAR_MODE === "google") {
-      const event = await createGoogleEvent({
-        propertyRef: input.propertyRef,
-        slotIso: input.slotIso,
-        durationMinutes: input.durationMinutes,
-        summary: input.summary ?? `Property viewing: ${input.propertyRef}`,
-        description:
-          input.description ?? `Booked by the chezy voice agent for ${input.propertyRef}.`,
-      });
-      const view: BookingResult = {
-        status: event.status,
-        channel: event.channel,
-        slotIso: event.slotIso,
-        ...(event.eventId ? { eventId: event.eventId } : {}),
-      };
-      return Response.json(view);
-    }
+  const view = await bookViewing(input);
 
-    const event = mockBooking(input.slotIso);
-    const view: BookingResult = {
-      status: event.status,
-      channel: event.channel,
-      slotIso: event.slotIso,
-      detail: event.detail,
-    };
-    return Response.json(view);
-  } catch (error) {
-    const detail = error instanceof Error ? error.message : "unknown error";
-    logger.error("calendar booking failed ({channel}): {detail}", {
-      channel: env.CALENDAR_MODE,
-      detail,
-      propertyRef: input.propertyRef,
-    });
-    const view: BookingResult = {
-      status: "failed",
-      channel: env.CALENDAR_MODE,
-      slotIso: input.slotIso,
-      detail,
-    };
-    return Response.json(view, { status: 502 });
+  // The SLNG `book_viewing` webhook resolves the pending viewing for this
+  // property; ignore misses (chat-initiated bookings update the row directly).
+  if (view.status === "booked") {
+    await markLatestViewingBooked({ listingId: input.propertyRef }).catch(() => undefined);
   }
+
+  return Response.json(view, { status: view.status === "failed" ? 502 : 200 });
 }
