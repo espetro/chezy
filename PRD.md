@@ -143,9 +143,21 @@ Milestone names reused from the codebase so backlog items map cleanly.
 | Scraper | uv-managed Python CLI (httpx + parsel + pydantic), idealista adapter |
 | Dataset | 300 Barcelona listings (fotocasa / habitaclia / milanuncios), committed JSONL |
 
+## Brand
+
+- Logo: `assets/logo/`, source is `chezy-logo-1024.png` (1024x1024 PNG, transparent).
+  Resized PNGs and `favicon.ico` live next to it; see `assets/README.md`.
+- Palette: terracotta `#CA6A49` (roof/house), mint `#93C8AE` (chat bubble). The flow's
+  `--color-ember` `#ff5a00` is a separate token, not yet reconciled with the palette.
+- Typography: Outfit for headings and display, DM Sans for UI and body/long reading.
+  Both are variable fonts under OFL 1.1, in `assets/fonts/`.
+- Wiring: `apps/web` root layout via `next/font/local` and `apps/video` `theme.ts` via
+  `@remotion/fonts` (PR 2).
+
 ## References
 
 - `.agents/docs/screens/radar.md`: dual-view demo spec and rebuild contract.
+- `assets/README.md`: brand assets (logo sizes, fonts, how to load them).
 - `.agents/plans/`: layer0, listings data, onboarding, voice telephony.
 - `.agents/MEMORY.md`: stack snapshot and non-obvious decisions.
 - `AGENTS.md`: enforced gates and conventions.
