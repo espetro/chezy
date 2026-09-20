@@ -51,17 +51,22 @@ export function createBookingController(
       });
       const body: unknown = await response.json();
       const outcome = resolveBookingResponse(body, response.ok);
-      if (outcome.status === "booked") {
-        try {
-          storage.setItem(key, JSON.stringify(outcome.result));
-        } catch {
-          // The in-memory outcome still renders; only the reload receipt is lost.
-        }
-      }
-      return outcome;
+      return outcome.status === "booked" ? remember(outcome.result) : outcome;
     } catch {
       return { status: "failed", detail: FALLBACK_DETAIL };
     }
+  }
+
+  // A booking confirmed out of band (the voice agent's book_viewing webhook)
+  // is recorded the same way as one this client requested.
+  function remember(result: BookingResult): BookingState {
+    state = { status: "booked", result };
+    try {
+      storage.setItem(key, JSON.stringify(result));
+    } catch {
+      // The in-memory outcome still renders; only the reload receipt is lost.
+    }
+    return state;
   }
 
   function book(slotIso: string): Promise<BookingState> {
@@ -76,5 +81,5 @@ export function createBookingController(
     return inFlight;
   }
 
-  return { restore, book };
+  return { restore, book, remember };
 }

@@ -1,7 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import { createBookingController, resolveBookingResponse } from "~/lib/booking";
 
-const booked = { status: "booked", channel: "mock", slotIso: "2026-09-21T10:00:00.000Z" };
+const booked = {
+  status: "booked",
+  channel: "mock",
+  slotIso: "2026-09-21T10:00:00.000Z",
+} as const;
 const slot = booked.slotIso;
 
 function storage(entries = new Map<string, string>()) {
@@ -61,6 +65,12 @@ describe("booking controller", () => {
     const controller = createBookingController("listing", storage(), fetcher);
     expect(await controller.book(slot)).toEqual({ status: "failed", detail: "insert failed" });
     expect((await controller.book(slot)).status).toBe("booked");
+  });
+  it("remembers a booking confirmed out of band and restores it", () => {
+    const saved = storage();
+    const controller = createBookingController("listing", saved);
+    expect(controller.remember(booked)).toEqual({ status: "booked", result: booked });
+    expect(createBookingController("listing", saved).restore().status).toBe("booked");
   });
   it("does not persist failures", async () => {
     const saved = storage();
