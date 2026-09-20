@@ -7,7 +7,7 @@ interface PillProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 const variantClasses: Record<PillVariant, string> = {
-  subtle: "bg-paper text-iron border-transparent",
+  subtle: "bg-paper text-iron border-mist",
   filled: "bg-iron text-[#fafafa] border-transparent",
   accent: "bg-ember-soft text-ember-deep border-transparent",
 };
