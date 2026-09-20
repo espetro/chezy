@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
+import { flowEase, flowSpring } from "~/components/flow/ui/FlowMotion";
 import { CALL_STAGES } from "~/lib/flow/use-viewing-booking";
 
 const slotFormatter = new Intl.DateTimeFormat("en-GB", {
@@ -32,11 +33,15 @@ export const callStageLabel = (stage: number): string =>
 
 export const CallRings = ({ className }: { className?: string }) => (
   <span aria-hidden className={className}>
-    <span className="absolute inset-0 animate-call-ring rounded-full border-2 border-ember opacity-0" />
-    <span
-      className="absolute inset-0 animate-call-ring rounded-full border-2 border-ember opacity-0"
-      style={{ animationDelay: "0.9s" }}
-    />
+    {[0, 1].map((i) => (
+      <motion.span
+        key={i}
+        className="absolute inset-0 rounded-full border-2 border-ember"
+        initial={{ scale: 1, opacity: 0.55 }}
+        animate={{ scale: 2.4, opacity: 0 }}
+        transition={{ duration: 1.8, ease: flowEase, repeat: Infinity, delay: i * 0.9 }}
+      />
+    ))}
   </span>
 );
 
@@ -58,7 +63,12 @@ export const CallProgress = ({
     <div className="flex flex-col items-center gap-5 py-2 text-center">
       <div className="relative flex size-14 items-center justify-center">
         <CallRings className="absolute inset-0" />
-        <FlowAgentMark size="lg" className="relative" />
+        <motion.div
+          animate={{ scale: [1, 1.04, 1] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <FlowAgentMark size="lg" className="relative" />
+        </motion.div>
       </div>
       <div className="w-full">
         <p className="text-[15px] font-medium text-obsidian">AI calling</p>
@@ -66,10 +76,16 @@ export const CallProgress = ({
           <AnimatePresence initial={false}>
             {lines.map((line, index) => (
               <motion.li
+                layout
                 key={`${index}-${line}`}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: index === lines.length - 1 ? 1 : 0.55, y: 0 }}
-                transition={{ duration: 0.32, ease: "easeOut" }}
+                initial={{ opacity: 0, y: 8, filter: "blur(3px)" }}
+                animate={{
+                  opacity: index === lines.length - 1 ? 1 : 0.55,
+                  y: 0,
+                  filter: "blur(0px)",
+                }}
+                exit={{ opacity: 0 }}
+                transition={flowSpring}
                 className="text-[13px] text-graphite"
               >
                 {line}
