@@ -54,7 +54,7 @@ export const MatchDetail = ({ listing, explanation }: MatchDetailProps) => {
                 ))}
               </div>
             </div>
-            <div className="flex flex-row-reverse items-center justify-between gap-2 md:flex-col md:items-end md:justify-start md:shrink-0">
+            <div className="flex flex-row-reverse items-center justify-between gap-2 md:shrink-0 md:flex-col md:items-end md:justify-start">
               <FlowScoreBadge score={listing.matchScore} />
               <p className="text-xl font-semibold whitespace-nowrap text-obsidian sm:text-2xl">
                 {listing.price > 0 ? `€${listing.price}` : "Price unknown"}{" "}
