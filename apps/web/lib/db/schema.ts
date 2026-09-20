@@ -1,4 +1,4 @@
-import type { UserProfile } from "@chezy/contract";
+import type { FeedbackEvent, FeedbackReason, UserProfile } from "@chezy/contract";
 import type { InferSelectModel } from "drizzle-orm";
 import type { ListingInsights } from "~/lib/vision/schema";
 import {
@@ -13,6 +13,7 @@ import {
   primaryKey,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -265,3 +266,26 @@ export const searchProfile = pgTable("SearchProfile", {
 });
 
 export type SearchProfile = InferSelectModel<typeof searchProfile>;
+
+export const listingFeedback = pgTable(
+  "listing_feedback",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    eventId: uuid("event_id").notNull(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    listingId: text("listing_id")
+      .notNull()
+      .references(() => listing.id, { onDelete: "cascade" }),
+    reason: text("reason").$type<FeedbackReason>().notNull(),
+    profileVersion: text("profile_version").notNull(),
+    facts: jsonb("facts").$type<FeedbackEvent["facts"]>().notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    undoneAt: timestamp("undone_at"),
+  },
+  (table) => [uniqueIndex("listing_feedback_user_event").on(table.userId, table.eventId)],
+);
+
+export type ListingFeedback = InferSelectModel<typeof listingFeedback>;
