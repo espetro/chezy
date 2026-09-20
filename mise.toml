@@ -118,6 +118,10 @@ run = [
 description = "Verify repeatable persona, fixture candidates, transactional rollback and user isolation"
 run = "cd apps/web && node --env-file-if-exists=.env.local --import=tsx scripts/check-demo.ts"
 
+[tasks."check:adaptation"]
+description = "Verify adaptation job lifecycle: dedupe, owner isolation, mock ready, stale paths, reset cleanup"
+run = "cd apps/web && node --env-file-if-exists=.env.local --import=tsx scripts/check-adaptation.ts"
+
 [tasks."slng:agent:sync"]
 description = "Pin the SLNG agent to eu-central/livekit and report its outbound trunk"
 # cd into apps/web so tsx picks up its tsconfig `@/*` paths.
