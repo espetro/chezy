@@ -23,6 +23,7 @@ const candidates: CandidateFacts[] = [
     rooms: 2,
     builtM2: 70,
     amenities: ["balcony"],
+    outdoorSpace: null,
   },
   {
     id: "fotocasa:2",
@@ -32,6 +33,7 @@ const candidates: CandidateFacts[] = [
     rooms: 1,
     builtM2: 55,
     amenities: [],
+    outdoorSpace: null,
   },
 ];
 
@@ -43,6 +45,7 @@ const rejected: CandidateFacts = {
   rooms: 2,
   builtM2: 65,
   amenities: [],
+  outdoorSpace: null,
 };
 
 describe("sanitizeCandidate", () => {
@@ -55,6 +58,7 @@ describe("sanitizeCandidate", () => {
       rooms: 3,
       builtM2: 90,
       amenities: ["terrace"],
+      outdoorSpace: null,
       url: "https://SECRET-URL.example",
       publisherName: "SECRET-PUBLISHER",
       description: "SECRET-DESCRIPTION",
@@ -67,6 +71,7 @@ describe("sanitizeCandidate", () => {
       rooms: 3,
       builtM2: 90,
       amenities: ["terrace"],
+      outdoorSpace: null,
     });
   });
 });

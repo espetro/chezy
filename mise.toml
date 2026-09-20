@@ -248,6 +248,10 @@ run = "bash scripts/worktree-init.sh"
 description = "Devin forge: pisos.com adapter, verified by pytest + hold-out"
 run = "node --env-file-if-exists=.env --import=tsx scripts/devin-forge/forge.ts pisos"
 
+[tasks."forge:outdoor-space"]
+description = "Devin forge: photo-derived outdoor space column + balcony comparison, verified by vitest + hold-out + typecheck/lint/format"
+run = "node --env-file-if-exists=.env --import=tsx scripts/devin-forge/forge.ts outdoor-space --base feat/chezy-forge/outdoor-space-standard"
+
 [tasks."forge:pisos-detail"]
 description = "Devin forge: pisos.com detail-page parser, verified by pytest + hold-out"
 run = "node --env-file-if-exists=.env --import=tsx scripts/devin-forge/forge.ts detail"

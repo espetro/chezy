@@ -134,6 +134,7 @@ const candidates = [
     rooms: 2,
     builtM2: 60,
     amenities: [],
+    outdoorSpace: null,
   },
   {
     id: "b",
@@ -143,6 +144,7 @@ const candidates = [
     rooms: 3,
     builtM2: 80,
     amenities: ["balcony"],
+    outdoorSpace: null,
   },
   {
     id: "c",
@@ -152,6 +154,7 @@ const candidates = [
     rooms: 2,
     builtM2: 70,
     amenities: ["terrace"],
+    outdoorSpace: null,
   },
 ];
 

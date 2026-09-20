@@ -5,7 +5,8 @@
     "**/dist/**",
     "**/.next/**",
     "**/vendor/**",
-    "**/tests/e2e/**"
+    "**/tests/e2e/**",
+    "scripts/devin-forge/standards/**"
   ],
   "categories": {
     "correctness": "off",

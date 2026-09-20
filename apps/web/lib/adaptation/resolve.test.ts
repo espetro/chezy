@@ -24,6 +24,7 @@ const row = (over: Partial<Listing> = {}): Listing => ({
   municipality: "Barcelona",
   postalCode: "08005",
   amenities: [],
+  outdoorSpace: null,
   title: "BRIGHT FLAT IN POBLENOU",
   description: "desc",
   publisherName: "publisher",

@@ -51,6 +51,7 @@ async function flush(): Promise<void> {
         municipality: listing.municipality,
         postalCode: listing.postalCode,
         amenities: listing.amenities,
+        outdoorSpace: listing.outdoorSpace,
         title: listing.title,
         description: listing.description,
         publisherName: listing.publisherName,
