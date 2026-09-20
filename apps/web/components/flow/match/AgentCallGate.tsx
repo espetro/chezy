@@ -2,6 +2,7 @@
 
 import { useMountEffect } from "@chezy/ui/hooks/useMountEffect";
 import type { FeedbackEvent } from "@chezy/contract";
+import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { RejectionControl } from "~/components/flow/explore/RejectionControl";
@@ -9,7 +10,7 @@ import { CallProgress } from "~/components/flow/match/CallProgress";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
 import { BookedCheck } from "~/components/flow/ui/BookedCheck";
 import { FlowButton } from "~/components/flow/ui/Button";
-import { FlowStateTransition } from "~/components/flow/ui/FlowMotion";
+import { flowSpring, FlowStateTransition } from "~/components/flow/ui/FlowMotion";
 import { FlowPill } from "~/components/flow/ui/Pill";
 import { requestAdaptation } from "~/lib/flow/adaptation-client";
 import { AUTO_CALL_MATCH_THRESHOLD } from "~/lib/flow/constants";
@@ -120,13 +121,15 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
         </div>
       </div>
 
-      <div
+      <motion.div
+        layout
+        transition={flowSpring}
         className="flex min-h-[11rem] flex-col justify-center rounded-[16px] bg-paper p-4 focus-visible:outline-2 focus-visible:outline-obsidian"
         tabIndex={0}
         role="status"
         aria-live="polite"
       >
-        <FlowStateTransition state={phase}>
+        <FlowStateTransition state={phase} className="flex flex-col justify-center">
           {phase === "idle" ? (
             <p className="text-[14px] text-iron">Ready to call the agency for you.</p>
           ) : phase === "calling" ? (
@@ -138,22 +141,61 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
             />
           ) : phase === "booking" ? (
             <div className="flex items-center gap-2">
-              <span className="size-2 animate-pulse rounded-full bg-ember motion-reduce:animate-none" />
+              <motion.span
+                className="size-2 rounded-full bg-ember"
+                animate={{ scale: [1, 1.35, 1], opacity: [1, 0.55, 1] }}
+                transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+              />
               <p className="text-[14px] font-medium text-graphite">Booking the visit…</p>
             </div>
           ) : phase === "booked" && booking.status === "booked" ? (
             <div className="flex flex-col items-center gap-4 text-center">
               <BookedCheck size="lg" />
-              <div>
-                <p className="text-[17px] font-semibold text-obsidian">Visit booked</p>
-                <p className="mt-1 text-[15px] text-graphite">
+              <motion.div
+                variants={{
+                  hidden: {},
+                  show: { transition: { staggerChildren: 0.08, delayChildren: 0.35 } },
+                }}
+                initial="hidden"
+                animate="show"
+              >
+                <motion.p
+                  variants={{
+                    hidden: { opacity: 0, y: 8 },
+                    show: { opacity: 1, y: 0, transition: flowSpring },
+                  }}
+                  className="text-[17px] font-semibold text-obsidian"
+                >
+                  Visit booked
+                </motion.p>
+                <motion.p
+                  variants={{
+                    hidden: { opacity: 0, y: 8 },
+                    show: { opacity: 1, y: 0, transition: flowSpring },
+                  }}
+                  className="mt-1 text-[15px] text-graphite"
+                >
                   {slotFormatter.format(new Date(booking.result.slotIso))}
-                </p>
-                <p className="mt-2 text-[13px] text-fog">
+                </motion.p>
+                <motion.p
+                  variants={{
+                    hidden: { opacity: 0, y: 8 },
+                    show: { opacity: 1, y: 0, transition: flowSpring },
+                  }}
+                  className="mt-2 text-[13px] text-fog"
+                >
                   {listing.title} · {listing.neighborhood}
-                </p>
-                <p className="text-[13px] text-fog">30 min · added to your calendar</p>
-              </div>
+                </motion.p>
+                <motion.p
+                  variants={{
+                    hidden: { opacity: 0, y: 8 },
+                    show: { opacity: 1, y: 0, transition: flowSpring },
+                  }}
+                  className="text-[13px] text-fog"
+                >
+                  30 min · added to your calendar
+                </motion.p>
+              </motion.div>
             </div>
           ) : phase === "failed" ? (
             <div className="flex flex-col gap-1">
@@ -162,22 +204,46 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
             </div>
           ) : undefined}
         </FlowStateTransition>
-      </div>
+      </motion.div>
 
-      <div className="flex w-full flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:content-start sm:gap-3">
-        {canCall ? (
-          <FlowButton className="w-full sm:w-auto" onClick={() => startCall()}>
-            Call the agency
-          </FlowButton>
-        ) : undefined}
-        {canRetry ? (
-          <FlowButton
-            className="w-full sm:w-auto"
-            onClick={() => (booking.status === "failed" ? void retryBooking() : startCall())}
-          >
-            Try again
-          </FlowButton>
-        ) : undefined}
+      <motion.div
+        layout
+        transition={flowSpring}
+        className="flex w-full flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:content-start sm:gap-3"
+      >
+        <AnimatePresence initial={false}>
+          {canCall ? (
+            <motion.div
+              key="call"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 6 }}
+              transition={flowSpring}
+              className="w-full sm:w-auto"
+            >
+              <FlowButton className="w-full sm:w-auto" onClick={() => startCall()}>
+                Call the agency
+              </FlowButton>
+            </motion.div>
+          ) : undefined}
+          {canRetry ? (
+            <motion.div
+              key="retry"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 6 }}
+              transition={flowSpring}
+              className="w-full sm:w-auto"
+            >
+              <FlowButton
+                className="w-full sm:w-auto"
+                onClick={() => (booking.status === "failed" ? void retryBooking() : startCall())}
+              >
+                Try again
+              </FlowButton>
+            </motion.div>
+          ) : undefined}
+        </AnimatePresence>
         <RejectionControl
           listingId={listing.id}
           title={listing.title}
@@ -190,7 +256,7 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
         />
         {error && <p role="alert">{error}</p>}
         {busy && <p role="status">Updating your comparison…</p>}
-      </div>
+      </motion.div>
     </div>
   );
 };
