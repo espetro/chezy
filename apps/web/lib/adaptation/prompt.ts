@@ -17,6 +17,7 @@ export const sanitizeCandidate = (row: Listing): CandidateFacts => ({
   rooms: row.rooms,
   builtM2: row.builtM2,
   amenities: row.amenities,
+  outdoorSpace: row.outdoorSpace,
 });
 
 interface AdaptationPromptInput {

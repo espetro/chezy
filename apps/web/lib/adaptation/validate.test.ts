@@ -14,6 +14,7 @@ const facts = (
   rooms: 2,
   builtM2: 70,
   amenities: ["exterior"],
+  outdoorSpace: null,
   ...overrides,
 });
 

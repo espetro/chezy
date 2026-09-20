@@ -1,4 +1,4 @@
-import type { ComparisonField, ComparisonPanelSpec } from "@chezy/contract";
+import type { ComparisonField, ComparisonPanelSpec, OutdoorSpace } from "@chezy/contract";
 import type { Listing } from "~/lib/db/schema";
 import { eur, sentenceCase } from "~/lib/format";
 
@@ -14,6 +14,13 @@ export interface ResolvedPanel {
 }
 
 const UNKNOWN = "Unknown";
+
+const PHOTO_OUTDOOR_LABEL: Partial<Record<OutdoorSpace, string>> = {
+  balcony: "Balcony seen in photos",
+  terrace: "Terrace seen in photos",
+  patio: "Patio seen in photos",
+  garden: "Garden seen in photos",
+};
 const COLUMN_TITLE_MAX = 48;
 
 // Cuts long listing titles at a word boundary so column headers and action
@@ -34,7 +41,7 @@ const cellFor = (field: ComparisonField, row: Listing): string => {
     case "balcony":
       if (row.amenities.some((amenity) => /balcony/i.test(amenity))) return "Balcony listed";
       if (row.amenities.some((amenity) => /terrace/i.test(amenity))) return "Terrace listed";
-      return "Not listed";
+      return (row.outdoorSpace && PHOTO_OUTDOOR_LABEL[row.outdoorSpace]) || "Not listed";
     case "rooms":
       return row.rooms === null ? UNKNOWN : `${row.rooms} room${row.rooms === 1 ? "" : "s"}`;
     case "size":
