@@ -69,7 +69,7 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
     return (
       <div
         ref={(node) => node?.querySelector("button")?.focus({ preventScroll: true })}
-        className="flex min-h-[42rem] flex-col items-start justify-center gap-4 rounded-cards bg-snow p-5 sm:min-h-[34rem] sm:p-7"
+        className="flex min-h-[42rem] flex-col items-start justify-center gap-4 rounded-cards bg-snow p-5 shadow-sm sm:min-h-[34rem] sm:p-7"
       >
         <p role="status">Candidate rejected. Your comparison has been updated.</p>
         <FlowButton
