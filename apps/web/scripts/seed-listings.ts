@@ -1,7 +1,9 @@
-// Loads chezy-mock-data/data/listings.jsonl into the Listing table.
+// Loads chezy-mock-data/data/listings.jsonl into the Listing table, filling
+// outdoor_space from chezy-mock-data/enriched/listing_outdoor_space.jsonl when
+// that sidecar exists (`uv run scraper aggregate-outdoor-space`).
 // Idempotent upsert on (platform:platform_id). Run via `mise run db:seed`
 // (loads apps/web/.env.local via --env-file; pg0 must be running).
-import { createReadStream } from "node:fs";
+import { createReadStream, existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { createInterface } from "node:readline";
 import * as v from "valibot";
@@ -9,12 +11,18 @@ import * as v from "valibot";
 import { db } from "~/lib/db/client";
 import { listing } from "~/lib/db/schema";
 import { ListingRecordSchema, toListingRow } from "~/lib/listings";
+import { mergeOutdoorSpace, parseOutdoorSpaceSidecar } from "~/lib/outdoor-space-sidecar";
 
-const DATASET = path.resolve(
-  import.meta.dirname,
-  "../../..",
-  "chezy-mock-data/data/listings.jsonl",
-);
+const MOCK_DATA = path.resolve(import.meta.dirname, "../../..", "chezy-mock-data");
+const DATASET = path.join(MOCK_DATA, "data/listings.jsonl");
+const OUTDOOR_SPACE_SIDECAR = path.join(MOCK_DATA, "enriched/listing_outdoor_space.jsonl");
+
+const outdoorSpace = existsSync(OUTDOOR_SPACE_SIDECAR)
+  ? parseOutdoorSpaceSidecar(readFileSync(OUTDOOR_SPACE_SIDECAR, "utf8").split("\n"))
+  : undefined;
+for (const failure of outdoorSpace?.failures ?? []) {
+  console.error(`skipped outdoor_space sidecar row: ${failure}`);
+}
 
 const rl = createInterface({ input: createReadStream(DATASET) });
 
@@ -74,7 +82,10 @@ for await (const line of rl) {
     failures.push(v.summarize(parsed.issues));
     continue;
   }
-  batch.push(toListingRow(parsed.output));
+  const record = outdoorSpace
+    ? mergeOutdoorSpace(parsed.output, outdoorSpace.sidecar)
+    : parsed.output;
+  batch.push(toListingRow(record));
   if (batch.length >= 50) {
     await flush();
   }
