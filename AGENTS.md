@@ -7,6 +7,8 @@ upstream-derived template sources under a scoped oxlint override. Neon is swappe
 `pg0` and `@ai-sdk/gateway` for
 `@ai-sdk/openai-compatible` (Nebius AI Studio). Idealista scraping pipeline lives in
 `apps/scraper` (uv-managed Python CLI). Shared TS/UI primitives live in `packages/*`.
+The event brief (schedule, sponsor challenges, prizes, submission process) is
+[`docs/hackbarna.md`](docs/hackbarna.md).
 
 ## Layout
 

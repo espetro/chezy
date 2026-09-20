@@ -110,12 +110,19 @@ rental.
 
 Updatable as we enter more.
 
+Evidence status per track is assessed in
+`.agents/notes/2026-09-20-hackbarna-tracks.md`; challenge requirements come from
+`docs/hackbarna.md`.
+
 | Track | What chezy uses | Status |
 | --- | --- | --- |
-| SLNG (+ unmute) | Voice agent authored with unmute, deployed as a managed SLNG agent on LiveKit SIP | Agent pinned `eu-central`/`livekit`, trunk attached |
-| Vonage | Voice API telephony: PSTN leg to the agency, SIP bridge to SLNG | Live test call completed (~EUR 0.015) |
-| Nebius AI Studio | Chat model via `@ai-sdk/openai-compatible` | Default provider, `DeepSeek-V4.1-Flash` |
-| QualityClouds / Galtea | Evaluation runs | Layer 1 |
+| SLNG (+ unmute) | Voice agent authored with unmute, deployed as a managed SLNG agent on LiveKit SIP | Agent pinned `eu-central`/`livekit`, trunk attached; missing recorded call + latency/cost numbers |
+| Vonage | Voice API telephony: PSTN leg to the agency, SIP bridge to SLNG | Live test call completed (~EUR 0.015); prize needs the Video API, not Voice |
+| Nebius AI Studio | Chat, title, vision and embedding models via `@ai-sdk/openai-compatible` | Default provider, `DeepSeek-V4.1-Flash`; missing measurable-improvement run |
+| QualityClouds (Norma) | Deterministic checks on the repo (portal Full Scan + MCP) | 62/100 baseline + fixes landed; rescan pending |
+| Galtea | Adversarial eval harness (`apps/web/scripts/galtea/`) | Harness frozen; live run credential-blocked, survey not done |
+| Cognition (Devin) | Not yet wired | Needs API-driven session + verifier + retry loop |
+| Mastra | Telegram adapter over `apps/web/lib` | Plan only (`.agents/plans/2026-09-20-telegram-bot-adapter.md`); dropped — 12:00 bot deadline |
 
 Note: the Vonage prize track requires the Video API. Our use is telephony plumbing, not
 a prize play, unless a Video surface is added.
@@ -156,6 +163,8 @@ Milestone names reused from the codebase so backlog items map cleanly.
 
 ## References
 
+- `docs/hackbarna.md`: the event brief — schedule, sponsor challenges and judging
+  criteria, prizes, submission process.
 - `.agents/docs/screens/radar.md`: dual-view demo spec and rebuild contract.
 - `assets/README.md`: brand assets (logo sizes, fonts, how to load them).
 - `.agents/plans/`: layer0, listings data, onboarding, voice telephony.
