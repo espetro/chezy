@@ -63,9 +63,15 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
   const { call, booking, phase, stage, transcript, slotIso, start, restore, retryBooking } =
     useViewingBooking(listing.id);
   const [feedback, setFeedback] = useState<FeedbackEvent>();
+  // Aborts the fire-and-forget comparison request when a faster Undo undoes it.
+  const adaptationRequest = useRef<AbortController | undefined>(undefined);
   const { reject, undo, busy, error } = useListingFeedback((event) => {
     setFeedback(event);
-    void requestAdaptation(event);
+    adaptationRequest.current?.abort();
+    if (event.undoneAt) return;
+    const controller = new AbortController();
+    adaptationRequest.current = controller;
+    void requestAdaptation(event, controller.signal);
   });
   const restoreFocus = useRef(false);
   const canCall = call.status === "idle";
@@ -97,6 +103,7 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
           disabled={busy}
           onClick={async () => {
             restoreFocus.current = true;
+            adaptationRequest.current?.abort();
             if (!(await undo(feedback.eventId))) restoreFocus.current = false;
           }}
         >

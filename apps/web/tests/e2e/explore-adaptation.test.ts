@@ -44,6 +44,9 @@ async function resetAndLoadDemo(page: Page) {
 const carousel = (page: Page) => page.getByRole("region", { name: "Candidate matches" });
 const firstSlide = (page: Page) => carousel(page).getByRole("group").first();
 const status = (page: Page) => page.getByRole("region", { name: "Comparison status" });
+// The live status line alone: the region also contains the opened Run trace, whose
+// entries can satisfy a text assertion ahead of the line itself.
+const statusLine = (page: Page) => status(page).getByRole("status");
 const panel = (page: Page) => page.getByRole("region", { name: "Adaptive comparison" });
 
 // Opens the run trace disclosure inside `scope` without toggling it closed.
@@ -146,7 +149,7 @@ test.describe(`retry exhaustion, mock scenario ${scenario}`, () => {
     await resetAndLoadDemo(page);
     await rejectForMissingBalcony(page);
 
-    await expect(status(page)).toContainText(EXHAUSTED, { timeout: 90_000 });
+    await expect(statusLine(page)).toContainText(EXHAUSTED, { timeout: 90_000 });
     await expect(panel(page)).toHaveCount(0);
     const tryAgain = status(page).getByRole("button", { name: "Try again" });
     await expect(tryAgain).toBeVisible();
@@ -156,18 +159,21 @@ test.describe(`retry exhaustion, mock scenario ${scenario}`, () => {
 
     // A refresh neither hides the failure nor starts a new attempt.
     await page.reload();
-    await expect(status(page)).toContainText(EXHAUSTED, { timeout: 15_000 });
+    await expect(statusLine(page)).toContainText(EXHAUSTED, { timeout: 15_000 });
     await expect(status(page).getByRole("button", { name: "Try again" })).toBeVisible();
     await expect((await openTrace(status(page))).locator("[data-step='retried']")).toHaveCount(0);
 
     await status(page).getByRole("button", { name: "Try again" }).click();
-    await expect(status(page)).toContainText(/Queued for Devin|Devin is building/, {
+    await expect(statusLine(page)).toContainText(/Queued for Devin|Devin is building/, {
       timeout: 15_000,
     });
-    await expect(status(page)).toContainText(EXHAUSTED, { timeout: 90_000 });
-    await expect((await openTrace(status(page))).locator("[data-step='retried']")).toContainText(
+    await expect(statusLine(page)).toContainText(EXHAUSTED, { timeout: 90_000 });
+    await expect(status(page).getByRole("button", { name: "Try again" })).toBeEnabled();
+    const trace = await openTrace(status(page));
+    await expect(trace.locator("[data-step='retried']")).toContainText(
       "New attempt started (run 2)",
     );
+    await expect(trace.locator("[data-step='failed']")).toHaveCount(2);
     await expect(panel(page)).toHaveCount(0);
     await page.screenshot({ path: `${SHOT_DIR}/failed-after-retry.png`, fullPage: true });
     expect(consoleErrors).toEqual([]);
