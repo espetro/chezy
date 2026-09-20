@@ -5,6 +5,7 @@ uv run scraper media --tier small
 uv run scraper load --tier small
 uv run scraper package --tier small
 uv run scraper enrich-media --dataset chezy-mock-data
+uv run scraper aggregate-outdoor-space --dataset chezy-mock-data
 uv run scraper stats
 """
 
@@ -30,6 +31,7 @@ from chezy_scraper.fetch.http import BlockedError, HttpFetcher
 from chezy_scraper.media import MediaRootUnavailableError, mirror, read_manifest, write_manifest
 from chezy_scraper.models import Listing, Operation, Platform
 from chezy_scraper.observability import audit, configure_logging
+from chezy_scraper.outdoor_space import run as run_aggregate_outdoor_space
 from chezy_scraper.package import Pii, build_bundle
 from chezy_scraper.pipeline import ScrapeResult
 from chezy_scraper.pipeline import scrape as run_scrape
@@ -287,6 +289,28 @@ def enrich_media(
     typer.echo(
         f"{result.listings} listings, {result.photos} photos ({result.ok} labelled, "
         f"{result.failed} failed) -> {result.out_path}"
+    )
+
+
+@app.command("aggregate-outdoor-space")
+def aggregate_outdoor_space(
+    dataset: Annotated[
+        Path, typer.Option(help="Dataset root holding enriched/media_features.parquet.")
+    ] = Path("chezy-mock-data"),
+) -> None:
+    """Fold per-photo outdoor_space labels into enriched/listing_outdoor_space.jsonl."""
+    configure_logging()
+    try:
+        result = run_aggregate_outdoor_space(dataset)
+    except FileNotFoundError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(2) from exc
+    audit.emit(
+        "cli.aggregate_outdoor_space", actor="user", outcome="success", target=str(dataset),
+        listings=result.listings, labelled=result.labelled,
+    )  # fmt: skip
+    typer.echo(
+        f"{result.listings} listings, {result.labelled} with outdoor space -> {result.out_path}"
     )
 
 
