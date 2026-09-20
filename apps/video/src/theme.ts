@@ -13,7 +13,9 @@ export const theme = {
   text: "#fafafa",
   muted: "#a1a1aa",
   faint: "#52525b",
-  fontSans: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+  fontSans: "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+  fontHeading:
+    "Outfit, 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
   fontMono: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
 } as const;
 

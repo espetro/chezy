@@ -29,7 +29,7 @@ const FlowLandingPage = () => (
         <FlowPill variant="accent" className="w-fit">
           Rental agent
         </FlowPill>
-        <h1 className="text-3xl leading-tight font-extrabold tracking-tight text-obsidian sm:text-4xl lg:text-5xl">
+        <h1 className="font-heading text-3xl leading-tight font-extrabold tracking-tight text-obsidian sm:text-4xl lg:text-5xl">
           Find your next home without chasing it yourself
         </h1>
         <p className="text-sm leading-relaxed text-fog sm:text-base">

@@ -34,7 +34,7 @@ export const MatchDetail = ({ listing }: MatchDetailProps) => {
 
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className="text-2xl leading-tight font-semibold tracking-tight text-obsidian sm:text-3xl">
+          <h1 className="font-heading text-2xl leading-tight font-semibold tracking-tight text-obsidian sm:text-3xl">
             {listing.title}
           </h1>
           <p className="mt-1 text-sm text-fog sm:text-[15px]">
