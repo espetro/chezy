@@ -1,11 +1,34 @@
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { MastraLanguageModelV2Mock } from "@mastra/core/test-utils/llm-mock";
+import type { AuditEvent, AuditLogger } from "@chezy/observability";
 
 import { cleanBotState, startFakeTelegram, stubTelegramEnv } from "./harness";
 
 afterAll(() => {
   vi.unstubAllEnvs();
 });
+
+/** In-memory audit sink injected into the Mastra trace exporter. */
+function auditCollector() {
+  const events: AuditEvent[] = [];
+  const logger: AuditLogger = {
+    emit: (e) => {
+      events.push(e);
+    },
+    child: () => logger,
+  };
+  return { events, logger };
+}
+
+async function waitFor<T>(fn: () => T | undefined, timeoutMs = 15_000): Promise<T | undefined> {
+  const deadline = Date.now() + timeoutMs;
+  let hit = fn();
+  while (!hit && Date.now() < deadline) {
+    await new Promise((r) => setTimeout(r, 50));
+    hit = fn();
+  }
+  return hit;
+}
 
 describe("telegram e2e (fake Bot API)", () => {
   it("answers a plain DM", async () => {
@@ -15,8 +38,10 @@ describe("telegram e2e (fake Bot API)", () => {
     const { createBotStack } = await import("../src/mastra");
     const { createMockModel } = await import("@mastra/core/test-utils/llm-mock");
 
+    const audit = auditCollector();
     const { telegram } = createBotStack(
       createMockModel({ mockText: "Hola! Tell me about your flat hunt." }),
+      audit.logger,
     );
     await telegram.disconnect("chezy").catch(() => {});
     await telegram.connect("chezy", { botToken: "fake-token" });
@@ -53,6 +78,22 @@ describe("telegram e2e (fake Bot API)", () => {
     const link = await getTelegramUserLink(900001);
     expect(link?.username).toBe(telegramUsername(900001));
 
+    // Open item 2a: the Mastra trace exporter must emit a chat.turn.complete
+    // audit record carrying the turn summary. The actor/target below come
+    // from chezy.username / chezy.threadId on the root span's exported
+    // requestContext, proving the metadata reaches the exporter.
+    const auditLine = await waitFor(() =>
+      audit.events.find((e) => e.action === "chat.turn.complete"),
+    );
+    expect(auditLine).toBeDefined();
+    expect(auditLine?.actor).toBe(telegramUsername(900001));
+    expect(auditLine?.target).toBe("telegram:900001");
+    const ctx = auditLine?.ctx as Record<string, unknown>;
+    expect(ctx.channel).toBe("telegram");
+    expect(typeof ctx.latency_ms).toBe("number");
+    expect(Array.isArray(ctx.tools)).toBe(true);
+    expect(Array.isArray(ctx.cited_listing_ids)).toBe(true);
+
     await telegram.disconnect("chezy");
     close();
   });
@@ -62,6 +103,7 @@ describe("telegram e2e (fake Bot API)", () => {
     stubTelegramEnv(apiBaseUrl);
     vi.resetModules();
     const { createBotStack } = await import("../src/mastra");
+    const audit = auditCollector();
 
     const stream = (parts: unknown[]) => ({
       stream: new ReadableStream({
@@ -105,7 +147,7 @@ describe("telegram e2e (fake Bot API)", () => {
       doStream: async () =>
         streamCall++ === 0 ? toolCallResult : textResult("Booking the visit now."),
     });
-    const { telegram } = createBotStack(model);
+    const { telegram } = createBotStack(model, audit.logger);
     await telegram.disconnect("chezy").catch(() => {});
     await telegram.connect("chezy", { botToken: "fake-token" });
     await cleanBotState(900002);
@@ -164,6 +206,27 @@ describe("telegram e2e (fake Bot API)", () => {
     expect(rows.length).toBe(1);
     // VIEWING_MODE=mock + CALENDAR_MODE=mock: dispatch mocks, booking confirms.
     expect((rows[0] as { status: string }).status).toBe("booked");
+
+    // The run's audit record must name the tool and carry its listing id —
+    // this is the check that TOOL_CALL span input/output reach the exporter.
+    // Approval resumes the run in the same trace, so the tool span ends after
+    // the root span; the exporter defers the record until pending tools end.
+    const auditLine = await waitFor(() =>
+      audit.events.find((e) =>
+        (e.ctx?.tools as Array<{ name: string }> | undefined)?.some(
+          (t) => t.name === "arrangeViewing",
+        ),
+      ),
+    );
+    expect(auditLine).toBeDefined();
+    const tools = auditLine?.ctx?.tools as Array<{
+      name: string;
+      ok: boolean;
+      listingIds?: string[];
+    }>;
+    const arrange = tools?.find((t) => t.name === "arrangeViewing");
+    expect(arrange?.ok).toBe(true);
+    expect(arrange?.listingIds).toEqual(["lst-fake-1"]);
 
     await telegram.disconnect("chezy");
     close();

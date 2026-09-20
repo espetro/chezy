@@ -18,12 +18,14 @@ loadDotenv({
 
 export async function startBot() {
   // Imported lazily so the dotenv load above lands before env.ts parses.
+  const { configureLogger } = await import("@chezy/observability");
   const { env } = await import("./env");
   const { ensureBotSchema } = await import("./identity");
   const { createBotStack } = await import("./mastra");
   const { createRadar } = await import("./radar/radar");
   const { createTelegramSender } = await import("./radar/sender");
 
+  await configureLogger({ service: "chezy-bot" });
   await ensureBotSchema();
 
   const { mastra, telegram } = createBotStack();

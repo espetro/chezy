@@ -2,6 +2,8 @@ import { Agent } from "@mastra/core/agent";
 import type { MastraModelConfig } from "@mastra/core/llm";
 import { Mastra } from "@mastra/core/mastra";
 import { Memory } from "@mastra/memory";
+import { Observability } from "@mastra/observability";
+import type { AuditLogger } from "@chezy/observability";
 import { PostgresStore } from "@mastra/pg";
 import type { TelegramProvider } from "@mastra/telegram";
 
@@ -9,7 +11,9 @@ import { DEFAULT_CHAT_MODEL_ID, DEFAULT_PROVIDER_BASE_URL } from "~/lib/constant
 
 import { env } from "./env";
 import { CHEZY_INSTRUCTIONS } from "./instructions";
+import { ChezyAuditExporter } from "./observability/audit-exporter";
 import { createTelegramProvider } from "./telegram";
+import { SESSION_CONTEXT_KEY, THREAD_CONTEXT_KEY, USERNAME_CONTEXT_KEY } from "./tools/adapt";
 import { chezyTools } from "./tools";
 
 const WORKING_MEMORY_TEMPLATE = `# Housing profile
@@ -30,7 +34,7 @@ export interface BotStack {
   storage: PostgresStore;
 }
 
-export function createBotStack(model?: MastraModelConfig): BotStack {
+export function createBotStack(model?: MastraModelConfig, auditLogger?: AuditLogger): BotStack {
   const storage = new PostgresStore({
     id: "chezy-bot",
     connectionString: env.POSTGRES_URL ?? DEFAULT_POSTGRES_URL,
@@ -70,6 +74,15 @@ export function createBotStack(model?: MastraModelConfig): BotStack {
     agents: { chezy: agent },
     channels: { telegram },
     storage,
+    observability: new Observability({
+      configs: {
+        default: {
+          serviceName: "chezy-bot",
+          requestContextKeys: [USERNAME_CONTEXT_KEY, SESSION_CONTEXT_KEY, THREAD_CONTEXT_KEY],
+          exporters: [new ChezyAuditExporter(auditLogger)],
+        },
+      },
+    }),
   });
 
   return { mastra, agent, telegram, storage };
