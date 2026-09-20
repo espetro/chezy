@@ -23,6 +23,14 @@ like any other chezy code, with two permanent scoped exemptions:
 Everything else applies: `~/*` alias, `process.env` via `lib/env.ts` (config-bound files
 excepted), `unicorn/no-null`, etc.
 
+## Local testing shortcut
+
+`CHEZY_SKIP_ONBOARDING="1"` in `apps/web/.env.local` makes `/explore` auto-load the demo
+persona (`lib/demo/persona.ts`) for a guest with no profile instead of redirecting to
+`/onboarding`. Development / `IS_DEMO=1` only (`lib/demo/access.ts`
+`isOnboardingSkipEnabled`). Use it when iterating on the explore feed or the chat; leave
+the Playwright specs on the **Demo tools** path so they also cover the redirect.
+
 ## Demo checkpoints
 
 Feature work in this app maps to one of the four demo checkpoints in
