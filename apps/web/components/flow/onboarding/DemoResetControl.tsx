@@ -1,10 +1,13 @@
 "use client";
 
+import { FlaskConical } from "lucide-react";
 import { useState } from "react";
 
+import { FlowButton } from "~/components/flow/ui/Button";
 import { clearDemoAutoCallMarkers } from "~/lib/demo/storage";
 
 export const DemoResetControl = () => {
+  const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string>();
 
@@ -37,29 +40,53 @@ export const DemoResetControl = () => {
   return (
     <section
       aria-label="Demo reset"
-      className="mx-auto w-full max-w-xl space-y-2 rounded-xl bg-snow p-4 text-sm"
+      className="mx-auto w-full max-w-md px-4 pt-3 sm:max-w-xl sm:px-6"
     >
-      <p>Fixture demo: Norrsken, €1,500–2,500/month, 2 bedrooms, balcony or terrace.</p>
-      <p>Replaces this session’s preferences. Uses seeded listings and mock calls.</p>
-      <div className="flex flex-wrap gap-3">
-        <button
-          type="button"
-          disabled={pending}
-          onClick={() => void reset(true)}
-          className="rounded-lg bg-ember px-4 py-2 text-white disabled:opacity-50"
-        >
-          {pending ? "Resetting…" : "Reset and load demo"}
-        </button>
-        <button
-          type="button"
-          disabled={pending}
-          onClick={() => void reset(false)}
-          className="rounded-lg bg-paper px-4 py-2 disabled:opacity-50"
-        >
-          Reset to empty onboarding
-        </button>
+      <div className="rounded-cards bg-snow px-4 py-3 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <p className="flex items-center gap-2 text-label-md text-fog">
+            <FlaskConical size={14} aria-hidden />
+            Demo tools
+          </p>
+          <FlowButton
+            variant="ghost"
+            size="sm"
+            aria-expanded={open}
+            aria-controls="demo-reset-panel"
+            onClick={() => setOpen((value) => !value)}
+          >
+            {open ? "Hide" : "Show"}
+          </FlowButton>
+        </div>
+        {open ? (
+          <div id="demo-reset-panel" className="mt-3 space-y-3">
+            <p className="text-[13px] text-fog">
+              Fixture demo: Norrsken, €1,500–2,500/month, 2 bedrooms, balcony or terrace.
+            </p>
+            <p className="text-[13px] text-fog">
+              Replaces this session’s preferences. Uses seeded listings and mock calls.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <FlowButton size="sm" disabled={pending} onClick={() => void reset(true)}>
+                {pending ? "Resetting…" : "Reset and load demo"}
+              </FlowButton>
+              <FlowButton
+                variant="secondary"
+                size="sm"
+                disabled={pending}
+                onClick={() => void reset(false)}
+              >
+                Reset to empty onboarding
+              </FlowButton>
+            </div>
+            {error ? (
+              <p role="alert" className="text-ember">
+                {error}
+              </p>
+            ) : undefined}
+          </div>
+        ) : undefined}
       </div>
-      {error ? <p role="alert">{error}</p> : undefined}
     </section>
   );
 };

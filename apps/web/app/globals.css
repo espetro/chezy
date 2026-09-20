@@ -151,7 +151,6 @@
     @apply border-border ring-0;
   }
   body {
-    font-feature-settings: "ss01", "ss02", "cv01";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -172,7 +171,6 @@
 @layer base {
   body {
     position: relative;
-    overflow-x: hidden;
   }
 
   html {
