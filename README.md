@@ -85,6 +85,12 @@ is stacked against you. chezy is the agent on your side of the table.
 
 ## Message chezy on Telegram
 
+Bot handle: [@hackbarna_chezybot](https://t.me/hackbarna_chezybot). Open the link on
+your phone, say hi, and it onboards you in chat (areas, budget, bedrooms), then
+searches Barcelona rentals and offers to call the agency for a viewing (approval
+card first). Built on Mastra (`@mastra/core`, model router to Nebius AI Studio,
+Telegram via Mastra Channels) for the HackBarna 2026 Mastra challenge.
+
 `apps/bot` (`@chezy/bot`) is a second client for the same concierge: a Mastra
 agent reachable from Telegram, running alongside `apps/web` and reusing its
 tools, listings and Postgres store. It is an adapter, not a fork: the bot imports
