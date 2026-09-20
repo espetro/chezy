@@ -44,6 +44,7 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
   const { reject, undo, busy, error } = useListingFeedback((event) => {
     setFeedback(event);
     adaptationRequest.current?.abort();
+    if (event.undoneAt) return;
     const controller = new AbortController();
     adaptationRequest.current = controller;
     void requestAdaptation(event, controller.signal);

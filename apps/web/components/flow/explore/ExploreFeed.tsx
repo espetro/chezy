@@ -59,6 +59,12 @@ export const ExploreFeed = ({
   const adaptationRequest = useRef<AbortController | undefined>(undefined);
   const { reject, undo, refine, busy, error } = useListingFeedback((event) => {
     adaptationRequest.current?.abort();
+    // An undo reports the undone event too: refresh the feed, but a new
+    // comparison request for it would 409 behind the DELETE.
+    if (event.undoneAt) {
+      router.refresh();
+      return;
+    }
     const controller = new AbortController();
     adaptationRequest.current = controller;
     void requestAdaptation(event, controller.signal).finally(() => router.refresh());
