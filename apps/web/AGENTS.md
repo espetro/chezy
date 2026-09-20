@@ -31,12 +31,12 @@ touching its code; it names the entry state, the exit state (definition of done)
 contract with the next checkpoint, the code entry points, and what the recording for
 the video must show.
 
-| # | Checkpoint | Entry points in this app |
-| --- | --- | --- |
-| 1 | [Onboarding](../../docs/checkpoints/01-onboarding.md) | `lib/ai/tools/{identify-user,save-user-profile}.ts`, `lib/user-profile.ts` |
-| 2 | [Matching](../../docs/checkpoints/02-matching.md) | `lib/match.ts`, `lib/feed.ts`, `lib/listings.ts`, `lib/ai/tools/search-listings.ts`, `lib/insights.ts` |
-| 3 | [Book a visit](../../docs/checkpoints/03-book-a-visit.md) | `lib/viewing.ts`, `lib/slng.ts`, `lib/vonage.ts`, `app/api/viewing/route.ts` |
-| 4 | [Calendar appointment](../../docs/checkpoints/04-calendar-appointment.md) | `lib/calendar.ts`, `app/api/calendar/route.ts` |
+| #   | Checkpoint                                                                | Entry points in this app                                                                               |
+| --- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 1   | [Onboarding](../../docs/checkpoints/01-onboarding.md)                     | `lib/ai/tools/{identify-user,save-user-profile}.ts`, `lib/user-profile.ts`                             |
+| 2   | [Matching](../../docs/checkpoints/02-matching.md)                         | `lib/match.ts`, `lib/feed.ts`, `lib/listings.ts`, `lib/ai/tools/search-listings.ts`, `lib/insights.ts` |
+| 3   | [Book a visit](../../docs/checkpoints/03-book-a-visit.md)                 | `lib/viewing.ts`, `lib/slng.ts`, `lib/vonage.ts`, `app/api/viewing/route.ts`                           |
+| 4   | [Calendar appointment](../../docs/checkpoints/04-calendar-appointment.md) | `lib/calendar.ts`, `app/api/calendar/route.ts`                                                         |
 
 Do not change a checkpoint's exit state or its contract with the next one without
 updating the checkpoint file in the same PR. The chat API routes under `app/(chat)/api/*`,

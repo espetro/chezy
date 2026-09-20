@@ -6,12 +6,12 @@ checkpoints in parallel; the seams between them are the contracts written in eac
 file. If you change what a checkpoint hands to the next one, update both files in the
 same PR.
 
-| # | Checkpoint | User-visible outcome | Video ids (`apps/video`) | File |
-| --- | --- | --- | --- | --- |
-| 1 | Onboarding | The user is onboarded and their preferences are stored | `brief` | [01-onboarding.md](01-onboarding.md) |
-| 2 | Matching | Preferences are matched against the property DB; the agent asks which ones the user likes and which to book | `shortlist`, `forensic` | [02-matching.md](02-matching.md) |
-| 3 | Book a visit | The voice agent phones the property owner or agency and agrees a slot | `call` | [03-book-a-visit.md](03-book-a-visit.md) |
-| 4 | Calendar appointment | The appointment lands in the calendar and in the app. The wow moment | `booked` | [04-calendar-appointment.md](04-calendar-appointment.md) |
+| #   | Checkpoint           | User-visible outcome                                                                                        | Video ids (`apps/video`) | File                                                     |
+| --- | -------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------ | -------------------------------------------------------- |
+| 1   | Onboarding           | The user is onboarded and their preferences are stored                                                      | `brief`                  | [01-onboarding.md](01-onboarding.md)                     |
+| 2   | Matching             | Preferences are matched against the property DB; the agent asks which ones the user likes and which to book | `shortlist`, `forensic`  | [02-matching.md](02-matching.md)                         |
+| 3   | Book a visit         | The voice agent phones the property owner or agency and agrees a slot                                       | `call`                   | [03-book-a-visit.md](03-book-a-visit.md)                 |
+| 4   | Calendar appointment | The appointment lands in the calendar and in the app. The wow moment                                        | `booked`                 | [04-calendar-appointment.md](04-calendar-appointment.md) |
 
 ## Rules
 
@@ -50,9 +50,9 @@ from `apps/video/src/config/demo.config.ts`); the short version:
 
 Update this table in the PR that moves a checkpoint.
 
-| Checkpoint | Owner | Code on main | Recording |
-| --- | --- | --- | --- |
-| 1 Onboarding | | conversational path on main; form-in-chat not built | placeholder |
-| 2 Matching | | scorer + feed on main; scored cards + accept/reject in PR #47 | placeholder |
-| 3 Book a visit | | `/api/viewing` mock/slng/vonage on main; `arrangeViewing` tool + `Viewing` table in PR #47 | placeholder |
-| 4 Calendar appointment | | `/api/calendar` mock/google on main; ViewingCard + persisted row in PR #47 | placeholder |
+| Checkpoint             | Owner | Code on main                                                                               | Recording   |
+| ---------------------- | ----- | ------------------------------------------------------------------------------------------ | ----------- |
+| 1 Onboarding           |       | conversational path on main; form-in-chat not built                                        | placeholder |
+| 2 Matching             |       | scorer + feed on main; scored cards + accept/reject in PR #47                              | placeholder |
+| 3 Book a visit         |       | `/api/viewing` mock/slng/vonage on main; `arrangeViewing` tool + `Viewing` table in PR #47 | placeholder |
+| 4 Calendar appointment |       | `/api/calendar` mock/google on main; ViewingCard + persisted row in PR #47                 | placeholder |
