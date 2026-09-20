@@ -155,6 +155,14 @@ State 3: "Discard candidate" (either path): "Candidate discarded." with "Undo".
   "Try again" retries live with the same `requestId` and `retry: true`.
 - "Discard" is available from any non-discarded status; "Undo" restores whatever the
   status box showed before the discard (it does not replay the request).
+- A ≥95% match calls exactly once no matter which surface reaches it first: the explore
+  carousel's `AutoCallBanner` and this card's own auto-mount effect both guard on
+  `claimAutoCall` (`apps/web/lib/flow/agent-call.ts`), and both append to the shared
+  `apps/web/lib/flow/agent-activity.ts` log on every state change (`calling` → `simulated` /
+  `dispatched` / `failed`). If another surface already placed the call, this card mirrors
+  that log entry instead of its own (still-idle) local state — see `mirroredAutoCall` in
+  `AgentCallGate.tsx`. The same entries render as agent chat bubbles in `/onboarding`'s
+  thread — see that screen's Notes.
 
 ## Responsive
 

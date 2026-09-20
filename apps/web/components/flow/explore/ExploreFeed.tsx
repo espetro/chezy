@@ -11,7 +11,9 @@ import { useRef, useState } from "react";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
 import { FlowButton } from "~/components/flow/ui/Button";
 import { FlowDropdown, FlowMultiDropdown } from "~/components/flow/ui/Dropdown";
+import { AutoCallBanner } from "~/components/flow/explore/AutoCallBanner";
 import { CandidateCarousel } from "~/components/flow/explore/CandidateCarousel";
+import { AUTO_CALL_MATCH_THRESHOLD } from "~/lib/flow/constants";
 import type { FlowListing } from "~/lib/flow/types";
 
 type SortMode = "match" | "price-asc";
@@ -64,6 +66,12 @@ export const ExploreFeed = ({
 
   const sorted = [...filtered].sort((a, b) => (sortMode === "match" ? 0 : a.price - b.price));
 
+  // Drawn from every candidate, not the current zone/sort filter — a ≥95% match still
+  // calls even if the user has filtered it out of view.
+  const autoCallListing = listings.find(
+    (listing) => listing.matchScore >= AUTO_CALL_MATCH_THRESHOLD,
+  );
+
   return (
     <div
       ref={feedRef}
@@ -111,6 +119,10 @@ export const ExploreFeed = ({
         onDismiss={(listingId) => reject(listingId, "other")}
         busy={busy}
       />
+
+      {autoCallListing ? (
+        <AutoCallBanner key={autoCallListing.id} listing={autoCallListing} />
+      ) : undefined}
       {lastDismissed && (
         <div className="flex flex-col gap-3 rounded-cards bg-snow px-4 py-3">
           <div className="flex items-center justify-between gap-3">

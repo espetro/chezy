@@ -18,6 +18,7 @@ import { ThinkingBubble } from "~/components/flow/onboarding/ThinkingBubble";
 import { FlowStepper } from "~/components/flow/ui/Stepper";
 import { FlowStickyActionBar } from "~/components/flow/ui/StickyActionBar";
 import { toSearchProfileInput } from "~/lib/flow/adapters";
+import { useAgentActivity } from "~/lib/flow/agent-activity";
 import { AGENT_THINKING_DELAY_MS } from "~/lib/flow/constants";
 import {
   autonomyOptions,
@@ -130,6 +131,7 @@ export const OnboardingFlow = ({ initial, initialCount }: OnboardingFlowProps) =
   const [submitError, setSubmitError] = useState<string | undefined>(undefined);
   const thinkingTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const countTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const activity = useAgentActivity();
 
   const think = () => {
     clearTimeout(thinkingTimer.current);
@@ -244,6 +246,33 @@ export const OnboardingFlow = ({ initial, initialCount }: OnboardingFlowProps) =
                 <ChatBubble from="user">{entry.userAnswer}</ChatBubble>
               </div>
             ) : undefined}
+          </div>
+        ))}
+
+        {activity.map((entry) => (
+          <div key={entry.id} className="animate-fade-up">
+            <ChatBubble from="agent">
+              {entry.kind === "calling" ? (
+                <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-1">
+                    {["0ms", "160ms", "320ms"].map((delay) => (
+                      <span
+                        key={delay}
+                        className="size-1.5 animate-dot-pulse rounded-full bg-ember"
+                        style={{ animationDelay: delay }}
+                      />
+                    ))}
+                  </span>
+                  Calling {entry.agency} about {entry.listingTitle}…
+                </span>
+              ) : entry.kind === "simulated" ? (
+                `Called ${entry.agency} — visit booked for ${entry.visit?.label} (${entry.visit?.durationMinutes} min).`
+              ) : entry.kind === "dispatched" ? (
+                `Called ${entry.agency} about ${entry.listingTitle} — awaiting their confirmation.`
+              ) : (
+                `The call to ${entry.agency} about ${entry.listingTitle} failed — ${entry.error}`
+              )}
+            </ChatBubble>
           </div>
         ))}
 
