@@ -13,6 +13,7 @@ import {
   comparisonPanelJsonSchema,
   isAdaptationFocus,
   TraceEventSchema,
+  CapabilityJobSchema,
 } from "./adaptation";
 
 const spec = {
@@ -141,5 +142,25 @@ describe("TraceEventSchema", () => {
     ["bad timestamp", { at: "yesterday", step: "triggered" }],
   ])("rejects %s", (_name, event) => {
     expect(v.is(TraceEventSchema, event)).toBe(false);
+  });
+});
+
+describe("CapabilityJobSchema", () => {
+  const job = {
+    jobId: "660e8400-e29b-41d4-a716-446655440000",
+    capability: "listing.outdoorSpace.population",
+    status: "queued",
+    provider: "mock",
+    coverage: 0,
+    sessionUrl: null,
+    prUrl: null,
+    error: null,
+    updatedAt: "2026-09-20T10:00:00.000Z",
+  };
+  it("accepts a valid capability job", () => {
+    expect(v.is(CapabilityJobSchema, job)).toBe(true);
+  });
+  it("rejects an unknown status", () => {
+    expect(v.is(CapabilityJobSchema, { ...job, status: "done" })).toBe(false);
   });
 });
