@@ -1,7 +1,18 @@
 import type { AdaptationJob } from "@chezy/contract";
 import Link from "next/link";
 import { UNKNOWN_LISTING_TITLE, type ResolvedPanel } from "~/lib/adaptation/resolve";
+import { AdaptationTrace } from "~/components/flow/explore/AdaptationTrace";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
+
+// How the accepted candidate got through the validator gate.
+const provenance = (job: AdaptationJob) => {
+  const corrections = job.trace.filter((event) => event.step === "rejected").length;
+  const outcome =
+    corrections > 0
+      ? `Accepted on attempt ${job.attempt} after the validator refused the first candidate.`
+      : "Accepted on the first attempt.";
+  return job.run > 1 ? `${outcome} This was a new attempt after an earlier failure.` : outcome;
+};
 
 interface ComparisonPanelProps {
   panel: ResolvedPanel;
@@ -24,8 +35,17 @@ export const ComparisonPanel = ({ panel, job }: ComparisonPanelProps) => (
             </>
           ) : (
             "Simulated panel. No Devin session was created."
-          )}
+          )}{" "}
+          {provenance(job)}
         </p>
+        {job.trace.length > 1 ? (
+          <details className="text-[13px]">
+            <summary className="cursor-pointer text-fog">Run trace</summary>
+            <div className="mt-2">
+              <AdaptationTrace trace={job.trace} />
+            </div>
+          </details>
+        ) : undefined}
       </div>
     </div>
 
