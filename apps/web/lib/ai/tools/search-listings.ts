@@ -17,18 +17,18 @@ export interface ScoredListingSummary extends ListingSummary {
   readonly reasons: string[];
 }
 
+export const searchListingsInput = v.object({
+  username: v.string(),
+  query: v.optional(v.string()),
+  maxPriceEur: v.optional(v.number()),
+  minRooms: v.optional(v.number()),
+});
+
 export const searchListingsTool = ({ sessionUserId }: { sessionUserId: string }) =>
   tool({
     description:
       "Search Barcelona rental listings scored against the named user's saved profile. Call it ONCE per search turn — it relaxes constraints itself and reports what it relaxed in `relaxed`/`note`, so never retry. Returns { listings, total, relaxed, note, topMatches }: each listing carries `score` (0-100) and `reasons`; `topMatches` lists the ids at or above the auto-call bar. Pass `query` only for a specific neighbourhood/district name (e.g. 'Gràcia', 'Eixample'), never city names or English words. Requires the user's username; returns { error, missingFields } when onboarding is incomplete.",
-    inputSchema: valibotSchema(
-      v.object({
-        username: v.string(),
-        query: v.optional(v.string()),
-        maxPriceEur: v.optional(v.number()),
-        minRooms: v.optional(v.number()),
-      }),
-    ),
+    inputSchema: valibotSchema(searchListingsInput),
     execute: async (input) => {
       const username = scopedUsername(sessionUserId, input.username);
       if (!username) {

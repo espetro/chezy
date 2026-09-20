@@ -123,6 +123,22 @@ description = "Pin the SLNG agent to eu-central/livekit and report its outbound 
 # cd into apps/web so tsx picks up its tsconfig `@/*` paths.
 run = "cd apps/web && node --env-file-if-exists=.env.local --import=tsx scripts/slng-agent-sync.ts"
 
+[tasks."bot:dev"]
+description = "Run the Telegram bot (polling) via tsx watch"
+run = "pnpm --filter @chezy/bot dev"
+
+[tasks."bot:start"]
+description = "Run the Telegram bot (polling) via tsx"
+run = "pnpm --filter @chezy/bot start"
+
+[tasks."bot:test"]
+description = "Run the apps/bot vitest suite against the fake Telegram"
+run = "pnpm --filter @chezy/bot test"
+
+[tasks."bot:radar"]
+description = "Trigger one radar pass via POST /internal/radar/run (needs BOT_INTERNAL_TOKEN)"
+run = "curl -sf -X POST -H \"x-internal-token: ${BOT_INTERNAL_TOKEN:?set BOT_INTERNAL_TOKEN}\" \"http://127.0.0.1:${BOT_PORT:-4111}/internal/radar/run\""
+
 [tasks.lint]
 description = "Lint TS (oxlint) + Python (ruff) workspaces"
 run = "pnpm lint && uv run --all-packages ruff check ."
