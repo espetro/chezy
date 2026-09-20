@@ -84,7 +84,8 @@ Expected per-worktree footprint on macOS APFS:
 
 The product is the flow, rooted at `/` (`apps/web/app/(flow)/**`, `components/flow/**`,
 `lib/flow/**`): landing → `/onboarding` → `/explore` → `/explore/[id]`; chat lives at
-`/chat`. `/flow/*` URLs 307-redirect to the root equivalents via `next.config.ts`. All
+`/chat`. (2026-09-20: `/chat` page dropped, API routes + `components/chat/**` kept for
+reuse.) `/flow/*` URLs 307-redirect to the root equivalents via `next.config.ts`. All
 routes are session-gated by `proxy.ts` like everything else (guest auto-login). Its own
 design tokens (obsidian/ember, DM Sans) live in a clearly-delimited block at the bottom
 of `apps/web/app/globals.css`; none of them redefine the chat's shadcn tokens. See

@@ -14,11 +14,6 @@ const FlowLandingPage = () => (
     <header className="flex items-center justify-between">
       <span className="text-[15px] font-semibold">Chezy</span>
       <div className="flex items-center gap-2">
-        <Link className="hidden sm:inline-flex" href="/chat">
-          <FlowButton variant="ghost" size="sm">
-            Talk to your agent
-          </FlowButton>
-        </Link>
         <Link href="/onboarding">
           <FlowButton size="sm">Get started</FlowButton>
         </Link>
