@@ -126,3 +126,15 @@ assets/          brand: logo at every size, Outfit and DM Sans fonts
 Hackathon build, September 2026. The closed loop (brief to booked viewing) runs on the
 committed dataset with mock voice and calendar; the live SLNG call and the evaluation
 runs are in flight. Not production software: Barcelona only, single user, no real auth.
+
+## Submission cuts
+
+Two annotated tags mark what to judge:
+
+- `latest` — current branch HEAD; moves forward as merged, green work lands. Refresh with
+  `git tag -fa latest -m "<one-liner>" HEAD` from the merged commit.
+- `deadline` — the last commit submitted before 14:00 CEST on the hackathon submission
+  day. **Immutable** judging reference; never moved after the cutoff.
+
+Inspect either with `git show <tag> --no-patch --format="%H %ai %s"` to see the exact
+commit, author timestamp, and subject.
