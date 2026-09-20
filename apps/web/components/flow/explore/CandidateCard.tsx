@@ -1,25 +1,22 @@
 "use client";
 
-import { CalendarCheck, CalendarPlus, Heart, X } from "lucide-react";
+import { CalendarCheck, CalendarPlus, Heart, PhoneOutgoing, X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { FlowButton } from "~/components/flow/ui/Button";
 import { FlowPill } from "~/components/flow/ui/Pill";
 import { FlowScoreBadge } from "~/components/flow/ui/ScoreBadge";
 import type { FlowListing } from "~/lib/flow/types";
 import { cn } from "~/lib/utils";
+import { createViewingController, type ViewingState } from "~/lib/viewing";
 
 interface CandidateCardProps {
   listing: FlowListing;
+  saved?: boolean;
+  busy?: boolean;
+  onToggleSave?: (listingId: string, saved: boolean) => Promise<boolean>;
+  onDismiss?: (listingId: string) => Promise<boolean>;
 }
-
-interface ViewingResponse {
-  status?: "mock" | "dispatched" | "failed";
-  slotIso?: string;
-  detail?: string;
-}
-
-type ContactStatus = "idle" | "calling" | "booked" | "failed";
 
 const VISIBLE_TAGS = 4;
 
@@ -32,52 +29,86 @@ const slotFormatter = new Intl.DateTimeFormat("en-GB", {
 });
 
 const iconButtonClass =
-  "flex size-11 shrink-0 items-center justify-center rounded-full border border-cloud bg-snow text-iron transition-colors hover:bg-card-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian";
+  "flex size-11 shrink-0 items-center justify-center rounded-full border border-cloud bg-snow text-iron transition-colors hover:bg-card-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-obsidian disabled:cursor-not-allowed disabled:opacity-40";
 
-export const CandidateCard = ({ listing }: CandidateCardProps) => {
-  const [status, setStatus] = useState<ContactStatus>("idle");
-  const [slotLabel, setSlotLabel] = useState<string | undefined>(undefined);
-  const [saved, setSaved] = useState(false);
-  const [discarded, setDiscarded] = useState(false);
+const statusPillClass =
+  "flex min-h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-buttons bg-card-subtle px-3 text-[13px] font-medium text-graphite";
 
-  const visibleTags = listing.tags.slice(0, VISIBLE_TAGS);
-  const hiddenTags = listing.tags.length - visibleTags.length;
+// Quick "book a visit" from the card: the same viewing controller as the detail
+// page gate, never live (the live opt-in stays on the detail page), and the
+// result is labelled truthfully (mock mode simulates, nothing is booked).
+const BookVisitAction = ({ listingId }: { listingId: string }) => {
+  const [state, setState] = useState<ViewingState>({ status: "idle" });
+  const controller = useRef<ReturnType<typeof createViewingController> | undefined>(undefined);
 
-  const contactAgency = async () => {
-    setStatus("calling");
-    try {
-      const response = await fetch("/api/viewing", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ propertyRef: listing.id }),
-      });
-      const data: ViewingResponse = await response.json().catch(() => ({}));
-      if (response.ok && data.status !== "failed") {
-        setSlotLabel(data.slotIso ? slotFormatter.format(new Date(data.slotIso)) : undefined);
-        setStatus("booked");
-      } else {
-        setStatus("failed");
-      }
-    } catch {
-      setStatus("failed");
-    }
+  const book = async () => {
+    controller.current ??= createViewingController(listingId, {
+      getItem: (key) => localStorage.getItem(key) ?? undefined,
+      setItem: (key, value) => localStorage.setItem(key, value),
+    });
+    const pending = controller.current.start(false);
+    setState({ status: "dispatching" });
+    setState(await pending);
   };
 
-  const contactLabel =
-    status === "calling"
-      ? "Calling the agency…"
-      : status === "failed"
-        ? "Call failed · try again"
-        : "Book a visit";
+  if (state.status === "simulated") {
+    return (
+      <p
+        className={statusPillClass}
+        title="Simulated example viewing. No phone call or calendar booking was made."
+      >
+        <CalendarCheck size={16} aria-hidden className="shrink-0 text-ember" />
+        <span className="truncate">
+          Simulated · {slotFormatter.format(new Date(state.result.slotIso))}
+        </span>
+      </p>
+    );
+  }
+  if (state.status === "dispatched") {
+    return (
+      <p
+        className={statusPillClass}
+        title="Awaiting agency confirmation. No appointment is booked."
+      >
+        <PhoneOutgoing size={16} aria-hidden className="shrink-0 text-ember" />
+        <span className="truncate">Call requested · awaiting confirmation</span>
+      </p>
+    );
+  }
+  const failed = state.status === "failed";
+  return (
+    <FlowButton
+      className="min-w-0 flex-1"
+      disabled={state.status === "dispatching" || (failed && !state.retryable)}
+      onClick={() => void book()}
+    >
+      <CalendarPlus size={16} aria-hidden className="shrink-0" />
+      <span className="truncate">
+        {state.status === "dispatching"
+          ? "Calling the agency…"
+          : failed
+            ? "Call failed · try again"
+            : "Book a visit"}
+      </span>
+    </FlowButton>
+  );
+};
+
+export const CandidateCard = ({
+  listing,
+  saved = false,
+  busy = false,
+  onToggleSave,
+  onDismiss,
+}: CandidateCardProps) => {
+  const visibleTags = listing.tags.slice(0, VISIBLE_TAGS);
+  const hiddenTags = listing.tags.length - visibleTags.length;
 
   return (
     <article className="flex h-full w-full flex-col overflow-hidden rounded-cards bg-snow shadow-sm transition-shadow hover:shadow-md">
       <Link
         href={`/explore/${encodeURIComponent(listing.id)}`}
-        className={cn(
-          "flex flex-1 flex-col focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-obsidian",
-          discarded && "opacity-40",
-        )}
+        className="group flex flex-1 flex-col focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-obsidian"
       >
         <div className="relative h-48 w-full shrink-0 bg-mist">
           {listing.imageUrl ? (
@@ -96,18 +127,26 @@ export const CandidateCard = ({ listing }: CandidateCardProps) => {
           />
         </div>
 
-        <div className="flex flex-1 flex-col gap-3 p-5 sm:px-7 sm:pt-7">
+        <div className="flex flex-1 flex-col gap-3 p-5 sm:p-7">
           <div>
             <h3 className="text-subheading line-clamp-2 min-h-12 font-semibold text-obsidian">
               {listing.title}
             </h3>
             <p className="mt-1 line-clamp-1 text-[14px] text-fog">
-              {listing.neighborhood}, {listing.city} · {listing.sizeM2} m² · {listing.rooms} bd
+              {listing.neighborhood}, {listing.city} ·{" "}
+              {listing.sizeM2 > 0 ? `${listing.sizeM2} m²` : "Area unknown"} ·{" "}
+              {listing.rooms > 0 ? `${listing.rooms} bd` : "Bedrooms unknown"}
             </p>
           </div>
 
           <p className="text-[20px] font-semibold text-obsidian">
-            €{listing.price} <span className="text-[13px] font-normal text-fog">/month</span>
+            {listing.price > 0 ? (
+              <>
+                €{listing.price} <span className="text-[13px] font-normal text-fog">/month</span>
+              </>
+            ) : (
+              "Price unknown"
+            )}
           </p>
 
           <p className="line-clamp-2 min-h-14 rounded-[14px] bg-card-subtle px-3 py-2 text-[13px] text-iron">
@@ -126,51 +165,32 @@ export const CandidateCard = ({ listing }: CandidateCardProps) => {
         </div>
       </Link>
 
-      {discarded ? (
-        <div className="flex items-center justify-between gap-3 border-t border-cloud px-5 py-4 sm:px-7">
-          <p className="text-[13px] text-fog">Candidate discarded.</p>
-          <FlowButton variant="ghost" size="sm" onClick={() => setDiscarded(false)}>
-            Undo
-          </FlowButton>
-        </div>
-      ) : (
-        <div className="flex items-center gap-2 border-t border-cloud px-5 py-4 sm:px-7">
-          {status === "booked" ? (
-            <p className="flex min-h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-buttons bg-card-subtle px-3 text-[13px] font-medium text-graphite">
-              <CalendarCheck size={16} aria-hidden className="shrink-0 text-ember" />
-              <span className="truncate">
-                {slotLabel ? `Visit booked · ${slotLabel}` : "Visit booked"}
-              </span>
-            </p>
-          ) : (
-            <FlowButton
-              className="min-w-0 flex-1"
-              disabled={status === "calling"}
-              onClick={() => void contactAgency()}
-            >
-              <CalendarPlus size={16} aria-hidden className="shrink-0" />
-              <span className="truncate">{contactLabel}</span>
-            </FlowButton>
-          )}
+      <div className="flex items-center gap-2 border-t border-cloud px-5 py-4 sm:px-7">
+        <BookVisitAction listingId={listing.id} />
+        {onToggleSave ? (
           <button
             type="button"
             aria-pressed={saved}
             aria-label={saved ? "Remove from saved" : "Save this listing"}
-            onClick={() => setSaved(!saved)}
+            disabled={busy}
+            onClick={() => void onToggleSave(listing.id, !saved)}
             className={iconButtonClass}
           >
             <Heart size={18} aria-hidden className={cn(saved && "fill-ember text-ember")} />
           </button>
+        ) : undefined}
+        {onDismiss ? (
           <button
             type="button"
             aria-label="Discard this candidate"
-            onClick={() => setDiscarded(true)}
+            disabled={busy}
+            onClick={() => void onDismiss(listing.id)}
             className={iconButtonClass}
           >
             <X size={18} aria-hidden />
           </button>
-        </div>
-      )}
+        ) : undefined}
+      </div>
     </article>
   );
 };

@@ -6,6 +6,7 @@ import { NeighborhoodProfile } from "~/components/flow/match/NeighborhoodProfile
 import { FlowCard } from "~/components/flow/ui/Card";
 import { FlowReveal } from "~/components/flow/ui/FlowMotion";
 import { FlowPill } from "~/components/flow/ui/Pill";
+import { FlowScoreBadge } from "~/components/flow/ui/ScoreBadge";
 import type { FlowListing } from "~/lib/flow/types";
 
 interface MatchDetailProps {
@@ -23,45 +24,50 @@ export const MatchDetail = ({ listing, explanation }: MatchDetailProps) => {
         ← Back to candidates
       </Link>
 
-      <FlowCard padded={false} className="overflow-hidden">
-        <FlowReveal className="relative h-56 w-full bg-mist sm:h-80 md:h-96">
-          {listing.imageUrl ? (
-            <img
-              src={listing.imageUrl}
-              alt={listing.title}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          ) : (
-            <div className="absolute inset-0 bg-mist" />
-          )}
-        </FlowReveal>
+      <FlowReveal>
+        <FlowCard padded={false} className="overflow-hidden">
+          <div className="relative h-56 w-full bg-mist sm:h-80 md:h-96">
+            {listing.imageUrl ? (
+              <img
+                src={listing.imageUrl}
+                alt={listing.title}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-mist" />
+            )}
+          </div>
 
-        <div className="flex flex-col gap-4 p-5 sm:p-7 md:flex-row md:items-start md:justify-between">
-          <div>
-            <p className="mb-3 text-3xl font-semibold text-obsidian">
-              {listing.price > 0 ? `€${listing.price}` : "Price unknown"}{" "}
-              {listing.price > 0 && (
-                <span className="text-[14px] font-normal text-fog">
-                  {explanation.listing.pricePeriod === "month" ? "/month" : "· period unknown"}
-                </span>
-              )}
-            </p>
-            <h1 className="font-heading text-2xl leading-tight font-semibold tracking-tight text-obsidian sm:text-3xl">
-              {listing.title}
-            </h1>
-            <p className="mt-1 text-sm text-fog sm:text-[15px]">
-              {listing.neighborhood}, {listing.city} ·{" "}
-              {listing.sizeM2 > 0 ? `${listing.sizeM2} m²` : "Area unknown"} ·{" "}
-              {listing.rooms > 0 ? `${listing.rooms} bedrooms` : "Bedrooms unknown"}
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {listing.tags.map((tag) => (
-                <FlowPill key={tag}>{tag}</FlowPill>
-              ))}
+          <div className="flex flex-col gap-4 p-5 sm:p-7 md:flex-row md:items-start md:justify-between">
+            <div>
+              <h1 className="font-heading text-2xl leading-tight font-semibold tracking-tight text-obsidian sm:text-3xl">
+                {listing.title}
+              </h1>
+              <p className="mt-1 text-sm text-fog sm:text-[15px]">
+                {listing.neighborhood}, {listing.city} ·{" "}
+                {listing.sizeM2 > 0 ? `${listing.sizeM2} m²` : "Area unknown"} ·{" "}
+                {listing.rooms > 0 ? `${listing.rooms} bedrooms` : "Bedrooms unknown"}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {listing.tags.map((tag) => (
+                  <FlowPill key={tag}>{tag}</FlowPill>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col items-start gap-2 md:items-end">
+              <FlowScoreBadge score={listing.matchScore} />
+              <p className="text-2xl font-semibold whitespace-nowrap text-obsidian sm:text-3xl">
+                {listing.price > 0 ? `€${listing.price}` : "Price unknown"}{" "}
+                {listing.price > 0 && (
+                  <span className="text-[14px] font-normal text-fog">
+                    {explanation.listing.pricePeriod === "month" ? "/month" : "· period unknown"}
+                  </span>
+                )}
+              </p>
             </div>
           </div>
-        </div>
-      </FlowCard>
+        </FlowCard>
+      </FlowReveal>
 
       <InsightPanel {...explanation} />
 

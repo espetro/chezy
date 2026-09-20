@@ -77,3 +77,4 @@ export type BookingResult = v.InferOutput<typeof BookingResultSchema>;
 export * from "./user";
 export * from "./profile";
 export * from "./feedback";
+export * from "./saved";

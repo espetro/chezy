@@ -40,8 +40,16 @@ ids contain `:`).
 
 - `activeZone`/`sortMode` are plain `useState`; filtering/sorting happen inline on every
   render (5 items, no memoization needed).
-- No "mark interest" / "discard" action on the feed itself — that's one level in, on the
-  match detail's `AgentContactGate`.
+- Card action row (2026-09-20, from the designer's PR #32, wired to the backend):
+  - **Book a visit**: same `createViewingController` as the detail gate, never live. Mock
+    mode renders "Simulated · <slot>" with a tooltip stating no call or booking was made;
+    live mode renders "Call requested · awaiting confirmation". Nothing says "booked".
+  - **Heart**: per-session bookmark via `PUT /api/saved` (`listing_save` table), optimistic
+    with rollback, `aria-pressed`. No ranking effect; cleared by the demo reset.
+  - **X**: records a persisted `other` rejection (`POST /api/feedback`), hides the
+    card, and the status row offers Undo plus optional "Why?" chips that `PATCH` the reason
+    into `too_expensive` / `wrong_area` / `missing_balcony` so the rerank can learn. The
+    full reason picker (`RejectionControl`) lives only on the match detail gate.
 - No pagination, no websocket/polling — "I'll let you know as soon as a new one comes in"
   is aspirational copy.
 
