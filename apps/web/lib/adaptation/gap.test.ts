@@ -23,10 +23,15 @@ describe("detectCapabilityGap", () => {
       total: 5,
     });
   });
-  it("finds a 1/6 gap", () => {
+  it("does not count balcony amenity text as evidence", () => {
     const candidates = Array.from({ length: 6 }, candidate);
     candidates[0] = candidate({ amenities: ["Balcony"] });
-    expect(detectCapabilityGap("missing_balcony", candidates)?.coverage).toBe(1 / 6);
+    expect(detectCapabilityGap("missing_balcony", candidates)).toEqual({
+      capability: "listing.outdoorSpace.population",
+      coverage: 0,
+      covered: 0,
+      total: 6,
+    });
   });
   it.each([
     ["1/5", 1],
@@ -37,10 +42,9 @@ describe("detectCapabilityGap", () => {
     );
     expect(detectCapabilityGap("missing_balcony", candidates)).toBeUndefined();
   });
-  it("counts amenities and none as evidence", () => {
+  it("counts populated outdoorSpace values, including none, as evidence", () => {
     expect(
       detectCapabilityGap("missing_balcony", [
-        candidate({ amenities: ["Balcony"] }),
         candidate({ outdoorSpace: "none" }),
         candidate({ outdoorSpace: null }),
         candidate({ outdoorSpace: null }),

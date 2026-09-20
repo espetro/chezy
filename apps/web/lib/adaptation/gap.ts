@@ -1,6 +1,5 @@
 import type { AdaptationFocus } from "@chezy/contract";
 import { CAPABILITY_GAP_COVERAGE_THRESHOLD } from "~/lib/constants";
-import { hasOutdoorSpace } from "~/lib/adaptation/facts";
 import type { CandidateFacts } from "~/lib/adaptation/types";
 import { CAPABILITY_OUTDOOR_SPACE } from "~/lib/capability/prompt";
 
@@ -15,9 +14,8 @@ const hasFocusEvidence = (
   focus: AdaptationFocus,
   candidate: CandidateFacts,
 ): boolean | undefined =>
-  focus === "missing_balcony"
-    ? candidate.outdoorSpace !== null || hasOutdoorSpace(candidate)
-    : undefined;
+  // This capability measures the populated outdoorSpace column; amenity text is only a proxy.
+  focus === "missing_balcony" ? candidate.outdoorSpace !== null : undefined;
 
 export const detectCapabilityGap = (
   focus: AdaptationFocus,
