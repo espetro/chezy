@@ -57,3 +57,18 @@ export const FETCH_TIMEOUT_MS = 10_000;
 // The VLM call reads several photos and can legitimately take much longer
 // than a plain API round trip.
 export const VISION_FETCH_TIMEOUT_MS = 60_000;
+
+// How long one rejection-triggered panel job may run before it is marked
+// timed out; governs the deadline_at column.
+export const ADAPTATION_DEADLINE_MS = 10 * 60_000;
+// Client poll cadence lives in lib/flow/constants.ts: this module imports
+// lib/db/utils (bcrypt, ai) and cannot ship in the client bundle.
+// Every adaptation job is a single attempt; correction retries after an
+// invalid candidate are JES-13 scope.
+export const ADAPTATION_MAX_ATTEMPTS = 1;
+// ACU cap for the Devin session; one small prompt-only job.
+export const ADAPTATION_MAX_ACU = 1;
+// Feed candidates handed to the provider as the listing id allowlist.
+export const ADAPTATION_CANDIDATE_LIMIT = 6;
+// Outbound Devin API call bound, same role as FETCH_TIMEOUT_MS.
+export const DEVIN_REQUEST_TIMEOUT_MS = 10_000;
