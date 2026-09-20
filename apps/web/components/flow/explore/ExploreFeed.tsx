@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { describeFeedback } from "~/lib/feedback-ranking";
 import { useListingFeedback } from "~/lib/flow/use-listing-feedback";
 import { useSavedListings } from "~/lib/flow/use-saved-listings";
+import { useChatLauncher } from "~/components/flow/ui/ChatLauncher";
 import { useRef, useState } from "react";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
 import { FlowButton } from "~/components/flow/ui/Button";
@@ -49,6 +50,8 @@ export const ExploreFeed = ({
   const { reject, undo, refine, busy, error } = useListingFeedback(() => router.refresh());
   const { savedIds, toggleSave, error: saveError } = useSavedListings(initialSavedIds);
   const lastDismissed = feedback.at(-1);
+  const { reset: resetChat } = useChatLauncher();
+  const [activeId, setActiveId] = useState<string | undefined>(undefined);
 
   const zones = Array.from(
     new Set([...activeZones, ...listings.map((listing) => listing.neighborhood)]),
@@ -64,6 +67,14 @@ export const ExploreFeed = ({
   );
 
   const sorted = [...filtered].sort((a, b) => (sortMode === "match" ? 0 : a.price - b.price));
+  // Derived: falls back to the first visible card when filters or rejections hide the active one.
+  const activeListing = sorted.find((listing) => listing.id === activeId) ?? sorted[0];
+  // The chat thread belongs to the listing in view: moving the carousel drops it.
+  const onActiveChange = (listing: FlowListing | undefined) => {
+    if (listing?.id === activeListing?.id) return;
+    setActiveId(listing?.id);
+    resetChat();
+  };
 
   return (
     <div
@@ -110,6 +121,7 @@ export const ExploreFeed = ({
         savedIds={savedIds}
         onToggleSave={toggleSave}
         onDismiss={(listingId) => reject(listingId, "other")}
+        onActiveChange={onActiveChange}
         busy={busy}
       />
       {lastDismissed && (
@@ -160,7 +172,7 @@ export const ExploreFeed = ({
           </Link>
         </div>
       )}
-      <FlowChatBar />
+      <FlowChatBar context={activeListing} />
     </div>
   );
 };
