@@ -121,7 +121,7 @@ test.describe("explore card actions", () => {
   test("Book a visit from the card calls, books and remembers the slot", async ({ page }) => {
     const slide = firstSlide(page);
     await slide.getByRole("button", { name: "Book a visit" }).click();
-    await expect(slide.getByRole("button", { name: "Calling…" })).toBeVisible();
+    await expect(slide.getByRole("button", { name: "AI calling…" })).toBeVisible();
     const booked = slide.getByText(/^Booked · /);
     await expect(booked).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText(/Simulated/)).toHaveCount(0);

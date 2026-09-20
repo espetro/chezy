@@ -172,7 +172,7 @@ test.describe("flow happy path", () => {
     // attempt, so the button comes back; click it when offered. The mock call
     // hands its slot to /api/calendar and the gate lands on "Visit booked".
     const callButton = page.getByRole("button", { name: "Call the agency" });
-    const calling = page.getByText("Calling the agency");
+    const calling = page.getByText("AI calling", { exact: true });
     const booked = page.getByText("Visit booked", { exact: true });
     await expect(page.getByText("Demo", { exact: true })).toBeVisible();
     await expect(calling.or(booked).or(callButton)).toBeVisible({ timeout: 15_000 });

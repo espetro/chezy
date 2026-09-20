@@ -1,7 +1,7 @@
 "use client";
 
 import { useMountEffect } from "@chezy/ui/hooks/useMountEffect";
-import { CalendarPlus, Heart, PhoneOutgoing, X } from "lucide-react";
+import { CalendarPlus, Heart, X } from "lucide-react";
 import Link from "next/link";
 import { CallRings } from "~/components/flow/match/CallProgress";
 import { BookedCheck } from "~/components/flow/ui/BookedCheck";
@@ -54,14 +54,6 @@ const BookVisitAction = ({ listingId }: { listingId: string }) => {
       </p>
     );
   }
-  if (phase === "awaiting") {
-    return (
-      <p className={statusPillClass}>
-        <PhoneOutgoing size={16} aria-hidden className="shrink-0 text-ember" />
-        <span className="truncate">Call in progress</span>
-      </p>
-    );
-  }
   const pending = phase === "calling" || phase === "booking";
   const unrecoverable = call.status === "failed" && !call.retryable;
   return (
@@ -80,7 +72,7 @@ const BookVisitAction = ({ listingId }: { listingId: string }) => {
       )}
       <span className="truncate">
         {phase === "calling"
-          ? "Calling…"
+          ? "AI calling…"
           : phase === "booking"
             ? "Booking…"
             : phase === "failed"
