@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 
 import { FETCH_TIMEOUT_MS } from "~/lib/constants";
 import { env } from "~/lib/env";
+import { CallDispatchError } from "~/lib/viewing-dispatch";
 
 export interface VonageCallResult {
   readonly uuid: string;
@@ -65,7 +66,10 @@ export async function placeVonageCall(input: {
   });
 
   if (!response.ok) {
-    throw new Error(`Vonage call failed: ${response.status} ${await response.text()}`);
+    throw new CallDispatchError(
+      `Vonage call failed: ${response.status}`,
+      [400, 401, 402, 403, 404, 422, 429].includes(response.status),
+    );
   }
   const json = (await response.json()) as { uuid?: string; status?: string };
   if (!json.uuid) {
