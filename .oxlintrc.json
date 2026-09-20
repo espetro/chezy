@@ -136,6 +136,12 @@
       }
     },
     {
+      "files": ["packages/config/src/**/*.ts"],
+      "rules": {
+        "no-restricted-properties": "off"
+      }
+    },
+    {
       "files": ["apps/bot/src/env.ts"],
       "rules": {
         "no-restricted-properties": "off"

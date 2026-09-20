@@ -1,0 +1,62 @@
+{
+  "source": "https://www.pisos.com/venta/pisos-barcelona_capital/ captured 2026-09-20 12:05 CEST",
+  "operation": "sale",
+  "card_count": 33,
+  "total_count": 7071,
+  "listings": [
+    {
+      "platform_id": "64176513256.103700",
+      "url": "https://www.pisos.com/comprar/piso-antiga_esquerra_de_eixample-64176513256_103700/",
+      "price_eur": 285000.0,
+      "price_period": "total",
+      "rooms": 2,
+      "bathrooms": 1,
+      "built_m2": 55.0,
+      "floor_raw": null,
+      "property_type": "piso",
+      "title": "Piso en Carrer de la Diputació",
+      "neighbourhood": "L'Antiga Esquerra de l'Eixample",
+      "district": "Eixample",
+      "municipality": "Barcelona",
+      "lat": 41.3832522,
+      "lon": 2.1577269,
+      "first_photo": "https://fotos.imghs.net/mm-wp/1037/593/1037_LCB42593_0_202605051933062959922.jpg"
+    },
+    {
+      "platform_id": "67516445649.107700",
+      "url": "https://www.pisos.com/comprar/piso-sants_montjuic_sants-67516445649_107700/",
+      "price_eur": 310000.0,
+      "price_period": "total",
+      "rooms": 2,
+      "bathrooms": 1,
+      "built_m2": 103.0,
+      "floor_raw": "1ª planta",
+      "property_type": "piso",
+      "title": "Piso en Carrer del Tinent Flomesta",
+      "neighbourhood": "Sants",
+      "district": "Sants-Montjuïc",
+      "municipality": "Barcelona",
+      "lat": 41.3737,
+      "lon": 2.13203,
+      "first_photo": "https://fotos.imghs.net/mm-wp/1077/3230323630393035/a4b6e881-ea1f-4cfa-9f96-7bb6dcb39708.jpg"
+    },
+    {
+      "platform_id": "65069758467.100500",
+      "url": "https://www.pisos.com/comprar/piso-sants_montjuic_sants-65069758467_100500/",
+      "price_eur": 380000.0,
+      "price_period": "total",
+      "rooms": 3,
+      "bathrooms": 2,
+      "built_m2": 78.0,
+      "floor_raw": "Bajo",
+      "property_type": "piso",
+      "title": "Piso en Carrer d'Olzinelles",
+      "neighbourhood": "Sants",
+      "district": "Sants-Montjuïc",
+      "municipality": "Barcelona",
+      "lat": 41.374742707,
+      "lon": 2.136297348,
+      "first_photo": "https://fotos.imghs.net/mm-wp/1005/3230323630363135/5d85280e-940a-4b7e-81b1-3b9db4f156c3.jpg"
+    }
+  ]
+}

@@ -94,6 +94,9 @@ importers:
       typescript:
         specifier: catalog:default
         version: 5.9.3
+      valibot:
+        specifier: catalog:default
+        version: 1.5.0(typescript@5.9.3)
 
   apps/bot:
     dependencies:

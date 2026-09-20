@@ -95,3 +95,6 @@ apps/video/public/audio/
 apps/video/public/clips/
 apps/video/out/
 apps/evals/.galtea-ids.json
+
+# Devin forge run logs
+scripts/devin-forge/runs/

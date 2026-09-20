@@ -121,7 +121,7 @@ Evidence status per track is assessed in
 | Nebius AI Studio | Chat, title, vision and embedding models via `@ai-sdk/openai-compatible` | Default provider, `DeepSeek-V4.1-Flash`; missing measurable-improvement run |
 | QualityClouds (Norma) | Deterministic checks on the repo (portal Full Scan + MCP) | Scan → fix → rescan complete: 62 → 67/100 Conditional |
 | Galtea | Adversarial evals via `apps/evals` + `apps/web/scripts/galtea/` | Baseline run done, real failures found; fix + rerun + survey pending |
-| Cognition (Devin) | Not yet wired | Needs API-driven session + verifier + retry loop |
+| Cognition (Devin) | Chezy Forge: API-driven Devin sessions write portal adapters; pytest + pydantic + hidden hold-outs + path allowlist decide; failures fed back into the session (`scripts/devin-forge`) | 2 runs, 3 PRs merged (#66, #70, #71); run 2 caught a live-page crash and Devin fixed it on retry. Notes: `.agents/notes/2026-09-20-devin-forge-run.md` |
 | Mastra | Telegram bot `@hackbarna_chezybot` (`apps/bot`, Mastra + polling) | Live since 11:27; PR #53 open; submit handle by 12:00, keep alive to 17:30 |
 
 Note: the Vonage prize track requires the Video API. Our use is telephony plumbing, not
