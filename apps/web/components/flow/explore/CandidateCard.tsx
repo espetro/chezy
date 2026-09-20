@@ -1,14 +1,16 @@
 "use client";
 
-import { CalendarCheck, CalendarPlus, Heart, PhoneOutgoing, X } from "lucide-react";
+import { useMountEffect } from "@chezy/ui/hooks/useMountEffect";
+import { CalendarPlus, Heart, X } from "lucide-react";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { CallRings } from "~/components/flow/match/CallProgress";
+import { BookedCheck } from "~/components/flow/ui/BookedCheck";
 import { FlowButton } from "~/components/flow/ui/Button";
 import { FlowPill } from "~/components/flow/ui/Pill";
 import { FlowScoreBadge } from "~/components/flow/ui/ScoreBadge";
 import type { FlowListing } from "~/lib/flow/types";
+import { useViewingBooking } from "~/lib/flow/use-viewing-booking";
 import { cn } from "~/lib/utils";
-import { createViewingController, type ViewingState } from "~/lib/viewing";
 
 interface CandidateCardProps {
   listing: FlowListing;
@@ -34,61 +36,48 @@ const iconButtonClass =
 const statusPillClass =
   "flex min-h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-buttons bg-card-subtle px-3 text-[13px] font-medium text-graphite";
 
-// Quick "book a visit" from the card: the same viewing controller as the detail
-// page gate, never live (the live opt-in stays on the detail page), and the
-// result is labelled truthfully (mock mode simulates, nothing is booked).
+// Quick "book a visit" from the card: the same state machine as the detail page
+// gate, never live (the live opt-in stays on the detail page).
 const BookVisitAction = ({ listingId }: { listingId: string }) => {
-  const [state, setState] = useState<ViewingState>({ status: "idle" });
-  const controller = useRef<ReturnType<typeof createViewingController> | undefined>(undefined);
+  const { call, booking, phase, start, restore, retryBooking } = useViewingBooking(listingId);
+  useMountEffect(function restoreReceipts() {
+    restore();
+  });
 
-  const book = async () => {
-    controller.current ??= createViewingController(listingId, {
-      getItem: (key) => localStorage.getItem(key) ?? undefined,
-      setItem: (key, value) => localStorage.setItem(key, value),
-    });
-    const pending = controller.current.start(false);
-    setState({ status: "dispatching" });
-    setState(await pending);
-  };
-
-  if (state.status === "simulated") {
+  if (phase === "booked" && booking.status === "booked") {
     return (
-      <p
-        className={statusPillClass}
-        title="Simulated example viewing. No phone call or calendar booking was made."
-      >
-        <CalendarCheck size={16} aria-hidden className="shrink-0 text-ember" />
+      <p className={statusPillClass}>
+        <BookedCheck size="sm" />
         <span className="truncate">
-          Simulated · {slotFormatter.format(new Date(state.result.slotIso))}
+          Booked · {slotFormatter.format(new Date(booking.result.slotIso))}
         </span>
       </p>
     );
   }
-  if (state.status === "dispatched") {
-    return (
-      <p
-        className={statusPillClass}
-        title="Awaiting agency confirmation. No appointment is booked."
-      >
-        <PhoneOutgoing size={16} aria-hidden className="shrink-0 text-ember" />
-        <span className="truncate">Call requested · awaiting confirmation</span>
-      </p>
-    );
-  }
-  const failed = state.status === "failed";
+  const pending = phase === "calling" || phase === "booking";
+  const unrecoverable = call.status === "failed" && !call.retryable;
   return (
     <FlowButton
       className="min-w-0 flex-1"
-      disabled={state.status === "dispatching" || (failed && !state.retryable)}
-      onClick={() => void book()}
+      disabled={pending || unrecoverable}
+      onClick={() => void (booking.status === "failed" ? retryBooking() : start())}
     >
-      <CalendarPlus size={16} aria-hidden className="shrink-0" />
+      {phase === "calling" ? (
+        <span className="relative flex size-4 shrink-0 items-center justify-center">
+          <CallRings className="absolute inset-0" />
+          <span className="size-2 rounded-full bg-snow" />
+        </span>
+      ) : (
+        <CalendarPlus size={16} aria-hidden className="shrink-0" />
+      )}
       <span className="truncate">
-        {state.status === "dispatching"
-          ? "Calling the agency…"
-          : failed
-            ? "Call failed · try again"
-            : "Book a visit"}
+        {phase === "calling"
+          ? "AI calling…"
+          : phase === "booking"
+            ? "Booking…"
+            : phase === "failed"
+              ? "Couldn't reach · try again"
+              : "Book a visit"}
       </span>
     </FlowButton>
   );

@@ -20,6 +20,7 @@ const mocks = vi.hoisted(() => ({
   auth: vi.fn(),
   slng: vi.fn(),
   vonage: vi.fn(),
+  insertViewing: vi.fn(),
   logError: vi.fn(),
 }));
 vi.mock("@chezy/observability", () => ({
@@ -32,6 +33,7 @@ vi.mock("@chezy/observability", () => ({
 }));
 vi.mock("~/app/(auth)/auth", () => ({ auth: mocks.auth }));
 vi.mock("~/lib/slng", () => ({ dispatchSlngCall: mocks.slng }));
+vi.mock("~/lib/db/queries", () => ({ insertViewing: mocks.insertViewing }));
 vi.mock("~/lib/vonage", () => ({ placeVonageCall: mocks.vonage }));
 vi.mock("~/lib/listings", () => ({
   getListingById: vi.fn().mockResolvedValue(undefined),
@@ -63,6 +65,7 @@ describe("POST /api/viewing", () => {
     mocks.auth.mockResolvedValue({ user: { id: "test-user" } });
     mocks.slng.mockResolvedValue({ callId: "private-provider-call-id", detail: "private message" });
     mocks.vonage.mockResolvedValue({ uuid: "private-vonage-call-id", status: "started" });
+    mocks.insertViewing.mockResolvedValue({});
   });
 
   function enableLive(channel: "slng" | "vonage" = "slng") {
@@ -113,11 +116,41 @@ describe("POST /api/viewing", () => {
     },
   );
 
+  it("degrades a live request to the simulated slot in mock mode", async () => {
+    const input = enableLive();
+    mockEnv.VIEWING_MODE = "mock";
+    const res = await post(input);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ status: "mock", channel: "mock" });
+    expect(mocks.slng).not.toHaveBeenCalled();
+    expect(mocks.insertViewing).not.toHaveBeenCalled();
+  });
+
   it("blocks live mode without server opt-in", async () => {
     const input = enableLive();
     mockEnv.VIEWING_LIVE_ENABLED = "false";
     expect((await post(input)).status).toBe(403);
     expect(mocks.slng).not.toHaveBeenCalled();
+  });
+
+  it("records a dispatched viewing row for the status poll and the booking webhook", async () => {
+    mocks.insertViewing.mockResolvedValue({});
+    const input = enableLive();
+    expect((await post(input)).status).toBe(200);
+    expect(mocks.insertViewing).toHaveBeenCalledWith({
+      userId: "test-user",
+      listingId: "fotocasa:1",
+      channel: "slng",
+      callId: "private-provider-call-id",
+      status: "dispatched",
+    });
+  });
+
+  it("still dispatches when the viewing row insert fails", async () => {
+    mocks.insertViewing.mockRejectedValue(new Error("db down"));
+    const res = await post(enableLive());
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ status: "dispatched" });
   });
 
   it.each([undefined, "", "123", "+000000000"])(

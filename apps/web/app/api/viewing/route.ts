@@ -5,6 +5,7 @@ import * as v from "valibot";
 
 import { auth } from "~/app/(auth)/auth";
 import { nextSlotIso } from "~/lib/calendar";
+import { insertViewing } from "~/lib/db/queries";
 import { env } from "~/lib/env";
 import { getListingInsights, insightsToCallVariables } from "~/lib/insights";
 import { getListingById, listingToCallVariables } from "~/lib/listings";
@@ -42,7 +43,10 @@ export async function POST(request: Request): Promise<Response> {
     return fail("Invalid viewing request.", 400);
   }
   const input = parsed.output;
-  if (!input.live) {
+  const channel = env.VIEWING_MODE;
+  // Mock mode never dials, whatever the client asked for, so a live request
+  // degrades to the simulated slot instead of an error.
+  if (!input.live || channel === "mock") {
     return respond({
       status: "mock",
       channel: "mock",
@@ -50,9 +54,8 @@ export async function POST(request: Request): Promise<Response> {
       detail: "Simulated viewing only. No phone call or calendar booking was made.",
     });
   }
-  const channel = env.VIEWING_MODE;
-  if (channel === "mock" || env.VIEWING_LIVE_ENABLED !== "true") {
-    return fail("Live calls are disabled. Use the simulation or contact the demo operator.", 403);
+  if (env.VIEWING_LIVE_ENABLED !== "true") {
+    return fail("Live calls are disabled. Contact the demo operator.", 403);
   }
   const to = v.safeParse(PhoneSchema, env.DEMO_AGENCY_PHONE);
   if (!to.success || (input.agencyPhone && input.agencyPhone !== to.output)) {
@@ -121,6 +124,20 @@ export async function POST(request: Request): Promise<Response> {
         if (typeof callId !== "string" || callId.trim().length === 0) {
           throw new CallDispatchError("Provider returned no call ID", false);
         }
+        // The row is what the SLNG book_viewing webhook (/api/calendar) marks
+        // booked and what GET /api/viewing/status reports back to the gate.
+        await insertViewing({
+          userId: session.user.id,
+          listingId: input.propertyRef,
+          channel,
+          callId,
+          status: "dispatched",
+        }).catch((error: unknown) => {
+          logger.error("viewing row insert failed for {propertyRef}: {detail}", {
+            propertyRef: input.propertyRef,
+            detail: error instanceof Error ? error.message : String(error),
+          });
+        });
         return v.parse(ViewingResultSchema, {
           status: "dispatched",
           channel,

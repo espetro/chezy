@@ -60,8 +60,10 @@ describe("production match detail composition", () => {
     expect(html).toContain("price_eur");
     expect(html).toContain('href="#agency-actions"');
     expect(html).toContain('id="agency-actions"');
-    expect(html).toContain("No call requested.");
-    expect(html).toContain("Simulate viewing call");
+    expect(html).toContain("Ready to call the agency for you.");
+    expect(html).not.toContain(">Demo<");
+    expect(html).toContain("Call the agency");
+    expect(html).not.toContain("Simulat");
     expect(html).not.toContain("available Now");
     expect(html.match(/Match score:/g)).toHaveLength(1);
   });

@@ -41,7 +41,10 @@ export function nextSlotIso(hint?: string): string {
       return parsed.toISOString();
     }
   }
-  return new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  const slot = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  slot.setUTCMinutes(0, 0, 0);
+  slot.setUTCHours(slot.getUTCHours() + 1);
+  return slot.toISOString();
 }
 
 export function mockBooking(slotIso: string): CalendarEventResult {
