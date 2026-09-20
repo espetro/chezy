@@ -16,6 +16,7 @@
   "dependencies": {
     "@remotion/cli": "4.0.526",
     "@remotion/fonts": "4.0.526",
+    "@remotion/transitions": "4.0.526",
     "react": "catalog:default",
     "react-dom": "catalog:default",
     "remotion": "4.0.526",
