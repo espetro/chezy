@@ -37,12 +37,33 @@ export function stubTelegramEnv(apiBaseUrl: string) {
 export async function cleanBotState(...telegramUserIds: number[]) {
   const { client } = await import("~/lib/db/client");
   const { telegramUsername } = await import("../src/identity");
-  const usernames = telegramUserIds.map((id) => telegramUsername(id));
-  for (const table of ["viewings", "listing_feedback", "radar_seen"]) {
-    await client.unsafe(`DELETE FROM bot.${table} WHERE username = ANY($1)`, [usernames]);
-  }
   // Keyed by telegram_user_id so rows left by an older username format go too.
-  await client.unsafe(`DELETE FROM bot.telegram_users WHERE telegram_user_id = ANY($1)`, [
-    telegramUserIds.map(String),
-  ]);
+  const links = await client.unsafe<{ username: string }[]>(
+    `DELETE FROM bot.telegram_users WHERE telegram_user_id = ANY($1) RETURNING username`,
+    [telegramUserIds.map(String)],
+  );
+  const usernames = [
+    ...telegramUserIds.map((id) => telegramUsername(id)),
+    ...links.map((l) => l.username),
+  ];
+  // bot.viewings/bot.listing_feedback are dropped at startup; older worktrees
+  // may still have them, so delete only when the table exists.
+  for (const table of ["viewings", "listing_feedback", "radar_seen"]) {
+    const exists = await client.unsafe<{ reg: string | null }[]>(`SELECT to_regclass($1) AS reg`, [
+      `bot.${table}`,
+    ]);
+    if (exists[0]?.reg) {
+      await client.unsafe(`DELETE FROM bot.${table} WHERE username = ANY($1)`, [usernames]);
+    }
+  }
+  // The adapted web tools write Viewing / listing_feedback rows keyed by the
+  // mapped User id; clear them for both current and prior username formats.
+  const userIds = await client.unsafe<{ id: string }[]>(
+    `SELECT id FROM "User" WHERE username = ANY($1)`,
+    [usernames],
+  );
+  for (const { id } of userIds) {
+    await client.unsafe(`DELETE FROM "Viewing" WHERE "userId" = $1`, [id]);
+    await client.unsafe(`DELETE FROM listing_feedback WHERE user_id = $1`, [id]);
+  }
 }

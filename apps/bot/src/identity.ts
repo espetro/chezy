@@ -40,29 +40,10 @@ export function ensureBotSchema(): Promise<void> {
         PRIMARY KEY (username, listing_id)
       )
     `);
-    await client.unsafe(`
-      CREATE TABLE IF NOT EXISTS bot.listing_feedback (
-        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-        username text NOT NULL,
-        listing_id text NOT NULL,
-        verdict text NOT NULL,
-        note text,
-        created_at timestamptz NOT NULL DEFAULT now()
-      )
-    `);
-    await client.unsafe(`
-      CREATE TABLE IF NOT EXISTS bot.viewings (
-        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-        username text NOT NULL,
-        property_ref text NOT NULL,
-        status text NOT NULL,
-        channel text NOT NULL,
-        call_id text,
-        slot_iso text,
-        detail text,
-        created_at timestamptz NOT NULL DEFAULT now()
-      )
-    `);
+    // Bot-local copies of these tables predate the web arrangeViewing /
+    // recordListingFeedback tools; the adapted web tools persist to `Viewing`
+    // and `listing_feedback` instead, so the bot tables are dropped once here.
+    await client.unsafe(`DROP TABLE IF EXISTS bot.viewings, bot.listing_feedback`);
   })();
   return schemaReady;
 }

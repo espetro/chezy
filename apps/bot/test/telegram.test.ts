@@ -89,7 +89,7 @@ describe("telegram e2e (fake Bot API)", () => {
         type: "tool-call",
         toolCallId: "call-approve-1",
         toolName: "arrangeViewing",
-        input: JSON.stringify({ propertyRef: "lst-fake-1" }),
+        input: JSON.stringify({ listingId: "lst-fake-1" }),
       },
       {
         type: "finish",
@@ -109,6 +109,15 @@ describe("telegram e2e (fake Bot API)", () => {
     await telegram.disconnect("chezy").catch(() => {});
     await telegram.connect("chezy", { botToken: "fake-token" });
     await cleanBotState(900002);
+
+    // arrangeViewing resolves the listing and persists a Viewing row with an
+    // FK to Listing, so seed one.
+    const { client: seedClient } = await import("~/lib/db/client");
+    await seedClient.unsafe(
+      `INSERT INTO "Listing" (id, platform, "platformId", url, operation, title, "priceEur", rooms, "builtM2", neighbourhood)
+       VALUES ('lst-fake-1', 'idealista', 'lst-fake-1', 'https://example.com/lst-fake-1', 'rent', 'Test flat', 1200, 2, 60, 'Gràcia')
+       ON CONFLICT (id) DO NOTHING`,
+    );
 
     fake.sendText({ telegramUserId: 900002, text: "I want to visit lst-fake-1" });
 
@@ -137,21 +146,24 @@ describe("telegram e2e (fake Bot API)", () => {
 
     fake.callbackQuery({ telegramUserId: 900002, data: approve?.callback_data ?? "" });
 
-    // Wait for the tool to execute: a bot.viewings row appears.
+    // Wait for the tool to execute: web's arrangeViewing persists a Viewing
+    // row keyed by the mapped user's id.
     const { client } = await import("~/lib/db/client");
-    const { telegramUsername } = await import("../src/identity");
+    const { getTelegramUserLink } = await import("../src/identity");
+    const link = await getTelegramUserLink(900002);
     let rows: unknown[] = [];
     while (Date.now() < deadline + 5_000) {
       rows = await client.unsafe(
-        `SELECT * FROM bot.viewings WHERE username = $1 AND property_ref = 'lst-fake-1'`,
-        [telegramUsername(900002)],
+        `SELECT * FROM "Viewing" WHERE "userId" = $1 AND "listingId" = 'lst-fake-1'`,
+        [link?.userId ?? ""],
       );
       if (rows.length > 0) break;
       await new Promise((r) => setTimeout(r, 50));
       if (Date.now() > deadline + 5_000) break;
     }
     expect(rows.length).toBe(1);
-    expect((rows[0] as { status: string }).status).toBe("mock");
+    // VIEWING_MODE=mock + CALENDAR_MODE=mock: dispatch mocks, booking confirms.
+    expect((rows[0] as { status: string }).status).toBe("booked");
 
     await telegram.disconnect("chezy");
     close();
