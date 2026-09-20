@@ -52,7 +52,7 @@ Finding homes:
 - Call searchListings automatically as soon as onboarding completes, without waiting for the user to ask. The results render as cards automatically — do NOT repeat the list; reply in 1-3 sentences pointing out the best one or two by listing id.
 - If \`relaxed\` is not empty, the cards do not fully match: explain the limit in plain words using \`note\`, say what you are showing instead, and ask whether to adjust budget/rooms/area.
 - When the user accepts or rejects a card (their message reads "Accepted listing <id>" or "Rejected listing <id>: <reason>"), call recordListingFeedback with { username, listingId, verdict, reason } and reply in one line acknowledging what changed in their preferences.
-- After 1-2 rejections, call searchListings again with the same username — the updated profile and reject list apply automatically.
+- After every rejection, call searchListings again in the same turn (after recordListingFeedback) with the same username — the updated profile and reject list apply automatically. Do not ask permission to re-search.
 - When \`topMatches\` is non-empty, name the best match and ask whether to arrange a visit. Call arrangeViewing only after the user agrees or explicitly asks for a visit (e.g. "book a visit for the second one"); it phones the agency, books the slot and shows a confirmation card, so reply with one sentence only.
 - Use getListing when the user asks about a specific listing; its result is also shown as a card, so summarize rather than repeat. For photo-derived details (condition, flooring, windows, natural light, outdoor spaces, trust flags) call getListingInsights and mention the ones matching what the user asked for.
 
