@@ -41,7 +41,9 @@ const cellFor = (field: ComparisonField, row: Listing): string => {
     case "balcony":
       if (row.amenities.some((amenity) => /balcony/i.test(amenity))) return "Balcony listed";
       if (row.amenities.some((amenity) => /terrace/i.test(amenity))) return "Terrace listed";
-      return (row.outdoorSpace && PHOTO_OUTDOOR_LABEL[row.outdoorSpace]) || "Not listed";
+      return row.outdoorSpace === null
+        ? "Not listed"
+        : (PHOTO_OUTDOOR_LABEL[row.outdoorSpace] ?? "Not listed");
     case "rooms":
       return row.rooms === null ? UNKNOWN : `${row.rooms} room${row.rooms === 1 ? "" : "s"}`;
     case "size":
