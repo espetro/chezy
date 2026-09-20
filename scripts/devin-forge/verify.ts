@@ -1,7 +1,8 @@
 /**
  * Forge verifier: checks a PR head (or a local SHA, for dry runs) out
  * into a scratch worktree, enforces the path allowlist, injects the
- * hidden hold-out test and runs the pytest/ruff/basedpyright gates.
+ * hidden hold-out test and runs the task's gates (pytest/ruff/basedpyright for
+ * the scraper, vitest/typecheck/lint/format for the web app).
  */
 import { spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
@@ -84,31 +85,59 @@ async function verifySha(opts: VerifyOpts, sha: string, task: ForgeTask): Promis
     return { kind: "refused", paths: offending, sha };
   }
 
+  // Hidden hold-outs come from the hold-out directory; a committed standard
+  // (`scripts/devin-forge/standards/...`) is injected from the repo itself.
   for (const f of task.holdoutFiles) {
     const dest = path.join(wt, f.dest);
     mkdirSync(path.dirname(dest), { recursive: true });
-    copyFileSync(path.join(opts.holdoutDir, f.src), dest);
+    const src = f.src.startsWith("scripts/")
+      ? path.join(opts.repoRoot, f.src)
+      : path.join(opts.holdoutDir, f.src);
+    copyFileSync(src, dest);
   }
 
-  const gates: { name: string; cmd: string; args: string[] }[] = [
-    { name: "uv_sync", cmd: "uv", args: ["sync", "--all-packages"] },
-    {
-      name: "pytest",
-      cmd: "uv",
-      args: ["run", "pytest", ...task.visibleTests, "-q", "-p", "no:cacheprovider"],
-    },
-    { name: "ruff_check", cmd: "uv", args: ["run", "ruff", "check", "apps/scraper"] },
-    {
-      name: "ruff_format",
-      cmd: "uv",
-      args: ["run", "ruff", "format", "--check", "apps/scraper"],
-    },
-    {
-      name: "basedpyright",
-      cmd: "uv",
-      args: ["run", "--all-packages", "basedpyright", "apps/scraper"],
-    },
-  ];
+  const gates: { name: string; cmd: string; args: string[] }[] =
+    task.gates === "web"
+      ? [
+          // The web gates mirror `mise run validate` for the TypeScript side, scoped
+          // to the app under test; the visible standard and the hidden hold-out run
+          // through vitest.
+          { name: "pnpm_install", cmd: "pnpm", args: ["install", "--frozen-lockfile"] },
+          {
+            name: "vitest",
+            cmd: "pnpm",
+            args: [
+              "--filter",
+              "@chezy/web",
+              "exec",
+              "vitest",
+              "run",
+              ...task.visibleTests.map((file) => path.relative("apps/web", file)),
+            ],
+          },
+          { name: "typecheck", cmd: "pnpm", args: ["--filter", "@chezy/web", "typecheck"] },
+          { name: "lint", cmd: "pnpm", args: ["lint"] },
+          { name: "format", cmd: "pnpm", args: ["format:check"] },
+        ]
+      : [
+          { name: "uv_sync", cmd: "uv", args: ["sync", "--all-packages"] },
+          {
+            name: "pytest",
+            cmd: "uv",
+            args: ["run", "pytest", ...task.visibleTests, "-q", "-p", "no:cacheprovider"],
+          },
+          { name: "ruff_check", cmd: "uv", args: ["run", "ruff", "check", "apps/scraper"] },
+          {
+            name: "ruff_format",
+            cmd: "uv",
+            args: ["run", "ruff", "format", "--check", "apps/scraper"],
+          },
+          {
+            name: "basedpyright",
+            cmd: "uv",
+            args: ["run", "--all-packages", "basedpyright", "apps/scraper"],
+          },
+        ];
 
   for (const gate of gates) {
     const res = run(gate.cmd, gate.args, wt);
@@ -117,7 +146,9 @@ async function verifySha(opts: VerifyOpts, sha: string, task: ForgeTask): Promis
       const failingTests =
         gate.name === "pytest"
           ? [...res.output.matchAll(/^FAILED (.+?)(?: - |$)/gm)].map((m) => m[1] ?? "")
-          : [];
+          : gate.name === "vitest"
+            ? [...res.output.matchAll(/^\s*[×✗] (.+)$/gm)].map((m) => (m[1] ?? "").trim())
+            : [];
       return { kind: "fail", gate: gate.name, output: tail(res.output, 80), failingTests, sha };
     }
   }

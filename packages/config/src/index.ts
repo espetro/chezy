@@ -18,6 +18,8 @@ import * as v from "valibot";
 
 const schema = v.object({
   DEVIN_PAT: v.optional(v.string()),
+  // v1 personal key (apk_user_...); the forge falls back to it when no PAT is set.
+  DEVIN_API_KEY: v.optional(v.string()),
   DEVIN_ORG_ID: v.optional(v.string()),
   FORGE_HOLDOUT_DIR: v.optional(v.string()),
   FORGE_REPO: v.optional(v.string()),

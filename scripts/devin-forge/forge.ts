@@ -10,7 +10,7 @@
 import { appendFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { env } from "../../packages/config/src/index.ts";
-import { createSession, getSession, listSessions, sendMessage } from "./devin.ts";
+import { createSession, getSession, isV1Key, listSessions, sendMessage } from "./devin.ts";
 import { STRUCTURED_OUTPUT_SCHEMA } from "./prompt.ts";
 import { TASKS } from "./tasks.ts";
 import { prHeadSha, verify, verifyLocal, type Verdict } from "./verify.ts";
@@ -118,15 +118,16 @@ async function main(): Promise<number> {
   const resumeId = arg("--resume");
   const runId = arg("--run-id") ?? runIdNow();
 
-  if (!env.DEVIN_PAT) {
-    console.error("DEVIN_PAT is not set (root .env)");
+  const pat = env.DEVIN_PAT ?? env.DEVIN_API_KEY;
+  if (!pat) {
+    console.error("DEVIN_PAT or DEVIN_API_KEY is not set (root .env)");
     return 2;
   }
-  if (!env.DEVIN_ORG_ID) {
-    console.error("DEVIN_ORG_ID is not set (root .env)");
+  if (!isV1Key(pat) && !env.DEVIN_ORG_ID) {
+    console.error("DEVIN_ORG_ID is not set (root .env); required for a v3 PAT");
     return 2;
   }
-  const client = { pat: env.DEVIN_PAT, orgId: env.DEVIN_ORG_ID };
+  const client = { pat, orgId: env.DEVIN_ORG_ID ?? "" };
 
   if (process.argv.includes("--smoke")) {
     const items = await listSessions(client);

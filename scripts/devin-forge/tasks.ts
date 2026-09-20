@@ -1,6 +1,8 @@
-import { buildDetailPrompt, buildPrompt } from "./prompt.ts";
+import { buildDetailPrompt, buildOutdoorSpacePrompt, buildPrompt } from "./prompt.ts";
 
 export interface ForgeTask {
+  // Which gate set verify.ts runs; defaults to the scraper's Python gates.
+  gates?: "python" | "web";
   visibleTests: string[];
   holdoutFiles: { src: string; dest: string }[];
   holdoutDir: string;
@@ -110,6 +112,51 @@ export const TASKS: Record<string, ForgeTask> = {
     feedbackHint:
       "The parser must handle both rent and sale detail pages generally (a sale page has a total price with no /mes, may lack rows such as Planta, and its phone number may carry the 34 country prefix).",
   },
+};
+
+const OUTDOOR_FORBIDDEN = [
+  "apps/web/lib/adaptation/outdoor-space.test.ts",
+  "apps/web/lib/adaptation/outdoor-space.holdout.test.ts",
+];
+
+// Capability gap found by the product: users reject listings for a missing
+// balcony, the media enrichment already labels outdoor space from photos, but
+// the Listing table has no column for it and the panel shows "Not listed".
+TASKS["outdoor-space"] = {
+  gates: "web",
+  visibleTests: [
+    "apps/web/lib/adaptation/outdoor-space.test.ts",
+    "apps/web/lib/adaptation/outdoor-space.holdout.test.ts",
+  ],
+  holdoutDir: "/tmp/chezy-forge/holdout-outdoor-space",
+  holdoutFiles: [
+    {
+      src: "scripts/devin-forge/standards/outdoor-space.test.ts",
+      dest: "apps/web/lib/adaptation/outdoor-space.test.ts",
+    },
+    {
+      src: "outdoor-space.holdout.test.ts",
+      dest: "apps/web/lib/adaptation/outdoor-space.holdout.test.ts",
+    },
+  ],
+  allowlist: [
+    "apps/web/lib/db/schema.ts",
+    "apps/web/lib/listings.ts",
+    "apps/web/lib/adaptation/facts.ts",
+    "apps/web/lib/adaptation/types.ts",
+    "apps/web/lib/adaptation/prompt.ts",
+    "apps/web/lib/adaptation/resolve.ts",
+    "apps/web/lib/adaptation/resolve.test.ts",
+    "apps/web/lib/adaptation/prompt.test.ts",
+    "apps/web/lib/devin/client.ts",
+    "apps/web/scripts/seed-listings.ts",
+  ],
+  allowlistPrefixes: ["apps/web/lib/db/migrations/", "packages/contract/src/"],
+  forbidden: OUTDOOR_FORBIDDEN,
+  buildPrompt: buildOutdoorSpacePrompt,
+  branchSlug: "outdoor-space",
+  feedbackHint:
+    "The column is nullable and absence stays unknown: only a photo label of balcony or terrace counts as outdoor space, never the lack of one. Generate the migration with drizzle-kit, do not hand-write it.",
 };
 
 TASKS["pisos"] = TASKS["list"] as ForgeTask;
