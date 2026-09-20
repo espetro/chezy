@@ -139,6 +139,17 @@ run = "pnpm --filter @chezy/bot test"
 description = "Trigger one radar pass via POST /internal/radar/run (needs BOT_INTERNAL_TOKEN)"
 run = "curl -sf -X POST -H \"x-internal-token: ${BOT_INTERNAL_TOKEN:?set BOT_INTERNAL_TOKEN}\" \"http://127.0.0.1:${BOT_PORT:-4111}/internal/radar/run\""
 
+[tasks."audit:turns"]
+description = "Tabulate chat.turn.complete audit records (channel, model, latency, tools, citations)"
+# The audit sink flattens ctx into the record root (properties: "flatten"),
+# so the jq projection reads .model/.latency_ms directly, not .ctx.*.
+usage = 'arg "[date]" help="YYYY-MM-DD to read (default: today)"'
+run = """
+DATE="{{arg(name="date", default="")}}"
+DATE="${DATE:-$(date +%F)}"
+jq -r 'select(.action=="chat.turn.complete") | [.channel, .model, .latency_ms, (.tools|map(.name)|join(",")), (.cited_listing_ids|length), (.grounding.score // "-")] | @tsv' "${CHEZY_AUDIT_DIR:-.audit}"/chezy-*-"${DATE}".jsonl
+"""
+
 [tasks.lint]
 description = "Lint TS (oxlint) + Python (ruff) workspaces"
 run = "pnpm lint && uv run --all-packages ruff check ."

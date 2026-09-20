@@ -10,6 +10,7 @@ import * as v from "valibot";
 
 export const USERNAME_CONTEXT_KEY = "chezy.username";
 export const SESSION_CONTEXT_KEY = "chezy.sessionUserId";
+export const THREAD_CONTEXT_KEY = "chezy.threadId";
 
 export function usernameFromContext(requestContext: RequestContext | undefined): string {
   const username = requestContext?.get(USERNAME_CONTEXT_KEY);

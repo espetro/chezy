@@ -33,6 +33,7 @@ import { identifyUser } from "~/lib/ai/tools/identify-user";
 import { recordListingFeedback } from "~/lib/ai/tools/record-listing-feedback";
 import { saveUserProfile } from "~/lib/ai/tools/save-user-profile";
 import { searchListingsTool } from "~/lib/ai/tools/search-listings";
+import { summarizeTurn, turnFromUIMessages } from "~/lib/ai/turn-audit";
 import {
   isProductionEnvironment,
   MEMORY_COSINE_DEDUP_THRESHOLD,
@@ -273,6 +274,7 @@ export async function POST(request: Request) {
 
     const modelMessages = await convertToModelMessages(uiMessages);
 
+    const turnStartedAt = Date.now();
     chatAudit.emit({
       actor: session.user.id,
       action: "chat.turn.start",
@@ -437,10 +439,21 @@ export async function POST(request: Request) {
       },
       generateId: generateUUID,
       onEnd: async ({ messages: finishedMessages }) => {
+        // No message bodies are recorded (observability rule) — only the
+        // summarized turn metadata from `turnFromUIMessages`.
+        const turn = turnFromUIMessages(finishedMessages);
         chatAudit.emit({
           actor: session.user.id,
           action: "chat.turn.complete",
-          ctx: { messageCount: finishedMessages.length, model: chatModel },
+          ctx: {
+            ...summarizeTurn({
+              channel: "web",
+              model: chatModel,
+              startedAt: turnStartedAt,
+              ...turn,
+            }),
+            messageCount: finishedMessages.length,
+          },
           outcome: "success",
           target: id,
         });
