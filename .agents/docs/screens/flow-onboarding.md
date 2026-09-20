@@ -137,6 +137,14 @@ Step cards (each `FlowSectionCard`, numbered, with the Stitch aside):
   `secondary` color names (see `.agents/plans/2026-09-19-port-to-main.md` addendum and the
   approved plan in `~/.claude/plans/dime-si-puedes-leer-floating-boot.md`).
 - The pre-existing "1 issue" dev badge is next-auth's missing `AUTH_SECRET`, app-wide.
+- The chat thread renders `useAgentActivity()` (`apps/web/lib/flow/agent-activity.ts`) as
+  extra agent bubbles, live: a ≥95% match calling from either `/explore`'s `AutoCallBanner`
+  or a listing's own `AgentCallGate` pushes "Calling {agency}…" (with the same pulsing-dot
+  animation as `ThinkingBubble`), then "Called {agency} — visit booked for …" / "…awaiting
+  their confirmation" / "The call to {agency} failed — …". Cross-surface only within the
+  same tab (`sessionStorage`); the wizard's own `stepIndex`/`history` are not persisted, so
+  navigating back here after finishing still restarts the wizard, but any activity already
+  logged this session still replays above it.
 
 ## User flow checkpoints
 

@@ -10,6 +10,8 @@ import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
 import { FlowBadge } from "~/components/flow/ui/Badge";
 import { FlowButton } from "~/components/flow/ui/Button";
 import { FlowStateTransition } from "~/components/flow/ui/FlowMotion";
+import { appendActivity, useLatestCallActivity } from "~/lib/flow/agent-activity";
+import { claimAutoCall } from "~/lib/flow/agent-call";
 import { AUTO_CALL_MATCH_THRESHOLD } from "~/lib/flow/constants";
 import type { FlowListing } from "~/lib/flow/types";
 import { createViewingController, type ViewingState } from "~/lib/viewing";
@@ -26,11 +28,16 @@ const slotFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: "Europe/Madrid",
 });
 
-const autoCallKey = (listingId: string) => `chezy:autocall:${listingId}`;
+const dotDelays = ["0ms", "160ms", "320ms"];
 
 const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
   const isAutoCall = listing.matchScore >= AUTO_CALL_MATCH_THRESHOLD;
   const [state, setState] = useState<ViewingState>({ status: "idle" });
+  // Set once this card itself claims and drives the auto-call, so its render branches to
+  // the rich local `state` below instead of the coarse shared log another surface may have
+  // already written (see the `sharedAutoCall` fallback further down).
+  const [ownsAutoCall, setOwnsAutoCall] = useState(false);
+  const sharedAutoCall = useLatestCallActivity(listing.id);
   const [feedback, setFeedback] = useState<FeedbackEvent>();
   const { reject, undo, busy, error } = useListingFeedback(setFeedback);
   const [liveOptIn, setLiveOptIn] = useState(false);
@@ -51,25 +58,67 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
     return controller.current;
   }
 
+  const broadcast = (result: ViewingState) => {
+    const base = { listingId: listing.id, agency: listing.agency, listingTitle: listing.title };
+    if (result.status === "simulated") {
+      appendActivity({
+        ...base,
+        id: crypto.randomUUID(),
+        kind: "simulated",
+        createdAt: new Date().toISOString(),
+        visit: {
+          slotIso: result.result.slotIso,
+          label: slotFormatter.format(new Date(result.result.slotIso)),
+          durationMinutes: 30,
+        },
+      });
+    } else if (result.status === "dispatched") {
+      appendActivity({
+        ...base,
+        id: crypto.randomUUID(),
+        kind: "dispatched",
+        createdAt: new Date().toISOString(),
+      });
+    } else if (result.status === "failed") {
+      appendActivity({
+        ...base,
+        id: crypto.randomUUID(),
+        kind: "failed",
+        createdAt: new Date().toISOString(),
+        error: result.detail,
+      });
+    }
+  };
+
   const startCall = async (live = false) => {
     if (live) setLiveOptIn(false);
+    const base = { listingId: listing.id, agency: listing.agency, listingTitle: listing.title };
+    appendActivity({
+      ...base,
+      id: crypto.randomUUID(),
+      kind: "calling",
+      createdAt: new Date().toISOString(),
+    });
     const pending = getController().start(live);
     setState({ status: "dispatching" });
-    setState(await pending);
+    const result = await pending;
+    setState(result);
+    broadcast(result);
   };
 
   useMountEffect(function autoCallOnMount() {
     const restored = getController().restore();
     setState(restored);
     if (restored.status !== "idle" || !isAutoCall) return;
-    try {
-      if (localStorage.getItem(autoCallKey(listing.id))) return;
-      localStorage.setItem(autoCallKey(listing.id), new Date().toISOString());
-    } catch {
-      // Automatic requests only simulate; blocked storage cannot cause a live call.
-    }
+    if (!claimAutoCall(listing.id)) return; // another surface (the carousel banner) already owns this call
+    setOwnsAutoCall(true);
     void startCall();
   });
+
+  // If another surface already placed this listing's auto-call before this card mounted,
+  // mirror its outcome here instead of showing a stale "no call requested" idle state.
+  const mirroredAutoCall =
+    isAutoCall && !ownsAutoCall && status === "idle" ? sharedAutoCall : undefined;
 
   if (feedback && !feedback.undoneAt) {
     return (
@@ -139,61 +188,106 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
         role="status"
         aria-live="polite"
       >
-        <FlowStateTransition state={status}>
-          {status === "idle" ? (
-            <p className="text-[14px] text-iron">No call requested.</p>
-          ) : status === "dispatching" ? (
-            <div className="flex items-center gap-2">
-              <span className="size-2 animate-pulse rounded-full bg-ember motion-reduce:animate-none" />
-              <p className="text-[14px] font-medium text-graphite">Requesting call…</p>
-            </div>
-          ) : status === "failed" ? (
-            <div className="flex flex-col gap-1">
-              <p className="text-[14px] font-medium text-graphite">
-                Call request could not be confirmed
-              </p>
-              <p className="text-[13px] text-fog">{state.detail}</p>
-            </div>
-          ) : state.status === "dispatched" ? (
-            <div className="flex flex-col gap-1">
-              <p className="text-[14px] font-medium text-graphite">Call requested</p>
-              <p className="text-[13px] text-fog">
-                Awaiting agency confirmation. No appointment is booked.
-              </p>
-              <p className="text-[13px] text-fog">
-                {state.result.channel.toUpperCase()} · {state.result.callId}
-              </p>
-              <p className="text-[13px] text-fog">
-                Request-to-dispatch: {state.result.latencyMs} ms (server receipt to provider
-                acknowledgement, including lookup). This is not conversational latency.
-              </p>
-            </div>
-          ) : state.status === "simulated" ? (
-            <div className="flex flex-col gap-1">
-              <FlowBadge variant="accent" className="w-fit">
-                Simulated
-              </FlowBadge>
-              <p className="text-[14px] font-medium text-graphite">
-                Example viewing: {slotFormatter.format(new Date(state.result.slotIso))}
-              </p>
-              <p className="text-[13px] text-fog">No phone call or calendar booking was made.</p>
-            </div>
-          ) : undefined}
-        </FlowStateTransition>
+        {mirroredAutoCall ? (
+          <div className="animate-fade-up">
+            {mirroredAutoCall.kind === "calling" ? (
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1">
+                  {dotDelays.map((delay) => (
+                    <span
+                      key={delay}
+                      className="size-1.5 animate-dot-pulse rounded-full bg-ember"
+                      style={{ animationDelay: delay }}
+                    />
+                  ))}
+                </span>
+                <p className="text-[14px] font-medium text-graphite">
+                  Calling {mirroredAutoCall.agency}…
+                </p>
+              </div>
+            ) : mirroredAutoCall.kind === "simulated" ? (
+              <div className="flex flex-col gap-1">
+                <FlowBadge variant="accent" className="w-fit">
+                  Simulated
+                </FlowBadge>
+                <p className="text-[14px] font-medium text-graphite">
+                  Example viewing: {mirroredAutoCall.visit?.label}
+                </p>
+                <p className="text-[13px] text-fog">No phone call or calendar booking was made.</p>
+              </div>
+            ) : mirroredAutoCall.kind === "dispatched" ? (
+              <div className="flex flex-col gap-1">
+                <p className="text-[14px] font-medium text-graphite">Call requested</p>
+                <p className="text-[13px] text-fog">
+                  Awaiting agency confirmation. No appointment is booked.
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1">
+                <p className="text-[14px] font-medium text-graphite">
+                  Call request could not be confirmed
+                </p>
+                <p className="text-[13px] text-fog">{mirroredAutoCall.error}</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <FlowStateTransition state={status}>
+            {status === "idle" ? (
+              <p className="text-[14px] text-iron">No call requested.</p>
+            ) : status === "dispatching" ? (
+              <div className="flex items-center gap-2">
+                <span className="size-2 animate-pulse rounded-full bg-ember motion-reduce:animate-none" />
+                <p className="text-[14px] font-medium text-graphite">Requesting call…</p>
+              </div>
+            ) : status === "failed" ? (
+              <div className="flex flex-col gap-1">
+                <p className="text-[14px] font-medium text-graphite">
+                  Call request could not be confirmed
+                </p>
+                <p className="text-[13px] text-fog">{state.detail}</p>
+              </div>
+            ) : state.status === "dispatched" ? (
+              <div className="flex flex-col gap-1">
+                <p className="text-[14px] font-medium text-graphite">Call requested</p>
+                <p className="text-[13px] text-fog">
+                  Awaiting agency confirmation. No appointment is booked.
+                </p>
+                <p className="text-[13px] text-fog">
+                  {state.result.channel.toUpperCase()} · {state.result.callId}
+                </p>
+                <p className="text-[13px] text-fog">
+                  Request-to-dispatch: {state.result.latencyMs} ms (server receipt to provider
+                  acknowledgement, including lookup). This is not conversational latency.
+                </p>
+              </div>
+            ) : state.status === "simulated" ? (
+              <div className="flex flex-col gap-1">
+                <FlowBadge variant="accent" className="w-fit">
+                  Simulated
+                </FlowBadge>
+                <p className="text-[14px] font-medium text-graphite">
+                  Example viewing: {slotFormatter.format(new Date(state.result.slotIso))}
+                </p>
+                <p className="text-[13px] text-fog">No phone call or calendar booking was made.</p>
+              </div>
+            ) : undefined}
+          </FlowStateTransition>
+        )}
       </div>
 
       <div className="flex min-h-64 w-full flex-col gap-2.5 sm:min-h-40 sm:flex-row sm:flex-wrap sm:content-start sm:gap-3">
-        {canSimulate ? (
+        {!mirroredAutoCall && canSimulate ? (
           <FlowButton className="w-full sm:w-auto" onClick={() => void startCall()}>
             Simulate viewing call
           </FlowButton>
         ) : undefined}
-        {state.status === "failed" && state.retryable && state.live ? (
+        {!mirroredAutoCall && state.status === "failed" && state.retryable && state.live ? (
           <FlowButton className="w-full sm:w-auto" onClick={() => void startCall()}>
             Try again
           </FlowButton>
         ) : undefined}
-        {canOptInLive ? (
+        {!mirroredAutoCall && canOptInLive ? (
           <div className="flex flex-col gap-2">
             <label className="flex min-h-11 items-center gap-2 text-[13px] text-fog">
               <input
