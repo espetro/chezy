@@ -14,7 +14,7 @@ vi.mock("@chezy/observability", () => ({
   }),
 }));
 
-import { dispatchSlngCall, ensureSlngAgentPinned } from "~/lib/slng";
+import { dispatchSlngCall, ensureSlngAgentPinned, getSlngCall } from "~/lib/slng";
 
 const BASE = "https://api.agents.slng.ai";
 
@@ -244,6 +244,77 @@ describe("ensureSlngAgentPinned", () => {
       livekitDeployment: "default-eu",
       sipOutboundTrunkId: "t1",
       declaredVariables: undefined,
+    });
+  });
+});
+
+describe("getSlngCall", () => {
+  test("maps an in-progress answered call without a finalized transcript", async () => {
+    const mock = fetchMock();
+    mock.mockResolvedValueOnce(
+      jsonResponse({
+        status: "in_progress",
+        call_started_at: "2026-09-20T12:00:00.000Z",
+        call_events: [{ event: "first_user_message", created_at: "2026-09-20T12:00:03.000Z" }],
+        livekit_session_report: null,
+      }),
+    );
+
+    await expect(getSlngCall("call/1")).resolves.toEqual({
+      status: "in_progress",
+      startedAt: "2026-09-20T12:00:00.000Z",
+      endedAt: undefined,
+      endReason: undefined,
+      answered: true,
+      toolNames: [],
+      transcript: [],
+    });
+    expect(mock.mock.calls[0]?.[0]).toBe(`${BASE}/v1/agents/a/calls/call%2F1`);
+  });
+
+  test("maps completed transcript messages and tool executions", async () => {
+    const mock = fetchMock();
+    mock.mockResolvedValueOnce(
+      jsonResponse({
+        status: "completed",
+        finalized_at: "2026-09-20T12:01:00.000Z",
+        call_end_reason: "hangup",
+        call_events: [],
+        tool_executions: [{ tool_name: "book_viewing" }],
+        livekit_session_report: {
+          chat_history: {
+            items: [
+              { type: "system", role: "assistant", content: ["ignored"] },
+              { type: "message", role: "assistant", content: ["Hola", "agencia"] },
+              { type: "message", role: "user", content: "Sí" },
+              { type: "message", role: "user", content: ["  "] },
+            ],
+          },
+        },
+      }),
+    );
+
+    await expect(getSlngCall("c1")).resolves.toEqual({
+      status: "completed",
+      startedAt: undefined,
+      endedAt: "2026-09-20T12:01:00.000Z",
+      endReason: "hangup",
+      answered: false,
+      toolNames: ["book_viewing"],
+      transcript: [
+        { role: "agent", text: "Hola agencia" },
+        { role: "human", text: "Sí" },
+      ],
+    });
+  });
+
+  test("throws a retryable error for a non-ok response", async () => {
+    const mock = fetchMock();
+    mock.mockResolvedValueOnce(jsonResponse({ error: "unavailable" }, 503));
+
+    await expect(getSlngCall("c1")).rejects.toMatchObject({
+      message: "SLNG call fetch failed: 503",
+      retryable: true,
     });
   });
 });
