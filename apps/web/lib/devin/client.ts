@@ -6,6 +6,7 @@ import {
   type FeedbackEvent,
 } from "@chezy/contract";
 import * as v from "valibot";
+import { hasOutdoorSpace } from "~/lib/adaptation/facts";
 import type { CandidateFacts } from "~/lib/adaptation/types";
 import { ADAPTATION_MAX_ACU, DEVIN_REQUEST_TIMEOUT_MS } from "~/lib/constants";
 
@@ -188,6 +189,9 @@ interface MockContext {
   focus: AdaptationFocus;
 }
 
+// Test-only fixtures: which simulated candidates the validator must refuse.
+export type MockScenario = "valid" | "invalid_first" | "invalid_twice";
+
 const FIELD_LABELS: Record<ComparisonField, string> = {
   price: "Price",
   area: "Area",
@@ -202,15 +206,22 @@ const MOCK_TITLES: Record<AdaptationFocus, string> = {
   missing_balcony: "Homes with outdoor space",
 };
 
+interface MockSession {
+  polls: number;
+  attempt: number;
+  context: MockContext;
+  scenario: MockScenario;
+}
+
 // Session state is process-global so polls across HTTP requests share the
 // deterministic lifecycle; the context captured at createSession is reused.
-const mockSessions = new Map<string, { polls: number; context: MockContext }>();
+const mockSessions = new Map<string, MockSession>();
 let mockSequence = 0;
 
-const hasOutdoorSpace = (candidate: CandidateFacts) =>
-  candidate.amenities.some((amenity) => /balcony|terrace/i.test(amenity));
-
-const mockSpec = ({ candidates, event, focus }: MockContext): ComparisonPanelSpec => {
+const mockSpec = (
+  { candidates, event, focus }: MockContext,
+  attempt: number,
+): ComparisonPanelSpec => {
   const ordered =
     focus === "missing_balcony"
       ? [...candidates].sort((a, b) => Number(hasOutdoorSpace(b)) - Number(hasOutdoorSpace(a)))
@@ -221,7 +232,7 @@ const mockSpec = ({ candidates, event, focus }: MockContext): ComparisonPanelSpe
     feedbackEventId: event.eventId,
     profileVersion: event.profileVersion,
     focus,
-    attempt: 1,
+    attempt,
     title: MOCK_TITLES[focus],
     listingIds: ordered.slice(0, 3).map((candidate) => candidate.id),
     rows: fields.map((field) => ({ field, label: FIELD_LABELS[field] })),
@@ -229,11 +240,28 @@ const mockSpec = ({ candidates, event, focus }: MockContext): ComparisonPanelSpe
   };
 };
 
-export const createMockDevinClient = (context: MockContext): DevinClient => ({
+// A labelled test fixture, not a corrupted real answer: one id outside the
+// candidate set and no row for the focus field.
+const invalidMockSpec = (context: MockContext, attempt: number): ComparisonPanelSpec => {
+  const spec = mockSpec(context, attempt);
+  return {
+    ...spec,
+    listingIds: [...spec.listingIds.slice(0, 1), "mock-unknown-listing"],
+    rows: [{ field: "rooms", label: "Rooms" }],
+  };
+};
+
+const isInvalidAttempt = (scenario: MockScenario, attempt: number) =>
+  (scenario === "invalid_first" && attempt === 1) || scenario === "invalid_twice";
+
+export const createMockDevinClient = (
+  context: MockContext,
+  scenario: MockScenario = "valid",
+): DevinClient => ({
   createSession: async () => {
     mockSequence += 1;
     const sessionId = `mock-session-${mockSequence}`;
-    mockSessions.set(sessionId, { polls: 0, context });
+    mockSessions.set(sessionId, { polls: 0, attempt: 1, context, scenario });
     // The mock never claims a Devin URL; the UI labels it "Simulated".
     return { sessionId, phase: "working" };
   },
@@ -242,7 +270,25 @@ export const createMockDevinClient = (context: MockContext): DevinClient => ({
     if (!session) throw new DevinClientError("Unknown mock session", "http");
     session.polls += 1;
     if (session.polls < 2) return { sessionId, phase: "working" };
-    return { sessionId, phase: "finished", structuredOutput: mockSpec(session.context) };
+    // Like a real session, the previous output stays published until the
+    // correction lands; an invalid answer leaves the session blocked on us.
+    if (isInvalidAttempt(session.scenario, session.attempt)) {
+      return {
+        sessionId,
+        phase: "blocked",
+        structuredOutput: invalidMockSpec(session.context, session.attempt),
+      };
+    }
+    return {
+      sessionId,
+      phase: "finished",
+      structuredOutput: mockSpec(session.context, session.attempt),
+    };
   },
-  sendMessage: async () => {},
+  sendMessage: async (sessionId) => {
+    const session = mockSessions.get(sessionId);
+    if (!session) throw new DevinClientError("Unknown mock session", "http");
+    session.attempt += 1;
+    session.polls = 0;
+  },
 });

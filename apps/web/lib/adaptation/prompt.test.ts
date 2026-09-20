@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { FeedbackEvent } from "@chezy/contract";
-import { buildAdaptationPrompt, sanitizeCandidate } from "~/lib/adaptation/prompt";
+import {
+  buildAdaptationPrompt,
+  buildCorrectionPrompt,
+  sanitizeCandidate,
+} from "~/lib/adaptation/prompt";
 import type { CandidateFacts } from "~/lib/adaptation/types";
 import type { Listing } from "~/lib/db/schema";
 
@@ -110,5 +114,51 @@ describe("buildAdaptationPrompt", () => {
     for (const secret of ["SECRET-URL", "SECRET-PUBLISHER", "SECRET-DESCRIPTION"]) {
       expect(clean).not.toContain(secret);
     }
+  });
+});
+
+describe("buildCorrectionPrompt", () => {
+  const errors = [
+    { code: "unknown_listing" as const, path: "listingIds.1", message: "x is not in the set" },
+    { code: "missing_required_row" as const, path: "rows", message: "rows must include balcony" },
+  ];
+  const prompt = buildCorrectionPrompt({
+    event,
+    focus: "missing_balcony",
+    rejected,
+    candidates,
+    schema: { type: "object", title: "schema-marker" },
+    attempt: 2,
+    errors,
+  });
+
+  it("carries the exact coded errors and the new attempt", () => {
+    expect(prompt).toContain(JSON.stringify(errors));
+    expect(prompt).toContain("attempt: 2");
+    expect(prompt).toContain("attempt 2 of 2");
+  });
+
+  it("restates the original constraints and schema", () => {
+    expect(prompt).toContain(event.eventId);
+    expect(prompt).toContain(event.profileVersion);
+    expect(prompt).toContain('field "balcony"');
+    expect(prompt).toContain("fotocasa:1");
+    expect(prompt).toContain("fotocasa:2");
+    expect(prompt).toContain("schema-marker");
+    expect(prompt).toContain(JSON.stringify(rejected));
+  });
+
+  it("falls back to an unknown rejected listing without inventing facts", () => {
+    const withoutRejected = buildCorrectionPrompt({
+      event,
+      focus: "missing_balcony",
+      rejected: undefined,
+      candidates,
+      schema: {},
+      attempt: 2,
+      errors,
+    });
+    expect(withoutRejected).toContain("unknown (the listing is no longer available)");
+    expect(withoutRejected).not.toContain("http");
   });
 });

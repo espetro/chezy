@@ -5,17 +5,28 @@ import {
   type AdaptationFocus,
   type AdaptationJob,
   type FeedbackEvent,
+  type TraceEvent,
 } from "@chezy/contract";
 import { getLogger } from "@chezy/observability";
 import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import * as v from "valibot";
 
-import { ADAPTATION_ERRORS, nextStep, type AdaptationStepInput } from "~/lib/adaptation/machine";
-import { buildAdaptationPrompt, sanitizeCandidate } from "~/lib/adaptation/prompt";
+import {
+  ADAPTATION_ERRORS,
+  nextStep,
+  type AdaptationEffect,
+  type AdaptationStepInput,
+} from "~/lib/adaptation/machine";
+import {
+  buildAdaptationPrompt,
+  buildCorrectionPrompt,
+  sanitizeCandidate,
+} from "~/lib/adaptation/prompt";
 import type { ValidationContext } from "~/lib/adaptation/validate";
 import { ADAPTATION_CANDIDATE_LIMIT, ADAPTATION_DEADLINE_MS } from "~/lib/constants";
 import { db } from "~/lib/db/client";
 import {
+  adaptationCandidate,
   adaptationJob,
   listing,
   listingFeedback,
@@ -35,6 +46,7 @@ import { env } from "~/lib/env";
 import { buildFeed } from "~/lib/feed";
 import { getFeedbackEvent, listActiveFeedback } from "~/lib/feedback";
 import { getListingRowById } from "~/lib/listings";
+import { violatesRedLines } from "~/lib/match";
 import { getProfile } from "~/lib/profile";
 import { getProfileVersion } from "~/lib/profile-version";
 
@@ -61,7 +73,7 @@ export const providerFailureMessage = (error: unknown): string => {
 
 // Server log only: status, code and the API's own detail text. Never the
 // prompt, never the key.
-const logProviderFailure = (op: "create" | "poll", jobId: string, error: unknown) => {
+const logProviderFailure = (op: "create" | "poll" | "message", jobId: string, error: unknown) => {
   const known = error instanceof DevinClientError ? error : undefined;
   logger.error("devin session {op} failed for job {jobId}: {status} {code} {detail}", {
     op,
@@ -81,6 +93,8 @@ export const toAdaptationJob = (row: AdaptationJobRow): AdaptationJob =>
     status: row.status,
     provider: row.provider,
     attempt: row.attempt,
+    run: row.run,
+    trace: row.trace,
     sessionUrl: row.providerSessionUrl,
     // oxlint-disable-next-line unicorn/no-null
     panel: row.status === "ready" ? row.acceptedSpec : null,
@@ -96,21 +110,56 @@ const devinClient = (): DevinClient | undefined =>
 const fetchRow = async (id: string) =>
   (await db.select().from(adaptationJob).where(eq(adaptationJob.id, id)))[0];
 
+const traceEvent = (
+  step: TraceEvent["step"],
+  rest: Omit<TraceEvent, "at" | "step"> = {},
+): TraceEvent => ({ at: new Date().toISOString(), step, ...rest });
+
+interface AppliedStep {
+  job: AdaptationJob;
+  // The row after this tick's UPDATE won; undefined when another tick got there first.
+  applied?: AdaptationJobRow;
+  effect: AdaptationEffect;
+}
+
 // Applies a machine step: the patch is written with a conditional UPDATE on
 // the status the step started from, so concurrent ticks cannot double-apply.
+// The judged candidate, if any, is stored in the same transaction, so a
+// candidate row exists exactly when its patch landed.
 const applyStep = async (
   row: AdaptationJobRow,
   input: AdaptationStepInput,
-): Promise<AdaptationJob> => {
-  const { patch } = nextStep(row, input);
-  if (Object.keys(patch).length === 0) return toAdaptationJob(row);
-  const [updated] = await db
-    .update(adaptationJob)
-    .set({ ...patch, updatedAt: new Date() })
-    .where(and(eq(adaptationJob.id, row.id), eq(adaptationJob.status, row.status)))
-    .returning();
-  return toAdaptationJob(updated ?? (await fetchRow(row.id)) ?? row);
+): Promise<AppliedStep> => {
+  const { patch, effect, candidate } = nextStep(row, input);
+  if (Object.keys(patch).length === 0) return { job: toAdaptationJob(row), effect };
+  const updated = await db.transaction(async (transaction) => {
+    const [next] = await transaction
+      .update(adaptationJob)
+      .set({ ...patch, updatedAt: new Date() })
+      .where(and(eq(adaptationJob.id, row.id), eq(adaptationJob.status, row.status)))
+      .returning();
+    if (next && candidate) {
+      await transaction.insert(adaptationCandidate).values({
+        jobId: row.id,
+        run: row.run,
+        attempt: candidate.attempt,
+        providerSessionId: row.providerSessionId,
+        spec: candidate.spec,
+        hash: candidate.hash,
+        errors: candidate.errors,
+        accepted: candidate.accepted,
+      });
+    }
+    return next;
+  });
+  if (!updated) {
+    return { job: toAdaptationJob((await fetchRow(row.id)) ?? row), effect: { kind: "none" } };
+  }
+  return { job: toAdaptationJob(updated), applied: updated, effect };
 };
+
+const failStep = async (row: AdaptationJobRow, message: string) =>
+  (await applyStep(row, { kind: "provider_error", message })).job;
 
 export const startAdaptation = async (userId: string, eventId: string): Promise<AdaptationJob> => {
   const event = await getFeedbackEvent(userId, eventId);
@@ -134,6 +183,7 @@ export const startAdaptation = async (userId: string, eventId: string): Promise<
       status: "queued",
       provider: env.ADAPTATION_MODE === "devin" ? "devin" : "mock",
       deadlineAt: new Date(Date.now() + ADAPTATION_DEADLINE_MS),
+      trace: [traceEvent("triggered")],
     })
     .onConflictDoNothing();
   const [row] = await db
@@ -161,10 +211,7 @@ const claimJob = async (
   if (!claimed) return toAdaptationJob((await fetchRow(row.id)) ?? row);
 
   if (claimed.provider === "devin" && !env.DEVIN_API_KEY) {
-    return applyStep(claimed, {
-      kind: "provider_error",
-      message: ADAPTATION_ERRORS.notConfigured,
-    });
+    return failStep(claimed, ADAPTATION_ERRORS.notConfigured);
   }
 
   const feedback = await listActiveFeedback(row.userId);
@@ -175,12 +222,7 @@ const claimJob = async (
     .slice(0, ADAPTATION_CANDIDATE_LIMIT)
     .map(sanitizeCandidate);
   const rejectedRow = await getListingRowById(event.listingId);
-  if (!rejectedRow) {
-    return applyStep(claimed, {
-      kind: "provider_error",
-      message: ADAPTATION_ERRORS.provider,
-    });
-  }
+  if (!rejectedRow) return failStep(claimed, ADAPTATION_ERRORS.provider);
 
   const client =
     claimed.provider === "devin"
@@ -188,7 +230,7 @@ const claimJob = async (
           apiKey: env.DEVIN_API_KEY ?? "",
           baseUrl: env.DEVIN_API_BASE_URL,
         })
-      : createMockDevinClient({ candidates, event, focus });
+      : createMockDevinClient({ candidates, event, focus }, env.ADAPTATION_MOCK_SCENARIO);
 
   let snapshot: DevinSessionSnapshot;
   try {
@@ -206,10 +248,7 @@ const claimJob = async (
     });
   } catch (error) {
     logProviderFailure("create", claimed.id, error);
-    return applyStep(claimed, {
-      kind: "provider_error",
-      message: providerFailureMessage(error),
-    });
+    return failStep(claimed, providerFailureMessage(error));
   }
 
   const [updated] = await db
@@ -219,6 +258,7 @@ const claimJob = async (
       // oxlint-disable-next-line unicorn/no-null
       providerSessionUrl: snapshot.url ?? null,
       sourceListingIds: candidates.map((candidate) => candidate.id),
+      trace: [...claimed.trace, traceEvent("session_created", { sessionId: snapshot.sessionId })],
       updatedAt: new Date(),
     })
     .where(and(eq(adaptationJob.id, claimed.id), eq(adaptationJob.status, "running")))
@@ -234,6 +274,7 @@ const pollJob = async (
   row: AdaptationJobRow,
   event: FeedbackEvent,
   focus: AdaptationFocus,
+  profile: SearchProfile,
 ): Promise<AdaptationJob> => {
   if (!row.providerSessionId) {
     return toAdaptationJob(row);
@@ -243,28 +284,69 @@ const pollJob = async (
       ? devinClient()
       : // The mock keeps its context in a process-global store keyed by
         // session id, so polls do not need the candidates again.
-        createMockDevinClient({ candidates: [], event, focus });
-  if (!client) {
-    return applyStep(row, {
-      kind: "provider_error",
-      message: ADAPTATION_ERRORS.notConfigured,
-    });
-  }
+        createMockDevinClient({ candidates: [], event, focus }, env.ADAPTATION_MOCK_SCENARIO);
+  if (!client) return failStep(row, ADAPTATION_ERRORS.notConfigured);
   let snapshot: DevinSessionSnapshot;
   try {
     snapshot = await client.getSession(row.providerSessionId);
   } catch (error) {
     logProviderFailure("poll", row.id, error);
-    return applyStep(row, { kind: "provider_error", message: providerFailureMessage(error) });
+    return failStep(row, providerFailureMessage(error));
   }
+
+  // Trusted facts are re-read on every tick: a listing rejected or a red line
+  // hit after the session was briefed still disqualifies the candidate.
+  const ids = [...new Set([...row.sourceListingIds, event.listingId])];
+  const [rows, feedback, prior] = await Promise.all([
+    db.select().from(listing).where(inArray(listing.id, ids)),
+    listActiveFeedback(row.userId),
+    db
+      .select({ hash: adaptationCandidate.hash })
+      .from(adaptationCandidate)
+      .where(and(eq(adaptationCandidate.jobId, row.id), eq(adaptationCandidate.run, row.run))),
+  ]);
+  const facts = Object.fromEntries(rows.map((item) => [item.id, sanitizeCandidate(item)]));
   const ctx: ValidationContext = {
     feedbackEventId: row.feedbackEventId,
     profileVersion: row.profileVersion,
     focus,
     sourceListingIds: row.sourceListingIds,
     expectedAttempt: row.attempt,
+    rejectedListingId: event.listingId,
+    rejectedListingIds: feedback.map((item) => item.listingId),
+    redLineListingIds: rows
+      .filter((item) => violatesRedLines(profile, item))
+      .map((item) => item.id),
+    facts,
   };
-  return applyStep(row, { kind: "snapshot", snapshot, ctx });
+  const step = await applyStep(row, {
+    kind: "snapshot",
+    snapshot,
+    ctx,
+    priorHashes: prior.map((item) => item.hash),
+  });
+  if (step.effect.kind !== "send_correction" || !step.applied) return step.job;
+
+  // The status moved to correcting before the message goes out, so a racing
+  // tick cannot send a second one; a failed send fails the job.
+  try {
+    await client.sendMessage(
+      row.providerSessionId,
+      buildCorrectionPrompt({
+        event,
+        focus,
+        rejected: facts[event.listingId],
+        candidates: row.sourceListingIds.flatMap((id) => facts[id] ?? []),
+        schema: comparisonPanelJsonSchema,
+        attempt: step.effect.attempt,
+        errors: step.effect.errors,
+      }),
+    );
+  } catch (error) {
+    logProviderFailure("message", row.id, error);
+    return failStep(step.applied, providerFailureMessage(error));
+  }
+  return step.job;
 };
 
 // One step per call. Order: terminal, stale (undone event or profile
@@ -289,14 +371,65 @@ export const advanceAdaptation = async (
     !profile ||
     getProfileVersion(profile) !== row.profileVersion
   ) {
-    return applyStep(row, { kind: "stale" });
+    return (await applyStep(row, { kind: "stale" })).job;
   }
   if (Date.now() > row.deadlineAt.getTime()) {
-    return applyStep(row, { kind: "timeout" });
+    return (await applyStep(row, { kind: "timeout" })).job;
   }
   if (row.status === "queued") return claimJob(row, event, row.focus, profile);
-  if (row.status === "running") return pollJob(row, event, row.focus);
+  if (row.status === "running" || row.status === "correcting") {
+    return pollJob(row, event, row.focus, profile);
+  }
   return toAdaptationJob(row);
+};
+
+// A deliberate new attempt after a terminal failure: same job, next run, fresh
+// candidate budget and Devin session. Earlier runs' candidates stay. A stale
+// job is not retried; a new rejection makes a new event and job.
+export const retryAdaptation = async (userId: string, jobId: string): Promise<AdaptationJob> => {
+  const [row] = await db
+    .select()
+    .from(adaptationJob)
+    .where(and(eq(adaptationJob.id, jobId), eq(adaptationJob.userId, userId)));
+  if (!row) throw new AdaptationError("Job not found", 404);
+  if (row.status !== "failed") {
+    throw new AdaptationError("Only a failed comparison can be retried", 409);
+  }
+  const event = await getFeedbackEvent(userId, row.feedbackEventId);
+  const profile = await getProfile(userId);
+  if (
+    !event ||
+    event.undoneAt !== null ||
+    event.reason !== row.focus ||
+    !profile ||
+    getProfileVersion(profile) !== row.profileVersion
+  ) {
+    throw new AdaptationError("Your preferences changed; reject a listing again to compare", 409);
+  }
+  const [updated] = await db
+    .update(adaptationJob)
+    .set({
+      status: "queued",
+      attempt: 0,
+      run: row.run + 1,
+      // oxlint-disable-next-line unicorn/no-null
+      error: null,
+      // oxlint-disable-next-line unicorn/no-null
+      candidateSpec: null,
+      // oxlint-disable-next-line unicorn/no-null
+      validationErrors: null,
+      // oxlint-disable-next-line unicorn/no-null
+      providerSessionId: null,
+      // oxlint-disable-next-line unicorn/no-null
+      providerSessionUrl: null,
+      deadlineAt: new Date(Date.now() + ADAPTATION_DEADLINE_MS),
+      trace: [...row.trace, traceEvent("retried", { run: row.run + 1 })],
+      updatedAt: new Date(),
+    })
+    .where(and(eq(adaptationJob.id, row.id), eq(adaptationJob.status, "failed")))
+    .returning();
+  if (!updated) throw new AdaptationError("Only a failed comparison can be retried", 409);
+  return toAdaptationJob(updated);
 };
 
 const activeEventJoin = and(
@@ -328,7 +461,9 @@ export const getLatestAcceptedPanel = async (userId: string) => {
   };
 };
 
-// Newest non-terminal job for an active event; used to resume after reload.
+// Newest job for an active event that still needs the status line: in flight,
+// or failed so the user can start a deliberate new attempt after a reload.
+// Ready jobs render as the panel; stale ones are dropped.
 export const getActiveJob = async (userId: string): Promise<AdaptationJob | undefined> => {
   const [row] = await db
     .select({ job: adaptationJob })
@@ -337,7 +472,7 @@ export const getActiveJob = async (userId: string): Promise<AdaptationJob | unde
     .where(
       and(
         eq(adaptationJob.userId, userId),
-        inArray(adaptationJob.status, ["queued", "running", "validating"]),
+        inArray(adaptationJob.status, ["queued", "running", "correcting", "validating", "failed"]),
       ),
     )
     .orderBy(desc(adaptationJob.createdAt))

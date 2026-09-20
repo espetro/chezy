@@ -31,6 +31,13 @@ const EnvSchema = v.object({
   // Adaptive comparison panel: Devin API session or deterministic
   // mock. `devin` mode without a key fails the job, never throws at import.
   ADAPTATION_MODE: v.fallback(v.picklist(["mock", "devin"]), "mock"),
+  // Test fixture for the mock provider only: makes the first (or both) mock
+  // candidates invalid so the validator-and-correction loop can be exercised
+  // without a Devin session. Never a sponsor proof; ignored in devin mode.
+  ADAPTATION_MOCK_SCENARIO: v.fallback(
+    v.picklist(["valid", "invalid_first", "invalid_twice"]),
+    "valid",
+  ),
   // v1 personal key (apk_user_...); DEVIN_ORG_ID is unused until a v3 `cog_`
   // key exists.
   DEVIN_API_KEY: v.optional(v.string()),

@@ -28,6 +28,7 @@ const RefreshOnce = () => {
 const copy: Record<AdaptationJob["status"], string> = {
   queued: "Queued for Devin.",
   running: "Devin is building your comparison.",
+  correcting: "The validator rejected Devin's first comparison. Asking it to correct.",
   validating: "Checking the result against your listings.",
   ready: "Comparison ready.",
   failed: "Couldn't build a comparison. Your feed is unchanged.",
