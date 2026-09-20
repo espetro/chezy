@@ -160,7 +160,7 @@ export const refreshCapabilityJob = async (
     }).getSession(row.providerSessionId);
     const patch = snapshot.pullRequestUrl
       ? { status: "pr_opened" as const, prUrl: snapshot.pullRequestUrl }
-      : snapshot.phase === "ended"
+      : snapshot.phase === "ended" || snapshot.phase === "finished"
         ? { status: "failed" as const, error: "The session ended without opening a PR." }
         : undefined;
     if (!patch) return toCapabilityJob(row);

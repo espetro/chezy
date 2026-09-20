@@ -13,14 +13,20 @@ const state = vi.hoisted(() => {
     },
   };
 });
-const envMock = vi.hoisted(() => ({ FORGE_TRIGGER_MODE: "mock", DEVIN_API_KEY: undefined }));
+const envMock = vi.hoisted(
+  (): {
+    FORGE_TRIGGER_MODE: string;
+    DEVIN_API_KEY: string | undefined;
+  } => ({ FORGE_TRIGGER_MODE: "mock", DEVIN_API_KEY: undefined }),
+);
 const createSession = vi.hoisted(() => vi.fn());
+const getSession = vi.hoisted(() => vi.fn());
 const loggerError = vi.hoisted(() => vi.fn());
 
 vi.mock("~/lib/env", () => ({ env: envMock }));
 vi.mock("@chezy/observability", () => ({ getLogger: () => ({ error: loggerError }) }));
 vi.mock("~/lib/devin/client", () => ({
-  createDevinClient: vi.fn(() => ({ createSession })),
+  createDevinClient: vi.fn(() => ({ createSession, getSession })),
 }));
 vi.mock("~/lib/db/schema", () => ({
   capabilityJob: { id: "id", capability: "capability", userId: "userId", status: "status" },
@@ -73,9 +79,11 @@ const { launchCapabilityForge } = await import("~/lib/capability/jobs");
 describe("launchCapabilityForge", () => {
   beforeEach(() => {
     envMock.FORGE_TRIGGER_MODE = "mock";
+    envMock.DEVIN_API_KEY = undefined;
     state.created = false;
     for (const key of Object.keys(state.rows)) delete state.rows[key];
     createSession.mockReset();
+    getSession.mockReset();
   });
 
   it("deduplicates a capability and does not create a second session", async () => {
@@ -107,5 +115,33 @@ describe("launchCapabilityForge", () => {
       }),
     ).toBeUndefined();
     expect(state.created).toBe(false);
+  });
+
+  it("fails a finished Devin session that opened no pull request", async () => {
+    envMock.FORGE_TRIGGER_MODE = "devin";
+    envMock.DEVIN_API_KEY = "apk_test";
+    const id = "660e8400-e29b-41d4-a716-446655440000";
+    state.rows[id] = {
+      id,
+      userId: "user",
+      capability: "listing.outdoorSpace.population",
+      status: "running",
+      provider: "devin",
+      coverage: 0,
+      providerSessionId: "session-1",
+      providerSessionUrl: "https://app.devin.ai/sessions/session-1",
+      prUrl: null,
+      error: null,
+      updatedAt: new Date("2026-09-20T10:00:00.000Z"),
+    };
+    getSession.mockResolvedValue({
+      sessionId: "session-1",
+      phase: "finished",
+      url: "https://app.devin.ai/sessions/session-1",
+    });
+    const { refreshCapabilityJob } = await import("~/lib/capability/jobs");
+    const refreshed = await refreshCapabilityJob("user", id);
+    expect(refreshed?.status).toBe("failed");
+    expect(refreshed?.error).toBe("The session ended without opening a PR.");
   });
 });
