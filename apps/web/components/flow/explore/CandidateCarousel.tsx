@@ -59,8 +59,6 @@ export const CandidateCarousel = ({ listings, label, onDismiss }: CandidateCarou
     const slide = slides.find((item) => item.dataset.listingId === pendingFocus.current);
     pendingFocus.current = undefined;
     slide?.querySelector("a")?.focus({ preventScroll: true });
-    slide?.scrollIntoView({ behavior: "instant", block: "nearest", inline: "start" });
-    handleTrackScroll();
   };
 
   // Keeps activeIndex honest when the user free-scrolls or swipes past the button-driven
@@ -119,6 +117,14 @@ export const CandidateCarousel = ({ listings, label, onDismiss }: CandidateCarou
               role="group"
               aria-roledescription="slide"
               aria-label={`${index + 1} of ${total}`}
+              onFocusCapture={(event) => {
+                event.currentTarget.scrollIntoView({
+                  behavior: "instant",
+                  block: "nearest",
+                  inline: "start",
+                });
+                setActiveIndex(index);
+              }}
               className="flex w-[85%] shrink-0 snap-start flex-col gap-2 sm:w-[380px]"
             >
               <CandidateCard listing={listing} />
