@@ -110,7 +110,7 @@ apps/web         the product: chat, onboarding, explore, viewing + calendar rout
 apps/scraper     listings pipeline and the committed dataset builder
 apps/video       Remotion demo video
 packages/*       contract (Valibot), db (Drizzle), config, ui, observability
-chezy-mock-data  the 300-listing Barcelona snapshot (JSONL + Parquet)
+chezy-mock-data  the 300-listing Barcelona snapshot (JSONL + Parquet) plus derived enrichment tables
 assets/          brand: logo at every size, Outfit and DM Sans fonts
 ```
 
