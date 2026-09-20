@@ -6,6 +6,7 @@ import { Call } from "./Call";
 import { Forensic } from "./Forensic";
 import type { SceneProps } from "./sceneProps";
 import { Shortlist } from "./Shortlist";
+import { Stack } from "./Stack";
 
 const placeholders: Record<CheckpointId, ComponentType<SceneProps>> = {
   brief: Brief,
@@ -13,6 +14,7 @@ const placeholders: Record<CheckpointId, ComponentType<SceneProps>> = {
   forensic: Forensic,
   call: Call,
   booked: Booked,
+  stack: Stack,
 };
 
 export const placeholderFor = (id: CheckpointId): ComponentType<SceneProps> => placeholders[id];

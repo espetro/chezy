@@ -121,6 +121,24 @@
           "time": "18:30 to 19:00"
         }
       }
+    },
+    "stack": {
+      "label": "How it works",
+      "subtext": "Architecture, brand voice, and the agentic loop",
+      "callout": "The listing works for the agency. Chezy works for you.",
+      "vo": "Under the hood: a chat surface on Next.js and Nebius, a Postgres store of real Barcelona listings, and an agentic loop that does not stop at answers — it acts. SLNG runs the voice agent, authored with unmute. Vonage carries the call to the agency's phone. Cognition's Devin helped build it, and QualityClouds keeps it honest. The listing works for the agency. Chezy works for you.",
+      "screen": {
+        "nodes": [
+          { "label": "Chat UI", "sub": "Next.js" },
+          { "label": "LLM", "logo": "nebius.png" },
+          { "label": "Listings DB", "sub": "Postgres" },
+          { "label": "Voice agent", "logo": "slng.png", "sub": "unmute" },
+          { "label": "Telephony", "logo": "vonage.png" },
+          { "label": "Agency phone" }
+        ],
+        "calendar": "Google Calendar",
+        "credit": "Built with"
+      }
     }
   }
 }

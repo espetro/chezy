@@ -4,13 +4,27 @@ import { theme } from "../theme";
 
 // A sponsor/tech badge: the extracted logo at a fixed height when
 // `badge.logo` is set (file under public/badges/), otherwise a text chip.
+// Several extracted logos are dark-on-transparent, so logo badges sit on a
+// light pill to stay readable on the dark theme.
 export const Badge = ({ badge, height = 40 }: { badge: BadgeSpec; height?: number }) => {
   if (badge.logo) {
     return (
-      <Img
-        src={staticFile(`badges/${badge.logo}`)}
-        style={{ height, width: "auto", objectFit: "contain" }}
-      />
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height,
+          padding: "0 12px",
+          borderRadius: Math.round(height * 0.32),
+          background: theme.text,
+        }}
+      >
+        <Img
+          src={staticFile(`badges/${badge.logo}`)}
+          style={{ height: height - 14, width: "auto", objectFit: "contain" }}
+        />
+      </span>
     );
   }
   return (
