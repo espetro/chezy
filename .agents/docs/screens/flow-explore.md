@@ -40,6 +40,10 @@ ids contain `:`).
 
 - `activeZone`/`sortMode` are plain `useState`; filtering/sorting happen inline on every
   render (5 items, no memoization needed).
+- Chat bar (2026-09-20): a general composer pinned to the bottom of the feed (`FlowChatBar`,
+  ChatGPT-style pill). Submitting opens the chat drawer with the question as the first
+  message; the feed reserves bottom padding so the carousel controls stay clear. The
+  floating launcher is not rendered here. Step 2 grows the bar into the conversation.
 - Card action row (2026-09-20, from the designer's PR #32, wired to the backend):
   - **Book a visit**: same `createViewingController` as the detail gate, never live. Mock
     mode renders "Simulated · <slot>" with a tooltip stating no call or booking was made;
