@@ -3,11 +3,7 @@
 // merges the fixture profile.
 //
 //   mise run eval:seed
-import {
-  createNamedUser,
-  getUserByUsername,
-  updateUserProfile,
-} from "~/lib/db/queries";
+import { createNamedUser, getUserByUsername, updateUserProfile } from "~/lib/db/queries";
 import { mergeUserProfile, missingProfileFields } from "~/lib/user-profile";
 
 import { jessie } from "./fixtures/jessie";

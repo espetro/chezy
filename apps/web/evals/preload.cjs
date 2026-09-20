@@ -5,7 +5,7 @@ const Module = require("node:module");
 
 try {
   const path = require.resolve("server-only");
-  const stub = new Module(path, null);
+  const stub = new Module(path);
   stub.exports = {};
   stub.loaded = true;
   require.cache[path] = stub;
