@@ -27,17 +27,12 @@ import { extractMemories, formatMemoryContext, isDuplicateMemory } from "~/lib/a
 import { type RequestHints, systemPrompt } from "~/lib/ai/prompts";
 import { getLanguageModel } from "~/lib/ai/providers";
 import { arrangeViewing } from "~/lib/ai/tools/arrange-viewing";
-import { createDocument } from "~/lib/ai/tools/create-document";
-import { editDocument } from "~/lib/ai/tools/edit-document";
 import { getListingInsightsTool } from "~/lib/ai/tools/get-listing-insights";
 import { getListingTool } from "~/lib/ai/tools/get-listing";
-import { getWeather } from "~/lib/ai/tools/get-weather";
 import { identifyUser } from "~/lib/ai/tools/identify-user";
 import { recordListingFeedback } from "~/lib/ai/tools/record-listing-feedback";
-import { requestSuggestions } from "~/lib/ai/tools/request-suggestions";
 import { saveUserProfile } from "~/lib/ai/tools/save-user-profile";
 import { searchListingsTool } from "~/lib/ai/tools/search-listings";
-import { updateDocument } from "~/lib/ai/tools/update-document";
 import {
   isProductionEnvironment,
   MEMORY_COSINE_DEDUP_THRESHOLD,
@@ -357,7 +352,6 @@ export async function POST(request: Request) {
             isReasoningModel && !supportsTools
               ? []
               : [
-                  "getWeather",
                   "identifyUser",
                   "saveUserProfile",
                   "searchListings",
@@ -365,10 +359,6 @@ export async function POST(request: Request) {
                   "arrangeViewing",
                   "getListing",
                   "getListingInsights",
-                  "createDocument",
-                  "editDocument",
-                  "updateDocument",
-                  "requestSuggestions",
                 ],
           instructions: systemPrompt({
             memoryContext,
@@ -416,30 +406,13 @@ export async function POST(request: Request) {
             isEnabled: isProductionEnvironment,
           },
           tools: {
-            createDocument: createDocument({
-              dataStream,
-              modelId: chatModel,
-              session,
-            }),
-            editDocument: editDocument({ dataStream, session }),
-            getWeather,
             identifyUser,
             recordListingFeedback,
             arrangeViewing,
             searchListings: searchListingsTool,
             getListing: getListingTool,
             getListingInsights: getListingInsightsTool,
-            requestSuggestions: requestSuggestions({
-              dataStream,
-              modelId: chatModel,
-              session,
-            }),
             saveUserProfile,
-            updateDocument: updateDocument({
-              dataStream,
-              modelId: chatModel,
-              session,
-            }),
           },
         });
 
