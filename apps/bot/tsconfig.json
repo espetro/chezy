@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2024"],
+    "noEmit": true,
+    "types": ["node"],
+    // apps/web/lib sources are imported and typechecked as part of this
+    // program; they were written against apps/web's tsconfig, which does not
+    // enable these flags.
+    "exactOptionalPropertyTypes": false,
+    "noUncheckedIndexedAccess": false,
+    "noImplicitReturns": false,
+    "paths": {
+      "~/components/chat/*": ["./src/shims/chat-components.ts"],
+      "~/*": ["../web/*"],
+      "server-only": ["./src/shims/server-only.ts"]
+    }
+  },
+  "include": ["src/**/*", "test/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
