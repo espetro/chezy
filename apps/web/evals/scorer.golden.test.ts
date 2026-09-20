@@ -25,8 +25,8 @@ function bandOf(score: number): Band {
 
 describe("toScoringProfile (UserProfile -> scorer input)", () => {
   it("maps the onboarding fields the scorer reads", () => {
-    expect(profile.neighbourhoods).toEqual(["Gràcia", "Eixample"]);
-    expect(profile.maxPriceEur).toBe(1800);
+    expect(profile.neighbourhoods).toEqual(["Eixample", "Poblenou"]);
+    expect(profile.maxPriceEur).toBe(2400);
     expect(profile.minRooms).toBe(2);
     expect(profile.mustHaves).toEqual(["elevator", "balcony_or_terrace"]);
     expect(profile.redLines).toEqual(["no_interior"]);
@@ -57,11 +57,11 @@ describe("scorer golden set: Jessie vs 8 listings", () => {
 
   it("exactly one listing clears the auto-call bar", () => {
     const top = ranked.filter((r) => r.match.score >= AUTO_CALL_MATCH_THRESHOLD);
-    expect(top.map((r) => r.listing.id)).toEqual([listings.graciaPerfect.id]);
+    expect(top.map((r) => r.listing.id)).toEqual([listings.eixamplePerfect.id]);
   });
 
   it("the perfect match is ranked first", () => {
-    expect(ranked[0]?.listing.id).toBe(listings.graciaPerfect.id);
+    expect(ranked[0]?.listing.id).toBe(listings.eixamplePerfect.id);
   });
 
   it("every reason string is English (chat is English-first)", () => {
@@ -74,20 +74,20 @@ describe("scorer golden set: Jessie vs 8 listings", () => {
   });
 
   it("must-have coverage is monotonic", () => {
-    const none = scoreListing(profile, { ...listings.graciaPerfect, amenities: ["exterior"] });
+    const none = scoreListing(profile, { ...listings.eixamplePerfect, amenities: ["exterior"] });
     const one = scoreListing(profile, {
-      ...listings.graciaPerfect,
+      ...listings.eixamplePerfect,
       amenities: ["exterior", "elevator"],
     });
-    const both = scoreListing(profile, listings.graciaPerfect);
+    const both = scoreListing(profile, listings.eixamplePerfect);
     expect(none.score).toBeLessThan(one.score);
     expect(one.score).toBeLessThan(both.score);
   });
 
   it("budget overshoot degrades in 5% tiers, never rewards", () => {
-    const at = scoreListing(profile, { ...listings.graciaPerfect, priceEur: 1800 }).score;
-    const over5 = scoreListing(profile, { ...listings.graciaPerfect, priceEur: 1890 }).score;
-    const over10 = scoreListing(profile, { ...listings.graciaPerfect, priceEur: 1980 }).score;
+    const at = scoreListing(profile, { ...listings.eixamplePerfect, priceEur: 2400 }).score;
+    const over5 = scoreListing(profile, { ...listings.eixamplePerfect, priceEur: 2520 }).score;
+    const over10 = scoreListing(profile, { ...listings.eixamplePerfect, priceEur: 2640 }).score;
     expect(at).toBe(100);
     expect(over5).toBeLessThan(at);
     expect(over10).toBeLessThan(over5);
@@ -95,11 +95,11 @@ describe("scorer golden set: Jessie vs 8 listings", () => {
 
   // Product expectation the current weights do not meet: a 1-bed should not
   // outrank a 2-bed in-area flat for a 2-bed brief. Rooms are worth 10 points,
-  // the same as m2, so gracia-one-room ties eixample-district-only at 90 and
+  // the same as m2, so eixample-one-room ties eixample-district-only at 90 and
   // wins on price. Flip to `it` once rooms is a hard filter or weighs more.
   it.fails("a 1-bed never ranks above an in-area 2-bed (known scorer gap)", () => {
     const order = ranked.map((r) => r.listing.id);
-    expect(order.indexOf(listings.graciaOneRoom.id)).toBeGreaterThan(
+    expect(order.indexOf(listings.eixampleOneRoom.id)).toBeGreaterThan(
       order.indexOf(listings.eixampleDistrictOnly.id),
     );
   });
