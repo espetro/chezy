@@ -1,10 +1,12 @@
 "use client";
 
 import { ArrowUpDown } from "lucide-react";
-import type { FeedbackEvent, FeedbackReason } from "@chezy/contract";
+import type { AdaptationJob, FeedbackEvent, FeedbackReason } from "@chezy/contract";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { ResolvedPanel } from "~/lib/adaptation/resolve";
 import { describeFeedback } from "~/lib/feedback-ranking";
+import { requestAdaptation } from "~/lib/flow/adaptation-client";
 import { useListingFeedback } from "~/lib/flow/use-listing-feedback";
 import { useSavedListings } from "~/lib/flow/use-saved-listings";
 import { useChatLauncher } from "~/components/flow/ui/ChatLauncher";
@@ -13,7 +15,9 @@ import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
 import { FlowButton } from "~/components/flow/ui/Button";
 import { FlowDropdown, FlowMultiDropdown } from "~/components/flow/ui/Dropdown";
 import { CandidateCarousel } from "~/components/flow/explore/CandidateCarousel";
+import { AdaptationStatus } from "~/components/flow/explore/AdaptationStatus";
 import { FlowChatBar } from "~/components/flow/explore/ChatBar";
+import { ComparisonPanel } from "~/components/flow/explore/ComparisonPanel";
 import type { FlowListing } from "~/lib/flow/types";
 
 type SortMode = "match" | "price-asc";
@@ -34,6 +38,8 @@ interface ExploreFeedProps {
   listings: FlowListing[];
   note?: string;
   feedback?: FeedbackEvent[];
+  panel?: { panel: ResolvedPanel; job: AdaptationJob };
+  job?: AdaptationJob;
   savedIds?: string[];
 }
 
@@ -41,13 +47,17 @@ export const ExploreFeed = ({
   listings,
   note,
   feedback = [],
+  panel,
+  job,
   savedIds: initialSavedIds = [],
 }: ExploreFeedProps) => {
   const feedRef = useRef<HTMLDivElement>(null);
   const [activeZones, setActiveZones] = useState<string[]>([]);
   const [sortMode, setSortMode] = useState<SortMode>("match");
   const router = useRouter();
-  const { reject, undo, refine, busy, error } = useListingFeedback(() => router.refresh());
+  const { reject, undo, refine, busy, error } = useListingFeedback((event) => {
+    void requestAdaptation(event).finally(() => router.refresh());
+  });
   const { savedIds, toggleSave, error: saveError } = useSavedListings(initialSavedIds);
   const lastDismissed = feedback.at(-1);
   const { reset: resetChat } = useChatLauncher();
@@ -124,6 +134,8 @@ export const ExploreFeed = ({
         onActiveChange={onActiveChange}
         busy={busy}
       />
+      {job && job.jobId !== panel?.job.jobId ? <AdaptationStatus job={job} /> : undefined}
+      {panel ? <ComparisonPanel panel={panel.panel} job={panel.job} /> : undefined}
       {lastDismissed && (
         <div className="flex flex-col gap-3 rounded-cards bg-snow px-4 py-3">
           <div className="flex items-center justify-between gap-3">

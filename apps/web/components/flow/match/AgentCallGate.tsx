@@ -11,6 +11,7 @@ import { BookedCheck } from "~/components/flow/ui/BookedCheck";
 import { FlowButton } from "~/components/flow/ui/Button";
 import { FlowStateTransition } from "~/components/flow/ui/FlowMotion";
 import { FlowPill } from "~/components/flow/ui/Pill";
+import { requestAdaptation } from "~/lib/flow/adaptation-client";
 import { AUTO_CALL_MATCH_THRESHOLD } from "~/lib/flow/constants";
 import type { FlowListing } from "~/lib/flow/types";
 import { useListingFeedback } from "~/lib/flow/use-listing-feedback";
@@ -39,7 +40,10 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
     listing.id,
   );
   const [feedback, setFeedback] = useState<FeedbackEvent>();
-  const { reject, undo, busy, error } = useListingFeedback(setFeedback);
+  const { reject, undo, busy, error } = useListingFeedback((event) => {
+    setFeedback(event);
+    void requestAdaptation(event);
+  });
   const restoreFocus = useRef(false);
   const canCall = call.status === "idle";
   const startCall = () => void start();

@@ -1,0 +1,51 @@
+[
+  {
+    "id": "98a92835-ed36-4457-b6ea-2d749b6c726c",
+    "jobId": "bd44e9f8-69c5-4f59-b7d9-ba799611a05d",
+    "run": 1,
+    "attempt": 1,
+    "providerSessionId": "devin-814c910d879a41aeb51bc04d7711dddf",
+    "spec": {
+      "rows": [
+        {
+          "note": "All three explicitly list a balcony; the Gòtic flat is also exterior facing",
+          "field": "balcony",
+          "label": "Balcony"
+        },
+        {
+          "note": "Gòtic and Raval come in below the rejected 2300 EUR",
+          "field": "price",
+          "label": "Monthly rent"
+        },
+        {
+          "note": "Gòtic is the largest at 93 m2; Nova Esquerra is the smallest",
+          "field": "size",
+          "label": "Built area"
+        },
+        {
+          "field": "area",
+          "label": "Neighbourhood"
+        }
+      ],
+      "focus": "missing_balcony",
+      "title": "Three 2-3 room flats that list a balcony",
+      "actions": [
+        "open_listing",
+        "edit_preferences"
+      ],
+      "attempt": 1,
+      "listingIds": [
+        "habitaclia:4737003822466",
+        "fotocasa:189698965",
+        "fotocasa:190451552"
+      ],
+      "schemaVersion": 1,
+      "profileVersion": "sha256:bb23a4183460f0687581eeba8d29f36c971a61d56c4f238eff1333a0a50f06aa",
+      "feedbackEventId": "6f8dde56-b058-4330-b63e-315a92c580f0"
+    },
+    "hash": "sha256:6d858192d28988f6d8f39db39a816fe6fb659bf3a94dc6962fd6ff9f4652e60e",
+    "errors": [],
+    "accepted": true,
+    "createdAt": "2026-09-20T11:55:33.090Z"
+  }
+]

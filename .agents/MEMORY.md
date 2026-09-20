@@ -64,6 +64,12 @@
   Resolution path: translate `lib/match.ts`/`lib/feed.ts` and the chat prompts in a later
   pass; voice agent exempt.
 
+- **Devin API for JES-12 (2026-09-20)**: `ADAPTATION_MODE=mock|devin` (default mock) picks
+  the provider for the rejection-triggered comparison panel. The account key is a v1
+  `apk_user_` key: v3 returns 403, so `lib/devin/client.ts` speaks v1. Mock runs are
+  labelled "Simulated" in the UI and never count as the sponsor proof. See
+  `docs/jes-12-adaptive-panel.md`.
+
 ## Disk budget (multi-worktree)
 
 Expected per-worktree footprint on macOS APFS:

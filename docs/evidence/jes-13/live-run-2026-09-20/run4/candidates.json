@@ -1,0 +1,49 @@
+[
+  {
+    "id": "cf206f24-2190-4aee-9892-a481a539656f",
+    "jobId": "0b4454e5-d173-4f70-82c2-d6ae0c58b094",
+    "run": 1,
+    "attempt": 1,
+    "providerSessionId": "devin-b093f962ecd346a19844f4782d79e12a",
+    "spec": {
+      "rows": [
+        {
+          "note": "All three are cheaper than the rejected listing.",
+          "field": "price",
+          "label": "Monthly price"
+        },
+        {
+          "field": "area",
+          "label": "Neighbourhood"
+        },
+        {
+          "field": "size",
+          "label": "Built area"
+        },
+        {
+          "field": "balcony",
+          "label": "Outdoor space"
+        }
+      ],
+      "focus": "too_expensive",
+      "title": "Lower-cost Barcelona alternatives",
+      "actions": [
+        "open_listing",
+        "edit_preferences"
+      ],
+      "attempt": 1,
+      "listingIds": [
+        "fotocasa:190867916",
+        "habitaclia:4737003822466",
+        "fotocasa:189698965"
+      ],
+      "schemaVersion": 1,
+      "profileVersion": "sha256:addb6dba157a68b8b4a4baa864cefc72b9b7b5317cdfee422a44965238b694a7",
+      "feedbackEventId": "7bc2fcac-2cea-4cd9-bde1-c242b2e2f069"
+    },
+    "hash": "sha256:b0d6bf1b8c327a8dc967e4a18a849120509e3d851327117b97cb174a0109d137",
+    "errors": [],
+    "accepted": true,
+    "createdAt": "2026-09-20T11:59:09.302Z"
+  }
+]

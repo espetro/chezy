@@ -22,3 +22,7 @@ export const CONFIRM_HOLD_MS = 1_200;
 // Canonical home is ~/lib/constants (chat tools read it); re-exported so the
 // frozen (flow) surface keeps compiling.
 export { AUTO_CALL_MATCH_THRESHOLD } from "~/lib/constants";
+
+// Client poll cadence for /api/adaptation/[jobId] while a job is non-terminal.
+// Read by the client-side AdaptationStatus component.
+export const ADAPTATION_POLL_INTERVAL_MS = 4000;

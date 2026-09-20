@@ -13,3 +13,4 @@ code, runs, and receipts.
 | Nebius | [nebius.md](nebius.md) | Done — default provider for chat, titles, vision, embeddings; Galtea deltas as quality evidence |
 | Vonage | [vonage.md](vonage.md) | Partial — Voice API live call done; prize requires Video API (not built) |
 | Cognition / Devin | [`.agents/notes/2026-09-20-devin-forge-run.md`](../../.agents/notes/2026-09-20-devin-forge-run.md) + [raw logs](../../.agents/evidence/devin-forge/) | Done — forge loop, 3 verified PRs (#66, #70, #71) |
+| Devin (JES-13 validated retry) | [jes-13-validated-retry.md](../jes-13-validated-retry.md) + [live runs](jes-13/live-run-2026-09-20/) | 4 live sessions accepted through the independent gate; refused-first-candidate proof incomplete (not staged) |

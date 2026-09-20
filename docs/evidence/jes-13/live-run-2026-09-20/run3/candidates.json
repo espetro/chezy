@@ -1,0 +1,52 @@
+[
+  {
+    "id": "932beed6-f958-4bab-bb82-f2270e64d00e",
+    "jobId": "d1866919-15f6-4f0f-bfde-b34634688a9f",
+    "run": 1,
+    "attempt": 1,
+    "providerSessionId": "devin-562529d2cb1a40ef8d6f07e38a10e336",
+    "spec": {
+      "rows": [
+        {
+          "note": "All three list a balcony in their amenities; the other candidates only mention a terrace or nothing at all.",
+          "field": "balcony",
+          "label": "Balcony"
+        },
+        {
+          "note": "Gòtic and Raval come in below the rejected 2300 EUR; Eixample is slightly above.",
+          "field": "price",
+          "label": "Monthly rent"
+        },
+        {
+          "note": "Gòtic offers the most space at 93 m2 versus 77 m2 rejected.",
+          "field": "size",
+          "label": "Built size"
+        },
+        {
+          "note": "Central options in Barri Gòtic, El Raval and Nova Esquerra de l'Eixample.",
+          "field": "area",
+          "label": "Neighbourhood"
+        }
+      ],
+      "focus": "missing_balcony",
+      "title": "Three 2-3 bedroom flats with a confirmed balcony",
+      "actions": [
+        "open_listing",
+        "edit_preferences"
+      ],
+      "attempt": 1,
+      "listingIds": [
+        "habitaclia:4737003822466",
+        "fotocasa:189698965",
+        "fotocasa:190451552"
+      ],
+      "schemaVersion": 1,
+      "profileVersion": "sha256:954bd36b1a843282c50549ca756d2aa47b81248cab53470f5aa94d7d1ab0f6f1",
+      "feedbackEventId": "9ecee1e3-10f0-414a-8567-78c06a12fad5"
+    },
+    "hash": "sha256:e88dab1f5d3d2e9e1f3f22c666db6c5709884e9f6c93272f1402e34cdeddff4b",
+    "errors": [],
+    "accepted": true,
+    "createdAt": "2026-09-20T11:56:57.164Z"
+  }
+]

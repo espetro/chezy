@@ -3,6 +3,8 @@ import { Suspense } from "react";
 
 import { auth } from "~/app/(auth)/auth";
 import { ExploreFeed } from "~/components/flow/explore/ExploreFeed";
+import { getActiveJob, getLatestAcceptedPanel } from "~/lib/adaptation/runner";
+import { resolvePanel } from "~/lib/adaptation/resolve";
 import { buildFeed } from "~/lib/feed";
 import { toFlowListing } from "~/lib/flow/adapters";
 import { getProfile } from "~/lib/profile";
@@ -32,10 +34,18 @@ async function Explore() {
     redirect("/onboarding");
   }
 
-  const [feedback, savedIds] = await Promise.all([
+  const [feedback, savedIds, accepted, active] = await Promise.all([
     listActiveFeedback(session.user.id),
     listSavedListingIds(session.user.id),
+    getLatestAcceptedPanel(session.user.id),
+    getActiveJob(session.user.id),
   ]);
+  // A failure older than the accepted panel has been superseded; in-flight
+  // jobs and newer failures still get their status line and "Try again".
+  const job =
+    active?.status === "failed" && accepted && accepted.job.updatedAt > active.updatedAt
+      ? undefined
+      : active;
   const feed = await buildFeed(profile, undefined, undefined, feedback);
   const listings = feed.items.map(({ listing, match }) => toFlowListing(listing, match, profile));
 
@@ -46,6 +56,12 @@ async function Explore() {
       note={feed.note}
       feedback={feedback}
       savedIds={savedIds}
+      panel={
+        accepted
+          ? { panel: resolvePanel(accepted.spec, accepted.rows), job: accepted.job }
+          : undefined
+      }
+      job={job}
     />
   );
 }
