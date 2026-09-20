@@ -88,14 +88,22 @@ is stacked against you. chezy is the agent on your side of the table.
 Bot handle: [@hackbarna_chezybot](https://t.me/hackbarna_chezybot). Open the link on
 your phone, say hi, and it onboards you in chat (areas, budget, bedrooms), then
 searches Barcelona rentals and offers to call the agency for a viewing (approval
-card first). Built on Mastra (`@mastra/core`, model router to Nebius AI Studio,
-Telegram via Mastra Channels) for the HackBarna 2026 Mastra challenge.
+card first). Built on Mastra (`@mastra/core`, model router over
+`OPENAI_COMPATIBLE_*` env, Telegram via Mastra Channels) for the HackBarna 2026
+Mastra challenge.
 
 `apps/bot` (`@chezy/bot`) is a second client for the same concierge: a Mastra
 agent reachable from Telegram, running alongside `apps/web` and reusing its
-tools, listings and Postgres store. It is an adapter, not a fork: the bot imports
-`apps/web/lib` read-only and adds only Telegram-specific pieces (identity
-mapping, approval cards, radar alerts) in a `bot` Postgres schema.
+listings and Postgres store. It is an adapter, not a fork: the bot imports
+`apps/web/lib` read-only and, since PR #75, adapts the web tools
+(`searchListings`, `saveUserProfile`, `recordListingFeedback`, approval-gated
+`arrangeViewing`) instead of keeping bot-local ones. It adds only
+Telegram-specific pieces (identity mapping, approval cards, radar alerts) in a
+`bot` Postgres schema.
+
+Every turn on web and Telegram lands in the audit log as a `chat.turn.*` record:
+`mise run audit:turns` tabulates `.audit/` JSONL (channel, model, latency, tools,
+cited listings).
 
 How it maps to the "build an agent people can message" criteria:
 
@@ -147,6 +155,7 @@ One file per sponsor challenge lives in [`docs/evidence/`](docs/evidence/README.
 | Scraper | uv-managed Python CLI (httpx, parsel, pydantic) with fotocasa, habitaclia, idealista, milanuncios and pisos.com adapters | pisos.com adapter written by Devin, see below |
 | Autonomy | Chezy Forge: Devin sessions driven through the v3 API, verified by pytest + hidden hold-outs, failures fed back until the verifier passes (`scripts/devin-forge`) | **[Cognition (Devin) track evidence](#cognition-devin-track-evidence)**: [write-up](.agents/notes/2026-09-20-devin-forge-run.md), [raw logs](.agents/evidence/devin-forge/), PRs [#66](https://github.com/espetro/chezy/pull/66) [#70](https://github.com/espetro/chezy/pull/70) [#71](https://github.com/espetro/chezy/pull/71) |
 | Evals | Galtea and QualityClouds runs against the concierge | [galtea.md](docs/evidence/galtea.md): find/fix/prove deltas; [norma-qualityclouds.md](docs/evidence/norma-qualityclouds.md) + [DEFENSE.md](DEFENSE.md): 62 → 67/100 |
+| Observability | LogTape + JSONL audit, one chat.turn.* record per turn on web and Telegram | [architecture](.agents/docs/architecture.md), [mastra.md](docs/evidence/mastra.md) |
 
 ### Cognition (Devin) track evidence
 
@@ -180,6 +189,7 @@ assets/          brand: logo at every size, Outfit and DM Sans fonts
 ## Docs
 
 - [PRD.md](PRD.md): problem, demo narrative, goals, scope, hackathon tracks
+- [ARCHITECTURE.md](ARCHITECTURE.md): pointer to the module graph and boundary rules
 - [AGENTS.md](AGENTS.md): enforced gates and conventions for humans and agents
 - [assets/README.md](assets/README.md): brand assets and how to load them
 - [apps/web/README.md](apps/web/README.md), [apps/scraper/README.md](apps/scraper/README.md), [apps/video/README.md](apps/video/README.md)
