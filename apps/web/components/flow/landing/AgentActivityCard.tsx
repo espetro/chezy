@@ -37,9 +37,6 @@ const rows: ActivityRow[] = [
   },
 ];
 
-// min-w-0: as a grid item the card's automatic minimum size is its content's
-// min-content width, which pushes the track past the viewport on a 375px phone.
-// The rows truncate instead.
 export const AgentActivityCard = () => (
   <FlowCard padded={false} className="min-w-0 border border-cloud p-5 sm:p-6">
     <div className="flex items-center gap-3">
