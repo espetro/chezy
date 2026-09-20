@@ -4,11 +4,7 @@ import { tool } from "ai";
 
 import { getUserByUsername, updateUserProfile } from "~/lib/db/queries";
 import { getListingRowById } from "~/lib/listings";
-import {
-  inferPreferencePatch,
-  mergeUserProfile,
-  normalizeUsername,
-} from "~/lib/user-profile";
+import { inferPreferencePatch, mergeUserProfile, normalizeUsername } from "~/lib/user-profile";
 
 export const recordListingFeedback = tool({
   description:
@@ -31,9 +27,13 @@ export const recordListingFeedback = tool({
         ? inferPreferencePatch(
             input.reason,
             (await getListingRowById(input.listingId)) ?? {
+              // oxlint-disable-next-line unicorn/no-null
               priceEur: null,
+              // oxlint-disable-next-line unicorn/no-null
               neighbourhood: null,
+              // oxlint-disable-next-line unicorn/no-null
               district: null,
+              // oxlint-disable-next-line unicorn/no-null
               builtM2: null,
             },
             profile,

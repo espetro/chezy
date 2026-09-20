@@ -61,7 +61,9 @@ export function toScoringProfile(profile: UserProfile): SearchProfile {
     id: "chat-profile",
     userId: "chat-user",
     workAddress: profile.workLocation ?? "",
+    // oxlint-disable-next-line unicorn/no-null
     workLat: null,
+    // oxlint-disable-next-line unicorn/no-null
     workLon: null,
     maxCommuteMin: profile.maxCommuteMin ?? 25,
     neighbourhoods: profile.areas ?? [],
@@ -69,6 +71,7 @@ export function toScoringProfile(profile: UserProfile): SearchProfile {
     maxPriceEur: Math.round(profile.budgetMaxEur ?? Number.MAX_SAFE_INTEGER),
     minRooms: Math.round(profile.bedroomsMin ?? 0),
     minM2: Math.round(profile.minM2 ?? 0),
+    // oxlint-disable-next-line unicorn/no-null
     moveDate: null,
     flexibleDays: 0,
     mustHaves: profile.mustHaves ?? [],
@@ -89,8 +92,7 @@ const INTERIOR_WORDS = ["dark", "interior", "light", "luz"];
 const FURNISHED_WORDS = ["furnished", "amueblado"];
 const PETS_WORDS = ["pets", "mascota", "mascotas"];
 
-const containsAny = (text: string, words: string[]): boolean =>
-  words.some((w) => text.includes(w));
+const containsAny = (text: string, words: string[]): boolean => words.some((w) => text.includes(w));
 
 const addUnique = (list: string[] | undefined, item: string): string[] =>
   list?.includes(item) ? list : [...(list ?? []), item];

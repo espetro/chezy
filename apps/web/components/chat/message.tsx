@@ -8,8 +8,8 @@ import { MessageContent, MessageResponse } from "../ai-elements/message";
 import { Shimmer } from "../ai-elements/shimmer";
 import { Tool, ToolContent, ToolHeader, ToolInput, ToolOutput } from "../ai-elements/tool";
 import { useDataStream } from "./data-stream-provider";
-import { ListingCard, ListingResults } from "./listing-results";
-import { ViewingCard } from "./viewing-card";
+import { ListingCard, ListingResults, type ListingSearchOutput } from "./listing-results";
+import { ViewingCard, type ArrangeViewingOutput } from "./viewing-card";
 import { DocumentToolResult } from "./document";
 import { DocumentPreview } from "./document-preview";
 import { SparklesIcon } from "./icons";
@@ -143,18 +143,15 @@ const PurePreviewMessage = ({
   ) ?? { isStreaming: false, rendered: false, text: "" };
 
   // Listings the user already rejected in this turn render dimmed.
-  const rejectedListingIds = new Set(
-    message.parts
-      ?.filter(
-        (part) =>
-          part.type === "tool-recordListingFeedback" &&
-          "output" in part &&
-          part.output !== undefined &&
-          (part.output as { verdict?: string }).verdict === "rejected",
-      )
-      .map((part) => (part.output as { listingId?: string }).listingId)
-      .filter((id): id is string => Boolean(id)) ?? [],
-  );
+  const rejectedListingIds = new Set<string>();
+  for (const part of message.parts ?? []) {
+    if (part.type === "tool-recordListingFeedback") {
+      const output = part.output as { verdict?: string; listingId?: string } | undefined;
+      if (output?.verdict === "rejected" && output.listingId) {
+        rejectedListingIds.add(output.listingId);
+      }
+    }
+  }
 
   const parts = message.parts?.map((part, index) => {
     const { type } = part;
@@ -295,7 +292,7 @@ const PurePreviewMessage = ({
             <div className="w-full max-w-2xl" key={toolCallId}>
               <ListingResults
                 rejectedIds={rejectedListingIds}
-                result={part.output}
+                result={part.output as ListingSearchOutput}
                 sendMessage={sendMessage}
               />
             </div>
@@ -379,17 +376,13 @@ const PurePreviewMessage = ({
             </div>
           );
         }
-        return <ViewingCard key={toolCallId} result={part.output} />;
+        return <ViewingCard key={toolCallId} result={part.output as ArrangeViewingOutput} />;
       }
 
       return (
         <div className="w-[min(100%,450px)]" key={toolCallId}>
           <Tool className="w-full" defaultOpen={false}>
-            <ToolHeader
-              state={state}
-              title="Arranging the visit…"
-              type="tool-arrangeViewing"
-            />
+            <ToolHeader state={state} title="Arranging the visit…" type="tool-arrangeViewing" />
             <ToolContent>
               {state === "input-available" && <ToolInput input={part.input} />}
             </ToolContent>

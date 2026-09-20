@@ -71,9 +71,7 @@ export function ViewingCard({ result }: { result: ArrangeViewingOutput }) {
         </div>
       )}
 
-      {viewing.detail && (
-        <p className="text-[10px] text-muted-foreground">{viewing.detail}</p>
-      )}
+      {viewing.detail && <p className="text-[10px] text-muted-foreground">{viewing.detail}</p>}
     </div>
   );
 }
