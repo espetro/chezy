@@ -90,11 +90,12 @@ test.describe("flow happy path", () => {
     await expect(freshPage).toHaveURL(skipOnboarding ? /\/explore$/ : /\/onboarding/);
     await fresh.close();
 
-    // 1. / landing → "Find my home". Flow routes carry the flow title.
+    // 1. / landing → guest entry. Flow routes carry the flow title. The account
+    // path (Get started → /register → /onboarding) is covered in auth.test.ts.
     await page.goto("/");
     await expect(page).toHaveTitle("Chezy — your rental agent");
     await expectNoHorizontalScroll(page);
-    await page.getByRole("link", { name: "Find my home" }).click();
+    await page.getByRole("link", { name: "Explore as a guest" }).first().click();
     await expect(page).toHaveURL(/\/onboarding/);
     await expect(page).toHaveTitle("Chezy — your rental agent");
 
