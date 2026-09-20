@@ -53,7 +53,7 @@ Required output values:
 Hard rules:
 - listingIds may only contain ids from the candidate list above (2 or 3 of them).
 - rows must include a row with field "${FOCUS_FIELD[focus]}" covering what the user disliked.
-- Prefer candidates that actually improve on the rejected listing for "${FOCUS_FIELD[focus]}"; a listing whose amenities do not mention a balcony or terrace is unknown, not a balcony.
+- Prefer candidates that actually improve on the rejected listing for "${FOCUS_FIELD[focus]}"; a listing counts as having one only if its amenities mention a balcony or terrace or its outdoorSpace is "balcony" or "terrace"; a missing outdoorSpace or "none" is unknown, not a balcony.
 - rows carry field, label and optional note only; never per-listing display values, the app resolves those itself.
 - Plain text only: no links, markup or scripts in title, labels or notes.
 - Do not browse, clone repositories, install anything, or use the network.
