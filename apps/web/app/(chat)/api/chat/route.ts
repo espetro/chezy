@@ -406,13 +406,15 @@ export async function POST(request: Request) {
             isEnabled: isProductionEnvironment,
           },
           tools: {
-            identifyUser,
-            recordListingFeedback,
-            arrangeViewing,
-            searchListings: searchListingsTool,
+            identifyUser: identifyUser({ sessionUserId: session.user.id }),
+            recordListingFeedback: recordListingFeedback({
+              sessionUserId: session.user.id,
+            }),
+            arrangeViewing: arrangeViewing({ sessionUserId: session.user.id }),
+            searchListings: searchListingsTool({ sessionUserId: session.user.id }),
             getListing: getListingTool,
             getListingInsights: getListingInsightsTool,
-            saveUserProfile,
+            saveUserProfile: saveUserProfile({ sessionUserId: session.user.id }),
           },
         });
 

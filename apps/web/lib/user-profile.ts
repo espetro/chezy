@@ -21,6 +21,19 @@ export function normalizeUsername(raw: string): string {
     .slice(0, USERNAME_MAX_LENGTH);
 }
 
+// A name claimed in chat is scoped to the session user: "I'm jessie" in another
+// guest session resolves to a different User row and can never load someone
+// else's saved profile. Idempotent so a model passing back the scoped key from
+// identifyUser is not double-scoped.
+export function scopedUsername(sessionUserId: string, raw: string): string | undefined {
+  const name = normalizeUsername(raw);
+  if (!name) {
+    return undefined;
+  }
+  const suffix = `--${sessionUserId.replace(/-/g, "").slice(0, 8)}`;
+  return name.endsWith(suffix) ? name : `${name}${suffix}`;
+}
+
 export function missingProfileFields(profile: UserProfile | null | undefined): string[] {
   const missing: string[] = [];
 
