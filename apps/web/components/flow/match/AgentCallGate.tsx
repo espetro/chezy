@@ -2,7 +2,7 @@
 
 import { useMountEffect } from "@chezy/ui/hooks/useMountEffect";
 import type { FeedbackEvent } from "@chezy/contract";
-import { AnimatePresence, motion, usePresence } from "motion/react";
+import { AnimatePresence, motion, useIsPresent } from "motion/react";
 import Link from "next/link";
 import { useRef, useState, type ReactNode } from "react";
 import { RejectionControl } from "~/components/flow/explore/RejectionControl";
@@ -38,7 +38,7 @@ const autoCallKey = (listingId: string) => `chezy:autocall:${listingId}`;
 // Buttons leaving via AnimatePresence stay mounted mid-exit; aria-hidden keeps
 // the exiting clone out of role locators (and the a11y tree) while it animates.
 const AnimatedAction = ({ children }: { children: ReactNode }) => {
-  const [isPresent] = usePresence();
+  const isPresent = useIsPresent();
   return (
     <motion.div
       aria-hidden={isPresent ? undefined : true}
@@ -51,6 +51,11 @@ const AnimatedAction = ({ children }: { children: ReactNode }) => {
       {children}
     </motion.div>
   );
+};
+
+const revealLine = {
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0, transition: flowSpring },
 };
 
 const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
@@ -177,40 +182,16 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
                 initial="hidden"
                 animate="show"
               >
-                <motion.p
-                  variants={{
-                    hidden: { opacity: 0, y: 8 },
-                    show: { opacity: 1, y: 0, transition: flowSpring },
-                  }}
-                  className="text-[17px] font-semibold text-obsidian"
-                >
+                <motion.p variants={revealLine} className="text-[17px] font-semibold text-obsidian">
                   Visit booked
                 </motion.p>
-                <motion.p
-                  variants={{
-                    hidden: { opacity: 0, y: 8 },
-                    show: { opacity: 1, y: 0, transition: flowSpring },
-                  }}
-                  className="mt-1 text-[15px] text-graphite"
-                >
+                <motion.p variants={revealLine} className="mt-1 text-[15px] text-graphite">
                   {slotFormatter.format(new Date(booking.result.slotIso))}
                 </motion.p>
-                <motion.p
-                  variants={{
-                    hidden: { opacity: 0, y: 8 },
-                    show: { opacity: 1, y: 0, transition: flowSpring },
-                  }}
-                  className="mt-2 text-[13px] text-fog"
-                >
+                <motion.p variants={revealLine} className="mt-2 text-[13px] text-fog">
                   {listing.title} · {listing.neighborhood}
                 </motion.p>
-                <motion.p
-                  variants={{
-                    hidden: { opacity: 0, y: 8 },
-                    show: { opacity: 1, y: 0, transition: flowSpring },
-                  }}
-                  className="text-[13px] text-fog"
-                >
+                <motion.p variants={revealLine} className="text-[13px] text-fog">
                   30 min · added to your calendar
                 </motion.p>
               </motion.div>
