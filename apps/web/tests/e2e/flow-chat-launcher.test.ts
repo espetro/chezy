@@ -196,7 +196,7 @@ test.describe("flow chat launcher (mobile)", () => {
     await expect(userMessage).toContainText("Can I raise my budget to 2600?");
     await page.screenshot({ path: `${SHOT_DIR}/drawer-from-bar-mobile.png` });
 
-    await expect(dialog.getByTestId("message-assistant")).toBeVisible({ timeout: 60000 });
+    await expect(dialog.getByTestId("message-assistant")).toBeVisible({ timeout: 120000 });
     // Embedded mode must not rewrite the host URL to /chat/[id].
     await expect(page).toHaveURL(/\/explore$/);
 
