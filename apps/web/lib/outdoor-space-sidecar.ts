@@ -35,7 +35,10 @@ export function parseOutdoorSpaceSidecar(lines: Iterable<string>): OutdoorSpaceS
       failures.push(v.summarize(parsed.issues));
       continue;
     }
-    sidecar.set(sidecarKey(parsed.output.platform, parsed.output.platform_id), parsed.output.outdoor_space);
+    sidecar.set(
+      sidecarKey(parsed.output.platform, parsed.output.platform_id),
+      parsed.output.outdoor_space,
+    );
   }
   return { sidecar, failures };
 }
@@ -47,7 +50,10 @@ interface HasOutdoorSpace {
 }
 
 // A value already on the record wins; the sidecar only fills gaps.
-export function mergeOutdoorSpace<T extends HasOutdoorSpace>(record: T, sidecar: OutdoorSpaceSidecar): T {
+export function mergeOutdoorSpace<T extends HasOutdoorSpace>(
+  record: T,
+  sidecar: OutdoorSpaceSidecar,
+): T {
   if (record.outdoor_space !== undefined && record.outdoor_space !== null) {
     return record;
   }
