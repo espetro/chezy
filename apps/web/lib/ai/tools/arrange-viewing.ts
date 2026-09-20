@@ -8,17 +8,17 @@ import { getListingById } from "~/lib/listings";
 import { scopedUsername } from "~/lib/user-profile";
 import { dispatchViewing } from "~/lib/viewing-call";
 
+export const arrangeViewingInput = v.object({
+  username: v.string(),
+  listingId: v.string(),
+  slotHint: v.optional(v.string()),
+});
+
 export const arrangeViewing = ({ sessionUserId }: { sessionUserId: string }) =>
   tool({
     description:
       "Arrange a viewing for a listing: phones the agency (mock/slng/vonage per VIEWING_MODE) and books the slot on the calendar (mock/google per CALENDAR_MODE), then persists a Viewing row. Only call this after the user has agreed to a visit or explicitly asked for one (e.g. 'book a visit for the top one'). Returns { listing, viewing, booking, viewingId } — the UI renders it as a ViewingCard, so confirm the time in one sentence only.",
-    inputSchema: valibotSchema(
-      v.object({
-        username: v.string(),
-        listingId: v.string(),
-        slotHint: v.optional(v.string()),
-      }),
-    ),
+    inputSchema: valibotSchema(arrangeViewingInput),
     execute: async (input) => {
       const username = scopedUsername(sessionUserId, input.username);
       if (!username) {
