@@ -8,15 +8,23 @@ import type { UserProfile } from "@chezy/contract";
 
 import type { Listing } from "~/lib/db/schema";
 
+// Measured 2026-09-20 against the seeded 150-row rent set: the cheapest 2-bed
+// with elevator + balcony/terrace + exterior in Eixample is 2,400 EUR, in
+// Poblenou 2,300. A 1,800 budget yields 0 candidates after the red line, so the
+// demo brief is 2,400 with Eixample + Poblenou. Change here, and the demo
+// script in .agents/docs/demo-flow.md, together.
 export const jessie: UserProfile = {
-  areas: ["Gràcia", "Eixample"],
-  budgetMaxEur: 1800,
+  areas: ["Eixample", "Poblenou"],
+  budgetMaxEur: 2400,
   bedroomsMin: 2,
   mustHaves: ["elevator", "balcony_or_terrace"],
   redLines: ["no_interior"],
   workLocation: "Diagonal 405",
   onboardedAt: "2026-09-20T09:00:00.000Z",
 };
+
+// The exact line the onboarding form (or the eval replaying it) sends in beat 1.
+export const jessieOnboardingLine = `Onboarding form submitted: areas=${jessie.areas?.join(",")}; budgetMaxEur=${jessie.budgetMaxEur}; bedroomsMin=${jessie.bedroomsMin}; mustHaves=${jessie.mustHaves?.join(",")}; redLines=${jessie.redLines?.join(",")}; workLocation=${jessie.workLocation}`;
 
 const base: Listing = {
   id: "",

@@ -117,7 +117,7 @@
       }
     },
     {
-      "files": ["scripts/**", "**/*.test.ts", "**/*.test.tsx"],
+      "files": ["scripts/**", "**/*.test.ts", "**/*.test.tsx", "**/evals/fixtures/**"],
       "rules": {
         "no-restricted-imports": "off",
         "no-restricted-properties": "off",

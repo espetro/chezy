@@ -271,3 +271,7 @@ run = "bash apps/video/scripts/music.sh"
 [tasks."video:all"]
 description = "Full video pipeline: tts -> durations -> capture-doc -> srt -> check -> render"
 run = "mise run video:tts && mise run video:durations && mise run video:capture-doc && mise run video:srt && mise run video:check && mise run video:render"
+
+[tasks."eval:trace"]
+description = "LLM tool-call trace eval for demo happy path A against a running dev server (default http://localhost:4656; pass another URL as the first arg). Writes /tmp/chezy-eval/tool-trace-<ts>.json. See .agents/docs/demo-flow.md 'Evals'."
+run = "cd apps/web && node --env-file-if-exists=.env.local --import=tsx evals/tool-trace.eval.ts"

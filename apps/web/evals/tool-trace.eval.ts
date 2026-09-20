@@ -12,6 +12,8 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 
+import { jessieOnboardingLine } from "./fixtures/jessie";
+
 const BASE_URL = process.argv[2] ?? "http://localhost:4656";
 const OUT_DIR = "/tmp/chezy-eval";
 
@@ -152,20 +154,24 @@ async function sendTurn(jar: Jar, chatId: string, turn: number, text: string): P
   return record;
 }
 
-function firstListingId(turns: TurnRecord[]): string | undefined {
+function lowestScoredListingId(turns: TurnRecord[]): string | undefined {
+  let best: { id: string; score: number } | undefined;
   for (const t of turns) {
     for (const call of t.toolCalls) {
       if (call.toolName !== "searchListings") {
         continue;
       }
-      const out = call.output as { listings?: Array<{ id?: string }> } | undefined;
-      const id = out?.listings?.[0]?.id;
-      if (id) {
-        return id;
+      const out = call.output as
+        | { listings?: Array<{ id?: string; score?: number }> }
+        | undefined;
+      for (const l of out?.listings ?? []) {
+        if (l.id && typeof l.score === "number" && (!best || l.score < best.score)) {
+          best = { id: l.id, score: l.score };
+        }
       }
     }
   }
-  return undefined;
+  return best?.id;
 }
 
 function topMatchesOf(turns: TurnRecord[]): string[] {
@@ -198,17 +204,11 @@ async function main() {
 
   turns.push(await sendTurn(jar, chatId, 1, `Hi, I'm ${username}`));
 
-  turns.push(
-    await sendTurn(
-      jar,
-      chatId,
-      2,
-      "Onboarding form submitted: areas=Gràcia,Eixample; budgetMaxEur=1800; bedroomsMin=2; mustHaves=elevator,balcony_or_terrace; redLines=no_interior; workLocation=Diagonal 405",
-    ),
-  );
+  turns.push(await sendTurn(jar, chatId, 2, jessieOnboardingLine));
 
-  const rejectId = firstListingId(turns) ?? "<no listing id from searchListings>";
-  turns.push(await sendTurn(jar, chatId, 3, `Rejected listing ${rejectId}: no balcony`));
+  // Reject the lowest-scored card so the top matches survive into beat 3.
+  const rejectId = lowestScoredListingId(turns) ?? "<no listing id from searchListings>";
+  turns.push(await sendTurn(jar, chatId, 3, `Rejected listing ${rejectId}: too far from work`));
 
   turns.push(await sendTurn(jar, chatId, 4, "Yes, book a visit for the top one"));
 
@@ -269,6 +269,10 @@ async function main() {
       name: "arrangeViewing is never called before the user is asked / asks",
       pass: !beforeAsk.includes("arrangeViewing"),
       detail: beforeAsk.join(" > "),
+    },
+    {
+      name: "at least one listing clears the auto-call bar on real data",
+      pass: topMatchesOf(turns).length > 0,
     },
     {
       name: "turn 4 arranges the viewing",
