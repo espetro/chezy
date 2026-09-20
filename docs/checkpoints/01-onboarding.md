@@ -39,6 +39,9 @@ Field names are the scorer's vocabulary; do not invent synonyms:
   `updateUserProfile`).
 - Prompt: `onboardingPrompt` in `apps/web/lib/ai/prompts.ts`.
 - Coverage guard: `COVERAGE_CITY` in `apps/web/lib/constants.ts` (Barcelona only).
+- Matching store: `SearchProfile` is the profile the scorer reads;
+  `saveUserProfile` writes through via `syncSearchProfile`
+  (`apps/web/lib/user-profile-sync.ts`) once the profile is complete.
 - Frozen alternative: the form wizard at `/onboarding` (`components/flow/onboarding/*`)
   writes a `SearchProfile` row via `PUT /api/profile`, a different store. Reuse its
   step components if you build a form; do not add a second profile store.

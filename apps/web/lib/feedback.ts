@@ -125,7 +125,7 @@ export const undoFeedback = async (userId: string, eventId: string) =>
     return toFeedbackEvent(row);
   });
 
-// Swap the reason on an active rejection (e.g. the card-level `not_interested`
+// Swap the reason on an active rejection (e.g. the card-level `other`
 // refined into a specific one). Facts are reason-independent, so only the
 // reason changes and the rerank picks it up on the next read.
 export const refineFeedback = async (userId: string, eventId: string, reason: FeedbackReason) =>

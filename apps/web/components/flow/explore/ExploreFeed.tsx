@@ -108,7 +108,7 @@ export const ExploreFeed = ({
         label="Candidate matches"
         savedIds={savedIds}
         onToggleSave={toggleSave}
-        onDismiss={(listingId) => reject(listingId, "not_interested")}
+        onDismiss={(listingId) => reject(listingId, "other")}
         busy={busy}
       />
       {lastDismissed && (
@@ -127,7 +127,7 @@ export const ExploreFeed = ({
               Undo
             </FlowButton>
           </div>
-          {lastDismissed.reason === "not_interested" && (
+          {lastDismissed.reason === "other" && (
             <div className="flex flex-wrap items-center gap-2" aria-label="Refine the reason">
               <span className="text-[13px] text-fog">Why? (optional)</span>
               {refineOptions.map(({ reason, label }) => (

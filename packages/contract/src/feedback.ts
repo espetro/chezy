@@ -1,12 +1,10 @@
 import * as v from "valibot";
 
-// Specific reasons drive the rerank; `not_interested` (the card-level X) only
-// hides the listing and can be refined into a specific reason afterwards.
 export const FEEDBACK_REASONS = [
   "too_expensive",
   "wrong_area",
   "missing_balcony",
-  "not_interested",
+  "other",
 ] as const;
 export const FeedbackReasonSchema = v.picklist(FEEDBACK_REASONS);
 export type FeedbackReason = v.InferOutput<typeof FeedbackReasonSchema>;
@@ -26,6 +24,8 @@ export const FeedbackUndoInputSchema = v.strictObject({
 });
 export type FeedbackUndoInput = v.InferOutput<typeof FeedbackUndoInputSchema>;
 
+// Swap the reason on an active rejection (the card-level "other" refined into a
+// specific one the rerank understands).
 export const FeedbackRefineInputSchema = v.strictObject({
   eventId: v.pipe(v.string(), v.uuid()),
   reason: FeedbackReasonSchema,
@@ -54,3 +54,12 @@ export const FeedbackOutputSchema = v.strictObject({ event: FeedbackEventSchema 
 export const FeedbackListOutputSchema = v.strictObject({ events: v.array(FeedbackEventSchema) });
 export type FeedbackOutput = v.InferOutput<typeof FeedbackOutputSchema>;
 export type FeedbackListOutput = v.InferOutput<typeof FeedbackListOutputSchema>;
+
+export const listingFeedbackInputSchema = v.object({
+  username: v.pipe(v.string(), v.minLength(1), v.maxLength(64)),
+  listingId: v.string(),
+  verdict: v.picklist(["accepted", "rejected"]),
+  reason: v.optional(v.string()),
+});
+
+export type ListingFeedbackInput = v.InferOutput<typeof listingFeedbackInputSchema>;

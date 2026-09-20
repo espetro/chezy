@@ -62,7 +62,7 @@ describe("/api/feedback ownership", () => {
     expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect(mocks.list).toHaveBeenCalledExactlyOnceWith("authenticated-guest");
   });
-  it.each([{ userId: "other" }, { profileVersion: "spoofed" }, { reason: "other" }])(
+  it.each([{ userId: "other" }, { profileVersion: "spoofed" }, { reason: "bogus" }])(
     "rejects assertions %j",
     async (override) => {
       expect((await POST(request({ ...input, ...override }))).status).toBe(400);

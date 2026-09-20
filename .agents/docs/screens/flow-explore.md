@@ -46,7 +46,7 @@ ids contain `:`).
     live mode renders "Call requested · awaiting confirmation". Nothing says "booked".
   - **Heart**: per-session bookmark via `PUT /api/saved` (`listing_save` table), optimistic
     with rollback, `aria-pressed`. No ranking effect; cleared by the demo reset.
-  - **X**: records a persisted `not_interested` rejection (`POST /api/feedback`), hides the
+  - **X**: records a persisted `other` rejection (`POST /api/feedback`), hides the
     card, and the status row offers Undo plus optional "Why?" chips that `PATCH` the reason
     into `too_expensive` / `wrong_area` / `missing_balcony` so the rerank can learn. The
     full reason picker (`RejectionControl`) lives only on the match detail gate.

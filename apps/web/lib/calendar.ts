@@ -4,8 +4,13 @@
 import { createSign } from "node:crypto";
 import { readFileSync } from "node:fs";
 
+import type { BookingResult } from "@chezy/contract";
+import { getLogger } from "@chezy/observability";
+
 import { FETCH_TIMEOUT_MS } from "~/lib/constants";
 import { env } from "~/lib/env";
+
+const logger = getLogger(["chezy", "calendar"]);
 
 export interface BookingInput {
   readonly propertyRef: string;
@@ -46,6 +51,59 @@ export function mockBooking(slotIso: string): CalendarEventResult {
     slotIso,
     detail: "mock booking (CALENDAR_MODE=mock)",
   };
+}
+
+export interface BookViewingInput {
+  readonly propertyRef: string;
+  readonly slotIso: string;
+  readonly durationMinutes?: number;
+  readonly summary?: string;
+  readonly description?: string;
+}
+
+// Shared booking branch for POST /api/calendar and the arrangeViewing chat
+// tool. Never throws — failures come back as status "failed".
+export async function bookViewing(input: BookViewingInput): Promise<BookingResult> {
+  const durationMinutes = input.durationMinutes ?? 30;
+  try {
+    if (env.CALENDAR_MODE === "google") {
+      const event = await createGoogleEvent({
+        propertyRef: input.propertyRef,
+        slotIso: input.slotIso,
+        durationMinutes,
+        summary: input.summary ?? `Property viewing: ${input.propertyRef}`,
+        description:
+          input.description ?? `Booked by the chezy voice agent for ${input.propertyRef}.`,
+      });
+      return {
+        status: event.status,
+        channel: event.channel,
+        slotIso: event.slotIso,
+        ...(event.eventId ? { eventId: event.eventId } : {}),
+      };
+    }
+
+    const event = mockBooking(input.slotIso);
+    return {
+      status: event.status,
+      channel: event.channel,
+      slotIso: event.slotIso,
+      detail: event.detail,
+    };
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : "unknown error";
+    logger.error("calendar booking failed ({channel}): {detail}", {
+      channel: env.CALENDAR_MODE,
+      detail,
+      propertyRef: input.propertyRef,
+    });
+    return {
+      status: "failed",
+      channel: env.CALENDAR_MODE,
+      slotIso: input.slotIso,
+      detail,
+    };
+  }
 }
 
 async function googleAccessToken(sa: ServiceAccount): Promise<string> {

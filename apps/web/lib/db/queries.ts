@@ -17,6 +17,8 @@ import {
   suggestion,
   type User,
   user,
+  type Viewing,
+  viewing,
   vote,
 } from "./schema";
 import { generateHashedPassword } from "./utils";
@@ -105,6 +107,68 @@ export async function updateUserProfile({
       .returning();
 
     return updatedUser;
+  } catch (error) {
+    throw new ChatbotError("bad_request:database", { cause: error });
+  }
+}
+
+export async function insertViewing(values: {
+  userId: string;
+  listingId: string;
+  channel: string;
+  status: string;
+  callId?: string;
+  slotIso?: string;
+}): Promise<Viewing> {
+  try {
+    const [row] = await db.insert(viewing).values(values).returning();
+    return row;
+  } catch (error) {
+    throw new ChatbotError("bad_request:database", { cause: error });
+  }
+}
+
+export async function updateViewingStatus({
+  id,
+  status,
+  slotIso,
+}: {
+  id: string;
+  status: string;
+  slotIso?: string;
+}) {
+  try {
+    const [row] = await db
+      .update(viewing)
+      .set({ status, ...(slotIso !== undefined ? { slotIso } : {}), updatedAt: new Date() })
+      .where(eq(viewing.id, id))
+      .returning();
+    return row;
+  } catch (error) {
+    throw new ChatbotError("bad_request:database", { cause: error });
+  }
+}
+
+// The SLNG `book_viewing` webhook hits /api/calendar with only a propertyRef:
+// resolve the newest still-open viewing for that listing.
+export async function markLatestViewingBooked({
+  listingId,
+  slotIso,
+}: {
+  listingId: string;
+  slotIso?: string;
+}) {
+  try {
+    const [open] = await db
+      .select({ id: viewing.id })
+      .from(viewing)
+      .where(and(eq(viewing.listingId, listingId), inArray(viewing.status, ["dispatched", "mock"])))
+      .orderBy(desc(viewing.createdAt))
+      .limit(1);
+    if (!open) {
+      return undefined;
+    }
+    return await updateViewingStatus({ id: open.id, status: "booked", slotIso });
   } catch (error) {
     throw new ChatbotError("bad_request:database", { cause: error });
   }

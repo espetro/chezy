@@ -16,10 +16,9 @@ truthful call states, JES-7 explanation-driven unknown handling.
   placeholder `available Now`, reason fallback and outdoor evidence lines, equal-height
   helpers).
 - The card becomes presentational: `saved`, `onToggleSave`, `onDismiss`, `busy` props.
-- X records a persisted `not_interested` rejection (new contract reason; the column is
-  `text`, no migration). It hides without reranking; refine chips in the feed status row
+- X records a persisted `other` rejection (the reason main added for the chat tools). It hides without reranking; refine chips in the feed status row
   `PATCH /api/feedback` the reason into a specific one.
-- Heart persists via a new `listing_save` table (migration 0007), `GET`/`PUT /api/saved`
+- Heart persists via a new `listing_save` table (migration 0008), `GET`/`PUT /api/saved`
   with the same ownership guards as feedback, an optimistic client hook, and demo-reset
   cleanup.
 - Book a visit reuses `createViewingController`, never `live: true` from a card, and labels
@@ -30,5 +29,5 @@ truthful call states, JES-7 explanation-driven unknown handling.
 
 Vitest for the route guards, refine and ranking; Playwright `explore-card-actions.test.ts`
 (heart persists, X hides / persists / refines / undoes, book is labelled as simulation,
-detail picker lists "Not interested" last, API ownership) plus the existing happy path
+detail picker lists "Other" last, API ownership) plus the existing happy path
 and chat launcher specs.

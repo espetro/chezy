@@ -94,7 +94,7 @@ test.describe("explore card actions", () => {
 
     await slide.getByRole("button", { name: "Discard this candidate" }).click();
     await expect(hiddenCard).toHaveCount(0);
-    await expect(page.getByText("Candidate hidden. Your comparison is unchanged.")).toBeVisible();
+    await expect(page.getByText("Candidate hidden. No ranking change.")).toBeVisible();
     const refine = page.getByLabel("Refine the reason");
     await expect(refine.getByRole("button", { name: "Too expensive" })).toBeVisible();
     await expect(refine.getByRole("button", { name: "Wrong area" })).toBeVisible();
@@ -131,7 +131,7 @@ test.describe("explore card actions", () => {
     await page.screenshot({ path: `${SHOT_DIR}/after-book.png` });
   });
 
-  test("detail page still offers the reason picker with Not interested last", async ({ page }) => {
+  test("detail page still offers the reason picker with Other last", async ({ page }) => {
     await firstSlide(page).locator("a[href^='/explore/']").click();
     await expect(page).toHaveURL(/\/explore\/.+/);
     await page.screenshot({ path: `${SHOT_DIR}/match-header-mobile.png` });
@@ -139,13 +139,7 @@ test.describe("explore card actions", () => {
     await page.getByRole("button", { name: /^Not for me/ }).click();
     const reasons = page.getByRole("group", { name: "What would you change?" });
     const labels = await reasons.getByRole("button").allInnerTexts();
-    expect(labels).toEqual([
-      "Too expensive",
-      "Wrong area",
-      "Missing balcony",
-      "Not interested",
-      "Cancel",
-    ]);
+    expect(labels).toEqual(["Too expensive", "Wrong area", "Missing balcony", "Other", "Cancel"]);
     await reasons.getByRole("button", { name: "Wrong area" }).click();
     await expect(
       page.getByText("Candidate rejected. Your comparison has been updated."),

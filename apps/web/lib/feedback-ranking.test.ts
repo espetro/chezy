@@ -101,12 +101,12 @@ describe("feedback ranking", () => {
       rankListings(profile, rows, [event]),
     );
   });
-  it("not_interested hides the listing without reranking the rest", () => {
-    const hidden: FeedbackEvent = { ...event, reason: "not_interested" };
+  it("other hides the listing without reranking the rest", () => {
+    const hidden: FeedbackEvent = { ...event, reason: "other" };
     const ranked = rankListings(profile, rows, [hidden]);
     expect(ranked.map(({ listing }) => listing.id)).toEqual(["ordinary", "balcony"]);
     expect(ranked.map(({ listing }) => feedbackBoost(listing, [hidden]))).toEqual([0, 0]);
-    expect(describeFeedback(hidden)).toBe("Candidate hidden. Your comparison is unchanged.");
+    expect(describeFeedback(hidden)).toBe("Candidate hidden. No ranking change.");
   });
   it("prices remain bounded and unknown prices are not rewarded", () => {
     const priceEvent = { ...event, reason: "too_expensive" } as const;

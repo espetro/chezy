@@ -26,12 +26,14 @@ import { EMBEDDING_MODEL_ID, embedText } from "~/lib/ai/embeddings";
 import { extractMemories, formatMemoryContext, isDuplicateMemory } from "~/lib/ai/memory";
 import { type RequestHints, systemPrompt } from "~/lib/ai/prompts";
 import { getLanguageModel } from "~/lib/ai/providers";
+import { arrangeViewing } from "~/lib/ai/tools/arrange-viewing";
 import { createDocument } from "~/lib/ai/tools/create-document";
 import { editDocument } from "~/lib/ai/tools/edit-document";
 import { getListingInsightsTool } from "~/lib/ai/tools/get-listing-insights";
 import { getListingTool } from "~/lib/ai/tools/get-listing";
 import { getWeather } from "~/lib/ai/tools/get-weather";
 import { identifyUser } from "~/lib/ai/tools/identify-user";
+import { recordListingFeedback } from "~/lib/ai/tools/record-listing-feedback";
 import { requestSuggestions } from "~/lib/ai/tools/request-suggestions";
 import { saveUserProfile } from "~/lib/ai/tools/save-user-profile";
 import { searchListingsTool } from "~/lib/ai/tools/search-listings";
@@ -359,6 +361,8 @@ export async function POST(request: Request) {
                   "identifyUser",
                   "saveUserProfile",
                   "searchListings",
+                  "recordListingFeedback",
+                  "arrangeViewing",
                   "getListing",
                   "getListingInsights",
                   "createDocument",
@@ -420,6 +424,8 @@ export async function POST(request: Request) {
             editDocument: editDocument({ dataStream, session }),
             getWeather,
             identifyUser,
+            recordListingFeedback,
+            arrangeViewing,
             searchListings: searchListingsTool,
             getListing: getListingTool,
             getListingInsights: getListingInsightsTool,
