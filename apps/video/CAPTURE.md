@@ -17,7 +17,7 @@ Short clips hold the last frame; long clips are trimmed to the VO
 
 _Jessie says who she is; Chezy fills the profile_
 
-- **Target seconds:** 18.2 (VO) + 0.5 s tail
+- **Target seconds:** 18.8 (VO) + 0.5 s tail
 - **Callout:** No form. A profile that follows her.
 - **Start state:** Empty chat, greeting "What flat are you looking for?", composer focused.
 - **Actions:**
@@ -38,7 +38,7 @@ _Jessie says who she is; Chezy fills the profile_
 
 _Real Barcelona listings, as cards_
 
-- **Target seconds:** 15.7 (VO) + 0.5 s tail
+- **Target seconds:** 15.3 (VO) + 0.5 s tail
 - **Callout:** Price per m² next to the barrio average.
 - **Start state:** Previous chat scrolled so the last confirmation is at the top.
 - **Actions:**
@@ -58,7 +58,7 @@ _Real Barcelona listings, as cards_
 
 _Sunlight and price vs barrio, from the data_
 
-- **Target seconds:** 27.8 (VO) + 0.5 s tail
+- **Target seconds:** 34.5 (VO) + 0.5 s tail
 - **Callout:** 0% direct sunlight. 13% over the barrio average.
 - **Start state:** Cards 1 and 2 visible.
 - **Actions:**
@@ -79,7 +79,7 @@ _Sunlight and price vs barrio, from the data_
 
 _Spanish, with the AI disclosure, on the renter's behalf_
 
-- **Target seconds:** 37.0 (VO) + 0.5 s tail
+- **Target seconds:** 38.5 (VO) + 0.5 s tail
 - **Callout:** She never had to speak Spanish.
 - **Start state:** Forensic end state.
 - **Actions:**
@@ -101,7 +101,7 @@ _Spanish, with the AI disclosure, on the renter's behalf_
 
 _Confirmed slot on her calendar_
 
-- **Target seconds:** 15.9 (VO) + 0.5 s tail
+- **Target seconds:** 17.2 (VO) + 0.5 s tail
 - **Callout:** One conversation. Brief to booked.
 - **Start state:** Chat with the call-ended chip.
 - **Actions:**
@@ -119,7 +119,7 @@ _Confirmed slot on her calendar_
 
 _Architecture, brand voice, and the agentic loop_
 
-- **Target seconds:** 27.6 (VO) + 0.5 s tail
+- **Target seconds:** 30.1 (VO) + 0.5 s tail
 - **Callout:** The listing works for the agency. Chezy works for you.
 - **Start state:** Left zone swaps the phone frame for a full-zone diagram canvas; the sidebar shows all six items with the last one active.
 - **Actions:**
