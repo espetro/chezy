@@ -119,10 +119,10 @@ Evidence status per track is assessed in
 | SLNG (+ unmute) | Voice agent authored with unmute, deployed as a managed SLNG agent on LiveKit SIP | Agent pinned `eu-central`/`livekit`, trunk attached; missing recorded call + latency/cost numbers |
 | Vonage | Voice API telephony: PSTN leg to the agency, SIP bridge to SLNG | Live test call completed (~EUR 0.015); prize needs the Video API, not Voice |
 | Nebius AI Studio | Chat, title, vision and embedding models via `@ai-sdk/openai-compatible` | Default provider, `DeepSeek-V4.1-Flash`; missing measurable-improvement run |
-| QualityClouds (Norma) | Deterministic checks on the repo (portal Full Scan + MCP) | 62/100 baseline + fixes landed; rescan pending |
-| Galtea | Adversarial eval harness (`apps/web/scripts/galtea/`) | Harness frozen; live run credential-blocked, survey not done |
+| QualityClouds (Norma) | Deterministic checks on the repo (portal Full Scan + MCP) | Scan → fix → rescan complete: 62 → 67/100 Conditional |
+| Galtea | Adversarial evals via `apps/evals` + `apps/web/scripts/galtea/` | Baseline run done, real failures found; fix + rerun + survey pending |
 | Cognition (Devin) | Not yet wired | Needs API-driven session + verifier + retry loop |
-| Mastra | Telegram adapter over `apps/web/lib` | Plan only (`.agents/plans/2026-09-20-telegram-bot-adapter.md`); dropped — 12:00 bot deadline |
+| Mastra | Telegram bot `@hackbarna_chezybot` (`apps/bot`, Mastra + polling) | Live since 11:27; PR #53 open; submit handle by 12:00, keep alive to 17:30 |
 
 Note: the Vonage prize track requires the Video API. Our use is telephony plumbing, not
 a prize play, unless a Video surface is added.
