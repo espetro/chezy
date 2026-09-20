@@ -17,7 +17,7 @@ Short clips hold the last frame; long clips are trimmed to the VO
 
 _Jessie says who she is; Chezy fills the profile_
 
-- **Target seconds:** 14.6 (VO) + 0.5 s tail
+- **Target seconds:** 18.2 (VO) + 0.5 s tail
 - **Callout:** No form. A profile that follows her.
 - **Start state:** Empty chat, greeting "What flat are you looking for?", composer focused.
 - **Actions:**
@@ -38,7 +38,7 @@ _Jessie says who she is; Chezy fills the profile_
 
 _Real Barcelona listings, as cards_
 
-- **Target seconds:** 13.0 (VO) + 0.5 s tail
+- **Target seconds:** 15.7 (VO) + 0.5 s tail
 - **Callout:** Price per m² next to the barrio average.
 - **Start state:** Previous chat scrolled so the last confirmation is at the top.
 - **Actions:**
@@ -58,7 +58,7 @@ _Real Barcelona listings, as cards_
 
 _Sunlight and price vs barrio, from the data_
 
-- **Target seconds:** 24.5 (VO) + 0.5 s tail
+- **Target seconds:** 27.8 (VO) + 0.5 s tail
 - **Callout:** 0% direct sunlight. 13% over the barrio average.
 - **Start state:** Cards 1 and 2 visible.
 - **Actions:**
@@ -79,7 +79,7 @@ _Sunlight and price vs barrio, from the data_
 
 _Spanish, with the AI disclosure, on the renter's behalf_
 
-- **Target seconds:** 32.0 (VO) + 0.5 s tail
+- **Target seconds:** 37.0 (VO) + 0.5 s tail
 - **Callout:** She never had to speak Spanish.
 - **Start state:** Forensic end state.
 - **Actions:**
@@ -101,18 +101,39 @@ _Spanish, with the AI disclosure, on the renter's behalf_
 
 _Confirmed slot on her calendar_
 
-- **Target seconds:** 13.6 (VO) + 0.5 s tail
+- **Target seconds:** 15.9 (VO) + 0.5 s tail
 - **Callout:** One conversation. Brief to booked.
 - **Start state:** Chat with the call-ended chip.
 - **Actions:**
   - Assistant: "Viewing booked: Tuesday 22 September, 18:30. Added to your calendar."
   - Calendar card: "22 SEP" tile, "Viewing · Eixample 2-bed", "18:30 to 19:00", green check.
-  - Last 8 s: sidebar footer fades in the tagline, the sponsor strip and the repo URL.
-- **End state:** Calendar card + footer.
-- **Transition:** End of video (no outro card).
+- **End state:** Calendar card visible.
+- **Transition:** Chat holds; the left zone swaps the phone frame for the stack diagram.
 - **Must show:**
   - booked message with the slot
   - calendar card
   - all five sidebar items checked
 - **VO:** The confirmed slot comes back to the chat, and the viewing lands on Jessie's calendar. Brief, shortlist, forensic check, call, booked. One conversation, and the renter gets an agent of her own. Chezy. Finding a flat, made easy.
+
+## How it works (`stack`)
+
+_Architecture, brand voice, and the agentic loop_
+
+- **Target seconds:** 27.6 (VO) + 0.5 s tail
+- **Callout:** The listing works for the agency. Chezy works for you.
+- **Start state:** Left zone swaps the phone frame for a full-zone diagram canvas; the sidebar shows all six items with the last one active.
+- **Actions:**
+  - Pipeline nodes fade in left to right (~2.5 s stagger) as the VO names them: Chat UI (Next.js), LLM (Nebius logo), Listings DB (Postgres), Voice agent (SLNG logo + unmute label), Telephony (Vonage logo), Agency phone.
+  - A branch edge drops from Voice agent to a Google Calendar node.
+  - Edges run animated dashes with a travelling pulse; a faint return edge over the top closes the agentic loop.
+  - "Built with" credit chip fades in with the Cognition and QualityClouds logos.
+  - Last 8 s: sidebar footer fades in the tagline, the sponsor strip and the repo URL.
+- **End state:** Full pipeline lit, edges flowing, credit chip and sidebar footer visible.
+- **Transition:** End of video (no outro card).
+- **Must show:**
+  - pipeline nodes
+  - sponsor logos on nodes
+  - agentic loop edges
+- **Badges:** Vonage, Nebius, Cognition, QualityClouds, SLNG
+- **VO:** Under the hood: a chat surface on Next.js and Nebius, a Postgres store of real Barcelona listings, and an agentic loop that does not stop at answers — it acts. SLNG runs the voice agent, authored with unmute. Vonage carries the call to the agency's phone. Cognition's Devin helped build it, and QualityClouds keeps it honest. The listing works for the agency. Chezy works for you.
 
