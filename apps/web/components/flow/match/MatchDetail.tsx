@@ -16,7 +16,7 @@ interface MatchDetailProps {
 
 export const MatchDetail = ({ listing, explanation }: MatchDetailProps) => {
   return (
-    <div className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col gap-4 px-4 pt-4 pb-[calc(7rem+env(safe-area-inset-bottom))] sm:gap-5 sm:px-6 sm:pt-6 md:max-w-[960px] md:pb-10">
+    <div className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col gap-4 px-4 pt-4 pb-[calc(7rem+env(safe-area-inset-bottom))] sm:gap-5 sm:px-6 sm:pt-6 md:max-w-[960px] md:pb-10 lg:max-w-[1180px] lg:gap-4 lg:pt-5 lg:pb-6">
       <Link
         href="/explore"
         className="inline-flex min-h-10 w-fit items-center rounded-lg text-[13px] text-fog hover:text-graphite focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-obsidian"
@@ -25,8 +25,8 @@ export const MatchDetail = ({ listing, explanation }: MatchDetailProps) => {
       </Link>
 
       <FlowReveal>
-        <FlowCard padded={false} className="overflow-hidden">
-          <div className="relative h-52 w-full bg-mist sm:h-64 md:h-72">
+        <FlowCard padded={false} className="overflow-hidden lg:flex lg:items-stretch">
+          <div className="relative h-52 w-full bg-mist sm:h-64 md:h-72 lg:h-auto lg:min-h-52 lg:w-[38%] lg:shrink-0">
             {listing.imageUrl ? (
               <img
                 src={listing.imageUrl}
@@ -38,7 +38,7 @@ export const MatchDetail = ({ listing, explanation }: MatchDetailProps) => {
             )}
           </div>
 
-          <div className="flex flex-col gap-3 p-4 sm:p-5 md:flex-row md:items-start md:justify-between md:gap-6">
+          <div className="flex flex-col gap-3 p-4 sm:p-5 md:flex-row md:items-start md:justify-between md:gap-6 lg:min-w-0 lg:flex-1">
             <div className="min-w-0">
               <h1 className="font-heading text-xl leading-tight font-semibold tracking-tight text-obsidian sm:text-2xl">
                 {listing.title}
@@ -69,7 +69,7 @@ export const MatchDetail = ({ listing, explanation }: MatchDetailProps) => {
         </FlowCard>
       </FlowReveal>
 
-      <div className="grid gap-4 sm:gap-5 md:grid-cols-[3fr_2fr] md:items-start">
+      <div className="grid gap-4 sm:gap-5 md:grid-cols-[3fr_2fr] md:items-start lg:grid-cols-[5fr_3fr_4fr] lg:gap-4">
         <InsightPanel {...explanation} />
 
         <FlowCard className="p-5 sm:p-6">
@@ -78,16 +78,16 @@ export const MatchDetail = ({ listing, explanation }: MatchDetailProps) => {
             <NeighborhoodProfile profile={listing.neighborhoodProfile} />
           </div>
         </FlowCard>
-      </div>
 
-      <section
-        id="agency-actions"
-        tabIndex={-1}
-        aria-label="Viewing options"
-        className="scroll-mt-6 rounded-cards focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-obsidian"
-      >
-        <AgentCallGate listing={listing} />
-      </section>
+        <section
+          id="agency-actions"
+          tabIndex={-1}
+          aria-label="Viewing options"
+          className="scroll-mt-6 rounded-cards focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-obsidian md:col-span-2 lg:col-span-1"
+        >
+          <AgentCallGate listing={listing} />
+        </section>
+      </div>
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-mist bg-snow/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:hidden">
         <a
           href="#agency-actions"
