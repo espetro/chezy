@@ -26,12 +26,14 @@ family, one session per rejection, no general builder.
 ## Contract for JES-13
 
 `ComparisonPanelSpec` v1: `schemaVersion: 1`, `feedbackEventId` (uuid), `profileVersion`
-(the JES-8 `sha256:` token), `focus` (a `FeedbackReason`), `attempt` (integer, min 1,
+(the JES-8 `sha256:` token), `focus` (an `AdaptationFocus`: `too_expensive | wrong_area |
+missing_balcony`; a free-form `other` rejection starts no job and `POST /api/adaptation`
+answers 409), `attempt` (integer, min 1,
 echoed from the prompt), `title` (1 to 80 chars), `listingIds` (2 to 3 unique ids),
 `rows` (1 to 4, unique `field` from `price | area | balcony | rooms | size`, `label`,
 optional `note`), `actions` (up to 2 unique from `open_listing | edit_preferences`). No
-display values, no URLs, no markup. `FOCUS_FIELD` maps each reason to the row the panel
-must contain.
+display values, no URLs, no markup. `FOCUS_FIELD` maps each focus to the row the panel
+must contain; `isAdaptationFocus(reason)` is the guard.
 
 `PANEL_ERROR_CODES = schema | wrong_attempt | wrong_event | stale_profile | wrong_focus |
 unknown_listing | missing_required_row`; `PanelValidationErrorSchema = { code, path,

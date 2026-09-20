@@ -1,4 +1,4 @@
-import { FOCUS_FIELD, type FeedbackEvent } from "@chezy/contract";
+import { FOCUS_FIELD, type AdaptationFocus, type FeedbackEvent } from "@chezy/contract";
 import type { CandidateFacts } from "~/lib/adaptation/types";
 import type { Listing } from "~/lib/db/schema";
 
@@ -16,6 +16,7 @@ export const sanitizeCandidate = (row: Listing): CandidateFacts => ({
 
 interface AdaptationPromptInput {
   event: FeedbackEvent;
+  focus: AdaptationFocus;
   rejected: CandidateFacts;
   candidates: CandidateFacts[];
   schema: Record<string, unknown>;
@@ -26,6 +27,7 @@ interface AdaptationPromptInput {
 
 export const buildAdaptationPrompt = ({
   event,
+  focus,
   rejected,
   candidates,
   schema,
@@ -42,12 +44,12 @@ ${candidates.map((candidate) => JSON.stringify(candidate)).join("\n")}
 Required output values:
 - feedbackEventId: ${event.eventId}
 - profileVersion: ${event.profileVersion}
-- focus: ${event.reason}
+- focus: ${focus}
 - attempt: ${attempt}
 
 Hard rules:
 - listingIds may only contain ids from the candidate list above (2 or 3 of them).
-- rows must include a row with field "${FOCUS_FIELD[event.reason]}" covering what the user disliked.
+- rows must include a row with field "${FOCUS_FIELD[focus]}" covering what the user disliked.
 - rows carry field, label and optional note only; never per-listing display values, the app resolves those itself.
 - Do not browse, clone repositories, install anything, or use the network.
 - Answer only via the structured output; no messages, no files.

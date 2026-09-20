@@ -157,7 +157,7 @@ const event = {
 
 describe("createMockDevinClient", () => {
   it("is working on the first poll, finished with a valid spec on the second", async () => {
-    const client = createMockDevinClient({ candidates, event });
+    const client = createMockDevinClient({ candidates, event, focus: "missing_balcony" });
     const created = await client.createSession(input);
     expect(created.phase).toBe("working");
     // The mock never impersonates a Devin session URL.
@@ -180,10 +180,10 @@ describe("createMockDevinClient", () => {
   });
 
   it("keeps session state across client instances", async () => {
-    const first = createMockDevinClient({ candidates, event });
+    const first = createMockDevinClient({ candidates, event, focus: "missing_balcony" });
     const created = await first.createSession(input);
     await first.getSession(created.sessionId);
-    const second = createMockDevinClient({ candidates: [], event });
+    const second = createMockDevinClient({ candidates: [], event, focus: "missing_balcony" });
     const snapshot = await second.getSession(created.sessionId);
     expect(snapshot.phase).toBe("finished");
   });

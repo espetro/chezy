@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as v from "valibot";
 import {
+  ADAPTATION_FOCUSES,
   COMPARISON_ACTIONS,
   COMPARISON_ACTIONS_MAX,
   COMPARISON_FIELDS,
@@ -10,8 +11,8 @@ import {
   COMPARISON_ROWS_MIN,
   ComparisonPanelSpecSchema,
   comparisonPanelJsonSchema,
+  isAdaptationFocus,
 } from "./adaptation";
-import { FEEDBACK_REASONS } from "./feedback";
 
 const spec = {
   schemaVersion: 1,
@@ -49,6 +50,7 @@ describe("ComparisonPanelSpecSchema", () => {
         ],
       },
     ],
+    ["free-form focus", { focus: "other" }],
     [
       "duplicate row field",
       {
@@ -90,7 +92,7 @@ describe("comparisonPanelJsonSchema twin", () => {
     ] as Record<string, unknown>;
 
   it("mirrors the enum constants", () => {
-    expect(property("focus").enum).toEqual([...FEEDBACK_REASONS]);
+    expect(property("focus").enum).toEqual([...ADAPTATION_FOCUSES]);
     const rowItems = (property("rows").items as Record<string, unknown>).properties as Record<
       string,
       Record<string, unknown>
@@ -106,5 +108,16 @@ describe("comparisonPanelJsonSchema twin", () => {
     expect(property("rows").minItems).toBe(COMPARISON_ROWS_MIN);
     expect(property("rows").maxItems).toBe(COMPARISON_ROWS_MAX);
     expect(property("actions").maxItems).toBe(COMPARISON_ACTIONS_MAX);
+  });
+});
+
+describe("isAdaptationFocus", () => {
+  it.each([
+    ["too_expensive", true],
+    ["wrong_area", true],
+    ["missing_balcony", true],
+    ["other", false],
+  ] as const)("%s is %s", (reason, expected) => {
+    expect(isAdaptationFocus(reason)).toBe(expected);
   });
 });

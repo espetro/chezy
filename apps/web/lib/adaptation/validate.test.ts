@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FOCUS_FIELD, type ComparisonPanelSpec, type FeedbackReason } from "@chezy/contract";
+import { FOCUS_FIELD, type AdaptationFocus, type ComparisonPanelSpec } from "@chezy/contract";
 import { validateComparisonPanel, type ValidationContext } from "~/lib/adaptation/validate";
 
 const ctx: ValidationContext = {
@@ -10,7 +10,7 @@ const ctx: ValidationContext = {
   expectedAttempt: 1,
 };
 
-const specFor = (focus: FeedbackReason): ComparisonPanelSpec => {
+const specFor = (focus: AdaptationFocus): ComparisonPanelSpec => {
   const rows: ComparisonPanelSpec["rows"] = [{ field: FOCUS_FIELD[focus], label: "Focus" }];
   if (FOCUS_FIELD[focus] !== "price") rows.push({ field: "price", label: "Price" });
   return {

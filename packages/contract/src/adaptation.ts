@@ -1,10 +1,5 @@
 import * as v from "valibot";
-import {
-  FEEDBACK_REASONS,
-  FeedbackReasonSchema,
-  ProfileVersionSchema,
-  type FeedbackReason,
-} from "./feedback";
+import { ProfileVersionSchema, type FeedbackReason } from "./feedback";
 
 export const COMPARISON_FIELDS = ["price", "area", "balcony", "rooms", "size"] as const;
 export const ComparisonFieldSchema = v.picklist(COMPARISON_FIELDS);
@@ -14,8 +9,16 @@ export const COMPARISON_ACTIONS = ["open_listing", "edit_preferences"] as const;
 export const ComparisonActionSchema = v.picklist(COMPARISON_ACTIONS);
 export type ComparisonAction = v.InferOutput<typeof ComparisonActionSchema>;
 
-// The row a comparison must contain per rejection reason.
-export const FOCUS_FIELD: Record<FeedbackReason, ComparisonField> = {
+// Rejection reasons that name a comparable field. A free-form "other"
+// rejection has nothing to compare around and starts no adaptation.
+export const ADAPTATION_FOCUSES = ["too_expensive", "wrong_area", "missing_balcony"] as const;
+export const AdaptationFocusSchema = v.picklist(ADAPTATION_FOCUSES);
+export type AdaptationFocus = v.InferOutput<typeof AdaptationFocusSchema>;
+export const isAdaptationFocus = (reason: FeedbackReason): reason is AdaptationFocus =>
+  (ADAPTATION_FOCUSES as readonly string[]).includes(reason);
+
+// The row a comparison must contain per focus.
+export const FOCUS_FIELD: Record<AdaptationFocus, ComparisonField> = {
   too_expensive: "price",
   wrong_area: "area",
   missing_balcony: "balcony",
@@ -37,7 +40,7 @@ export const ComparisonPanelSpecSchema = v.strictObject({
   schemaVersion: v.literal(1),
   feedbackEventId: v.pipe(v.string(), v.uuid()),
   profileVersion: ProfileVersionSchema,
-  focus: FeedbackReasonSchema,
+  focus: AdaptationFocusSchema,
   // Echoed from the prompt; 1 until correction retries exist.
   attempt: v.pipe(v.number(), v.integer(), v.minValue(1)),
   title: v.pipe(v.string(), v.minLength(1), v.maxLength(COMPARISON_TITLE_MAX)),
@@ -92,7 +95,7 @@ export const comparisonPanelJsonSchema: Record<string, unknown> = {
     schemaVersion: { const: 1 },
     feedbackEventId: { type: "string", format: "uuid" },
     profileVersion: { type: "string", pattern: "^sha256:[a-f0-9]{64}$" },
-    focus: { enum: [...FEEDBACK_REASONS] },
+    focus: { enum: [...ADAPTATION_FOCUSES] },
     attempt: { type: "integer", minimum: 1 },
     title: { type: "string", minLength: 1, maxLength: COMPARISON_TITLE_MAX },
     listingIds: {

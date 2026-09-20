@@ -70,6 +70,7 @@ describe("sanitizeCandidate", () => {
 describe("buildAdaptationPrompt", () => {
   const prompt = buildAdaptationPrompt({
     event,
+    focus: "missing_balcony",
     rejected,
     candidates,
     schema: { type: "object" },
@@ -100,6 +101,7 @@ describe("buildAdaptationPrompt", () => {
     } as unknown as Listing;
     const clean = buildAdaptationPrompt({
       event,
+      focus: "missing_balcony",
       rejected: sanitizeCandidate(dirtyRow),
       candidates,
       schema: { type: "object" },

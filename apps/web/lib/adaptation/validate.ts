@@ -1,8 +1,8 @@
 import {
   ComparisonPanelSpecSchema,
   FOCUS_FIELD,
+  type AdaptationFocus,
   type ComparisonPanelSpec,
-  type FeedbackReason,
   type PanelValidationError,
 } from "@chezy/contract";
 import * as v from "valibot";
@@ -10,7 +10,7 @@ import * as v from "valibot";
 export interface ValidationContext {
   feedbackEventId: string;
   profileVersion: string;
-  focus: FeedbackReason;
+  focus: AdaptationFocus;
   sourceListingIds: readonly string[];
   expectedAttempt: number;
 }

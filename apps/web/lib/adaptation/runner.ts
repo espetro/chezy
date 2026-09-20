@@ -1,6 +1,8 @@
 import {
   AdaptationJobSchema,
   comparisonPanelJsonSchema,
+  isAdaptationFocus,
+  type AdaptationFocus,
   type AdaptationJob,
   type FeedbackEvent,
 } from "@chezy/contract";
@@ -114,6 +116,9 @@ export const startAdaptation = async (userId: string, eventId: string): Promise<
   const event = await getFeedbackEvent(userId, eventId);
   if (!event) throw new AdaptationError("Feedback not found", 404);
   if (event.undoneAt !== null) throw new AdaptationError("Feedback was undone", 409);
+  if (!isAdaptationFocus(event.reason)) {
+    throw new AdaptationError("No comparison for this reason", 409);
+  }
   const profile = await getProfile(userId);
   if (!profile) throw new AdaptationError("Set your preferences first", 409);
 
@@ -141,6 +146,7 @@ export const startAdaptation = async (userId: string, eventId: string): Promise<
 const claimJob = async (
   row: AdaptationJobRow,
   event: FeedbackEvent,
+  focus: AdaptationFocus,
   profile: SearchProfile,
 ): Promise<AdaptationJob> => {
   // Two tabs can race the claim; only the winner creates the session. The
@@ -181,7 +187,7 @@ const claimJob = async (
           apiKey: env.DEVIN_API_KEY ?? "",
           baseUrl: env.DEVIN_API_BASE_URL,
         })
-      : createMockDevinClient({ candidates, event });
+      : createMockDevinClient({ candidates, event, focus });
 
   let snapshot: DevinSessionSnapshot;
   try {
@@ -189,6 +195,7 @@ const claimJob = async (
       title: `Comparison panel ${event.eventId}`,
       prompt: buildAdaptationPrompt({
         event,
+        focus,
         rejected: sanitizeCandidate(rejectedRow),
         candidates,
         schema: comparisonPanelJsonSchema,
@@ -222,7 +229,11 @@ const claimJob = async (
 // UPDATE and the session-store UPDATE in claimJob: another tab's tick can land
 // there. Keep polling instead of failing; the deadline covers a claimer that
 // died mid-claim.
-const pollJob = async (row: AdaptationJobRow, event: FeedbackEvent): Promise<AdaptationJob> => {
+const pollJob = async (
+  row: AdaptationJobRow,
+  event: FeedbackEvent,
+  focus: AdaptationFocus,
+): Promise<AdaptationJob> => {
   if (!row.providerSessionId) {
     return toAdaptationJob(row);
   }
@@ -231,7 +242,7 @@ const pollJob = async (row: AdaptationJobRow, event: FeedbackEvent): Promise<Ada
       ? devinClient()
       : // The mock keeps its context in a process-global store keyed by
         // session id, so polls do not need the candidates again.
-        createMockDevinClient({ candidates: [], event });
+        createMockDevinClient({ candidates: [], event, focus });
   if (!client) {
     return applyStep(row, {
       kind: "provider_error",
@@ -248,7 +259,7 @@ const pollJob = async (row: AdaptationJobRow, event: FeedbackEvent): Promise<Ada
   const ctx: ValidationContext = {
     feedbackEventId: row.feedbackEventId,
     profileVersion: row.profileVersion,
-    focus: event.reason,
+    focus,
     sourceListingIds: row.sourceListingIds,
     expectedAttempt: row.attempt,
   };
@@ -273,6 +284,7 @@ export const advanceAdaptation = async (
   if (
     !event ||
     event.undoneAt !== null ||
+    !isAdaptationFocus(event.reason) ||
     !profile ||
     getProfileVersion(profile) !== row.profileVersion
   ) {
@@ -281,8 +293,8 @@ export const advanceAdaptation = async (
   if (Date.now() > row.deadlineAt.getTime()) {
     return applyStep(row, { kind: "timeout" });
   }
-  if (row.status === "queued") return claimJob(row, event, profile);
-  if (row.status === "running") return pollJob(row, event);
+  if (row.status === "queued") return claimJob(row, event, event.reason, profile);
+  if (row.status === "running") return pollJob(row, event, event.reason);
   return toAdaptationJob(row);
 };
 

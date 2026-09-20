@@ -31,8 +31,13 @@ const advanceUntilTerminal = async (userId: string, jobId: string, limit = 6) =>
 const [guest, other] = [randomUUID(), randomUUID()];
 // One fixture listing per event: the feedback store folds a second rejection of the same
 // listing into the existing active event, which would reuse the first job.
-const fixtureIds = [0, 1, 2].map(() => `adaptation-check:${randomUUID()}`);
-const [fixtureId, fixtureB, fixtureC] = fixtureIds as [string, string, string];
+const fixtureIds = [0, 1, 2, 3].map(() => `adaptation-check:${randomUUID()}`);
+const [fixtureId, fixtureB, fixtureC, fixtureOther] = fixtureIds as [
+  string,
+  string,
+  string,
+  string,
+];
 try {
   await db.insert(user).values([
     { id: guest, email: `${guest}@example.invalid`, isAnonymous: true },
@@ -79,6 +84,14 @@ try {
     assert.notEqual(id, fixtureId);
   }
 
+  // A free-form rejection has nothing to compare around and starts no job.
+  const eventOther = await recordFeedback(guest, {
+    eventId: randomUUID(),
+    listingId: fixtureOther,
+    reason: "other",
+  });
+  await assert.rejects(startAdaptation(guest, eventOther.eventId), { status: 409 });
+
   // A queued job goes stale when the profile version drifts.
   const eventB = await recordFeedback(guest, {
     eventId: randomUUID(),
@@ -120,6 +133,7 @@ try {
         checks: [
           "queued insert + dedupe on feedback event",
           "cross-user advance isolation",
+          "free-form reason starts no job",
           "mock session reaches ready with validated spec",
           "listingIds subset of source set, rejected listing excluded",
           "profile drift marks queued job stale",

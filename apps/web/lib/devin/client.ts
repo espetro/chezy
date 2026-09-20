@@ -1,9 +1,9 @@
 import {
   FOCUS_FIELD,
+  type AdaptationFocus,
   type ComparisonField,
   type ComparisonPanelSpec,
   type FeedbackEvent,
-  type FeedbackReason,
 } from "@chezy/contract";
 import * as v from "valibot";
 import type { CandidateFacts } from "~/lib/adaptation/types";
@@ -185,6 +185,7 @@ export const createDevinClient = (
 interface MockContext {
   candidates: CandidateFacts[];
   event: FeedbackEvent;
+  focus: AdaptationFocus;
 }
 
 const FIELD_LABELS: Record<ComparisonField, string> = {
@@ -195,7 +196,7 @@ const FIELD_LABELS: Record<ComparisonField, string> = {
   size: "Size",
 };
 
-const MOCK_TITLES: Record<FeedbackReason, string> = {
+const MOCK_TITLES: Record<AdaptationFocus, string> = {
   too_expensive: "Cheaper matching homes",
   wrong_area: "Homes in other areas",
   missing_balcony: "Homes with outdoor space",
@@ -209,19 +210,19 @@ let mockSequence = 0;
 const hasOutdoorSpace = (candidate: CandidateFacts) =>
   candidate.amenities.some((amenity) => /balcony|terrace/i.test(amenity));
 
-const mockSpec = ({ candidates, event }: MockContext): ComparisonPanelSpec => {
+const mockSpec = ({ candidates, event, focus }: MockContext): ComparisonPanelSpec => {
   const ordered =
-    event.reason === "missing_balcony"
+    focus === "missing_balcony"
       ? [...candidates].sort((a, b) => Number(hasOutdoorSpace(b)) - Number(hasOutdoorSpace(a)))
       : candidates;
-  const fields = [...new Set<ComparisonField>([FOCUS_FIELD[event.reason], "price", "area"])];
+  const fields = [...new Set<ComparisonField>([FOCUS_FIELD[focus], "price", "area"])];
   return {
     schemaVersion: 1,
     feedbackEventId: event.eventId,
     profileVersion: event.profileVersion,
-    focus: event.reason,
+    focus,
     attempt: 1,
-    title: MOCK_TITLES[event.reason],
+    title: MOCK_TITLES[focus],
     listingIds: ordered.slice(0, 3).map((candidate) => candidate.id),
     rows: fields.map((field) => ({ field, label: FIELD_LABELS[field] })),
     actions: ["open_listing", "edit_preferences"],
