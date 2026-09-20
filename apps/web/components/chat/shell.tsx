@@ -161,6 +161,7 @@ export function ChatShell({ embedded = false }: { embedded?: boolean }) {
                   setMessages={setMessages}
                   status={status}
                   stop={stop}
+                  syncUrl={!embedded}
                 />
               )}
             </div>

@@ -114,12 +114,12 @@ test.describe("flow chat launcher (mobile)", () => {
 
     await page.goto("/explore");
     const firstListing = page.locator("a[href^='/explore/']").first();
-    const href = await firstListing.getAttribute("href");
-    expect(href).toBeTruthy();
-    await page.goto(href as string);
+    await firstListing.click();
+    await expect(page).toHaveURL(/\/explore\/.+/);
 
     const launcherBox = await launcher.boundingBox();
-    const actionsBar = page.locator("[aria-label='Listing actions']");
+    // The fixed mobile action bar in MatchDetail wraps the "Review viewing options" anchor.
+    const actionsBar = page.locator("a[href='#agency-actions']");
     await expect(actionsBar).toBeVisible();
     const barBox = await actionsBar.boundingBox();
     expect(launcherBox).not.toBeNull();
@@ -131,7 +131,12 @@ test.describe("flow chat launcher (mobile)", () => {
     await page.screenshot({ path: `${SHOT_DIR}/match-mobile.png` });
 
     await launcher.click();
-    await expect(page.getByRole("dialog")).toBeVisible();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    // Full-width on phones; the chat input is the last thing to hydrate.
+    const dialogBox = await dialog.boundingBox();
+    expect(dialogBox?.width).toBe(390);
+    await expect(dialog.getByTestId("multimodal-input")).toBeVisible({ timeout: 15000 });
     await page.screenshot({ path: `${SHOT_DIR}/drawer-open-mobile.png` });
 
     expect(consoleErrors).toEqual([]);
@@ -156,6 +161,8 @@ test.describe("flow chat launcher (mobile)", () => {
     await expect(userMessage).toContainText("What neighbourhoods am I searching in?");
 
     await expect(dialog.getByTestId("message-assistant")).toBeVisible({ timeout: 60000 });
+    // Embedded mode must not rewrite the host URL to /chat/[id].
+    await expect(page).toHaveURL(/\/explore$/);
 
     expect(consoleErrors).toEqual([]);
   });

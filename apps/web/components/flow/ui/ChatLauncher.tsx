@@ -11,7 +11,14 @@ import { cn } from "~/lib/utils";
 // Lazy so the flow pages don't pay the chat bundle until the drawer opens.
 const EmbeddedChat = dynamic(
   () => import("~/components/flow/ui/EmbeddedChat").then((mod) => mod.EmbeddedChat),
-  { ssr: false },
+  {
+    ssr: false,
+    loading: () => (
+      <div role="status" className="flex h-full items-center justify-center text-[13px] text-fog">
+        Opening chat…
+      </div>
+    ),
+  },
 );
 
 export const FlowChatLauncher = () => {
@@ -32,24 +39,24 @@ export const FlowChatLauncher = () => {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      {open ? undefined : (
-        <button
-          type="button"
-          aria-label="Chat with Chezy"
-          onClick={() => setOpen(true)}
-          className={cn(
-            "fixed right-4 z-30 inline-flex size-12 items-center justify-center rounded-full bg-obsidian text-snow shadow-lg shadow-obsidian/20 sm:right-6",
-            "hover:bg-graphite focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-obsidian motion-safe:transition-transform active:scale-95",
-            bottomOffset,
-          )}
-        >
-          <MessageCircle size={20} aria-hidden />
-        </button>
-      )}
+      {/* Stays mounted while open (under the overlay) so Radix can return focus to it on close. */}
+      <button
+        type="button"
+        aria-label="Chat with Chezy"
+        aria-expanded={open}
+        onClick={() => setOpen(true)}
+        className={cn(
+          "fixed right-4 z-30 inline-flex size-12 items-center justify-center rounded-full bg-obsidian text-snow shadow-lg shadow-obsidian/20 sm:right-6",
+          "hover:bg-graphite focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-obsidian motion-safe:transition-transform active:scale-95",
+          bottomOffset,
+        )}
+      >
+        <MessageCircle size={20} aria-hidden />
+      </button>
       <SheetContent
         side="right"
         showCloseButton={false}
-        className="w-full gap-0 p-0 font-flow sm:max-w-md"
+        className="gap-0 p-0 font-flow data-[side=right]:w-full data-[side=right]:sm:max-w-md"
       >
         <SheetTitle className="sr-only">Chat with Chezy</SheetTitle>
         <div className="flex items-center gap-3 border-b border-cloud bg-snow px-4 py-3">

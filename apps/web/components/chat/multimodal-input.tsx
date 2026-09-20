@@ -78,6 +78,7 @@ function PureMultimodalInput({
   editingMessage,
   onCancelEdit,
   isLoading,
+  syncUrl = true,
 }: {
   chatId: string;
   input: string;
@@ -96,6 +97,9 @@ function PureMultimodalInput({
   editingMessage?: ChatMessage | null;
   onCancelEdit?: () => void;
   isLoading?: boolean;
+  // False when the chat is embedded in another route (the flow drawer): the
+  // host page's URL must not be rewritten to /chat/[id] on send.
+  syncUrl?: boolean;
 }) {
   const router = useRouter();
   const { setTheme, resolvedTheme } = useTheme();
@@ -208,7 +212,9 @@ function PureMultimodalInput({
   );
 
   const submitForm = useCallback(() => {
-    window.history.pushState({}, "", `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/chat/${chatId}`);
+    if (syncUrl) {
+      window.history.pushState({}, "", `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/chat/${chatId}`);
+    }
 
     sendMessage({
       parts: [
@@ -242,6 +248,7 @@ function PureMultimodalInput({
     setLocalStorageInput,
     width,
     chatId,
+    syncUrl,
   ]);
 
   const uploadFile = useCallback(async (file: File) => {
@@ -440,6 +447,7 @@ function PureMultimodalInput({
             chatId={chatId}
             selectedVisibilityType={selectedVisibilityType}
             sendMessage={sendMessage}
+            syncUrl={syncUrl}
           />
         )}
 
@@ -557,6 +565,9 @@ export const MultimodalInput = memo(PureMultimodalInput, (prevProps, nextProps) 
     return false;
   }
   if (prevProps.isLoading !== nextProps.isLoading) {
+    return false;
+  }
+  if (prevProps.syncUrl !== nextProps.syncUrl) {
     return false;
   }
   if (prevProps.messages.length !== nextProps.messages.length) {
