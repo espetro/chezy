@@ -22,6 +22,11 @@ const StatusSchema = v.object({
   status: v.string(),
   slotIso: v.optional(v.string()),
   calendarChannel: v.optional(v.picklist(["mock", "google"])),
+  stage: v.optional(v.number()),
+  transcript: v.optional(
+    v.array(v.object({ role: v.picklist(["agent", "human"]), text: v.string() })),
+  ),
+  detail: v.optional(v.string()),
 });
 
 const browserStorage = {
@@ -59,6 +64,7 @@ export function useViewingBooking(listingId: string) {
   const [call, setCall] = useState<ViewingState>({ status: "idle" });
   const [booking, setBooking] = useState<BookingState>({ status: "idle" });
   const [stage, setStage] = useState(0);
+  const [transcript, setTranscript] = useState<{ role: "agent" | "human"; text: string }[]>([]);
   const viewing = useRef<ReturnType<typeof createViewingController> | undefined>(undefined);
   const calendar = useRef<ReturnType<typeof createBookingController> | undefined>(undefined);
   const polling = useRef(false);
@@ -93,7 +99,6 @@ export function useViewingBooking(listingId: string) {
       for (;;) {
         await wait(LIVE_POLL_MS);
         const elapsed = Date.now() - startedAt;
-        setStage((current) => Math.max(current, liveStage(elapsed)));
         const response = await fetch(
           `/api/viewing/status?propertyRef=${encodeURIComponent(listingId)}`,
         ).catch(() => undefined);
@@ -101,6 +106,8 @@ export function useViewingBooking(listingId: string) {
           ? v.safeParse(StatusSchema, await response.json().catch(() => undefined))
           : undefined;
         const status = parsed?.success ? parsed.output : undefined;
+        setStage((current) => Math.max(current, liveStage(elapsed), status?.stage ?? 0));
+        if (status?.transcript?.length) setTranscript(status.transcript);
         if (status?.status === "booked" && status.slotIso) {
           await confirm({
             status: "booked",
@@ -110,21 +117,19 @@ export function useViewingBooking(listingId: string) {
           return;
         }
         if (status?.status === "failed") {
-          setCall({
-            status: "failed",
-            detail: "The agency call ended without a booking.",
-            retryable: true,
-            live: true,
-          });
+          setCall(
+            controllers().viewing.abandon(
+              status.detail ?? "The agency call ended without a booking.",
+            ),
+          );
+          return;
+        }
+        if (status?.status === "none") {
+          setCall(controllers().viewing.abandon("No call on record for this listing. Try again."));
           return;
         }
         if (elapsed > LIVE_CALL_TIMEOUT_MS) {
-          setCall({
-            status: "failed",
-            detail: "No booking came back from the call. Try again.",
-            retryable: true,
-            live: true,
-          });
+          setCall(controllers().viewing.abandon("No booking came back from the call. Try again."));
           return;
         }
       }
@@ -152,6 +157,7 @@ export function useViewingBooking(listingId: string) {
   const start = async () => {
     const { viewing } = controllers();
     setStage(0);
+    setTranscript([]);
     setCall({ status: "dispatching" });
     const outcome = await viewing.start(true);
     setCall(outcome);
@@ -176,6 +182,7 @@ export function useViewingBooking(listingId: string) {
     call,
     booking,
     stage,
+    transcript,
     slotIso,
     phase: derivePhase(call, booking),
     start,
