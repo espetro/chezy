@@ -19,13 +19,13 @@ const rows: ActivityRow[] = [
   {
     icon: SlidersHorizontal,
     title: "14 listings filtered",
-    detail: "Gràcia · under 1.400 € · 2 bedrooms",
+    detail: "Gràcia · under 1.400 €",
     meta: "12m",
   },
   {
     icon: Sparkles,
     title: "Match 96%",
-    detail: "Carrer de Verdi · 78 m² · balcony, lift",
+    detail: "Carrer de Verdi · 78 m²",
     meta: "Calling",
     accent: true,
   },
@@ -37,8 +37,11 @@ const rows: ActivityRow[] = [
   },
 ];
 
+// min-w-0: as a grid item the card's automatic minimum size is its content's
+// min-content width, which pushes the track past the viewport on a 375px phone.
+// The rows truncate instead.
 export const AgentActivityCard = () => (
-  <FlowCard padded={false} className="border border-cloud p-5 sm:p-6">
+  <FlowCard padded={false} className="min-w-0 border border-cloud p-5 sm:p-6">
     <div className="flex items-center gap-3">
       <HomeSignalMark className="size-10 rounded-[12px]" />
       <div className="min-w-0 flex-1">
