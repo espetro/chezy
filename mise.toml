@@ -208,6 +208,10 @@ run = "lefthook install"
 description = "Initialize a new worktree: copy .env, run pnpm install, uv sync --all-packages, then db:start"
 run = "bash scripts/worktree-init.sh"
 
+[tasks."forge:pisos"]
+description = "Devin forge: pisos.com adapter, verified by pytest + hold-out"
+run = "node --env-file-if-exists=.env --import=tsx scripts/devin-forge/forge.ts pisos"
+
 [tasks.setup]
 description = "First-time setup: wt:init (deps, .env.local, pg0), then migrate and seed the listings"
 run = "mise run wt:init && pnpm --filter @chezy/web db:migrate && mise run db:seed"
