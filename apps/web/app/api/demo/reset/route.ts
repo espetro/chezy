@@ -3,6 +3,7 @@ import * as v from "valibot";
 import { auth } from "~/app/(auth)/auth";
 import { isDemoRehearsalSafe, isDemoResetEnabled } from "~/lib/demo/access";
 import { resetDemo } from "~/lib/demo/reset";
+import { isSameOrigin } from "~/lib/request-origin";
 
 const ResetInput = v.strictObject({ loadPersona: v.boolean() });
 
@@ -14,8 +15,7 @@ export async function POST(request: Request): Promise<Response> {
   if (!session?.user?.id) {
     return Response.json({ error: "unauthorized" }, { status: 401 });
   }
-  const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) {
+  if (!isSameOrigin(request)) {
     return Response.json({ error: "invalid origin" }, { status: 403 });
   }
   if (!isDemoRehearsalSafe()) {
