@@ -11,18 +11,13 @@ const highlights = [
 ];
 
 const FlowLandingPage = () => (
-  <main className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col gap-12 px-4 py-8 sm:px-6 sm:py-12 md:max-w-[1200px] md:gap-20 md:py-16">
-    <header className="flex items-center justify-between">
+  <main className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col px-4 sm:max-w-xl sm:px-6">
+    <header className="flex items-center py-5">
       <span className="text-[15px] font-semibold">Chezy</span>
-      <div className="flex items-center gap-2">
-        <Link href="/onboarding">
-          <FlowButton size="sm">Get started</FlowButton>
-        </Link>
-      </div>
     </header>
 
-    <section className="grid gap-10 md:grid-cols-2 md:items-center">
-      <div className="flex flex-col gap-6">
+    <div className="flex flex-1 flex-col gap-8 py-4 sm:gap-10 sm:py-6">
+      <section className="flex flex-col gap-6">
         <FlowPill variant="accent" className="w-fit px-3 py-1 text-[13px]">
           AI rental agent
         </FlowPill>
@@ -32,18 +27,7 @@ const FlowLandingPage = () => (
         <p className="text-sm leading-relaxed text-fog sm:text-base">
           Tell Chezy what you want once — it finds the match and books the visit.
         </p>
-        <div className="flex w-full flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3">
-          <Link className="w-full sm:w-auto" href="/onboarding">
-            <FlowButton className="w-full sm:w-auto">Find my home</FlowButton>
-          </Link>
-          <Link className="w-full sm:w-auto" href="/explore">
-            <FlowButton className="w-full sm:w-auto" variant="secondary">
-              See a match in action
-            </FlowButton>
-          </Link>
-        </div>
-        <p className="text-sm text-fog">About 1 minute to set up · you&apos;re always in control</p>
-      </div>
+      </section>
 
       <FlowCard padded={false} className="flex flex-col gap-4 p-5 sm:p-7">
         <h2 className="text-subheading font-semibold text-obsidian">How Chezy works</h2>
@@ -59,7 +43,16 @@ const FlowLandingPage = () => (
           ))}
         </ul>
       </FlowCard>
-    </section>
+    </div>
+
+    <div className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-3 bg-paper/90 p-4 [padding-bottom:max(1rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:-mx-6 sm:px-6">
+      <Link href="/onboarding" className="w-full">
+        <FlowButton className="w-full">Find my home</FlowButton>
+      </Link>
+      <p className="text-center text-sm text-fog">
+        About 1 minute to set up · you&apos;re always in control
+      </p>
+    </div>
   </main>
 );
 
