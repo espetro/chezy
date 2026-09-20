@@ -115,6 +115,36 @@ keeps the feed usable and offers "Try again", whose second failure records
 "New attempt started (run 2)". Screenshots: `docs/evidence/jes-13/mock-fixtures/` (labelled
 Simulated in the UI).
 
+## Judge demo: local flow, then the Devin dashboard
+
+Everything the judge sees locally links to a session they can open in the cloud.
+
+1. Start the app in real mode from the worktree: `cd apps/web && PORT=3013 ADAPTATION_MODE=devin
+pnpm dev` (`DEVIN_API_KEY` in `.env.local`, database seeded with `mise run db:seed`).
+2. Open `http://localhost:3013/onboarding`, "Show" the demo tools, "Reset and load demo"; the
+   feed at `/explore` appears.
+3. On the first card press the X ("Discard this candidate"), then "Missing balcony" in
+   "Refine the reason". The status line under the carousel reads "Queued for Devin.", then
+   "Devin is building your comparison. View session" within about two seconds: the session
+   was just created through `POST /v1/sessions`.
+4. Click **View session**. It opens `https://app.devin.ai/sessions/<id>` in the Devin
+   dashboard: the session title is `Chezy comparison panel: missing_balcony (<event>)`, tagged
+   `chezy`, `jes-13`, `missing_balcony`; the prompt shows the rejected listing, the candidate
+   allowlist and the JSON schema, and the structured output panel fills in when Devin answers.
+5. Back in the app (15 to 40 s later) the comparison panel replaces the status line: "Built by
+   a Devin session from your rejection. View session", "Accepted on the first attempt." and a
+   "Run trace" disclosure with timestamps (triggered, session started, candidate proposed,
+   accepted). The same link opens the same session. If Devin's first answer had been refused,
+   the status would read "The validator refused Devin's first comparison. Asking it to
+   correct. Attempt 2 of 2." and the trace would list the coded errors and the correction.
+6. Open `https://app.devin.ai/sessions` (the organisation's session list): every run appears
+   with the `chezy` tag, so the judge sees the agent was called for each rejection, not once.
+   Earlier sessions from the same day are listed in the evidence table below.
+7. Optional, to show the gate refusing and correcting without waiting for a real refusal:
+   restart with `ADAPTATION_MODE=mock ADAPTATION_MOCK_SCENARIO=invalid_first` and repeat step
+   3; the UI labels this run "Simulated" and it must be introduced as the labelled test
+   fixture, never as the sponsor run.
+
 ## Real API runs and acceptance status
 
 Four genuine runs on 2026-09-20 with `ADAPTATION_MODE=devin` (v1 API, `max_acu_limit: 1`),
@@ -129,8 +159,9 @@ its errors, session id, screenshots).
 | 2 | `missing_balcony` | `devin-814c910d879a41aeb51bc04d7711dddf` | accepted on attempt 1, 25 s | `run2/` (JSON, `status-building.png`, `accepted.png`) |
 | 3 | `missing_balcony` | `devin-562529d2cb1a40ef8d6f07e38a10e336` | accepted on attempt 1, 28 s | `run3/` (JSON) |
 | 4 | `too_expensive` | `devin-b093f962ecd346a19844f4782d79e12a` | accepted on attempt 1, 14 s | `run4/` (JSON, `accepted.png`) |
+| 5 | `missing_balcony` | `devin-fbf49e46674d40c08d500102166afce9` | accepted on attempt 1, 33 s; first listed and tagged session (`unlisted: false`) | dashboard only |
 
-Devin's first structured output passed every check in all four runs, so no genuine refused
+Devin's first structured output passed every check in all five runs, so no genuine refused
 first candidate was captured. Per the ticket, that proof item is **incomplete**: the
 correction message, the second candidate and the exhaustion path are proven by the unit
 tests, the pg0 check script and the browser run on labelled mock fixtures, not by a live

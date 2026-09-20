@@ -5,7 +5,12 @@ import { createDevinClient, createMockDevinClient, DevinClientError } from "~/li
 
 const config = { apiKey: "apk_user_testkey", baseUrl: "https://api.devin.ai" };
 const ok = (body: unknown) => new Response(JSON.stringify(body), { status: 200 });
-const input = { title: "t", prompt: "p", schema: { type: "object" } };
+const input = {
+  title: "t",
+  prompt: "p",
+  schema: { type: "object" },
+  tags: ["chezy", "jes-13", "missing_balcony"],
+};
 
 const fetchMock = () => vi.fn<typeof fetch>();
 
@@ -32,7 +37,8 @@ describe("createDevinClient", () => {
     expect(body.structured_output_schema).toEqual({ type: "object" });
     expect(body.max_acu_limit).toBe(1);
     expect(body.title).toBe("t");
-    expect(body.unlisted).toBe(true);
+    expect(body.unlisted).toBe(false);
+    expect(body.tags).toEqual(["chezy", "jes-13", "missing_balcony"]);
     expect(body.idempotent).toBeUndefined();
   });
 

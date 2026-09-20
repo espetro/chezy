@@ -72,6 +72,7 @@ export interface DevinClient {
     title: string;
     prompt: string;
     schema: Record<string, unknown>;
+    tags?: string[];
   }): Promise<DevinSessionSnapshot>;
   getSession(sessionId: string): Promise<DevinSessionSnapshot>;
   sendMessage(sessionId: string, message: string): Promise<void>;
@@ -141,7 +142,7 @@ export const createDevinClient = (
   };
 
   return {
-    createSession: async ({ title, prompt, schema }) => {
+    createSession: async ({ title, prompt, schema, tags }) => {
       const data = v.parse(
         CreateSessionSchema,
         await call("/v1/sessions", {
@@ -151,7 +152,10 @@ export const createDevinClient = (
             structured_output_schema: schema,
             max_acu_limit: ADAPTATION_MAX_ACU,
             title,
-            unlisted: true,
+            tags,
+            // Listed on purpose: the sessions are the sponsor proof and must
+            // show up in the organisation's session list, not only by link.
+            unlisted: false,
           }),
         }),
       );

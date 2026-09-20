@@ -235,7 +235,9 @@ const claimJob = async (
   let snapshot: DevinSessionSnapshot;
   try {
     snapshot = await client.createSession({
-      title: `Comparison panel ${event.eventId}`,
+      // Readable in the Devin session list next to the app's "View session" link.
+      title: `Chezy comparison panel: ${focus} (${event.eventId.slice(0, 8)})`,
+      tags: ["chezy", "jes-13", focus],
       prompt: buildAdaptationPrompt({
         event,
         focus,
