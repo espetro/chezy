@@ -19,6 +19,9 @@ repo-wide orientation, not a dump.
   See [`apps/web/AGENTS.md`](apps/web/AGENTS.md).
 - `apps/scraper/` — uv-managed Python CLI for idealista.com scraping.
   See [`apps/scraper/AGENTS.md`](apps/scraper/AGENTS.md).
+- `apps/bot/` — Telegram client (`@chezy/bot`): Mastra agent + `@mastra/telegram`
+  polling + `@mastra/hono` server on `BOT_PORT` (4111), reusing `apps/web/lib`
+  read-only via `~/*` paths. See [`apps/bot/AGENTS.md`](apps/bot/AGENTS.md).
 - `packages/ui/` — shadcn/ui primitives, hooks, `useMountEffect` escape hatch.
   See [`packages/ui/AGENTS.md`](packages/ui/AGENTS.md).
 - `packages/config/` — Valibot env parser (the `process.env` seam for chezy code).
@@ -148,6 +151,8 @@ Non-gated, advisory. Lint-clean does not mean idiomatic.
   dropped (components/chat/** and the API routes under `app/(chat)/api/*` are kept for
   reuse); APIs `/api/chat`, `/api/profile`, `/api/profile/count`, `/api/viewing`,
   `/api/calendar`. Legacy `/flow/*` URLs redirect to the root equivalents.
+- `apps/bot` adds no web routes; it serves Mastra's agent API plus
+  `POST /internal/radar/run` on `BOT_PORT` (default 4111).
 
 ## Stack reference
 
