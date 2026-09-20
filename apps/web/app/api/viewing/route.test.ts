@@ -20,6 +20,15 @@ const mocks = vi.hoisted(() => ({
   auth: vi.fn(),
   slng: vi.fn(),
   vonage: vi.fn(),
+  logError: vi.fn(),
+}));
+vi.mock("@chezy/observability", () => ({
+  getLogger: () => ({
+    error: mocks.logError,
+    warn: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+  }),
 }));
 vi.mock("~/app/(auth)/auth", () => ({ auth: mocks.auth }));
 vi.mock("~/lib/slng", () => ({ dispatchSlngCall: mocks.slng }));
@@ -100,6 +109,7 @@ describe("POST /api/viewing", () => {
         expect(result.latencyMs).toBeGreaterThanOrEqual(0);
         expect(result.callId).toMatch(/^redacted:[a-f0-9]{12}$/);
       }
+      expect(mocks.logError).not.toHaveBeenCalled();
     },
   );
 
@@ -158,6 +168,9 @@ describe("POST /api/viewing", () => {
     const failed = await post(input);
     expect(failed.status).toBe(502);
     expect(await failed.json()).toMatchObject({ status: "failed", retryable: true });
+    expect(mocks.logError).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(mocks.logError.mock.calls)).toContain("slng");
+    expect(JSON.stringify(mocks.logError.mock.calls)).not.toContain("+34600000000");
     expect((await post({ ...input, retry: true })).status).toBe(200);
     expect(mocks.slng).toHaveBeenCalledTimes(2);
   });
@@ -203,6 +216,9 @@ describe("POST /api/viewing", () => {
       expect(JSON.stringify(body)).not.toMatch(/secret|34600000000/);
       expect(await (await post(input)).json()).toEqual(body);
       expect(mocks.slng).toHaveBeenCalledTimes(1);
+      // The dispatch is logged once; the receipt replay must not log again.
+      expect(mocks.logError).toHaveBeenCalledTimes(1);
+      expect(JSON.stringify(mocks.logError.mock.calls)).not.toMatch(/34600000000/);
     },
   );
 
