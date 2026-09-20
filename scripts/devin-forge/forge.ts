@@ -1,7 +1,7 @@
 /**
  * Chezy Forge entrypoint: `tsx scripts/devin-forge/forge.ts pisos
  * [--base <branch>] [--max-attempts 3] [--dry-run-verify <sha>]
- * [--smoke]`.
+ * [--smoke] [--resume <sessionId> --run-id <id>]`.
  *
  * Creates a Devin cloud session that writes the pisos.com adapter,
  * verifies the resulting PR (allowlist + pytest + hold-out + ruff +
@@ -114,7 +114,8 @@ async function main(): Promise<number> {
   const maxAttempts = Number(arg("--max-attempts") ?? "3");
   const repo = env.FORGE_REPO ?? DEFAULT_REPO;
   const holdoutDir = env.FORGE_HOLDOUT_DIR ?? DEFAULT_HOLDOUT;
-  const runId = runIdNow();
+  const resumeId = arg("--resume");
+  const runId = arg("--run-id") ?? runIdNow();
 
   if (!env.DEVIN_PAT) {
     console.error("DEVIN_PAT is not set (root .env)");
@@ -146,19 +147,21 @@ async function main(): Promise<number> {
     return verdict.kind === "pass" ? 0 : 1;
   }
 
-  const session = await createSession(client, {
-    prompt: buildPrompt(runId, base),
-    repos: [repo],
-    title: `forge:pisos ${runId}`,
-    tags: ["forge", "pisos", runId],
-    structured_output_schema: STRUCTURED_OUTPUT_SCHEMA,
-    structured_output_required: true,
-    max_acu_limit: 8,
-    resumable: true,
-  });
+  const session = resumeId
+    ? await getSession(client, resumeId)
+    : await createSession(client, {
+        prompt: buildPrompt(runId, base),
+        repos: [repo],
+        title: `forge:pisos ${runId}`,
+        tags: ["forge", "pisos", runId],
+        structured_output_schema: STRUCTURED_OUTPUT_SCHEMA,
+        structured_output_required: true,
+        max_acu_limit: 8,
+        resumable: true,
+      });
   console.log(`session: ${session.url}`);
   logEvent(runId, {
-    event: "session_created",
+    event: resumeId ? "session_resumed" : "session_created",
     runId,
     sessionId: session.session_id,
     url: session.url,
@@ -175,7 +178,7 @@ async function main(): Promise<number> {
   };
 
   const sessionPrUrl = (s: Awaited<ReturnType<typeof getSession>>) =>
-    s.pull_requests?.[0]?.url ?? (s.structured_output?.["pr_url"] as string | undefined);
+    s.pull_requests?.[0]?.pr_url ?? (s.structured_output?.["pr_url"] as string | undefined);
 
   let lastVerifiedSha: string | undefined;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
