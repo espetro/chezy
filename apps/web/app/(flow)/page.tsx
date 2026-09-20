@@ -1,6 +1,7 @@
 import { CircleCheck } from "lucide-react";
 import Link from "next/link";
 import { FlowButton } from "~/components/flow/ui/Button";
+import { FlowCard } from "~/components/flow/ui/Card";
 import { FlowPill } from "~/components/flow/ui/Pill";
 
 const highlights = [
@@ -29,9 +30,7 @@ const FlowLandingPage = () => (
           Find your next home without chasing it yourself
         </h1>
         <p className="text-sm leading-relaxed text-fog sm:text-base">
-          Describe what you're looking for once. Chezy tracks inventory from partner agencies,
-          scores every listing against your profile, and calls the agency itself the moment a match
-          is strong enough.
+          Tell Chezy what you want once — it finds the match and books the visit.
         </p>
         <div className="flex w-full flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3">
           <Link className="w-full sm:w-auto" href="/onboarding">
@@ -46,17 +45,20 @@ const FlowLandingPage = () => (
         <p className="text-sm text-fog">About 1 minute to set up · you&apos;re always in control</p>
       </div>
 
-      <div className="rounded-cards border border-cloud bg-slate p-5 text-snow sm:p-7">
-        <p className="text-[13px] tracking-wide text-mist uppercase">How Chezy works</p>
-        <ul className="mt-4 flex flex-col gap-4">
+      <FlowCard padded={false} className="flex flex-col gap-4 p-5 sm:p-7">
+        <h2 className="text-subheading font-semibold text-obsidian">How Chezy works</h2>
+        <ul className="flex flex-col gap-4">
           {highlights.map((highlight) => (
-            <li key={highlight} className="flex items-start gap-3 text-[15px] sm:text-[16px]">
-              <CircleCheck size={18} aria-hidden className="mt-1 shrink-0 text-ember" />
+            <li
+              key={highlight}
+              className="flex items-start gap-3 text-[15px] text-graphite sm:text-[16px]"
+            >
+              <CircleCheck size={18} aria-hidden className="mt-1 shrink-0 text-obsidian" />
               <span>{highlight}</span>
             </li>
           ))}
         </ul>
-      </div>
+      </FlowCard>
     </section>
   </main>
 );
