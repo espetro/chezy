@@ -1,3 +1,5 @@
+import "./fonts";
+
 import { Composition } from "remotion";
 import { DemoComposition } from "./DemoComposition";
 import { demoConfig } from "./config/demo.config";

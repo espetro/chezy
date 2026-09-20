@@ -34,6 +34,10 @@ from a client owner, not an ordinary server component.
 Carousel exits focus the next remaining card (or the empty message) when complete.
 Undo restores card focus, or the feed if filters hide that card. Existing scroll,
 previous/next and indicator controls remain; indicators now have 44px targets.
+Keyboard focus into a card aligns its slide to the start so focused links and
+dismissal controls remain visible; pointer focus only scrolls when the slide is
+clipped. Previous and Next stay focusable at the boundaries (`aria-disabled`)
+so focus is never dropped to the document.
 
 ## Motion and dimensions
 
@@ -59,7 +63,8 @@ rendering: mounted grounded reasons, over-budget trade-off, missing source facts
 single score and the link to truthful viewing controls. Existing matching,
 feed, explanation and viewing tests cover their underlying contracts.
 
-Browser approval was not supplied for this session. Layout, animation timing,
-interactive keyboard focus, reduced-motion rendering, screenshots and recording
-remain to be verified in the browser. Live Nebius/SLNG proof belongs to their
-respective tickets and is not supplied by deterministic fallback or SSR tests.
+Browser verification and its latest evidence are tracked in
+[PR #39](https://github.com/espetro/chezy/pull/39). Rendering tests alone do not
+verify layout, interactive keyboard focus or reduced-motion behavior. Live
+Nebius/SLNG proof belongs to their respective tickets and is not supplied by
+deterministic fallback or SSR tests.

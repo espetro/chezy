@@ -169,12 +169,57 @@ describe("viewing request controller", () => {
           { status: 403 },
         ),
       )
+      .mockResolvedValueOnce(Response.json(simulated))
       .mockResolvedValueOnce(Response.json(dispatched));
     const controller = createViewingController("listing", saved, fetcher);
-    await controller.start(true);
+    // A pre-dispatch config rejection does not commit the user to live.
+    expect(await controller.start(true)).toMatchObject({
+      status: "failed",
+      retryable: true,
+      live: false,
+    });
     const remounted = createViewingController("listing", saved, fetcher);
-    remounted.restore();
-    expect((await remounted.start()).status).toBe("dispatched");
-    expect(JSON.parse(String(fetcher.mock.calls[1][1]?.body)).retry).toBe(false);
+    expect(remounted.restore()).toMatchObject({
+      status: "failed",
+      retryable: true,
+      live: false,
+    });
+    // A fresh simulation carries no requestId.
+    expect((await remounted.start()).status).toBe("simulated");
+    const simulatedBody = JSON.parse(String(fetcher.mock.calls[1][1]?.body));
+    expect(simulatedBody.live).toBe(false);
+    expect(simulatedBody).not.toHaveProperty("requestId");
+    // Opting back into live reuses the original requestId without a retry flag.
+    expect((await remounted.start(true)).status).toBe("dispatched");
+    const liveBody = JSON.parse(String(fetcher.mock.calls[2][1]?.body));
+    expect(liveBody.live).toBe(true);
+    expect(liveBody.retry).toBe(false);
+    expect(liveBody.requestId).toBe(JSON.parse(String(fetcher.mock.calls[0][1]?.body)).requestId);
+  });
+
+  it("keeps live on record after a provider rejection", async () => {
+    const saved = storage();
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        Response.json(
+          { status: "failed", channel: "slng", detail: "rejected", retryable: true },
+          { status: 502 },
+        ),
+      );
+    const controller = createViewingController("listing", saved, fetcher);
+    expect(await controller.start(true)).toMatchObject({
+      status: "failed",
+      retryable: true,
+      live: true,
+    });
+    const remounted = createViewingController("listing", saved, fetcher);
+    expect(remounted.restore()).toMatchObject({ status: "failed", live: true });
+  });
+
+  it("network failure keeps live on record", async () => {
+    const fetcher = vi.fn<typeof fetch>().mockRejectedValueOnce(new Error("network"));
+    const controller = createViewingController("listing", storage(), fetcher);
+    expect(await controller.start(true)).toMatchObject({ live: true, retryable: true });
   });
 });

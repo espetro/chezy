@@ -51,8 +51,12 @@ export const CandidateCarousel = ({ listings, label, onDismiss, busy }: Candidat
     setActiveIndex(index);
   };
 
-  const goPrevious = () => scrollToIndex(Math.max(currentIndex - 1, 0));
-  const goNext = () => scrollToIndex(Math.min(currentIndex + 1, total - 1));
+  const goPrevious = () => {
+    if (currentIndex > 0) scrollToIndex(currentIndex - 1);
+  };
+  const goNext = () => {
+    if (currentIndex < total - 1) scrollToIndex(currentIndex + 1);
+  };
 
   const focusReplacement = () => {
     if (!pendingFocus.current) return;
@@ -60,8 +64,6 @@ export const CandidateCarousel = ({ listings, label, onDismiss, busy }: Candidat
     const slide = slides[0];
     pendingFocus.current = undefined;
     slide?.querySelector("a")?.focus({ preventScroll: true });
-    slide?.scrollIntoView({ behavior: "instant", block: "nearest", inline: "start" });
-    handleTrackScroll();
   };
 
   // Keeps activeIndex honest when the user free-scrolls or swipes past the button-driven
@@ -120,6 +122,25 @@ export const CandidateCarousel = ({ listings, label, onDismiss, busy }: Candidat
               role="group"
               aria-roledescription="slide"
               aria-label={`${index + 1} of ${total}`}
+              onFocusCapture={(event) => {
+                const slide = event.currentTarget;
+                const track = trackRef.current;
+                const keyboard =
+                  event.target instanceof HTMLElement && event.target.matches(":focus-visible");
+                const slideRect = slide.getBoundingClientRect();
+                const trackRect = track?.getBoundingClientRect();
+                const clipped =
+                  trackRect !== undefined &&
+                  (slideRect.left < trackRect.left || slideRect.right > trackRect.right);
+                if (keyboard || clipped) {
+                  slide.scrollIntoView({
+                    behavior: "instant",
+                    block: "nearest",
+                    inline: keyboard ? "start" : "nearest",
+                  });
+                }
+                setActiveIndex(index);
+              }}
               className="flex w-[85%] shrink-0 snap-start flex-col gap-2 sm:w-[380px]"
             >
               <CandidateCard listing={listing} />
@@ -175,18 +196,18 @@ export const CandidateCarousel = ({ listings, label, onDismiss, busy }: Candidat
           <button
             type="button"
             onClick={goPrevious}
-            disabled={currentIndex === 0}
+            aria-disabled={currentIndex === 0}
             aria-label="Previous match"
-            className="flex size-11 items-center justify-center rounded-full border border-mist bg-snow text-graphite transition-opacity hover:border-iron focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex size-11 items-center justify-center rounded-full border border-mist bg-snow text-graphite transition-opacity hover:border-iron focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none aria-disabled:cursor-not-allowed aria-disabled:opacity-30"
           >
             <ChevronLeft size={18} />
           </button>
           <button
             type="button"
             onClick={goNext}
-            disabled={currentIndex === total - 1}
+            aria-disabled={currentIndex === total - 1}
             aria-label="Next match"
-            className="flex size-11 items-center justify-center rounded-full border border-mist bg-snow text-graphite transition-opacity hover:border-iron focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex size-11 items-center justify-center rounded-full border border-mist bg-snow text-graphite transition-opacity hover:border-iron focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none aria-disabled:cursor-not-allowed aria-disabled:opacity-30"
           >
             <ChevronRight size={18} />
           </button>

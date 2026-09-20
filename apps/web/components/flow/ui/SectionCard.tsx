@@ -37,7 +37,7 @@ export const FlowSectionCard = ({
           >
             {icon}
           </div>
-          <h3 id={headingId} className="min-w-0 text-headline-sm text-obsidian">
+          <h3 id={headingId} className="min-w-0 font-heading text-headline-sm text-obsidian">
             {title}
           </h3>
         </div>

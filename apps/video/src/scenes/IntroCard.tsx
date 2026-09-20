@@ -1,4 +1,4 @@
-import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { copy } from "../copy/copy.schema";
 import { theme } from "../theme";
 
@@ -23,10 +23,21 @@ export const IntroCard = () => {
         background: `radial-gradient(ellipse 90% 70% at 50% 42%, ${theme.surface} 0%, ${theme.canvas} 70%)`,
       }}
     >
+      <Img
+        src={staticFile("logo/chezy-logo-512.png")}
+        style={{
+          width: 220,
+          height: 220,
+          marginBottom: 32,
+          opacity: titlePop,
+          transform: `scale(${titleScale})`,
+        }}
+      />
       <div
         style={{
           fontSize: 26,
           fontWeight: 600,
+          fontFamily: theme.fontHeading,
           letterSpacing: "0.14em",
           textTransform: "uppercase",
           color: theme.muted,
@@ -43,6 +54,7 @@ export const IntroCard = () => {
         style={{
           fontSize: 190,
           fontWeight: 800,
+          fontFamily: theme.fontHeading,
           letterSpacing: "-0.045em",
           lineHeight: 1,
           color: theme.text,

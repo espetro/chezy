@@ -23,6 +23,8 @@ reads in `src/`, relative imports only.
 - App dark tokens live in `src/theme.ts` only.
 - `public/audio/`, `public/clips/` and `out/` are gitignored; WAVs and MP4s
   never get committed.
+- Fonts in `public/fonts/` and the logo in `public/logo/` are copies; `assets/`
+  at the repo root is the source of truth.
 
 ## Tasks
 
