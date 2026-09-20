@@ -141,10 +141,11 @@ Non-gated, advisory. Lint-clean does not mean idiomatic.
   `.agents/docs/screens/radar.md`. Voice viewing flow (SLNG / Vonage, `VIEWING_MODE`,
   `CALENDAR_MODE`) lives in `apps/web/lib/{slng,vonage,calendar}.ts` with `/api/viewing`
   and `/api/calendar` routes.
-- Route map (2026-09-19): the product surface is `app/(flow)` — `/` landing →
-  `/onboarding` → `/explore` → `/explore/[id]`; chat at `/chat`, `/chat/[id]`; APIs
-  `/api/profile`, `/api/profile/count`, `/api/viewing`, `/api/calendar`. Legacy `/flow/*`
-  URLs redirect to the root equivalents.
+- Route map (2026-09-20): the product surface is `app/(flow)` — `/` landing →
+  `/onboarding` → `/explore` → `/explore/[id]`; the `/chat` and `/chat/[id]` pages are
+  dropped (components/chat/** and the API routes under `app/(chat)/api/*` are kept for
+  reuse); APIs `/api/chat`, `/api/profile`, `/api/profile/count`, `/api/viewing`,
+  `/api/calendar`. Legacy `/flow/*` URLs redirect to the root equivalents.
 
 ## Stack reference
 
