@@ -15,9 +15,9 @@ Short clips hold the last frame; long clips are trimmed to the VO
 
 ## Brief (`brief`)
 
-_Jessie says who she is; Chezy fills the profile_
+_Hannah tells Chezy her preferences._
 
-- **Target seconds:** 18.8 (VO) + 0.5 s tail
+- **Target seconds:** 13.5 (VO) + 0.5 s tail
 - **Callout:** No form. A profile that follows her.
 - **Start state:** Empty chat, greeting "What flat are you looking for?", composer focused.
 - **Actions:**
@@ -32,13 +32,13 @@ _Jessie says who she is; Chezy fills the profile_
   - three profile fields
   - confirmation
 - **Badges:** Nebius
-- **VO:** Jessie is moving to Barcelona. She opens Chezy and says who she is. Instead of a form, the assistant asks the three things it needs: neighbourhoods, budget, bedrooms. Her answers become a profile that follows her into every future chat, so she never repeats herself.
+- **VO:** Hannah is moving to Barcelona. She tells Chezy what she wants: neighbourhoods, budget, bedrooms. No form. Her answers become a profile that follows her into every chat, so she never repeats herself.
 
 ## Shortlist (`shortlist`)
 
-_Real Barcelona listings, as cards_
+_Home listings, matched to her profile_
 
-- **Target seconds:** 15.3 (VO) + 0.5 s tail
+- **Target seconds:** 13.6 (VO) + 0.5 s tail
 - **Callout:** Price per m² next to the barrio average.
 - **Start state:** Previous chat scrolled so the last confirmation is at the top.
 - **Actions:**
@@ -52,13 +52,13 @@ _Real Barcelona listings, as cards_
   - 3 cards
   - price/m² vs average on each
 - **Badges:** Nebius
-- **VO:** She asks for a bright two bedroom in Gràcia under eighteen hundred euros. Chezy searches real Barcelona listings and returns a shortlist as cards, with the price per square metre next to the barrio average. It's a starting point, not a verdict.
+- **VO:** Chezy searches real Barcelona listings and returns the ones that match her profile, as cards, with the price per square metre next to the barrio average. It knows what she likes, and every yes or no she gives sharpens the next search.
 
 ## Forensic check (`forensic`)
 
-_Sunlight and price vs barrio, from the data_
+_Sunlight and price, from the data_
 
-- **Target seconds:** 34.5 (VO) + 0.5 s tail
+- **Target seconds:** 30.8 (VO) + 0.5 s tail
 - **Callout:** 0% direct sunlight. 13% over the barrio average.
 - **Start state:** Cards 1 and 2 visible.
 - **Actions:**
@@ -73,14 +73,14 @@ _Sunlight and price vs barrio, from the data_
   - green pass
   - both cards
 - **Badges:** Nebius
-- **VO:** Now the part listings don't want you to see. Chezy reads the photos and the data behind each card. The first flat says "luminoso". Its windows face an interior lightwell, one and a half metres wide. Zero percent direct sunlight, and thirteen percent over the barrio average. It gets an amber flag. The second flat faces south and sits seventeen percent under the average. It passes. The trap is visible before Jessie wastes an afternoon on it.
+- **VO:** Now the part listings don't want you to see. Chezy reads the photos and the data behind each card. The first flat says "luminoso". Its windows face an interior lightwell, one and a half metres wide. Zero percent direct sunlight, and thirteen percent over the barrio average. It gets an amber flag. The second flat faces south and sits seventeen percent under the average. It passes. The trap is visible before Hannah wastes an afternoon on it.
 
 ## The call (`call`)
 
-_Spanish, with the AI disclosure, on the renter's behalf_
+_One tap, and Chezy calls the agency in Spanish_
 
-- **Target seconds:** 38.5 (VO) + 0.5 s tail
-- **Callout:** She never had to speak Spanish.
+- **Target seconds:** 21.4 (VO) + 0.5 s tail
+- **Callout:** She doesn't have to chase anymore.
 - **Start state:** Forensic end state.
 - **Actions:**
   - User asks "Book a viewing for the Eixample one." (0 to ~10 s)
@@ -95,14 +95,14 @@ _Spanish, with the AI disclosure, on the renter's behalf_
   - AI disclosure line
   - agreed slot
 - **Badges:** SLNG, Vonage
-- **VO:** Jessie likes the second one and asks Chezy to book a viewing. This is where every renter loses time: agencies don't answer email, and the call happens in Spanish, during office hours. Chezy picks up the phone. A voice agent built with unmute and deployed on SLNG dials the agency through Vonage telephony. It opens by disclosing it is an AI assistant, as the EU AI Act requires. It names the flat, asks what's available, and agrees a slot. Tuesday at half past six. Jessie never had to speak Spanish, or be awake for it.
+- **VO:** The Eixample flat is a hundred percent match, so Hannah asks Chezy to call. This is where every renter loses the race: agencies don't answer email, and the call happens during office hours. Chezy calls the agency, names the flat, and agrees a slot. Tuesday at half past six. Hannah never had to call anyone.
 
 ## Booked (`booked`)
 
 _Confirmed slot on her calendar_
 
-- **Target seconds:** 17.2 (VO) + 0.5 s tail
-- **Callout:** One conversation. Brief to booked.
+- **Target seconds:** 13.3 (VO) + 0.5 s tail
+- **Callout:** Brief to booked. One conversation.
 - **Start state:** Chat with the call-ended chip.
 - **Actions:**
   - Assistant: "Viewing booked: Tuesday 22 September, 18:30. Added to your calendar."
@@ -113,13 +113,13 @@ _Confirmed slot on her calendar_
   - booked message with the slot
   - calendar card
   - all five sidebar items checked
-- **VO:** The confirmed slot comes back to the chat, and the viewing lands on Jessie's calendar. Brief, shortlist, forensic check, call, booked. One conversation, and the renter gets an agent of her own. Chezy. Finding a flat, made easy.
+- **VO:** The confirmed slot lands on Hannah's calendar. Brief, shortlist, check, call, booked. No chasing, no refreshing, no being too late. Booking a visit made easy.
 
 ## How it works (`stack`)
 
-_Architecture, brand voice, and the agentic loop_
+_Architecture and the agentic loop_
 
-- **Target seconds:** 30.1 (VO) + 0.5 s tail
+- **Target seconds:** 26.1 (VO) + 0.5 s tail
 - **Callout:** The listing works for the agency. Chezy works for you.
 - **Start state:** Left zone swaps the phone frame for a full-zone diagram canvas; the sidebar shows all six items with the last one active.
 - **Actions:**
