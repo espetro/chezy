@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 export const Greeting = () => (
   <div className="flex flex-col items-center px-4" key="overview">

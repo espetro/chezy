@@ -1,7 +1,7 @@
 "use client";
 
 import { isAfter } from "date-fns";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { ChevronLeftIcon, ChevronRightIcon, DiffIcon } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { useCallback, useState } from "react";
