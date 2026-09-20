@@ -4,9 +4,13 @@ import * as v from "valibot";
 
 import { AUTO_CALL_MATCH_THRESHOLD } from "~/lib/constants";
 import { getUserByUsername } from "~/lib/db/queries";
+import type { SearchProfile } from "~/lib/db/schema";
 import { buildFeed } from "~/lib/feed";
+import { listActiveFeedback } from "~/lib/feedback";
 import { listRentCandidates, toListingSummary, type ListingSummary } from "~/lib/listings";
-import { missingProfileFields, normalizeUsername, toScoringProfile } from "~/lib/user-profile";
+import { getProfile } from "~/lib/profile";
+import { missingProfileFields, normalizeUsername } from "~/lib/user-profile";
+import { syncSearchProfile } from "~/lib/user-profile-sync";
 
 export interface ScoredListingSummary extends ListingSummary {
   readonly score: number;
@@ -31,29 +35,38 @@ export const searchListingsTool = tool({
     }
 
     const user = await getUserByUsername(username);
-    const profile = user?.profile ?? {};
-    const missingFields = missingProfileFields(profile);
-    if (missingFields.length > 0) {
-      return { error: "onboarding incomplete", missingFields };
+    if (!user) {
+      return { error: "onboarding incomplete", missingFields: missingProfileFields({}) };
     }
 
-    const scoringProfile = toScoringProfile(profile);
+    // SearchProfile is the matching store; write through from the chat
+    // scratchpad (User.profile) when it is complete but not yet mirrored.
+    const stored =
+      (await getProfile(user.id)) ?? (await syncSearchProfile(user.id, user.profile ?? {}));
+    if (!stored) {
+      return {
+        error: "onboarding incomplete",
+        missingFields: missingProfileFields(user.profile ?? {}),
+      };
+    }
+
+    const profile: SearchProfile = { ...stored };
     if (input.maxPriceEur !== undefined) {
-      scoringProfile.maxPriceEur = input.maxPriceEur;
+      profile.maxPriceEur = input.maxPriceEur;
     }
     if (input.minRooms !== undefined) {
-      scoringProfile.minRooms = input.minRooms;
+      profile.minRooms = input.minRooms;
     }
     if (input.query) {
-      scoringProfile.neighbourhoods = [input.query];
+      profile.neighbourhoods = [input.query];
     }
 
-    const feed = await buildFeed(scoringProfile, listRentCandidates);
+    // JES-8 feedback events: rankListings excludes rejected listings and
+    // applies feedbackBoost; no separate rejected-id store exists.
+    const events = await listActiveFeedback(user.id);
+    const feed = await buildFeed(profile, listRentCandidates, 8, events);
 
-    const rejected = new Set(profile.rejectedListingIds ?? []);
-    const kept = feed.items.filter((item) => !rejected.has(item.listing.id));
-
-    const listings: ScoredListingSummary[] = kept.slice(0, 6).map((item) => ({
+    const listings: ScoredListingSummary[] = feed.items.slice(0, 6).map((item) => ({
       ...toListingSummary(item.listing),
       score: item.match.score,
       reasons: item.match.reasons,
@@ -64,7 +77,7 @@ export const searchListingsTool = tool({
 
     return {
       listings,
-      total: kept.length,
+      total: feed.items.length,
       relaxed: feed.relaxed,
       note: feed.note,
       topMatches,
