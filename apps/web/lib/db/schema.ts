@@ -5,6 +5,7 @@ import type {
   FeedbackEvent,
   FeedbackReason,
   PanelValidationError,
+  TraceEvent,
   UserProfile,
 } from "@chezy/contract";
 import type { InferSelectModel } from "drizzle-orm";
@@ -353,13 +354,19 @@ export const adaptationJob = pgTable(
     status: text("status").$type<AdaptationStatus>().notNull(),
     provider: text("provider").$type<"devin" | "mock">().notNull(),
     attempt: integer("attempt").notNull().default(0),
+    // Deliberate new attempts after a terminal failure; each run gets a fresh
+    // candidate budget and its own Devin session.
+    run: integer("run").notNull().default(1),
     // The candidate set handed to the provider; also the validator's allowlist.
     sourceListingIds: jsonb("source_listing_ids").$type<string[]>().notNull().default([]),
     providerSessionId: text("provider_session_id"),
     providerSessionUrl: text("provider_session_url"),
+    // Latest judged candidate and its errors; every judged candidate is also
+    // kept in adaptation_candidate.
     candidateSpec: jsonb("candidate_spec").$type<unknown>(),
     acceptedSpec: jsonb("accepted_spec").$type<ComparisonPanelSpec>(),
     validationErrors: jsonb("validation_errors").$type<PanelValidationError[]>(),
+    trace: jsonb("trace").$type<TraceEvent[]>().notNull().default([]),
     error: text("error"),
     deadlineAt: timestamp("deadline_at").notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -369,3 +376,28 @@ export const adaptationJob = pgTable(
 );
 
 export type AdaptationJobRow = InferSelectModel<typeof adaptationJob>;
+
+// Every provider output the validator judged, accepted or not. Rendering never
+// reads this table; the accepted spec lives on the job.
+export const adaptationCandidate = pgTable(
+  "adaptation_candidate",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    jobId: uuid("job_id")
+      .notNull()
+      .references(() => adaptationJob.id, { onDelete: "cascade" }),
+    run: integer("run").notNull(),
+    attempt: integer("attempt").notNull(),
+    providerSessionId: text("provider_session_id"),
+    spec: jsonb("spec").$type<unknown>().notNull(),
+    hash: text("hash").notNull(),
+    errors: jsonb("errors").$type<PanelValidationError[]>().notNull().default([]),
+    accepted: boolean("accepted").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("adaptation_candidate_job_run_attempt").on(table.jobId, table.run, table.attempt),
+  ],
+);
+
+export type AdaptationCandidateRow = InferSelectModel<typeof adaptationCandidate>;

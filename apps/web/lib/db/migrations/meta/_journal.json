@@ -71,6 +71,13 @@
       "when": 1789897108985,
       "tag": "0009_solid_living_lightning",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1789902664044,
+      "tag": "0010_open_whistler",
+      "breakpoints": true
     }
   ]
 }
