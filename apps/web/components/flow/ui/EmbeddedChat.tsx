@@ -6,8 +6,9 @@ import { DataStreamProvider } from "~/components/chat/data-stream-provider";
 import { ChatShell } from "~/components/chat/shell";
 import { ActiveChatProvider } from "~/hooks/use-active-chat";
 
-// The chat subtree mounted inside the flow chat launcher drawer. Mirrors the
-// provider stack of app/(chat)/layout.tsx minus the sidebar: nothing under
+// The chat subtree mounted inside the flow chat launcher drawer. This is the
+// only chat surface since the /chat page was dropped (PR #49); it mirrors the
+// former app/(chat)/layout.tsx provider stack minus the sidebar: nothing under
 // ChatShell in embedded mode calls useSidebar (only ChatHeader, Artifact and the
 // sidebar files do, all unmounted here), so no SidebarProvider is needed.
 export const EmbeddedChat = () => (
