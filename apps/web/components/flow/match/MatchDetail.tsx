@@ -20,40 +20,42 @@ export const MatchDetail = ({ listing }: MatchDetailProps) => {
         ← Back to candidates
       </Link>
 
-      <div className="relative h-56 w-full overflow-hidden rounded-cards sm:h-80 md:h-96">
-        {listing.imageUrl ? (
-          <img
-            src={listing.imageUrl}
-            alt={listing.title}
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-mist" />
-        )}
-      </div>
+      <FlowCard padded={false} className="overflow-hidden">
+        <div className="relative h-56 w-full sm:h-80 md:h-96">
+          {listing.imageUrl ? (
+            <img
+              src={listing.imageUrl}
+              alt={listing.title}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-mist" />
+          )}
+        </div>
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-        <div>
-          <h1 className="text-2xl leading-tight font-semibold tracking-tight text-obsidian sm:text-3xl">
-            {listing.title}
-          </h1>
-          <p className="mt-1 text-sm text-fog sm:text-[15px]">
-            {listing.neighborhood}, {listing.city} · {listing.sizeM2} m² · {listing.rooms} bd ·
-            available {listing.availableFrom}
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {listing.tags.map((tag) => (
-              <FlowPill key={tag}>{tag}</FlowPill>
-            ))}
+        <div className="flex flex-col gap-4 p-5 sm:p-7 md:flex-row md:items-start md:justify-between">
+          <div>
+            <h1 className="text-2xl leading-tight font-semibold tracking-tight text-obsidian sm:text-3xl">
+              {listing.title}
+            </h1>
+            <p className="mt-1 text-sm text-fog sm:text-[15px]">
+              {listing.neighborhood}, {listing.city} · {listing.sizeM2} m² · {listing.rooms} bd ·
+              available {listing.availableFrom}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {listing.tags.map((tag) => (
+                <FlowPill key={tag}>{tag}</FlowPill>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col items-start gap-2 md:items-end">
+            <FlowScoreBadge score={listing.matchScore} />
+            <p className="text-2xl font-semibold whitespace-nowrap text-obsidian sm:text-3xl">
+              €{listing.price} <span className="text-[14px] font-normal text-fog">/month</span>
+            </p>
           </div>
         </div>
-        <div className="flex flex-col items-start gap-2 md:items-end">
-          <FlowScoreBadge score={listing.matchScore} />
-          <p className="text-2xl font-semibold text-obsidian sm:text-3xl">
-            €{listing.price} <span className="text-[14px] font-normal text-fog">/month</span>
-          </p>
-        </div>
-      </div>
+      </FlowCard>
 
       <FlowCard>
         <h2 className="text-subheading font-semibold text-obsidian">Why it's a match</h2>
