@@ -1,4 +1,11 @@
-import type { FeedbackEvent, FeedbackReason, UserProfile } from "@chezy/contract";
+import type {
+  AdaptationStatus,
+  ComparisonPanelSpec,
+  FeedbackEvent,
+  FeedbackReason,
+  PanelValidationError,
+  UserProfile,
+} from "@chezy/contract";
 import type { InferSelectModel } from "drizzle-orm";
 import type { ListingInsights } from "~/lib/vision/schema";
 import {
@@ -289,3 +296,32 @@ export const listingFeedback = pgTable(
 );
 
 export type ListingFeedback = InferSelectModel<typeof listingFeedback>;
+
+export const adaptationJob = pgTable(
+  "adaptation_job",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    feedbackEventId: uuid("feedback_event_id").notNull(),
+    profileVersion: text("profile_version").notNull(),
+    status: text("status").$type<AdaptationStatus>().notNull(),
+    provider: text("provider").$type<"devin" | "mock">().notNull(),
+    attempt: integer("attempt").notNull().default(0),
+    // The candidate set handed to the provider; also the validator's allowlist.
+    sourceListingIds: jsonb("source_listing_ids").$type<string[]>().notNull().default([]),
+    providerSessionId: text("provider_session_id"),
+    providerSessionUrl: text("provider_session_url"),
+    candidateSpec: jsonb("candidate_spec").$type<unknown>(),
+    acceptedSpec: jsonb("accepted_spec").$type<ComparisonPanelSpec>(),
+    validationErrors: jsonb("validation_errors").$type<PanelValidationError[]>(),
+    error: text("error"),
+    deadlineAt: timestamp("deadline_at").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex("adaptation_job_user_event").on(table.userId, table.feedbackEventId)],
+);
+
+export type AdaptationJobRow = InferSelectModel<typeof adaptationJob>;

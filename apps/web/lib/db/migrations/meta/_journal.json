@@ -50,6 +50,13 @@
       "when": 1789863436500,
       "tag": "0006_equal_stellaris",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789892605992,
+      "tag": "0007_wonderful_boom_boom",
+      "breakpoints": true
     }
   ]
 }
