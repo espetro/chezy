@@ -53,10 +53,13 @@ const BookVisitAction = ({ listingId }: { listingId: string }) => {
 
   if (state.status === "simulated") {
     return (
-      <p className={statusPillClass} title="No phone call or calendar booking was made.">
+      <p
+        className={statusPillClass}
+        title="Simulated example viewing. No phone call or calendar booking was made."
+      >
         <CalendarCheck size={16} aria-hidden className="shrink-0 text-ember" />
         <span className="truncate">
-          Simulated · example viewing {slotFormatter.format(new Date(state.result.slotIso))}
+          Simulated · {slotFormatter.format(new Date(state.result.slotIso))}
         </span>
       </p>
     );
