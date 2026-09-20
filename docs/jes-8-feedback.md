@@ -104,8 +104,13 @@ Unsupported deposit/suspicious-ad red lines remain stored-only as before.
 No model or vision inference is introduced. Cards explicitly label outdoor-space
 evidence as listing-reported amenities.
 
-The carousel renders rejection buttons **outside** the existing card/title link.
-Three reason buttons, Cancel and Escape work without gestures. Successful writes
+On the explore feed, the card's X (`Discard this candidate`) records a
+`not_interested` rejection: the listing is hidden with Undo, the rerank is
+unchanged, and optional "Why?" chips let the user refine the event into one of the
+three specific reasons through `PATCH /api/feedback` `{eventId, reason}` (the
+listing facts are reason-independent, so only the reason changes). On the match
+detail the full picker offers the three reasons plus "Not interested", Cancel and
+Escape, all without gestures. Successful writes
 refresh server results; failures show an alert and allow an idempotent retry.
 Keyboard focus goes to the next ranked card (or the empty result) after exit.
 Undo focuses the feed region. Detail rejection offers in-place Undo and a link
