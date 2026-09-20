@@ -67,11 +67,7 @@ export const DemoResetControl = () => {
               Replaces this session’s preferences. Uses seeded listings and mock calls.
             </p>
             <div className="flex flex-wrap gap-2">
-              <FlowButton
-                size="sm"
-                disabled={pending}
-                onClick={() => void reset(true)}
-              >
+              <FlowButton size="sm" disabled={pending} onClick={() => void reset(true)}>
                 {pending ? "Resetting…" : "Reset and load demo"}
               </FlowButton>
               <FlowButton
