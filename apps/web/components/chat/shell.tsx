@@ -22,7 +22,7 @@ import { submitEditedMessage } from "./message-editor";
 import { Messages } from "./messages";
 import { MultimodalInput } from "./multimodal-input";
 
-export function ChatShell() {
+export function ChatShell({ embedded = false }: { embedded?: boolean }) {
   const {
     chatId,
     messages,
@@ -106,20 +106,27 @@ export function ChatShell() {
 
   return (
     <>
-      <div className="flex h-dvh w-full flex-row overflow-hidden">
+      <div className={cn("flex w-full flex-row overflow-hidden", embedded ? "h-full" : "h-dvh")}>
         <div
           className={cn(
-            "flex min-w-0 flex-col bg-sidebar transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
-            isArtifactVisible ? "w-[40%]" : "w-full",
+            "flex min-w-0 flex-col transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
+            embedded ? "w-full" : cn("bg-sidebar", isArtifactVisible ? "w-[40%]" : "w-full"),
           )}
         >
-          <ChatHeader
-            chatId={chatId}
-            isReadonly={isReadonly}
-            selectedVisibilityType={visibilityType}
-          />
+          {embedded ? undefined : (
+            <ChatHeader
+              chatId={chatId}
+              isReadonly={isReadonly}
+              selectedVisibilityType={visibilityType}
+            />
+          )}
 
-          <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-background md:rounded-tl-[12px] md:border-t md:border-l md:border-border/40">
+          <div
+            className={cn(
+              "relative flex min-h-0 flex-1 flex-col overflow-hidden bg-background",
+              !embedded && "md:rounded-tl-[12px] md:border-t md:border-l md:border-border/40",
+            )}
+          >
             <Messages
               addToolApprovalResponse={addToolApprovalResponse}
               chatId={chatId}
@@ -154,30 +161,33 @@ export function ChatShell() {
                   setMessages={setMessages}
                   status={status}
                   stop={stop}
+                  syncUrl={!embedded}
                 />
               )}
             </div>
           </div>
         </div>
 
-        <Artifact
-          addToolApprovalResponse={addToolApprovalResponse}
-          attachments={attachments}
-          chatId={chatId}
-          input={input}
-          isReadonly={isReadonly}
-          messages={messages}
-          regenerate={regenerate}
-          selectedModelId={currentModelId}
-          selectedVisibilityType={visibilityType}
-          sendMessage={sendMessage}
-          setAttachments={setAttachments}
-          setInput={setInput}
-          setMessages={setMessages}
-          status={status}
-          stop={stop}
-          votes={votes}
-        />
+        {embedded ? undefined : (
+          <Artifact
+            addToolApprovalResponse={addToolApprovalResponse}
+            attachments={attachments}
+            chatId={chatId}
+            input={input}
+            isReadonly={isReadonly}
+            messages={messages}
+            regenerate={regenerate}
+            selectedModelId={currentModelId}
+            selectedVisibilityType={visibilityType}
+            sendMessage={sendMessage}
+            setAttachments={setAttachments}
+            setInput={setInput}
+            setMessages={setMessages}
+            status={status}
+            stop={stop}
+            votes={votes}
+          />
+        )}
       </div>
 
       <DataStreamHandler />

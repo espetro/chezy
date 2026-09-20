@@ -12,19 +12,26 @@ type SuggestedActionsProps = {
   chatId: string;
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
   selectedVisibilityType: VisibilityType;
+  syncUrl?: boolean;
 };
 
-function PureSuggestedActions({ chatId, sendMessage }: SuggestedActionsProps) {
+function PureSuggestedActions({ chatId, sendMessage, syncUrl = true }: SuggestedActionsProps) {
   const suggestedActions = suggestions;
   const handleSuggestionClick = useCallback(
     (suggestion: string) => {
-      window.history.pushState({}, "", `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/chat/${chatId}`);
+      if (syncUrl) {
+        window.history.pushState(
+          {},
+          "",
+          `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/chat/${chatId}`,
+        );
+      }
       sendMessage({
         parts: [{ text: suggestion, type: "text" }],
         role: "user",
       });
     },
-    [chatId, sendMessage],
+    [chatId, sendMessage, syncUrl],
   );
 
   return (
@@ -68,6 +75,9 @@ export const SuggestedActions = memo(PureSuggestedActions, (prevProps, nextProps
     return false;
   }
   if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType) {
+    return false;
+  }
+  if (prevProps.syncUrl !== nextProps.syncUrl) {
     return false;
   }
 

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { FlowChatLauncher } from "~/components/flow/ui/ChatLauncher";
 import { FlowMotion } from "~/components/flow/ui/FlowMotion";
 
 export const metadata: Metadata = {
@@ -19,6 +21,9 @@ interface FlowLayoutProps {
 const FlowLayout = ({ children }: FlowLayoutProps) => (
   <div className="min-h-[100dvh] bg-paper font-flow text-obsidian">
     <FlowMotion>{children}</FlowMotion>
+    <Suspense>
+      <FlowChatLauncher />
+    </Suspense>
   </div>
 );
 
