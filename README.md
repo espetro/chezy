@@ -133,15 +133,33 @@ flow and radar dedupe with no network.
   <img src="apps/video/public/badges/qualityclouds.png" height="28" alt="QualityClouds" valign="middle" />
 </p>
 
-| Layer | Choice |
-|:------|:-------|
-| App | Next.js 16, React 19, AI SDK 7, shadcn/ui, Tailwind 4 |
-| LLM | Nebius AI Studio through `@ai-sdk/openai-compatible` (DeepSeek-V4.1-Flash by default) |
-| Voice | SLNG managed agent on LiveKit SIP, Vonage Voice API for the PSTN leg |
-| Data | Drizzle + postgres-js on pg0 (embedded Postgres 18 + pgvector), 300 committed Barcelona listings |
-| Calendar | Google Calendar via service account |
-| Scraper | uv-managed Python CLI (httpx, parsel, pydantic) with fotocasa, habitaclia, idealista and milanuncios adapters |
-| Evals | Galtea and QualityClouds runs against the concierge |
+| Layer | Choice | Evidence |
+|:------|:-------|:---------|
+| App | Next.js 16, React 19, AI SDK 7, shadcn/ui, Tailwind 4 | [PRD tracks](PRD.md#hackathon-tracks) |
+| LLM | Nebius AI Studio through `@ai-sdk/openai-compatible` (DeepSeek-V4.1-Flash by default) | [PRD tracks](PRD.md#hackathon-tracks) |
+| Voice | SLNG managed agent on LiveKit SIP, Vonage Voice API for the PSTN leg | [PRD tracks](PRD.md#hackathon-tracks) |
+| Data | Drizzle + postgres-js on pg0 (embedded Postgres 18 + pgvector), 300 committed Barcelona listings | [PRD tracks](PRD.md#hackathon-tracks) |
+| Calendar | Google Calendar via service account | [PRD tracks](PRD.md#hackathon-tracks) |
+| Scraper | uv-managed Python CLI (httpx, parsel, pydantic) with fotocasa, habitaclia, idealista, milanuncios and pisos.com adapters | pisos.com adapter written by Devin, see below |
+| Autonomy | Chezy Forge: Devin sessions driven through the v3 API, verified by pytest + hidden hold-outs, failures fed back until the verifier passes (`scripts/devin-forge`) | **[Cognition (Devin) track evidence](#cognition-devin-track-evidence)**: [write-up](.agents/notes/2026-09-20-devin-forge-run.md), [raw logs](.agents/evidence/devin-forge/), PRs [#66](https://github.com/espetro/chezy/pull/66) [#70](https://github.com/espetro/chezy/pull/70) [#71](https://github.com/espetro/chezy/pull/71) |
+| Evals | Galtea and QualityClouds runs against the concierge | [PRD tracks](PRD.md#hackathon-tracks) |
+
+### Cognition (Devin) track evidence
+
+Chezy Forge creates Devin cloud sessions through the Devin v3 API, verifies what Devin ships with pytest, pydantic, ruff, basedpyright, hidden hold-out fixtures and a path allowlist, and feeds failures back into the same session until the verifier passes. No person or model decides.
+
+- Write-up with both run timelines, the run logs pasted verbatim and the judging-criteria table: [`.agents/notes/2026-09-20-devin-forge-run.md`](.agents/notes/2026-09-20-devin-forge-run.md)
+- Plan: [`.agents/plans/2026-09-20-devin-adapter-forge.md`](.agents/plans/2026-09-20-devin-adapter-forge.md)
+- The layer: [`scripts/devin-forge/`](scripts/devin-forge/) (`forge.ts` loop, `devin.ts` v3 client, `verify.ts` gates, `tasks.ts` standards, `prompt.ts`), run with `mise run forge:pisos` or `mise run forge:pisos-detail`
+- Standards Devin had to meet and the hold-outs it never saw (now regression tests): [`apps/scraper/tests/test_pisos.py`](apps/scraper/tests/test_pisos.py), [`test_pisos_holdout.py`](apps/scraper/tests/test_pisos_holdout.py), [`test_pisos_detail.py`](apps/scraper/tests/test_pisos_detail.py), [`test_pisos_detail_holdout.py`](apps/scraper/tests/test_pisos_detail_holdout.py), [`test_pisos_detail_holdout2.py`](apps/scraper/tests/test_pisos_detail_holdout2.py), fixtures under [`apps/scraper/tests/fixtures/`](apps/scraper/tests/fixtures/) (`pisos_*`)
+- The artifact Devin built: [`apps/scraper/src/chezy_scraper/adapters/pisos.py`](apps/scraper/src/chezy_scraper/adapters/pisos.py), a fifth listing source (`uv run scraper scrape --platform pisos --operation rent --tier small` pulled 61 live listings)
+- Raw machine logs: [`.agents/evidence/devin-forge/`](.agents/evidence/devin-forge/)
+  - `run-20260920-1239-list-adapter.jsonl.txt`: session created via API, verdict pass, merged
+  - `run-20260920-1304-detail-parser.jsonl.txt`: created, pass, merged, session resumed, attempt 0 FAIL fed back (seed), attempt 1 pass, merged
+  - `gate-logs/20260920-1304-attempt-0-pytest.log`: the real first failure (4 failed, `ValidationError: heating`), `gate-logs/20260920-1304-attempt-1-pytest.log`: 17 passed after Devin's fix; plus `uv_sync`, `ruff_check`, `ruff_format`, `basedpyright` logs per attempt
+  - `forge-stdout-run1.log`, `forge-stdout-run2.log`: the forge process output
+- Pull requests Devin opened and the forge verified and merged: [#66](https://github.com/espetro/chezy/pull/66) search-page adapter, [#70](https://github.com/espetro/chezy/pull/70) detail-page parser, [#71](https://github.com/espetro/chezy/pull/71) the retry that fixed a crash found on a live page; umbrella [#73](https://github.com/espetro/chezy/pull/73)
+- Devin sessions (origin `api`): [run 1](https://app.devin.ai/sessions/2e94eafbe2374f70a9042ec04e8bca14), [run 2 with the fed-back regression](https://app.devin.ai/sessions/348990fec7134544a9519a8dc18d6c7a)
 
 ## Repo map
 

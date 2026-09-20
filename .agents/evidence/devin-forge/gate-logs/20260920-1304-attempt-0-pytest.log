@@ -1,0 +1,445 @@
+......FFFF.......                                                        [100%]
+=================================== FAILURES ===================================
+____________________ test_bare_rows_do_not_break_validation ____________________
+
+    def test_bare_rows_do_not_break_validation() -> None:
+>       item = _parse()
+               ^^^^^^^^
+
+apps/scraper/tests/test_pisos_detail_holdout2.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scraper/tests/test_pisos_detail_holdout2.py:32: in _parse
+    return PisosAdapter().parse_detail(HTML, operation="rent", scraped_at=NOW)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <chezy_scraper.adapters.pisos.PisosAdapter object at 0x109bddf40>
+html = '\n\n\n\n<!DOCTYPE html>\n<html lang=es>\n<head>\n    <title>Casa en alquiler en Sencelles en Sencelles por 4.800 €/me...recio máximo es:","modify_calculation":"Modificar cálculo","hide_calculation":"Ocultar cálculo"};\n    </script>\n\n\n'
+operation = 'rent'
+scraped_at = datetime.datetime(2026, 9, 20, 0, 0, tzinfo=datetime.timezone.utc)
+
+    def parse_detail(self, html: str, *, operation: Operation, scraped_at: datetime) -> Listing:
+        page = Selector(html)
+        details_sel = page.css("div.details.js-contactInfo[data-lnk-href]")
+        if not details_sel:
+            msg = "no pisos.com detail block found"
+            raise ValueError(msg)
+    
+        detail = details_sel[0]
+        path = detail.attrib.get("data-lnk-href", "")
+        url = _absolute(path) or BASE
+        platform_id = detail.attrib.get("id") or detail.attrib.get("data-ad-id")
+        if not platform_id:
+            msg = "no pisos.com detail id found"
+            raise ValueError(msg)
+    
+        price_text = _string(page, ".details-featured__price .price__value")
+        price, monthly = _price_text(price_text)
+        title = _string(page, "h1")
+        neighbourhood, district, municipality = _location_from_detail(page)
+        features = _detail_features(page)
+        energy = _detail_energy(page)
+        publisher = _detail_publisher(page)
+        media = _detail_media(page)
+        description = _detail_description(page)
+        coordinates = _detail_coordinates(page)
+        raw_features = cast("dict[str, JsonValue]", features["raw_features"])
+        feature_values = cast("dict[str, str]", raw_features)
+        built_m2 = _spanish_number(feature_values.get("Superficie construida", ""))
+        usable_m2 = _spanish_number(feature_values.get("Superficie útil", ""))
+        rooms = _feature_int(feature_values, "Habitaciones")
+        bathrooms = _feature_int(feature_values, "Baños")
+        property_type = _property_type(path[1:] if path.startswith("~") else path)
+        period: PricePeriod = "month" if monthly or operation == "rent" else "total"
+        raw: JsonObj = {
+            "detail": {
+                "id": platform_id,
+                "data_lnk_href": path,
+                "attributes": {
+                    key: value for key, value in detail.attrib.items() if key != "data-lnk-href"
+                },
+            },
+            "features": raw_features,
+            "energy": energy,
+            "location": {
+                "subtitle": _string(page, "h1 + p"),
+                "coordinates": coordinates,
+            },
+            "publisher": publisher.model_dump() if publisher else None,
+            "media": [item.model_dump() for item in media],
+            "description": description,
+        }
+>       return Listing(
+            platform="pisos",
+            platform_id=platform_id,
+            url=url,
+            scraped_at=scraped_at,
+            operation=operation,
+            price_eur=price,
+            price_period=period if price is not None else None,
+            price_per_m2=round(price / built_m2, 2) if price and built_m2 else None,
+            property_type=property_type,
+            built_m2=built_m2,
+            usable_m2=usable_m2,
+            rooms=rooms,
+            bathrooms=bathrooms,
+            floor=feature_values.get("Planta"),
+            furnished=cast("bool | None", features["furnished"]),
+            heating=feature_values.get("Calefacción"),
+            energy_consumption_label=cast("str | None", energy["consumption_label"]),
+            energy_consumption_value=cast("float | None", energy["consumption_value"]),
+            energy_emissions_label=cast("str | None", energy["emissions_label"]),
+            energy_emissions_value=cast("float | None", energy["emissions_value"]),
+            lat=coordinates["latitude"],
+            lon=coordinates["longitude"],
+            neighbourhood=neighbourhood,
+            district=district,
+            municipality=municipality,
+            location_accuracy="zone",
+            raw_features=raw_features,
+            media=media,
+            publisher=publisher,
+            title=title,
+            description=description,
+            source_raw=cast("dict[str, JsonValue]", raw),
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for Listing
+E       heating
+E         Input should be a valid string [type=string_type, input_value=True, input_type=bool]
+E           For further information visit https://errors.pydantic.dev/2.13/v/string_type
+
+apps/scraper/src/chezy_scraper/adapters/pisos.py:132: ValidationError
+_____________ test_bare_rows_location_publisher_media_description ______________
+
+    def test_bare_rows_location_publisher_media_description() -> None:
+>       item = _parse()
+               ^^^^^^^^
+
+apps/scraper/tests/test_pisos_detail_holdout2.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scraper/tests/test_pisos_detail_holdout2.py:32: in _parse
+    return PisosAdapter().parse_detail(HTML, operation="rent", scraped_at=NOW)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <chezy_scraper.adapters.pisos.PisosAdapter object at 0x109ce4c50>
+html = '\n\n\n\n<!DOCTYPE html>\n<html lang=es>\n<head>\n    <title>Casa en alquiler en Sencelles en Sencelles por 4.800 €/me...recio máximo es:","modify_calculation":"Modificar cálculo","hide_calculation":"Ocultar cálculo"};\n    </script>\n\n\n'
+operation = 'rent'
+scraped_at = datetime.datetime(2026, 9, 20, 0, 0, tzinfo=datetime.timezone.utc)
+
+    def parse_detail(self, html: str, *, operation: Operation, scraped_at: datetime) -> Listing:
+        page = Selector(html)
+        details_sel = page.css("div.details.js-contactInfo[data-lnk-href]")
+        if not details_sel:
+            msg = "no pisos.com detail block found"
+            raise ValueError(msg)
+    
+        detail = details_sel[0]
+        path = detail.attrib.get("data-lnk-href", "")
+        url = _absolute(path) or BASE
+        platform_id = detail.attrib.get("id") or detail.attrib.get("data-ad-id")
+        if not platform_id:
+            msg = "no pisos.com detail id found"
+            raise ValueError(msg)
+    
+        price_text = _string(page, ".details-featured__price .price__value")
+        price, monthly = _price_text(price_text)
+        title = _string(page, "h1")
+        neighbourhood, district, municipality = _location_from_detail(page)
+        features = _detail_features(page)
+        energy = _detail_energy(page)
+        publisher = _detail_publisher(page)
+        media = _detail_media(page)
+        description = _detail_description(page)
+        coordinates = _detail_coordinates(page)
+        raw_features = cast("dict[str, JsonValue]", features["raw_features"])
+        feature_values = cast("dict[str, str]", raw_features)
+        built_m2 = _spanish_number(feature_values.get("Superficie construida", ""))
+        usable_m2 = _spanish_number(feature_values.get("Superficie útil", ""))
+        rooms = _feature_int(feature_values, "Habitaciones")
+        bathrooms = _feature_int(feature_values, "Baños")
+        property_type = _property_type(path[1:] if path.startswith("~") else path)
+        period: PricePeriod = "month" if monthly or operation == "rent" else "total"
+        raw: JsonObj = {
+            "detail": {
+                "id": platform_id,
+                "data_lnk_href": path,
+                "attributes": {
+                    key: value for key, value in detail.attrib.items() if key != "data-lnk-href"
+                },
+            },
+            "features": raw_features,
+            "energy": energy,
+            "location": {
+                "subtitle": _string(page, "h1 + p"),
+                "coordinates": coordinates,
+            },
+            "publisher": publisher.model_dump() if publisher else None,
+            "media": [item.model_dump() for item in media],
+            "description": description,
+        }
+>       return Listing(
+            platform="pisos",
+            platform_id=platform_id,
+            url=url,
+            scraped_at=scraped_at,
+            operation=operation,
+            price_eur=price,
+            price_period=period if price is not None else None,
+            price_per_m2=round(price / built_m2, 2) if price and built_m2 else None,
+            property_type=property_type,
+            built_m2=built_m2,
+            usable_m2=usable_m2,
+            rooms=rooms,
+            bathrooms=bathrooms,
+            floor=feature_values.get("Planta"),
+            furnished=cast("bool | None", features["furnished"]),
+            heating=feature_values.get("Calefacción"),
+            energy_consumption_label=cast("str | None", energy["consumption_label"]),
+            energy_consumption_value=cast("float | None", energy["consumption_value"]),
+            energy_emissions_label=cast("str | None", energy["emissions_label"]),
+            energy_emissions_value=cast("float | None", energy["emissions_value"]),
+            lat=coordinates["latitude"],
+            lon=coordinates["longitude"],
+            neighbourhood=neighbourhood,
+            district=district,
+            municipality=municipality,
+            location_accuracy="zone",
+            raw_features=raw_features,
+            media=media,
+            publisher=publisher,
+            title=title,
+            description=description,
+            source_raw=cast("dict[str, JsonValue]", raw),
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for Listing
+E       heating
+E         Input should be a valid string [type=string_type, input_value=True, input_type=bool]
+E           For further information visit https://errors.pydantic.dev/2.13/v/string_type
+
+apps/scraper/src/chezy_scraper/adapters/pisos.py:132: ValidationError
+________________________ test_bare_rows_characteristics ________________________
+
+    def test_bare_rows_characteristics() -> None:
+>       item = _parse()
+               ^^^^^^^^
+
+apps/scraper/tests/test_pisos_detail_holdout2.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scraper/tests/test_pisos_detail_holdout2.py:32: in _parse
+    return PisosAdapter().parse_detail(HTML, operation="rent", scraped_at=NOW)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <chezy_scraper.adapters.pisos.PisosAdapter object at 0x109c83770>
+html = '\n\n\n\n<!DOCTYPE html>\n<html lang=es>\n<head>\n    <title>Casa en alquiler en Sencelles en Sencelles por 4.800 €/me...recio máximo es:","modify_calculation":"Modificar cálculo","hide_calculation":"Ocultar cálculo"};\n    </script>\n\n\n'
+operation = 'rent'
+scraped_at = datetime.datetime(2026, 9, 20, 0, 0, tzinfo=datetime.timezone.utc)
+
+    def parse_detail(self, html: str, *, operation: Operation, scraped_at: datetime) -> Listing:
+        page = Selector(html)
+        details_sel = page.css("div.details.js-contactInfo[data-lnk-href]")
+        if not details_sel:
+            msg = "no pisos.com detail block found"
+            raise ValueError(msg)
+    
+        detail = details_sel[0]
+        path = detail.attrib.get("data-lnk-href", "")
+        url = _absolute(path) or BASE
+        platform_id = detail.attrib.get("id") or detail.attrib.get("data-ad-id")
+        if not platform_id:
+            msg = "no pisos.com detail id found"
+            raise ValueError(msg)
+    
+        price_text = _string(page, ".details-featured__price .price__value")
+        price, monthly = _price_text(price_text)
+        title = _string(page, "h1")
+        neighbourhood, district, municipality = _location_from_detail(page)
+        features = _detail_features(page)
+        energy = _detail_energy(page)
+        publisher = _detail_publisher(page)
+        media = _detail_media(page)
+        description = _detail_description(page)
+        coordinates = _detail_coordinates(page)
+        raw_features = cast("dict[str, JsonValue]", features["raw_features"])
+        feature_values = cast("dict[str, str]", raw_features)
+        built_m2 = _spanish_number(feature_values.get("Superficie construida", ""))
+        usable_m2 = _spanish_number(feature_values.get("Superficie útil", ""))
+        rooms = _feature_int(feature_values, "Habitaciones")
+        bathrooms = _feature_int(feature_values, "Baños")
+        property_type = _property_type(path[1:] if path.startswith("~") else path)
+        period: PricePeriod = "month" if monthly or operation == "rent" else "total"
+        raw: JsonObj = {
+            "detail": {
+                "id": platform_id,
+                "data_lnk_href": path,
+                "attributes": {
+                    key: value for key, value in detail.attrib.items() if key != "data-lnk-href"
+                },
+            },
+            "features": raw_features,
+            "energy": energy,
+            "location": {
+                "subtitle": _string(page, "h1 + p"),
+                "coordinates": coordinates,
+            },
+            "publisher": publisher.model_dump() if publisher else None,
+            "media": [item.model_dump() for item in media],
+            "description": description,
+        }
+>       return Listing(
+            platform="pisos",
+            platform_id=platform_id,
+            url=url,
+            scraped_at=scraped_at,
+            operation=operation,
+            price_eur=price,
+            price_period=period if price is not None else None,
+            price_per_m2=round(price / built_m2, 2) if price and built_m2 else None,
+            property_type=property_type,
+            built_m2=built_m2,
+            usable_m2=usable_m2,
+            rooms=rooms,
+            bathrooms=bathrooms,
+            floor=feature_values.get("Planta"),
+            furnished=cast("bool | None", features["furnished"]),
+            heating=feature_values.get("Calefacción"),
+            energy_consumption_label=cast("str | None", energy["consumption_label"]),
+            energy_consumption_value=cast("float | None", energy["consumption_value"]),
+            energy_emissions_label=cast("str | None", energy["emissions_label"]),
+            energy_emissions_value=cast("float | None", energy["emissions_value"]),
+            lat=coordinates["latitude"],
+            lon=coordinates["longitude"],
+            neighbourhood=neighbourhood,
+            district=district,
+            municipality=municipality,
+            location_accuracy="zone",
+            raw_features=raw_features,
+            media=media,
+            publisher=publisher,
+            title=title,
+            description=description,
+            source_raw=cast("dict[str, JsonValue]", raw),
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for Listing
+E       heating
+E         Input should be a valid string [type=string_type, input_value=True, input_type=bool]
+E           For further information visit https://errors.pydantic.dev/2.13/v/string_type
+
+apps/scraper/src/chezy_scraper/adapters/pisos.py:132: ValidationError
+_______________ test_bare_rows_energy_in_progress_has_no_labels ________________
+
+    def test_bare_rows_energy_in_progress_has_no_labels() -> None:
+>       item = _parse()
+               ^^^^^^^^
+
+apps/scraper/tests/test_pisos_detail_holdout2.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scraper/tests/test_pisos_detail_holdout2.py:32: in _parse
+    return PisosAdapter().parse_detail(HTML, operation="rent", scraped_at=NOW)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <chezy_scraper.adapters.pisos.PisosAdapter object at 0x109ce4fe0>
+html = '\n\n\n\n<!DOCTYPE html>\n<html lang=es>\n<head>\n    <title>Casa en alquiler en Sencelles en Sencelles por 4.800 €/me...recio máximo es:","modify_calculation":"Modificar cálculo","hide_calculation":"Ocultar cálculo"};\n    </script>\n\n\n'
+operation = 'rent'
+scraped_at = datetime.datetime(2026, 9, 20, 0, 0, tzinfo=datetime.timezone.utc)
+
+    def parse_detail(self, html: str, *, operation: Operation, scraped_at: datetime) -> Listing:
+        page = Selector(html)
+        details_sel = page.css("div.details.js-contactInfo[data-lnk-href]")
+        if not details_sel:
+            msg = "no pisos.com detail block found"
+            raise ValueError(msg)
+    
+        detail = details_sel[0]
+        path = detail.attrib.get("data-lnk-href", "")
+        url = _absolute(path) or BASE
+        platform_id = detail.attrib.get("id") or detail.attrib.get("data-ad-id")
+        if not platform_id:
+            msg = "no pisos.com detail id found"
+            raise ValueError(msg)
+    
+        price_text = _string(page, ".details-featured__price .price__value")
+        price, monthly = _price_text(price_text)
+        title = _string(page, "h1")
+        neighbourhood, district, municipality = _location_from_detail(page)
+        features = _detail_features(page)
+        energy = _detail_energy(page)
+        publisher = _detail_publisher(page)
+        media = _detail_media(page)
+        description = _detail_description(page)
+        coordinates = _detail_coordinates(page)
+        raw_features = cast("dict[str, JsonValue]", features["raw_features"])
+        feature_values = cast("dict[str, str]", raw_features)
+        built_m2 = _spanish_number(feature_values.get("Superficie construida", ""))
+        usable_m2 = _spanish_number(feature_values.get("Superficie útil", ""))
+        rooms = _feature_int(feature_values, "Habitaciones")
+        bathrooms = _feature_int(feature_values, "Baños")
+        property_type = _property_type(path[1:] if path.startswith("~") else path)
+        period: PricePeriod = "month" if monthly or operation == "rent" else "total"
+        raw: JsonObj = {
+            "detail": {
+                "id": platform_id,
+                "data_lnk_href": path,
+                "attributes": {
+                    key: value for key, value in detail.attrib.items() if key != "data-lnk-href"
+                },
+            },
+            "features": raw_features,
+            "energy": energy,
+            "location": {
+                "subtitle": _string(page, "h1 + p"),
+                "coordinates": coordinates,
+            },
+            "publisher": publisher.model_dump() if publisher else None,
+            "media": [item.model_dump() for item in media],
+            "description": description,
+        }
+>       return Listing(
+            platform="pisos",
+            platform_id=platform_id,
+            url=url,
+            scraped_at=scraped_at,
+            operation=operation,
+            price_eur=price,
+            price_period=period if price is not None else None,
+            price_per_m2=round(price / built_m2, 2) if price and built_m2 else None,
+            property_type=property_type,
+            built_m2=built_m2,
+            usable_m2=usable_m2,
+            rooms=rooms,
+            bathrooms=bathrooms,
+            floor=feature_values.get("Planta"),
+            furnished=cast("bool | None", features["furnished"]),
+            heating=feature_values.get("Calefacción"),
+            energy_consumption_label=cast("str | None", energy["consumption_label"]),
+            energy_consumption_value=cast("float | None", energy["consumption_value"]),
+            energy_emissions_label=cast("str | None", energy["emissions_label"]),
+            energy_emissions_value=cast("float | None", energy["emissions_value"]),
+            lat=coordinates["latitude"],
+            lon=coordinates["longitude"],
+            neighbourhood=neighbourhood,
+            district=district,
+            municipality=municipality,
+            location_accuracy="zone",
+            raw_features=raw_features,
+            media=media,
+            publisher=publisher,
+            title=title,
+            description=description,
+            source_raw=cast("dict[str, JsonValue]", raw),
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for Listing
+E       heating
+E         Input should be a valid string [type=string_type, input_value=True, input_type=bool]
+E           For further information visit https://errors.pydantic.dev/2.13/v/string_type
+
+apps/scraper/src/chezy_scraper/adapters/pisos.py:132: ValidationError
+=========================== short test summary info ============================
+FAILED apps/scraper/tests/test_pisos_detail_holdout2.py::test_bare_rows_do_not_break_validation
+FAILED apps/scraper/tests/test_pisos_detail_holdout2.py::test_bare_rows_location_publisher_media_description
+FAILED apps/scraper/tests/test_pisos_detail_holdout2.py::test_bare_rows_characteristics
+FAILED apps/scraper/tests/test_pisos_detail_holdout2.py::test_bare_rows_energy_in_progress_has_no_labels
+4 failed, 13 passed in 0.53s
+
