@@ -1,4 +1,4 @@
-// Tool-call trace eval for demo happy path A (.agents/docs/demo-flow.md).
+// Tool-call trace eval for demo happy path (docs/checkpoints/).
 // Replays the four user turns against a running dev server and the configured
 // model, records every tool call, and asserts the sequence the demo depends on.
 // LLM-backed, so it is run by hand before the demo, not in `validate`:

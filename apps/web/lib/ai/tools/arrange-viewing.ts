@@ -2,11 +2,11 @@ import { valibotSchema } from "@ai-sdk/valibot";
 import { tool } from "ai";
 import * as v from "valibot";
 
-import { bookViewing } from "~/lib/calendar";
+import { bookViewing, nextSlotIso } from "~/lib/calendar";
 import { getUserByUsername, insertViewing } from "~/lib/db/queries";
 import { getListingById } from "~/lib/listings";
 import { normalizeUsername } from "~/lib/user-profile";
-import { dispatchViewing } from "~/lib/viewing";
+import { dispatchViewing } from "~/lib/viewing-call";
 
 export const arrangeViewing = tool({
   description:
@@ -44,24 +44,23 @@ export const arrangeViewing = tool({
         listingId: input.listingId,
         channel: viewing.channel,
         status: "failed",
-        callId: viewing.callId,
-        slotIso: viewing.slotIso,
       });
       return { listing, viewing, booking: undefined, viewingId: row.id };
     }
 
-    const booking = viewing.slotIso
-      ? await bookViewing({ propertyRef: input.listingId, slotIso: viewing.slotIso })
-      : undefined;
+    // `dispatched` results carry no slotIso (contract); the mock carries the
+    // synthetic slot. For real calls we propose the next free slot ourselves.
+    const slotIso = viewing.status === "mock" ? viewing.slotIso : nextSlotIso(input.slotHint);
+    const booking = await bookViewing({ propertyRef: input.listingId, slotIso });
 
-    const status = booking?.status === "booked" ? "booked" : viewing.status;
+    const status = booking.status === "booked" ? "booked" : viewing.status;
     const row = await insertViewing({
       userId: user.id,
       listingId: input.listingId,
       channel: viewing.channel,
       status,
-      callId: viewing.callId,
-      slotIso: booking?.slotIso ?? viewing.slotIso,
+      callId: viewing.status === "dispatched" ? viewing.callId : undefined,
+      slotIso: booking.slotIso,
     });
 
     return { listing, viewing, booking, viewingId: row.id };

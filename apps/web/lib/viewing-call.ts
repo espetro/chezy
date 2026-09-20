@@ -25,9 +25,7 @@ export interface DispatchViewingInput {
 const redactCallId = (callId: string): string =>
   `redacted:${createHash("sha256").update(callId).digest("hex").slice(0, 12)}`;
 
-export const dispatchViewing = async (
-  input: DispatchViewingInput,
-): Promise<ViewingResult> => {
+export const dispatchViewing = async (input: DispatchViewingInput): Promise<ViewingResult> => {
   // Mock never dials, so it needs no callee.
   if (env.VIEWING_MODE === "mock") {
     return {

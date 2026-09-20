@@ -31,7 +31,9 @@ const formatSlot = (iso: string | undefined) => {
 
 export function ViewingCard({ result }: { result: ArrangeViewingOutput }) {
   const { listing, viewing, booking } = result;
-  const slot = formatSlot(booking?.slotIso ?? viewing.slotIso);
+  const slot = formatSlot(
+    booking?.slotIso ?? (viewing.status === "mock" ? viewing.slotIso : undefined),
+  );
   const booked = booking?.status === "booked";
 
   return (

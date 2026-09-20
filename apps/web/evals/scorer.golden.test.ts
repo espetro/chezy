@@ -1,6 +1,6 @@
 // Deterministic matching eval (no LLM). Runs with the unit suite so a scorer
 // or adapter change that moves a demo listing across a band fails the gate.
-// Contract: .agents/docs/demo-flow.md "Evals".
+// Contract: docs/checkpoints/02-matching.md.
 import { describe, expect, it } from "vitest";
 
 import { AUTO_CALL_MATCH_THRESHOLD } from "~/lib/constants";

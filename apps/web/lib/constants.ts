@@ -50,7 +50,7 @@ export const COMMUTE_OVERHEAD_MIN = 6;
 export const PRICE_HEADROOM = 1.15;
 
 // Match score at/above which the agent may propose arranging a viewing call.
-// Product bar from .agents/docs/demo-flow.md beat 3; the chat prompt gates
+// Product bar from docs/checkpoints/03-book-a-visit.md; the chat prompt gates
 // arrangeViewing on it (searchListings flags `topMatches`).
 export const AUTO_CALL_MATCH_THRESHOLD = 95;
 
