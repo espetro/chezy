@@ -33,6 +33,40 @@ test.beforeAll(() => {
   mkdirSync(SHOT_DIR, { recursive: true });
 });
 
+// /explore redirects to /onboarding for guests without a profile; walk the
+// onboarding steps (order per lib/flow/onboarding-steps.ts: welcome → budget →
+// moveIn → mustHaves → routine → dealBreakers → autonomy → summary) to land on
+// /explore.
+async function completeOnboarding(page: import("@playwright/test").Page) {
+  await page.goto("/");
+  await page.getByRole("link", { name: "Find my home" }).click();
+  await page.getByRole("button", { name: "Let's go" }).click();
+
+  // Budget & space: defaults are fine.
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  // Move-in.
+  await page.getByRole("radio", { name: /Flexible/ }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  // Must-haves: none required.
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  // Routine & area: address + commute + a zone chip.
+  await page.getByLabel(/Work or study address/).fill("Diagonal 405");
+  await page.getByRole("radio", { name: "25 min" }).click();
+  await page.getByRole("button", { name: "Gràcia", exact: true }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  // Dealbreakers: defaults selected.
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  // Autonomy (default cowork) → confirm, then start searching.
+  await page.getByRole("button", { name: /Confirm autonomy level/ }).click();
+  await page.getByRole("button", { name: /Start searching/ }).click();
+  await expect(page).toHaveURL(/\/explore$/, { timeout: 15_000 });
+}
+
 test.describe("flow chat launcher (desktop)", () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
@@ -71,7 +105,7 @@ test.describe("flow chat launcher (mobile)", () => {
     const consoleErrors = collectConsoleErrors(page);
     const launcher = page.getByRole("button", { name: "Chat with Chezy" });
 
-    await page.goto("/explore");
+    await completeOnboarding(page);
     await expect(launcher).toBeVisible();
     await page.screenshot({ path: `${SHOT_DIR}/explore-mobile.png` });
 
@@ -107,7 +141,7 @@ test.describe("flow chat launcher (mobile)", () => {
     test.skip(!hasModelKey, "requires OPENAI_COMPATIBLE_API_KEY in apps/web/.env.local");
     const consoleErrors = collectConsoleErrors(page);
 
-    await page.goto("/explore");
+    await completeOnboarding(page);
     await page.getByRole("button", { name: "Chat with Chezy" }).click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
