@@ -91,7 +91,7 @@ export const ExploreFeed = ({ listings, note, feedback = [] }: ExploreFeedProps)
         key={`${activeZones.join(",") || "all"}-${sortMode}`}
         listings={sorted}
         label="Candidate matches"
-        onDismiss={reject}
+        onDismiss={(listingId) => reject(listingId, "not_interested")}
         busy={busy}
       />
       {lastDismissed && (

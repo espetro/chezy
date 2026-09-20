@@ -22,7 +22,7 @@ const FlowLandingPage = () => (
 
     <section className="grid gap-10 md:grid-cols-2 md:items-center">
       <div className="flex flex-col gap-6">
-        <FlowPill variant="accent" className="w-fit rounded-full px-3">
+        <FlowPill variant="accent" className="w-fit px-3 py-1 text-[13px]">
           AI rental agent
         </FlowPill>
         <h1 className="font-heading text-3xl leading-tight font-extrabold tracking-tight text-obsidian sm:text-4xl lg:text-5xl">
