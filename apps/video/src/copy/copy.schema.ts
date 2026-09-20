@@ -22,6 +22,14 @@ const listingCard = v.object({
   perM2: nonEmpty,
 });
 
+// A node in the stack pipeline diagram: label plus optional sublabel and a
+// sponsor logo file name under public/badges/.
+const diagramNode = v.object({
+  label: nonEmpty,
+  sub: v.optional(nonEmpty),
+  logo: v.optional(nonEmpty),
+});
+
 const baseFields = {
   label: nonEmpty,
   subtext: nonEmpty,
@@ -91,6 +99,14 @@ const copySchema = v.object({
           title: nonEmpty,
           time: nonEmpty,
         }),
+      }),
+    }),
+    stack: v.object({
+      ...baseFields,
+      screen: v.object({
+        nodes: v.pipe(v.array(diagramNode), v.length(6)),
+        calendar: nonEmpty,
+        credit: nonEmpty,
       }),
     }),
   }),

@@ -9,7 +9,9 @@ import { CheckpointSidebar } from "./CheckpointSidebar";
 import { PhoneFrame } from "./PhoneFrame";
 
 // Left zone ~62%: phone right of center, callout text to its left, captions
-// bottom center. Right zone ~38%: checkpoint sidebar (Q25).
+// bottom center. Right zone ~38%: checkpoint sidebar (Q25). A checkpoint with
+// showPhone === false drops the phone frame and renders its scene across the
+// full left zone, with the callout moved to the top-left (stack diagram).
 export const SplitScreenDemo = ({
   config,
   checkpoint,
@@ -26,6 +28,7 @@ export const SplitScreenDemo = ({
   const frames = segment?.frames ?? 0;
   const voFrames = segment?.voFrames ?? frames;
   const text = copy.checkpoints[checkpoint.id];
+  const fullZone = checkpoint.showPhone === false;
 
   return (
     <AbsoluteFill style={{ display: "grid", gridTemplateColumns: "62fr 38fr" }}>
@@ -35,35 +38,43 @@ export const SplitScreenDemo = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "flex-end",
-          paddingRight: 90,
+          paddingRight: fullZone ? 0 : 90,
         }}
       >
         <div
-          style={{
-            position: "absolute",
-            left: 72,
-            top: "50%",
-            transform: "translateY(-58%)",
-            width: 330,
-          }}
+          style={
+            fullZone
+              ? { position: "absolute", left: 72, top: 104, width: 640 }
+              : {
+                  position: "absolute",
+                  left: 72,
+                  top: "50%",
+                  transform: "translateY(-58%)",
+                  width: 330,
+                }
+          }
         >
           <Callout text={text.callout} />
         </div>
-        <PhoneFrame>
-          {checkpoint.source.kind === "clip" ? (
-            <OffthreadVideo
-              src={staticFile(`clips/${checkpoint.source.file}`)}
-              startFrom={Math.round((checkpoint.source.trimStartSec ?? 0) * config.fps)}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
-          ) : (
-            <Placeholder
-              checkpoint={checkpoint}
-              frames={frames}
-              showMockTag={config.showMockTags}
-            />
-          )}
-        </PhoneFrame>
+        {fullZone ? (
+          <Placeholder checkpoint={checkpoint} frames={frames} showMockTag={config.showMockTags} />
+        ) : (
+          <PhoneFrame>
+            {checkpoint.source.kind === "clip" ? (
+              <OffthreadVideo
+                src={staticFile(`clips/${checkpoint.source.file}`)}
+                startFrom={Math.round((checkpoint.source.trimStartSec ?? 0) * config.fps)}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              <Placeholder
+                checkpoint={checkpoint}
+                frames={frames}
+                showMockTag={config.showMockTags}
+              />
+            )}
+          </PhoneFrame>
+        )}
         <Captions text={text.vo} voFrames={voFrames} />
       </div>
       <CheckpointSidebar
@@ -72,7 +83,7 @@ export const SplitScreenDemo = ({
         footer={config.footer}
         sponsors={config.sponsors}
         segmentFrames={frames}
-        showFooter={checkpoint.id === "booked"}
+        showFooter={index === config.checkpoints.length - 1}
         fps={config.fps}
       />
     </AbsoluteFill>

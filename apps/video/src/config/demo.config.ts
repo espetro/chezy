@@ -3,7 +3,7 @@
 // The prose fields below are the handoff contract for real captures; they are
 // rendered into CAPTURE.md by scripts/capture-doc.ts, never on screen.
 
-export type CheckpointId = "brief" | "shortlist" | "forensic" | "call" | "booked";
+export type CheckpointId = "brief" | "shortlist" | "forensic" | "call" | "booked" | "stack";
 export type SegmentId = "intro" | CheckpointId;
 
 export type Badge = {
@@ -28,6 +28,9 @@ export type Checkpoint = {
   endState: string;
   transition: string;
   source: ClipSource;
+  // Default true: the scene renders inside the phone frame. False renders the
+  // scene across the full left zone instead (used by the stack diagram).
+  showPhone?: boolean;
 };
 
 export type DemoConfig = {
@@ -45,9 +48,9 @@ export type DemoConfig = {
   music: { file: string | undefined; duckDb: number; swellDb: number };
   footer: { repoUrl: string | undefined; showFromSecBeforeEnd: number };
   showMockTags: boolean;
-  // Sponsor strip rendered in the booked sidebar footer. All logos share one
-  // fixed height; undefined logo fields render as text chips until the files
-  // land in public/badges/.
+  // Sponsor strip rendered in the last checkpoint's sidebar footer. All logos
+  // share one fixed height; undefined logo fields render as text chips until
+  // the files land in public/badges/.
   sponsors: Badge[];
   intro: { tailFrames?: number };
   checkpoints: Checkpoint[];
@@ -153,10 +156,33 @@ export const demoConfig: DemoConfig = {
       actions: [
         'Assistant: "Viewing booked: Tuesday 22 September, 18:30. Added to your calendar."',
         'Calendar card: "22 SEP" tile, "Viewing · Eixample 2-bed", "18:30 to 19:00", green check.',
+      ],
+      endState: "Calendar card visible.",
+      transition: "Chat holds; the left zone swaps the phone frame for the stack diagram.",
+      source: { kind: "placeholder" },
+    },
+    {
+      id: "stack",
+      badges: [
+        { label: "Vonage", logo: "vonage.png" },
+        { label: "Nebius", logo: "nebius.png" },
+        { label: "Cognition", logo: "cognition.png" },
+        { label: "QualityClouds", logo: "qualityclouds.png" },
+        { label: "SLNG", logo: "slng.png" },
+      ],
+      mustShow: ["pipeline nodes", "sponsor logos on nodes", "agentic loop edges"],
+      startState:
+        "Left zone swaps the phone frame for a full-zone diagram canvas; the sidebar shows all six items with the last one active.",
+      actions: [
+        "Pipeline nodes fade in left to right (~2.5 s stagger) as the VO names them: Chat UI (Next.js), LLM (Nebius logo), Listings DB (Postgres), Voice agent (SLNG logo + unmute label), Telephony (Vonage logo), Agency phone.",
+        "A branch edge drops from Voice agent to a Google Calendar node.",
+        "Edges run animated dashes with a travelling pulse; a faint return edge over the top closes the agentic loop.",
+        '"Built with" credit chip fades in with the Cognition and QualityClouds logos.',
         "Last 8 s: sidebar footer fades in the tagline, the sponsor strip and the repo URL.",
       ],
-      endState: "Calendar card + footer.",
+      endState: "Full pipeline lit, edges flowing, credit chip and sidebar footer visible.",
       transition: "End of video (no outro card).",
+      showPhone: false,
       source: { kind: "placeholder" },
     },
   ],

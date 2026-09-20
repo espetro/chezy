@@ -30,7 +30,7 @@ export const CheckpointSidebar = ({
   });
 
   // Footer (tagline + sponsor strip + repo URL) fades in during the last
-  // `showFromSecBeforeEnd` seconds of the booked segment.
+  // `showFromSecBeforeEnd` seconds of the final checkpoint's segment.
   const footerFrom = segmentFrames - footer.showFromSecBeforeEnd * fps;
   const footerOpacity =
     showFooter && footer.repoUrl !== undefined
@@ -44,7 +44,7 @@ export const CheckpointSidebar = ({
     <aside
       style={{
         borderLeft: `1px solid ${theme.hairline}`,
-        padding: "64px 56px",
+        padding: "56px 56px",
         display: "flex",
         flexDirection: "column",
         opacity: inOpacity,
@@ -55,7 +55,7 @@ export const CheckpointSidebar = ({
           fontWeight: 700,
           fontSize: 30,
           letterSpacing: "-0.02em",
-          marginBottom: 56,
+          marginBottom: 44,
         }}
       >
         {copy.intro.title}
@@ -63,7 +63,7 @@ export const CheckpointSidebar = ({
       <ol
         style={{
           display: "grid",
-          gap: 30,
+          gap: 26,
           listStyle: "none",
           padding: 0,
           margin: 0,
