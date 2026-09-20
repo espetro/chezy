@@ -13,6 +13,8 @@ interface CandidateCarouselProps {
   savedIds?: readonly string[];
   onToggleSave?: (listingId: string, saved: boolean) => Promise<boolean>;
   onDismiss?: (listingId: string) => Promise<boolean>;
+  // Fires when the slide in view changes (buttons, dots, scroll or focus).
+  onActiveChange?: (listing: FlowListing | undefined) => void;
   busy?: boolean;
 }
 
@@ -27,12 +29,17 @@ export const CandidateCarousel = ({
   savedIds = [],
   onToggleSave,
   onDismiss,
+  onActiveChange,
   busy,
 }: CandidateCarouselProps) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const pendingFocus = useRef<string | undefined>(undefined);
   const reducedMotion = useReducedMotion();
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndexState] = useState(0);
+  const setActiveIndex = (index: number) => {
+    setActiveIndexState(index);
+    onActiveChange?.(listings[index]);
+  };
 
   const total = listings.length;
   const currentIndex = Math.min(activeIndex, Math.max(0, total - 1));

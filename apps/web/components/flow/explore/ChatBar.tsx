@@ -4,11 +4,12 @@ import { ArrowUp } from "lucide-react";
 import { useState } from "react";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
 import { useChatLauncher } from "~/components/flow/ui/ChatLauncher";
+import type { FlowListing } from "~/lib/flow/types";
 
 // Always-visible composer pinned to the bottom of /explore. General purpose
-// (preferences, a listing, anything): the question opens the chat drawer as
-// the first message. Step 2 grows this bar into the conversation itself.
-export const FlowChatBar = () => {
+// (preferences, a listing, anything): the question rises as a bottom sheet with
+// the listing currently in view attached as context.
+export const FlowChatBar = ({ context }: { context?: FlowListing }) => {
   const { open } = useChatLauncher();
   const [question, setQuestion] = useState("");
   const trimmed = question.trim();
@@ -21,7 +22,12 @@ export const FlowChatBar = () => {
         onSubmit={(event) => {
           event.preventDefault();
           if (!trimmed) return;
-          open({ message: trimmed, placement: "bottom" });
+          // The prefix is visible in the bubble on purpose: the model can use the
+          // id through its listing tools, and the user sees what "this" refers to.
+          const message = context
+            ? `[Viewing listing ${context.id} "${context.title}", ${context.neighborhood}] ${trimmed}`
+            : trimmed;
+          open({ message, subject: context?.title, placement: "bottom" });
           setQuestion("");
         }}
       >
@@ -32,7 +38,7 @@ export const FlowChatBar = () => {
           onChange={(event) => setQuestion(event.target.value)}
           maxLength={500}
           aria-label="Ask Chezy"
-          placeholder="Ask Chezy anything…"
+          placeholder={context ? "Ask about this home or anything else…" : "Ask Chezy anything…"}
           className="min-h-11 min-w-0 flex-1 bg-transparent text-[15px] text-obsidian placeholder:text-fog focus-visible:outline-none"
         />
         <button
