@@ -16,6 +16,7 @@ const facts = (id: string, amenities: string[]): CandidateFacts => ({
   rooms: 2,
   builtM2: 70,
   amenities,
+  outdoorSpace: null,
 });
 
 const ctx: ValidationContext = {

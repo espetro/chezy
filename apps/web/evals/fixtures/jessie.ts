@@ -47,6 +47,7 @@ const base: Listing = {
   municipality: "Barcelona",
   postalCode: "08000",
   amenities: [],
+  outdoorSpace: null,
   title: "",
   description: null,
   publisherName: "Eval Agency",

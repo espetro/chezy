@@ -48,6 +48,7 @@ const makeListing = (id: string): Listing =>
     municipality: "Barcelona",
     postalCode: null,
     amenities: [],
+    outdoorSpace: null,
     title: "Piso",
     description: null,
     publisherName: null,

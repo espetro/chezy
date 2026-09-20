@@ -1,3 +1,4 @@
+import { OutdoorSpaceSchema } from "@chezy/contract";
 import { and, asc, count, eq, gt, gte, ilike, lte, or, type SQL } from "drizzle-orm";
 import * as v from "valibot";
 
@@ -36,6 +37,7 @@ export const ListingRecordSchema = v.object({
   municipality: v.nullable(v.string()),
   postal_code: v.nullable(v.string()),
   amenities: v.optional(v.array(v.string()), []),
+  outdoor_space: v.optional(v.nullable(OutdoorSpaceSchema)),
   title: v.nullable(v.string()),
   description: v.nullable(v.string()),
   publisher: v.nullable(v.object({ name: v.nullable(v.string()), kind: v.nullable(v.string()) })),
@@ -67,6 +69,9 @@ export function toListingRow(record: ListingRecord): typeof listing.$inferInsert
     municipality: record.municipality,
     postalCode: record.postal_code,
     amenities: record.amenities,
+    // DB seam: the column is nullable and absence must round-trip as null.
+    // oxlint-disable-next-line unicorn/no-null
+    outdoorSpace: record.outdoor_space ?? null,
     // A third of the dataset has no title; fall back to the first line of the
     // description so the column can stay notNull.
     title: record.title ?? record.description?.split("\n", 1)[0]?.slice(0, 120) ?? "",
