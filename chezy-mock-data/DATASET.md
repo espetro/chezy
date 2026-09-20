@@ -65,10 +65,16 @@ Nothing here is deduplicated or validated yet. Expect:
 
 ## Enriched tables (2026-09-19 snapshot)
 
-`enriched/` holds derived tables computed once over the 300 listings above. They are a one-off
-snapshot: the pipeline that produced them is not in this repository, so treat them as fixtures,
-not as reproducible output. Join key is `(platform, platform_id)`; `media_features` also carries
-`position` and `path` to join `media.parquet`. Checksums: `enriched/SHA256SUMS`.
+`enriched/` holds derived tables computed over the 300 listings above. `media_features.parquet`
+is produced by `uv run scraper enrich-media --dataset <root>` (see `apps/scraper/README.md`): one
+VLM call per photo through the project's OpenAI-compatible gateway (Nebius AI Studio or the local
+bifrost), plus Pillow-derived luminance, colorfulness, sharpness and a perceptual hash. The
+committed table is the 2026-09-19 run with `minimax-coding-plan/MiniMax-M3`; the `model` column
+records this per row, and `enriched/cache/vlm/` (ignored) keeps the raw responses so a rerun only
+calls the model for photos that failed. The geo, POI, dedup and text steps behind the other tables
+are not checked in yet; treat those as a snapshot until they are. Join key is
+`(platform, platform_id)`; `media_features` also carries `position` and `path` to join
+`media.parquet`. Checksums: `enriched/SHA256SUMS`.
 
 | path | rows | what |
 |---|---|---|

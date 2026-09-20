@@ -4,6 +4,7 @@ uv run scraper scrape --platform fotocasa --operation rent --tier small
 uv run scraper media --tier small
 uv run scraper load --tier small
 uv run scraper package --tier small
+uv run scraper enrich-media --dataset chezy-mock-data
 uv run scraper stats
 """
 
@@ -22,6 +23,7 @@ from chezy_scraper.adapters.habitaclia import HabitacliaAdapter
 from chezy_scraper.adapters.idealista import IdealistaAdapter
 from chezy_scraper.adapters.milanuncios import MilanunciosAdapter
 from chezy_scraper.config import Settings
+from chezy_scraper.enrich_media import run as run_enrich_media
 from chezy_scraper.fetch.browser import BrowserBlockedError, BrowserError, CdpBrowser
 from chezy_scraper.fetch.http import BlockedError, HttpFetcher
 from chezy_scraper.media import MediaRootUnavailableError, mirror, read_manifest, write_manifest
@@ -246,6 +248,39 @@ def load(
         raise typer.Exit(5) from exc
     audit.emit("cli.load", actor="user", outcome="success", target=tier, loaded=loaded)
     typer.echo(f"{tier}: {loaded} listings upserted")
+
+
+@app.command("enrich-media")
+def enrich_media(
+    dataset: Annotated[
+        Path, typer.Option(help="Dataset root holding data/media.parquet and media/.")
+    ],
+    workers: Annotated[int, typer.Option(help="Listings labelled concurrently.")] = 4,
+    limit: Annotated[int | None, typer.Option(help="Only the first N listings.")] = None,
+    model: Annotated[str | None, typer.Option(help="Override CHEZY_VLM_MODEL.")] = None,
+    *,
+    refresh: Annotated[bool, typer.Option(help="Ignore enriched/cache/vlm and relabel.")] = False,
+) -> None:
+    """Label every photo with the configured VLM and write enriched/media_features.parquet."""
+    settings = Settings.from_env()
+    configure_logging()
+    if not settings.vlm_api_key:
+        typer.echo("OPENAI_COMPATIBLE_API_KEY is empty; refusing to call the gateway.", err=True)
+        raise typer.Exit(2)
+    if not (dataset / "data" / "media.parquet").is_file():
+        typer.echo(f"{dataset}: no data/media.parquet; is this a dataset root?", err=True)
+        raise typer.Exit(2)
+    result = run_enrich_media(
+        settings, dataset, model=model, workers=workers, limit=limit, refresh=refresh
+    )
+    audit.emit(
+        "cli.enrich_media", actor="user", outcome="success", target=str(dataset),
+        listings=result.listings, photos=result.photos, ok=result.ok, failed=result.failed,
+    )  # fmt: skip
+    typer.echo(
+        f"{result.listings} listings, {result.photos} photos ({result.ok} labelled, "
+        f"{result.failed} failed) -> {result.out_path}"
+    )
 
 
 @app.command()

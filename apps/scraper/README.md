@@ -17,6 +17,7 @@ uv run scraper media --tier small      # WebP mirror on the media volume
 mise run db:start && uv run scraper load --tier small
 uv run scraper stats                   # per file counts and field coverage
 uv run scraper package --tier small    # shareable tar.gz bundle, see below
+uv run scraper enrich-media --dataset chezy-mock-data   # VLM photo labels, see below
 ```
 
 Tiers are strict supersets, cut from one append only master file per platform and
@@ -53,6 +54,23 @@ details scrubbed (`--pii keep` to keep them). Up to 25 photos and all floor plan
 per listing; other media keep only their source url. Verify a received copy with
 `shasum -a 256 -c SHA256SUMS`.
 
+## Photo enrichment
+
+`scraper enrich-media --dataset <root>` labels every photo of an unpacked bundle with a vision
+model and writes `<root>/enriched/media_features.parquet`, one row per photo: the model's
+`room_type_pred`, `brightness`, `floor_material`, `wall_condition`, `condition`,
+`kitchen_modern`, `bath_modern`, `furnished_level`, `view`, `outdoor_space`, `notes`, plus
+Pillow-only `width`, `height`, `aspect`, `luminance`, `colorfulness` (Hasler and Suesstrunk),
+`sharpness` (Laplacian variance on a 256 px copy, comparable within one run) and `phash`
+(32x32 DCT perceptual hash). `model` and `ok` record which model answered and whether it did.
+
+Calls go to the OpenAI-compatible chat completions API at `OPENAI_COMPATIBLE_BASE_URL` with
+`OPENAI_COMPATIBLE_API_KEY` (Nebius AI Studio `https://api.studio.nebius.com/v1`, or the local
+bifrost default) using `CHEZY_VLM_MODEL` (`--model` overrides). Each listing's raw answers are
+cached at `<root>/enriched/cache/vlm/<platform>/<id>.json`; a rerun only calls the model for
+photos that are missing or failed, `--refresh` relabels everything, `--limit N` takes the first
+N listings and `--workers` bounds concurrency. The command refuses to run with an empty key.
+
 ## Idealista
 
 DataDome blocks plain HTTP and clean automated browsers. The scraper drives one
@@ -87,6 +105,9 @@ exit code 3; do not retry from the same session.
 | `CHEZY_CHROME_PROFILE_DIR` | `~/Library/Application Support/Google/Chrome` |
 | `CHEZY_IDEALISTA_RENT_URL`, `CHEZY_IDEALISTA_SALE_URL` | whole city |
 | `CHEZY_AUDIT_DIR`, `CHEZY_LOG_LEVEL` | see `observability.py` |
+| `OPENAI_COMPATIBLE_BASE_URL` | `http://localhost:8317/v1` (`enrich-media` only) |
+| `OPENAI_COMPATIBLE_API_KEY` | empty; `enrich-media` refuses to run without it |
+| `CHEZY_VLM_MODEL` | `minimax-coding-plan/MiniMax-M3` |
 
 ## Shared shapes
 
