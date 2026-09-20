@@ -13,7 +13,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue
 
-Platform = Literal["fotocasa", "habitaclia", "idealista", "milanuncios"]
+Platform = Literal["fotocasa", "habitaclia", "idealista", "milanuncios", "pisos"]
 Operation = Literal["rent", "sale"]
 PricePeriod = Literal["month", "total"]
 MediaKind = Literal["photo", "plan", "video", "tour_3d"]

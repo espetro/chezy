@@ -21,6 +21,7 @@ from chezy_scraper.adapters.fotocasa import FotocasaAdapter
 from chezy_scraper.adapters.habitaclia import HabitacliaAdapter
 from chezy_scraper.adapters.idealista import IdealistaAdapter
 from chezy_scraper.adapters.milanuncios import MilanunciosAdapter
+from chezy_scraper.adapters.pisos import PisosAdapter
 from chezy_scraper.config import Settings
 from chezy_scraper.fetch.browser import BrowserBlockedError, BrowserError, CdpBrowser
 from chezy_scraper.fetch.http import BlockedError, HttpFetcher
@@ -41,10 +42,16 @@ _HTTP_ADAPTERS = {
     "fotocasa": FotocasaAdapter,
     "habitaclia": HabitacliaAdapter,
     "milanuncios": MilanunciosAdapter,
+    "pisos": PisosAdapter,
 }
 
 # Idealista is browser only and a shared bundle should not depend on it, so it is opt in.
-_BUNDLE_PLATFORMS: Final[tuple[Platform, ...]] = ("fotocasa", "habitaclia", "milanuncios")
+_BUNDLE_PLATFORMS: Final[tuple[Platform, ...]] = (
+    "fotocasa",
+    "habitaclia",
+    "milanuncios",
+    "pisos",
+)
 
 # Fields whose fill rate `stats` reports; these are the ones LLM queries lean on.
 _MIN_PHOTOS = 10
