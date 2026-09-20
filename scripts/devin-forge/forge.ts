@@ -11,7 +11,8 @@ import { appendFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { env } from "../../packages/config/src/index.ts";
 import { createSession, getSession, listSessions, sendMessage } from "./devin.ts";
-import { buildPrompt, STRUCTURED_OUTPUT_SCHEMA } from "./prompt.ts";
+import { STRUCTURED_OUTPUT_SCHEMA } from "./prompt.ts";
+import { TASKS } from "./tasks.ts";
 import { prHeadSha, verify, verifyLocal, type Verdict } from "./verify.ts";
 
 const REPO_ROOT = path.resolve(import.meta.dirname, "../..");
@@ -19,7 +20,6 @@ const RUNS_DIR = path.join(import.meta.dirname, "runs");
 
 const DEFAULT_BASE = "feat/chezy-forge/pisos-standard";
 const DEFAULT_REPO = "espetro/chezy";
-const DEFAULT_HOLDOUT = "/tmp/chezy-forge/holdout";
 const POLL_MS = 15_000;
 const ATTEMPT_CAP_MS = 25 * 60 * 1000;
 
@@ -103,17 +103,18 @@ async function waitForResume(
 }
 
 async function main(): Promise<number> {
-  const portal = process.argv[2];
-  if (portal !== "pisos") {
+  const taskName = process.argv[2] ?? "";
+  const task = TASKS[taskName];
+  if (!task) {
     console.error(
-      "usage: forge.ts pisos [--base <branch>] [--max-attempts 3] [--dry-run-verify <sha>] [--smoke]",
+      `usage: forge.ts <${Object.keys(TASKS).join("|")}> [--base <branch>] [--max-attempts 3] [--dry-run-verify <sha>] [--smoke] [--devin-mode <mode>] [--resume <sessionId> --run-id <id>]`,
     );
     return 2;
   }
   const base = arg("--base") ?? DEFAULT_BASE;
   const maxAttempts = Number(arg("--max-attempts") ?? "3");
   const repo = env.FORGE_REPO ?? DEFAULT_REPO;
-  const holdoutDir = env.FORGE_HOLDOUT_DIR ?? DEFAULT_HOLDOUT;
+  const holdoutDir = env.FORGE_HOLDOUT_DIR ?? task.holdoutDir;
   const resumeId = arg("--resume");
   const runId = arg("--run-id") ?? runIdNow();
 
@@ -135,29 +136,34 @@ async function main(): Promise<number> {
 
   const drySha = arg("--dry-run-verify");
   if (drySha) {
-    const verdict = await verifyLocal({
-      sha: drySha,
-      baseBranch: base,
-      runId,
-      attempt: 1,
-      repoRoot: REPO_ROOT,
-      holdoutDir,
-    });
+    const verdict = await verifyLocal(
+      {
+        sha: drySha,
+        baseBranch: base,
+        runId,
+        attempt: 1,
+        repoRoot: REPO_ROOT,
+        holdoutDir,
+      },
+      task,
+    );
     console.log(JSON.stringify(verdict, undefined, 2));
     return verdict.kind === "pass" ? 0 : 1;
   }
 
+  const devinMode = arg("--devin-mode");
   const session = resumeId
     ? await getSession(client, resumeId)
     : await createSession(client, {
-        prompt: buildPrompt(runId, base),
+        prompt: task.buildPrompt(runId, base),
         repos: [repo],
-        title: `forge:pisos ${runId}`,
-        tags: ["forge", "pisos", runId],
+        title: `forge:${taskName} ${runId}`,
+        tags: ["forge", taskName, runId],
         structured_output_schema: STRUCTURED_OUTPUT_SCHEMA,
         structured_output_required: true,
         max_acu_limit: 8,
         resumable: true,
+        ...(devinMode ? { devin_mode: devinMode } : {}),
       });
   console.log(`session: ${session.url}`);
   logEvent(runId, {
@@ -250,14 +256,17 @@ async function main(): Promise<number> {
           "The verifier timed out waiting; please finish, push, open the PR and provide structured output.",
         );
       } else {
-        verdict = await verify({
-          prUrl,
-          baseBranch: base,
-          runId,
-          attempt,
-          repoRoot: REPO_ROOT,
-          holdoutDir,
-        });
+        verdict = await verify(
+          {
+            prUrl,
+            baseBranch: base,
+            runId,
+            attempt,
+            repoRoot: REPO_ROOT,
+            holdoutDir,
+          },
+          task,
+        );
       }
     }
     lastVerifiedSha = verdict.sha ?? lastVerifiedSha;
@@ -296,7 +305,7 @@ async function main(): Promise<number> {
       await sendMessage(
         client,
         session.session_id,
-        `Verifier rejected attempt ${attempt}. Gate: ${verdict.gate}. Failing tests: ${names}.\n\nOutput (tail):\n${verdict.output}\n\nThe adapter must parse both rent and sale pages generally (sale listings link under a different path and carry a total price, not a monthly one). Do not edit tests or fixtures. Fix on the same branch, push, then provide structured output again.`,
+        `Verifier rejected attempt ${attempt}. Gate: ${verdict.gate}. Failing tests: ${names}.\n\nOutput (tail):\n${verdict.output}\n\n${task.feedbackHint}${task.feedbackHint.includes("Do not edit tests") ? "" : " Do not edit tests or fixtures."} Fix on the same branch, push, then provide structured output again.`,
       );
     }
     if (!(await waitForResume(client, session.session_id, prUrl, lastVerifiedSha))) {

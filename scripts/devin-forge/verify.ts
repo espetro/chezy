@@ -7,24 +7,12 @@ import { spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import type { ForgeTask } from "./tasks.ts";
 
 export type Verdict =
   | { kind: "pass"; sha?: string | undefined }
   | { kind: "fail"; gate: string; output: string; failingTests: string[]; sha?: string | undefined }
   | { kind: "refused"; paths: string[]; sha?: string | undefined };
-
-const ALLOWLIST = [
-  "apps/scraper/src/chezy_scraper/adapters/pisos.py",
-  "apps/scraper/src/chezy_scraper/models.py",
-  "apps/scraper/src/chezy_scraper/__main__.py",
-  "apps/scraper/src/chezy_scraper/sinks/postgres.py",
-];
-const ALLOWLIST_PREFIXES = ["packages/contract/src/"];
-const FORBIDDEN = [
-  "apps/scraper/tests/test_pisos.py",
-  "apps/scraper/tests/fixtures/pisos_rent.html",
-  "apps/scraper/tests/fixtures/pisos_rent.golden.json",
-];
 
 export interface VerifyOpts {
   prUrl?: string | undefined;
@@ -53,13 +41,13 @@ function tail(output: string, lines: number): string {
   return all.slice(-lines).join("\n");
 }
 
-function allowed(file: string): boolean {
-  if (FORBIDDEN.includes(file)) return false;
-  if (ALLOWLIST.includes(file)) return true;
-  return ALLOWLIST_PREFIXES.some((p) => file.startsWith(p));
+function allowed(file: string, task: ForgeTask): boolean {
+  if (task.forbidden.includes(file)) return false;
+  if (task.allowlist.includes(file)) return true;
+  return task.allowlistPrefixes.some((p) => file.startsWith(p));
 }
 
-async function verifySha(opts: VerifyOpts, sha: string): Promise<Verdict> {
+async function verifySha(opts: VerifyOpts, sha: string, task: ForgeTask): Promise<Verdict> {
   const wt = path.join(
     os.homedir(),
     ".worktrees",
@@ -79,13 +67,9 @@ async function verifySha(opts: VerifyOpts, sha: string): Promise<Verdict> {
     return { kind: "fail", gate: "worktree", output: tail(add.output, 80), failingTests: [], sha };
   }
 
-  const baseRef = run(
-    "git",
-    ["rev-parse", "--verify", "-q", `origin/${opts.baseBranch}`],
-    opts.repoRoot,
-  );
+  const localRef = run("git", ["rev-parse", "--verify", "-q", opts.baseBranch], opts.repoRoot);
   const base =
-    baseRef.code === 0 && baseRef.output.trim() ? `origin/${opts.baseBranch}` : opts.baseBranch;
+    localRef.code === 0 && localRef.output.trim() ? opts.baseBranch : `origin/${opts.baseBranch}`;
   const diff = run("git", ["diff", "--name-only", `${base}...${sha}`], opts.repoRoot);
   if (diff.code !== 0) {
     return { kind: "fail", gate: "diff", output: tail(diff.output, 80), failingTests: [], sha };
@@ -94,35 +78,24 @@ async function verifySha(opts: VerifyOpts, sha: string): Promise<Verdict> {
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean);
-  const offending = changed.filter((f) => !allowed(f));
+  const offending = changed.filter((f) => !allowed(f, task));
   if (offending.length > 0) {
     writeFileSync(logPath("allowlist"), changed.join("\n"));
     return { kind: "refused", paths: offending, sha };
   }
 
-  const fixturesDir = path.join(wt, "apps/scraper/tests/fixtures");
-  for (const f of ["pisos_sale.html", "pisos_sale.golden.json"]) {
-    copyFileSync(path.join(opts.holdoutDir, f), path.join(fixturesDir, f));
+  for (const f of task.holdoutFiles) {
+    const dest = path.join(wt, f.dest);
+    mkdirSync(path.dirname(dest), { recursive: true });
+    copyFileSync(path.join(opts.holdoutDir, f.src), dest);
   }
-  copyFileSync(
-    path.join(opts.holdoutDir, "test_pisos_holdout.py"),
-    path.join(wt, "apps/scraper/tests/test_pisos_holdout.py"),
-  );
 
   const gates: { name: string; cmd: string; args: string[] }[] = [
     { name: "uv_sync", cmd: "uv", args: ["sync", "--all-packages"] },
     {
       name: "pytest",
       cmd: "uv",
-      args: [
-        "run",
-        "pytest",
-        "apps/scraper/tests/test_pisos.py",
-        "apps/scraper/tests/test_pisos_holdout.py",
-        "-q",
-        "-p",
-        "no:cacheprovider",
-      ],
+      args: ["run", "pytest", ...task.visibleTests, "-q", "-p", "no:cacheprovider"],
     },
     { name: "ruff_check", cmd: "uv", args: ["run", "ruff", "check", "apps/scraper"] },
     {
@@ -161,7 +134,7 @@ export function prHeadSha(prUrl: string, repoRoot: string): string | undefined {
   }
 }
 
-export async function verify(opts: VerifyOpts): Promise<Verdict> {
+export async function verify(opts: VerifyOpts, task: ForgeTask): Promise<Verdict> {
   const pr = run(
     "gh",
     ["pr", "view", opts.prUrl ?? "", "--json", "number,headRefOid,headRefName,baseRefName"],
@@ -193,10 +166,10 @@ export async function verify(opts: VerifyOpts): Promise<Verdict> {
       sha: info.headRefOid,
     };
   }
-  return verifySha(opts, info.headRefOid);
+  return verifySha(opts, info.headRefOid, task);
 }
 
-export async function verifyLocal(opts: VerifyOpts): Promise<Verdict> {
+export async function verifyLocal(opts: VerifyOpts, task: ForgeTask): Promise<Verdict> {
   if (!opts.sha) {
     return {
       kind: "fail",
@@ -205,5 +178,5 @@ export async function verifyLocal(opts: VerifyOpts): Promise<Verdict> {
       failingTests: [],
     };
   }
-  return verifySha(opts, opts.sha);
+  return verifySha(opts, opts.sha, task);
 }

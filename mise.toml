@@ -212,6 +212,10 @@ run = "bash scripts/worktree-init.sh"
 description = "Devin forge: pisos.com adapter, verified by pytest + hold-out"
 run = "node --env-file-if-exists=.env --import=tsx scripts/devin-forge/forge.ts pisos"
 
+[tasks."forge:pisos-detail"]
+description = "Devin forge: pisos.com detail-page parser, verified by pytest + hold-out"
+run = "node --env-file-if-exists=.env --import=tsx scripts/devin-forge/forge.ts detail"
+
 [tasks.setup]
 description = "First-time setup: wt:init (deps, .env.local, pg0), then migrate and seed the listings"
 run = "mise run wt:init && pnpm --filter @chezy/web db:migrate && mise run db:seed"
