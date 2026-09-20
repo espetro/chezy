@@ -1,13 +1,17 @@
 "use client";
 
 import { ArrowUpDown } from "lucide-react";
+import type { FeedbackEvent } from "@chezy/contract";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { describeFeedback } from "~/lib/feedback-ranking";
+import { useListingFeedback } from "~/lib/flow/use-listing-feedback";
 import { useRef, useState } from "react";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
 import { FlowButton } from "~/components/flow/ui/Button";
 import { FlowDropdown, FlowMultiDropdown } from "~/components/flow/ui/Dropdown";
 import { CandidateCarousel } from "~/components/flow/explore/CandidateCarousel";
 import type { FlowListing } from "~/lib/flow/types";
-import { useCandidateDismissal } from "~/lib/flow/use-candidate-dismissal";
 
 type SortMode = "match" | "price-asc";
 
@@ -19,16 +23,20 @@ const sortOptions = [
 interface ExploreFeedProps {
   listings: FlowListing[];
   note?: string;
+  feedback?: FeedbackEvent[];
 }
 
-export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
+export const ExploreFeed = ({ listings, note, feedback = [] }: ExploreFeedProps) => {
   const feedRef = useRef<HTMLDivElement>(null);
   const [activeZones, setActiveZones] = useState<string[]>([]);
   const [sortMode, setSortMode] = useState<SortMode>("match");
-  const { dismissedIds, dismissCandidate, restoreCandidate } = useCandidateDismissal();
-  const lastDismissed = dismissedIds.at(-1);
+  const router = useRouter();
+  const { reject, undo, busy, error } = useListingFeedback(() => router.refresh());
+  const lastDismissed = feedback.at(-1);
 
-  const zones = Array.from(new Set(listings.map((listing) => listing.neighborhood)));
+  const zones = Array.from(
+    new Set([...activeZones, ...listings.map((listing) => listing.neighborhood)]),
+  );
 
   const zoneOptions = zones.map((zone) => ({
     value: zone,
@@ -36,14 +44,10 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
   }));
 
   const filtered = listings.filter(
-    (listing) =>
-      !dismissedIds.includes(listing.id) &&
-      (activeZones.length === 0 || activeZones.includes(listing.neighborhood)),
+    (listing) => activeZones.length === 0 || activeZones.includes(listing.neighborhood),
   );
 
-  const sorted = [...filtered].sort((a, b) =>
-    sortMode === "match" ? b.matchScore - a.matchScore : a.price - b.price,
-  );
+  const sorted = [...filtered].sort((a, b) => (sortMode === "match" ? 0 : a.price - b.price));
 
   return (
     <div
@@ -56,8 +60,7 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
         <div className="flex flex-col gap-1.5">
           <p className="text-sm text-graphite sm:text-[15px]">
             I found <strong>{listings.length} candidates</strong> that match your search across our
-            partner agency network. Sorted by match — I'll let you know as soon as a new one comes
-            in.
+            partner agency network. Sorted by match and your feedback.
           </p>
           {note ? <p className="text-[13px] text-amber-700">{note}</p> : undefined}
         </div>
@@ -88,27 +91,36 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
         key={`${activeZones.join(",") || "all"}-${sortMode}`}
         listings={sorted}
         label="Candidate matches"
-        onDismiss={dismissCandidate}
+        onDismiss={reject}
+        busy={busy}
       />
       {lastDismissed && (
         <div className="flex items-center justify-between gap-3 rounded-cards bg-snow px-4 py-3">
           <p role="status" className="text-sm text-fog">
-            Candidate hidden for this visit.
+            {describeFeedback(lastDismissed)}
           </p>
           <FlowButton
             variant="ghost"
-            onClick={() => {
-              restoreCandidate(lastDismissed);
-              requestAnimationFrame(() => {
-                const restoredCard = feedRef.current?.querySelector<HTMLAnchorElement>(
-                  `[data-listing-id="${CSS.escape(lastDismissed)}"] a`,
-                );
-                (restoredCard ?? feedRef.current)?.focus();
-              });
+            disabled={busy}
+            onClick={async () => {
+              if (await undo(lastDismissed.eventId)) feedRef.current?.focus();
             }}
           >
             Undo
           </FlowButton>
+        </div>
+      )}
+      {error && <p role="alert">{error}</p>}
+      {busy && <p role="status">Updating your comparison…</p>}
+      {sorted.length === 0 && (
+        <div className="rounded-cards bg-snow p-4">
+          <p>
+            No homes remain with these filters and rejections. Undo your last rejection or edit your
+            preferences to see the trade-off.
+          </p>
+          <Link href="/onboarding" className="inline-flex min-h-11 items-center underline">
+            Edit preferences
+          </Link>
         </div>
       )}
     </div>

@@ -52,6 +52,9 @@ export const CandidateCard = ({ listing }: CandidateCardProps) => {
         <p className="line-clamp-2 min-h-14 rounded-[14px] bg-card-subtle px-3 py-2 text-[13px] text-iron">
           {listing.matchReasons[0]?.label ?? "Open this home to review known facts and unknowns."}
         </p>
+        {listing.outdoorEvidence && (
+          <p className="text-[13px] text-iron">{listing.outdoorEvidence}</p>
+        )}
 
         <div className="mt-auto flex min-h-16 flex-wrap content-start gap-2">
           {visibleTags.map((tag) => (

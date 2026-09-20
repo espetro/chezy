@@ -6,6 +6,7 @@ import { ExploreFeed } from "~/components/flow/explore/ExploreFeed";
 import { buildFeed } from "~/lib/feed";
 import { toFlowListing } from "~/lib/flow/adapters";
 import { getProfile } from "~/lib/profile";
+import { listActiveFeedback } from "~/lib/feedback";
 
 export default function ExplorePage() {
   return (
@@ -26,8 +27,11 @@ async function Explore() {
     redirect("/onboarding");
   }
 
-  const feed = await buildFeed(profile);
+  const feedback = await listActiveFeedback(session.user.id);
+  const feed = await buildFeed(profile, undefined, undefined, feedback);
   const listings = feed.items.map(({ listing, match }) => toFlowListing(listing, match, profile));
 
-  return <ExploreFeed listings={listings} note={feed.note} />;
+  return (
+    <ExploreFeed key={session.user.id} listings={listings} note={feed.note} feedback={feedback} />
+  );
 }

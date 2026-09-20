@@ -7,6 +7,8 @@ import { toFlowListing } from "~/lib/flow/adapters";
 import { getListingRowById } from "~/lib/listings";
 import { scoreListing } from "~/lib/match";
 import { getProfile } from "~/lib/profile";
+import { listActiveFeedback } from "~/lib/feedback";
+import { getProfileVersion } from "~/lib/profile-version";
 
 interface ExploreDetailPageProps {
   params: Promise<{ id: string }>;
@@ -31,6 +33,8 @@ async function Detail({ params }: ExploreDetailPageProps) {
   if (!row) notFound();
 
   const profile = await getProfile(session.user.id);
+  const feedback = await listActiveFeedback(session.user.id);
+  if (feedback.some((event) => event.listingId === row.id)) redirect("/explore");
   const match = profile ? scoreListing(profile, row) : { score: 0, reasons: [] };
 
   return (
@@ -53,7 +57,7 @@ async function Detail({ params }: ExploreDetailPageProps) {
               minM2: profile.minM2,
             }
           : undefined,
-        profileKey: `${session.user.id}:${profile?.updatedAt.toISOString() ?? "no-profile"}`,
+        profileKey: `${session.user.id}:${profile ? getProfileVersion(profile) : "no-profile"}`,
       }}
     />
   );

@@ -1,3 +1,4 @@
+import type { FeedbackEvent } from "@chezy/contract";
 import type { Listing, SearchProfile } from "~/lib/db/schema";
 import { type CandidateFilter, listRentCandidates } from "~/lib/listings";
 import { type MatchResult, rankListings } from "~/lib/match";
@@ -28,6 +29,7 @@ export async function buildFeed(
   profile: SearchProfile,
   run: (filter: CandidateFilter) => Promise<Listing[]> = listRentCandidates,
   minItems = 8,
+  feedback: readonly FeedbackEvent[] = [],
 ): Promise<FeedResult> {
   const filter: CandidateFilter = {
     neighbourhoods: profile.neighbourhoods,
@@ -55,7 +57,7 @@ export async function buildFeed(
     rows = await run(filter);
   }
 
-  const items = rankListings(profile, rows).slice(0, 20);
+  const items = rankListings(profile, rows, feedback).slice(0, 20);
   const note =
     relaxed.length > 0
       ? `Few homes meet every preference: we broadened ${relaxed

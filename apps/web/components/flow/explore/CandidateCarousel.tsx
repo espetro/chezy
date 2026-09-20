@@ -4,15 +4,16 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useRef, useState } from "react";
 import { CandidateCard } from "~/components/flow/explore/CandidateCard";
-import { FlowButton } from "~/components/flow/ui/Button";
+import { RejectionControl } from "~/components/flow/explore/RejectionControl";
 import type { FlowListing } from "~/lib/flow/types";
-import type { CandidateDismissHandler } from "~/lib/flow/use-candidate-dismissal";
+import type { FeedbackHandler } from "~/lib/flow/use-listing-feedback";
 import { cn } from "~/lib/utils";
 
 interface CandidateCarouselProps {
   listings: FlowListing[];
   label: string;
-  onDismiss?: CandidateDismissHandler;
+  onDismiss?: FeedbackHandler;
+  busy?: boolean;
 }
 
 // Manual carousel, no autoplay — WCAG 2.2.2 (Pause, Stop, Hide) is trivially satisfied by
@@ -20,7 +21,7 @@ interface CandidateCarouselProps {
 // region, each slide as a `group` with its own position label, and Previous/Next buttons
 // that are the primary navigation (arrow-key/native scroll still works for touch and
 // keyboard-focus-follows-scroll, but isn't the only way in).
-export const CandidateCarousel = ({ listings, label, onDismiss }: CandidateCarouselProps) => {
+export const CandidateCarousel = ({ listings, label, onDismiss, busy }: CandidateCarouselProps) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const pendingFocus = useRef<string | undefined>(undefined);
   const reducedMotion = useReducedMotion();
@@ -56,7 +57,7 @@ export const CandidateCarousel = ({ listings, label, onDismiss }: CandidateCarou
   const focusReplacement = () => {
     if (!pendingFocus.current) return;
     const slides = visibleSlides();
-    const slide = slides.find((item) => item.dataset.listingId === pendingFocus.current);
+    const slide = slides[0];
     pendingFocus.current = undefined;
     slide?.querySelector("a")?.focus({ preventScroll: true });
     slide?.scrollIntoView({ behavior: "instant", block: "nearest", inline: "start" });
@@ -123,17 +124,17 @@ export const CandidateCarousel = ({ listings, label, onDismiss }: CandidateCarou
             >
               <CandidateCard listing={listing} />
               {onDismiss && (
-                <FlowButton
-                  variant="ghost"
-                  aria-label={`Not for me: ${listing.title}`}
-                  onClick={() => {
-                    pendingFocus.current =
-                      listings[index + 1]?.id ?? listings[index - 1]?.id ?? listing.id;
-                    onDismiss(listing.id);
+                <RejectionControl
+                  listingId={listing.id}
+                  title={listing.title}
+                  disabled={busy}
+                  onReject={async (listingId, reason) => {
+                    pendingFocus.current = listingId;
+                    const saved = await onDismiss(listingId, reason);
+                    if (!saved) pendingFocus.current = undefined;
+                    return saved;
                   }}
-                >
-                  Not for me
-                </FlowButton>
+                />
               )}
             </motion.div>
           ))}
