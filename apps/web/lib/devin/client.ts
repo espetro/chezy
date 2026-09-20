@@ -65,6 +65,7 @@ export interface DevinSessionSnapshot {
   url?: string;
   phase: DevinPhase;
   structuredOutput?: unknown;
+  pullRequestUrl?: string;
 }
 
 export interface DevinClient {
@@ -73,6 +74,7 @@ export interface DevinClient {
     prompt: string;
     schema: Record<string, unknown>;
     tags?: string[];
+    maxAcu?: number;
   }): Promise<DevinSessionSnapshot>;
   getSession(sessionId: string): Promise<DevinSessionSnapshot>;
   sendMessage(sessionId: string, message: string): Promise<void>;
@@ -88,6 +90,7 @@ const GetSessionSchema = v.looseObject({
   url: v.optional(v.string()),
   status_enum: v.optional(v.nullable(v.string())),
   structured_output: v.optional(v.nullable(v.unknown())),
+  pull_request: v.optional(v.nullable(v.looseObject({ url: v.string() }))),
 });
 
 const toPhase = (statusEnum: string | null | undefined): DevinPhase => {
@@ -96,6 +99,37 @@ const toPhase = (statusEnum: string | null | undefined): DevinPhase => {
   if (statusEnum === "expired") return "ended";
   return "working";
 };
+
+const V3SessionSchema = v.looseObject({
+  session_id: v.string(),
+  url: v.string(),
+  status: v.string(),
+  status_detail: v.optional(v.nullable(v.string())),
+  structured_output: v.optional(v.nullable(v.unknown())),
+  pull_requests: v.optional(
+    v.array(v.looseObject({ pr_url: v.string(), pr_state: v.optional(v.string()) })),
+  ),
+});
+
+const toV3Phase = (status: string, statusDetail: string | null | undefined): DevinPhase => {
+  if (statusDetail === "finished") return "finished";
+  if (statusDetail === "waiting_for_user" || status === "suspended") return "blocked";
+  if (status === "exit" || status === "error") return "ended";
+  return "working";
+};
+
+const structuredPullRequestUrl = (structuredOutput: unknown): string | undefined =>
+  structuredOutput &&
+  typeof structuredOutput === "object" &&
+  "pr_url" in structuredOutput &&
+  typeof structuredOutput.pr_url === "string" &&
+  structuredOutput.pr_url.length > 0
+    ? structuredOutput.pr_url
+    : undefined;
+
+const firstV3PullRequestUrl = (
+  pullRequests: readonly { pr_url: string }[] | undefined,
+): string | undefined => pullRequests?.[0]?.pr_url;
 
 // The API accepts bare or `devin-`-prefixed ids; request paths always send
 // the prefixed form while the app.devin.ai URL drops it.
@@ -106,10 +140,19 @@ const webId = (sessionId: string) =>
 const fallbackSessionUrl = (sessionId: string) =>
   `https://app.devin.ai/sessions/${webId(sessionId)}`;
 
+export const isV1Key = (key: string): boolean => key.startsWith("apk_");
+
 export const createDevinClient = (
-  config: { apiKey: string; baseUrl: string },
+  config: { apiKey: string; baseUrl: string; orgId?: string },
   fetchImpl: typeof fetch = fetch,
 ): DevinClient => {
+  const v1 = isV1Key(config.apiKey);
+  const prefix = (): string => {
+    if (v1) return "/v1";
+    if (!config.orgId)
+      throw new DevinClientError("DEVIN_ORG_ID is required for a v3 key", "unauthorized");
+    return `/v3/organizations/${config.orgId}`;
+  };
   const call = async (path: string, init: RequestInit): Promise<unknown> => {
     let response: Response;
     try {
@@ -142,15 +185,16 @@ export const createDevinClient = (
   };
 
   return {
-    createSession: async ({ title, prompt, schema, tags }) => {
+    createSession: async ({ title, prompt, schema, tags, maxAcu }) => {
+      const apiPrefix = prefix();
       const data = v.parse(
-        CreateSessionSchema,
-        await call("/v1/sessions", {
+        v1 ? CreateSessionSchema : V3SessionSchema,
+        await call(`${apiPrefix}/sessions`, {
           method: "POST",
           body: JSON.stringify({
             prompt,
             structured_output_schema: schema,
-            max_acu_limit: ADAPTATION_MAX_ACU,
+            max_acu_limit: maxAcu ?? ADAPTATION_MAX_ACU,
             title,
             tags,
             // Listed on purpose: the sessions are the sponsor proof and must
@@ -159,6 +203,18 @@ export const createDevinClient = (
           }),
         }),
       );
+      if (!v1) {
+        const session = data as v.InferOutput<typeof V3SessionSchema>;
+        return {
+          sessionId: session.session_id,
+          url: session.url,
+          phase: toV3Phase(session.status, session.status_detail),
+          structuredOutput: session.structured_output ?? undefined,
+          pullRequestUrl:
+            firstV3PullRequestUrl(session.pull_requests) ??
+            structuredPullRequestUrl(session.structured_output),
+        };
+      }
       return {
         sessionId: data.session_id,
         url: data.url ?? fallbackSessionUrl(data.session_id),
@@ -166,20 +222,49 @@ export const createDevinClient = (
       };
     },
     getSession: async (sessionId) => {
-      const data = v.parse(
-        GetSessionSchema,
-        await call(`/v1/sessions/${apiId(sessionId)}`, { method: "GET" }),
-      );
-      const id = data.session_id ?? sessionId;
+      const apiPrefix = prefix();
+      const path = v1
+        ? `${apiPrefix}/sessions/${apiId(sessionId)}`
+        : `${apiPrefix}/sessions/${sessionId}`;
+      let data: unknown;
+      try {
+        data = await call(path, { method: "GET" });
+      } catch (error) {
+        if (!(error instanceof DevinClientError) || error.status !== 404 || v1) throw error;
+        const toggledId = sessionId.startsWith("devin-")
+          ? sessionId.slice("devin-".length)
+          : `devin-${sessionId}`;
+        data = await call(`${apiPrefix}/sessions/${toggledId}`, { method: "GET" });
+      }
+      if (!v1) {
+        const session = v.parse(V3SessionSchema, data);
+        return {
+          sessionId: session.session_id,
+          url: session.url,
+          phase: toV3Phase(session.status, session.status_detail),
+          structuredOutput: session.structured_output ?? undefined,
+          pullRequestUrl:
+            firstV3PullRequestUrl(session.pull_requests) ??
+            structuredPullRequestUrl(session.structured_output),
+        };
+      }
+      const parsed = v.parse(GetSessionSchema, data);
+      const id = parsed.session_id ?? sessionId;
       return {
         sessionId: id,
-        url: data.url ?? fallbackSessionUrl(id),
-        phase: toPhase(data.status_enum),
-        structuredOutput: data.structured_output ?? undefined,
+        url: parsed.url ?? fallbackSessionUrl(id),
+        phase: toPhase(parsed.status_enum),
+        structuredOutput: parsed.structured_output ?? undefined,
+        pullRequestUrl:
+          parsed.pull_request?.url ?? structuredPullRequestUrl(parsed.structured_output),
       };
     },
     sendMessage: async (sessionId, message) => {
-      await call(`/v1/sessions/${apiId(sessionId)}/message`, {
+      const apiPrefix = prefix();
+      const path = v1
+        ? `${apiPrefix}/sessions/${apiId(sessionId)}/message`
+        : `${apiPrefix}/sessions/${sessionId}/messages`;
+      await call(path, {
         method: "POST",
         body: JSON.stringify({ message }),
       });

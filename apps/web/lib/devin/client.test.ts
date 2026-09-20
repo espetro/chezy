@@ -42,6 +42,26 @@ describe("createDevinClient", () => {
     expect(body.idempotent).toBeUndefined();
   });
 
+  it("maps pull request URLs and passes an explicit ACU limit", async () => {
+    const fetchImpl = fetchMock()
+      .mockResolvedValueOnce(
+        ok({ session_id: "abc123", url: "https://app.devin.ai/sessions/abc123" }),
+      )
+      .mockResolvedValueOnce(
+        ok({
+          session_id: "abc123",
+          status_enum: "finished",
+          pull_request: { url: "https://github.com/espetro/chezy/pull/12" },
+        }),
+      );
+    const client = createDevinClient(config, fetchImpl);
+    await client.createSession({ ...input, maxAcu: 8 });
+    const createBody = JSON.parse(fetchImpl.mock.calls[0][1]?.body as string);
+    expect(createBody.max_acu_limit).toBe(8);
+    const snapshot = await client.getSession("abc123");
+    expect(snapshot.pullRequestUrl).toBe("https://github.com/espetro/chezy/pull/12");
+  });
+
   it.each(["abc123", "devin-abc123"])(
     "GETs the prefixed session path for id %s",
     async (sessionId) => {
@@ -93,6 +113,61 @@ describe("createDevinClient", () => {
     expect((error as DevinClientError).status).toBe(401);
     expect((error as Error).message).toBe("Devin API responded 401");
     expect((error as Error).message).not.toContain("apk_user_testkey");
+  });
+
+  it("POSTs v3 sessions for cog keys and maps the response", async () => {
+    const fetchImpl = fetchMock().mockResolvedValue(
+      ok({
+        session_id: "session-1",
+        url: "https://app.devin.ai/sessions/session-1",
+        status: "running",
+        status_detail: null,
+      }),
+    );
+    const client = createDevinClient(
+      { apiKey: "cog_service_key", baseUrl: "https://api.devin.ai", orgId: "org-x" },
+      fetchImpl,
+    );
+    const snapshot = await client.createSession(input);
+    expect(snapshot.phase).toBe("working");
+    expect(fetchImpl.mock.calls[0][0]).toBe("https://api.devin.ai/v3/organizations/org-x/sessions");
+    expect((fetchImpl.mock.calls[0][1]?.headers as Record<string, string>).authorization).toBe(
+      "Bearer cog_service_key",
+    );
+  });
+
+  it.each([
+    ["finished", "running", "finished"],
+    ["waiting_for_user", "running", "blocked"],
+    [null, "exit", "ended"],
+  ])("maps v3 status %s/%s to phase %s", async (detail, status, phase) => {
+    const fetchImpl = fetchMock().mockResolvedValue(
+      ok({
+        session_id: "session-1",
+        url: "https://app.devin.ai/sessions/session-1",
+        status,
+        status_detail: detail,
+        pull_requests: [{ pr_url: "https://github.com/espetro/chezy/pull/13" }],
+      }),
+    );
+    const client = createDevinClient(
+      { apiKey: "cog_service_key", baseUrl: "https://api.devin.ai", orgId: "org-x" },
+      fetchImpl,
+    );
+    const snapshot = await client.getSession("session-1");
+    expect(snapshot.phase).toBe(phase);
+    expect(snapshot.pullRequestUrl).toBe("https://github.com/espetro/chezy/pull/13");
+  });
+
+  it("requires an org id for v3 keys at call time", async () => {
+    const client = createDevinClient({
+      apiKey: "cog_service_key",
+      baseUrl: "https://api.devin.ai",
+    });
+    const error = await client.getSession("session-1").catch((value: unknown) => value);
+    expect(error).toBeInstanceOf(DevinClientError);
+    expect((error as DevinClientError).code).toBe("unauthorized");
+    expect((error as Error).message).toBe("DEVIN_ORG_ID is required for a v3 key");
   });
 
   it("maps a fetch failure (timeout) to DevinClientError", async () => {
