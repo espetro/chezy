@@ -118,17 +118,17 @@ test.describe("explore card actions", () => {
     await expect(hiddenCard).toBeVisible({ timeout: 15_000 });
   });
 
-  test("Book a visit from the card is labelled as a simulation", async ({ page }) => {
+  test("Book a visit from the card calls, books and remembers the slot", async ({ page }) => {
     const slide = firstSlide(page);
     await slide.getByRole("button", { name: "Book a visit" }).click();
-    const simulated = slide.getByText(/^Simulated · /);
-    await expect(simulated).toBeVisible({ timeout: 10_000 });
-    await expect(simulated.locator("..")).toHaveAttribute(
-      "title",
-      "Simulated example viewing. No phone call or calendar booking was made.",
-    );
-    await expect(page.getByText(/Visit booked/)).toHaveCount(0);
+    await expect(slide.getByRole("button", { name: "Calling…" })).toBeVisible();
+    const booked = slide.getByText(/^Booked · /);
+    await expect(booked).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/Simulated/)).toHaveCount(0);
     await page.screenshot({ path: `${SHOT_DIR}/after-book.png` });
+
+    await page.reload();
+    await expect(firstSlide(page).getByText(/^Booked · /)).toBeVisible({ timeout: 15_000 });
   });
 
   test("detail page still offers the reason picker with Other last", async ({ page }) => {

@@ -167,19 +167,27 @@ test.describe("flow happy path", () => {
     await expectNoHorizontalScroll(page);
     await page.screenshot({ path: `${SHOT_DIR}/match-mobile.png` });
 
-    // 12. Call gate (JES-11): ≥95% matches auto-simulate on mount, lower scores
-    // offer "Simulate viewing call". A retryable failure (e.g. a dropped
-    // request) is not a live attempt, so the button comes back; click it when
-    // offered. Either way the outcome is truthful.
-    const simulate = page.getByRole("button", { name: "Simulate viewing call" });
-    const simulated = page.getByText("Simulated", { exact: true });
-    await expect(simulated.or(simulate)).toBeVisible({ timeout: 15_000 });
-    if (await simulate.isVisible()) {
-      await simulate.click();
+    // 12. Call gate: ≥95% matches call on mount, lower scores offer "Call the
+    // agency". A retryable failure (e.g. a dropped request) is not a live
+    // attempt, so the button comes back; click it when offered. The mock call
+    // hands its slot to /api/calendar and the gate lands on "Visit booked".
+    const callButton = page.getByRole("button", { name: "Call the agency" });
+    const calling = page.getByText("Calling the agency");
+    const booked = page.getByText("Visit booked", { exact: true });
+    await expect(page.getByText("Demo", { exact: true })).toBeVisible();
+    await expect(calling.or(booked).or(callButton)).toBeVisible({ timeout: 15_000 });
+    if (await callButton.isVisible()) {
+      await callButton.click();
+      await expect(calling).toBeVisible();
     }
-    await expect(simulated).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText(/Example viewing:/)).toBeVisible();
-    await expect(page.getByText("No phone call or calendar booking was made.")).toBeVisible();
+    await expect(booked).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText("added to your calendar")).toBeVisible();
+    await expect(page.getByText(/Simulated|No phone call/)).toHaveCount(0);
+    await page.screenshot({ path: `${SHOT_DIR}/match-booked.png` });
+
+    // The booking receipt survives a reload (checkpoint 4).
+    await page.reload();
+    await expect(booked).toBeVisible({ timeout: 15_000 });
 
     // 13. No console errors during the whole run (hydration mismatches included).
     expect(consoleErrors).toEqual([]);
