@@ -7,6 +7,14 @@ export const userProfileSchema = v.object({
   bedroomsMin: v.optional(v.number()),
   workLocation: v.optional(v.string()),
   freeformRequirements: v.optional(v.array(v.string())),
+  // Scorer amenity keys: exterior, balcony_or_terrace, elevator,
+  // air_conditioning, furnished, pets_allowed, heating.
+  mustHaves: v.optional(v.array(v.string())),
+  // Red-line keys: no_interior, no_high_deposit, no_flatmates.
+  redLines: v.optional(v.array(v.string())),
+  rejectedListingIds: v.optional(v.array(v.string())),
+  maxCommuteMin: v.optional(v.number()),
+  minM2: v.optional(v.number()),
   onboardedAt: v.optional(v.pipe(v.string(), v.isoTimestamp())),
 });
 
