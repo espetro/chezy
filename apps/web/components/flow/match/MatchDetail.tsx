@@ -16,17 +16,17 @@ interface MatchDetailProps {
 
 export const MatchDetail = ({ listing, explanation }: MatchDetailProps) => {
   return (
-    <div className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col gap-6 px-4 pt-6 pb-[calc(7rem+env(safe-area-inset-bottom))] sm:gap-8 sm:px-6 sm:pt-10 md:max-w-[1000px] md:pb-10">
+    <div className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col gap-4 px-4 pt-4 pb-[calc(7rem+env(safe-area-inset-bottom))] sm:gap-5 sm:px-6 sm:pt-6 md:max-w-[960px] md:pb-10">
       <Link
         href="/explore"
-        className="inline-flex min-h-11 w-fit items-center rounded-lg text-[13px] text-fog hover:text-graphite focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-obsidian"
+        className="inline-flex min-h-10 w-fit items-center rounded-lg text-[13px] text-fog hover:text-graphite focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-obsidian"
       >
         ← Back to candidates
       </Link>
 
       <FlowReveal>
         <FlowCard padded={false} className="overflow-hidden">
-          <div className="relative h-56 w-full bg-mist sm:h-80 md:h-96">
+          <div className="relative h-52 w-full bg-mist sm:h-64 md:h-72">
             {listing.imageUrl ? (
               <img
                 src={listing.imageUrl}
@@ -38,28 +38,28 @@ export const MatchDetail = ({ listing, explanation }: MatchDetailProps) => {
             )}
           </div>
 
-          <div className="flex flex-col gap-4 p-5 sm:p-7 md:flex-row md:items-start md:justify-between">
-            <div>
-              <h1 className="font-heading text-2xl leading-tight font-semibold tracking-tight text-obsidian sm:text-3xl">
+          <div className="flex flex-col gap-3 p-4 sm:p-5 md:flex-row md:items-start md:justify-between md:gap-6">
+            <div className="min-w-0">
+              <h1 className="font-heading text-xl leading-tight font-semibold tracking-tight text-obsidian sm:text-2xl">
                 {listing.title}
               </h1>
-              <p className="mt-1 text-sm text-fog sm:text-[15px]">
+              <p className="mt-1 text-[13px] text-fog sm:text-sm">
                 {listing.neighborhood}, {listing.city} ·{" "}
                 {listing.sizeM2 > 0 ? `${listing.sizeM2} m²` : "Area unknown"} ·{" "}
                 {listing.rooms > 0 ? `${listing.rooms} bedrooms` : "Bedrooms unknown"}
               </p>
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-2.5 flex flex-wrap gap-1.5">
                 {listing.tags.map((tag) => (
                   <FlowPill key={tag}>{tag}</FlowPill>
                 ))}
               </div>
             </div>
-            <div className="flex flex-col items-start gap-2 md:items-end">
+            <div className="flex flex-row-reverse items-center justify-between gap-2 md:flex-col md:items-end md:justify-start md:shrink-0">
               <FlowScoreBadge score={listing.matchScore} />
-              <p className="text-2xl font-semibold whitespace-nowrap text-obsidian sm:text-3xl">
+              <p className="text-xl font-semibold whitespace-nowrap text-obsidian sm:text-2xl">
                 {listing.price > 0 ? `€${listing.price}` : "Price unknown"}{" "}
                 {listing.price > 0 && (
-                  <span className="text-[14px] font-normal text-fog">
+                  <span className="text-[13px] font-normal text-fog">
                     {explanation.listing.pricePeriod === "month" ? "/month" : "· period unknown"}
                   </span>
                 )}
@@ -69,14 +69,16 @@ export const MatchDetail = ({ listing, explanation }: MatchDetailProps) => {
         </FlowCard>
       </FlowReveal>
 
-      <InsightPanel {...explanation} />
+      <div className="grid gap-4 sm:gap-5 md:grid-cols-[3fr_2fr] md:items-start">
+        <InsightPanel {...explanation} />
 
-      <FlowCard>
-        <h2 className="text-subheading font-semibold text-obsidian">Neighborhood profile</h2>
-        <div className="mt-4">
-          <NeighborhoodProfile profile={listing.neighborhoodProfile} />
-        </div>
-      </FlowCard>
+        <FlowCard className="p-5 sm:p-6">
+          <h2 className="text-subheading font-semibold text-obsidian">Neighborhood profile</h2>
+          <div className="mt-3">
+            <NeighborhoodProfile profile={listing.neighborhoodProfile} />
+          </div>
+        </FlowCard>
+      </div>
 
       <section
         id="agency-actions"

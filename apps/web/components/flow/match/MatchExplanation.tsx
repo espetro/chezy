@@ -52,66 +52,49 @@ export function MatchExplanation({
     );
   const live = explanation.status === "live";
 
+  const positives = [0, 1].map((index) => explanation.positives[index]);
+
   return (
     <section
       aria-label="Match explanation"
       aria-busy={isLoading}
-      className="min-h-80 space-y-4 break-words text-graphite"
+      className="flex flex-col gap-4 break-words text-graphite"
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <h2 className="text-subheading font-semibold text-obsidian">Why this home</h2>
         <span className="text-[13px] text-fog">Match score: {matchScore}/100</span>
       </div>
-      <p className="min-h-10 text-[13px] text-fog" role="status">
+      <ul className="grid gap-2.5 sm:grid-cols-2">
+        {positives.map((claim, index) => (
+          <li key={index} className="flex flex-col gap-1 rounded-[14px] bg-paper px-4 py-3">
+            {claim ? (
+              <>
+                <p className="text-sm leading-snug font-medium text-obsidian">{claim.text}</p>
+                <span className="text-xs text-fog">{claim.key}</span>
+              </>
+            ) : (
+              <p className="text-sm leading-snug text-fog">
+                No additional supported positive in the known facts.
+              </p>
+            )}
+          </li>
+        ))}
+      </ul>
+      <div className="flex flex-col gap-1 rounded-[14px] border border-mist px-4 py-3">
+        <h3 className="text-xs font-semibold tracking-wide text-fog uppercase">What to check</h3>
+        <p className="text-sm leading-snug text-obsidian">{explanation.tradeoff.text}</p>
+        <span className="text-xs text-fog">
+          {explanation.tradeoff.key}
+          {explanation.tradeoff.source === "missing" ? " (missing)" : ""}
+        </span>
+      </div>
+      <p className="text-xs text-fog" role="status">
         {live
-          ? `Evidence selected by ${explanation.meta?.provider ?? "provider"}; facts from stored data.`
+          ? "Reasons grounded in stored listing facts."
           : isLoading
             ? "AI explanation pending. Showing deterministic reasons."
             : "AI explanation unavailable. Showing deterministic reasons."}
       </p>
-      <ul className="space-y-3">
-        {[0, 1].map((index) => {
-          const claim = explanation.positives[index];
-          return (
-            <li key={index} className="min-h-28 rounded-2xl bg-paper p-3">
-              {claim ? (
-                <>
-                  <p className="text-sm font-medium">{claim.text}</p>
-                  <small className="text-fog">
-                    Evidence: {claim.listingId} · {claim.key}
-                  </small>
-                </>
-              ) : (
-                <p className="text-sm text-fog">
-                  No additional supported positive in the known facts.
-                </p>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-      <div className="min-h-36 rounded-2xl bg-card-subtle p-4">
-        <h3 className="mb-2 text-sm font-semibold text-obsidian">What to check</h3>
-        <p className="text-sm">{explanation.tradeoff.text}</p>
-        <small className="text-fog">
-          Evidence: {explanation.tradeoff.listingId} · {explanation.tradeoff.key}
-          {explanation.tradeoff.source === "missing" ? " (missing)" : ""}
-        </small>
-      </div>
-      <div className="min-h-12">
-        {explanation.meta?.latencyMs !== undefined && (
-          <p className="text-xs text-fog">
-            {explanation.meta.provider} ·{" "}
-            {explanation.meta.model ?? explanation.meta.requestedModel}
-            {" · "}
-            {explanation.meta.latencyMs} ms
-            {explanation.meta.inputTokens !== undefined &&
-              ` · ${explanation.meta.inputTokens} input tokens`}
-            {explanation.meta.outputTokens !== undefined &&
-              ` · ${explanation.meta.outputTokens} output tokens`}
-          </p>
-        )}
-      </div>
     </section>
   );
 }
