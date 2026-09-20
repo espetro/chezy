@@ -29,6 +29,11 @@ const CallGate = ({ listing }: AgentCallGateProps) => {
   const [liveOptIn, setLiveOptIn] = useState(false);
   const controller = useRef<ReturnType<typeof createViewingController> | undefined>(undefined);
   const { status } = state;
+  // A retryable failure with no live attempt on record (e.g. the server
+  // rejected the opt-in before dispatching) falls back to the simulate path.
+  const canSimulate =
+    status === "idle" || (state.status === "failed" && state.retryable && !state.live);
+  const canOptInLive = canSimulate || status === "simulated";
 
   function getController() {
     controller.current ??= createViewingController(listing.id, {
@@ -39,6 +44,7 @@ const CallGate = ({ listing }: AgentCallGateProps) => {
   }
 
   const startCall = async (live = false) => {
+    if (live) setLiveOptIn(false);
     const pending = getController().start(live);
     setState({ status: "dispatching" });
     setState(await pending);
@@ -139,17 +145,17 @@ const CallGate = ({ listing }: AgentCallGateProps) => {
       </div>
 
       <div className="flex w-full flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3">
-        {status === "idle" ? (
+        {canSimulate ? (
           <FlowButton className="w-full sm:w-auto" onClick={() => void startCall()}>
             Simulate viewing call
           </FlowButton>
         ) : undefined}
-        {state.status === "failed" && state.retryable ? (
+        {state.status === "failed" && state.retryable && state.live ? (
           <FlowButton className="w-full sm:w-auto" onClick={() => void startCall()}>
             Try again
           </FlowButton>
         ) : undefined}
-        {status === "idle" || status === "simulated" ? (
+        {canOptInLive ? (
           <div className="flex flex-col gap-2">
             <label className="flex items-start gap-2 text-[13px] text-fog">
               <input
