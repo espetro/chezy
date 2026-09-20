@@ -1,20 +1,15 @@
 // `arrangeViewing` — there is no apps/web AI SDK tool for viewing dispatch
-// (the webapp exposes it as POST /api/viewing), so this Mastra tool mirrors the
-// route's logic against the same lib functions and records every dispatch in
-// `bot.viewings`. Approval-gated: the model proposes, Telegram shows an
+// (the webapp exposes it as POST /api/viewing), so this Mastra tool wraps the
+// shared `dispatchViewing` from `~/lib/viewing-call` and records every dispatch
+// in `bot.viewings`. Approval-gated: the model proposes, Telegram shows an
 // approve/deny card, and only approval executes the call.
 import { createTool } from "@mastra/core/tools";
 import type { ViewingResult } from "@chezy/contract";
 import { toStandardJsonSchema } from "@valibot/to-json-schema";
 import * as v from "valibot";
 
-import { nextSlotIso } from "~/lib/calendar";
 import { client } from "~/lib/db/client";
-import { env } from "~/lib/env";
-import { getListingInsights, insightsToCallVariables } from "~/lib/insights";
-import { getListingById, listingToCallVariables } from "~/lib/listings";
-import { dispatchSlngCall } from "~/lib/slng";
-import { placeVonageCall } from "~/lib/vonage";
+import { dispatchViewing as dispatchViewingCall } from "~/lib/viewing-call";
 
 import { usernameFromContext } from "./adapt";
 
@@ -42,64 +37,7 @@ export async function dispatchViewing(
   input: ArrangeViewingInput,
   username: string,
 ): Promise<ViewingResult> {
-  const to = input.agencyPhone ?? env.DEMO_AGENCY_PHONE;
-
-  let view: ViewingResult;
-  try {
-    if (env.VIEWING_MODE === "slng") {
-      if (!to) throw new Error("no callee configured");
-      const summary = await getListingById(input.propertyRef);
-      const insights = await getListingInsights(input.propertyRef);
-      const result = await dispatchSlngCall({
-        to,
-        variables: summary
-          ? {
-              ...listingToCallVariables(summary),
-              ...(insights ? insightsToCallVariables(insights) : {}),
-            }
-          : { property_ref: input.propertyRef },
-      });
-      view = {
-        status: "dispatched",
-        channel: "slng",
-        callId: result.callId,
-        slotIso: nextSlotIso(input.slotHint),
-        detail: result.detail,
-      };
-    } else if (env.VIEWING_MODE === "vonage") {
-      if (!to) throw new Error("no callee configured");
-      const result = await placeVonageCall({
-        to,
-        ncco: [
-          {
-            action: "talk",
-            text: "Hola, llamo por el piso. Quisiera reservar una visita.",
-            language: "es-ES",
-          },
-        ],
-      });
-      view = {
-        status: "dispatched",
-        channel: "vonage",
-        callId: result.uuid,
-        slotIso: nextSlotIso(input.slotHint),
-        detail: result.status,
-      };
-    } else {
-      view = {
-        status: "mock",
-        channel: "mock",
-        slotIso: nextSlotIso(input.slotHint),
-        detail: "mock viewing (VIEWING_MODE=mock)",
-      };
-    }
-  } catch (error) {
-    view = {
-      status: "failed",
-      channel: env.VIEWING_MODE,
-      detail: error instanceof Error ? error.message : "unknown error",
-    };
-  }
+  const view = await dispatchViewingCall(input);
 
   await client.unsafe(
     `INSERT INTO bot.viewings (username, property_ref, status, channel, call_id, slot_iso, detail)
@@ -109,8 +47,8 @@ export async function dispatchViewing(
       input.propertyRef,
       view.status,
       view.channel,
-      view.callId ?? null,
-      view.slotIso ?? null,
+      "callId" in view ? view.callId : null,
+      "slotIso" in view ? (view.slotIso ?? null) : null,
       view.detail ?? null,
     ],
   );

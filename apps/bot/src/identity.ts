@@ -6,9 +6,15 @@
 // drizzle migrations stay untouched.
 import { client } from "~/lib/db/client";
 import { createNamedUser, getUserByUsername } from "~/lib/db/queries";
+import { scopedUsername } from "~/lib/user-profile";
 
+// Web tools scope every claimed name to a session user via `scopedUsername`
+// (`<name>--<session8>`). For Telegram the session user IS the telegram user
+// id, so the mapped username is minted already-scoped: `scopedUsername` inside
+// the tools returns it unchanged. The full id stays in the prefix, keeping the
+// username unique even when two ids share their first 8 digits.
 export function telegramUsername(telegramUserId: string | number): string {
-  return `tg-${telegramUserId}`;
+  return scopedUsername(String(telegramUserId), `tg-${telegramUserId}`) ?? `tg-${telegramUserId}`;
 }
 
 let schemaReady: Promise<void> | undefined;
@@ -86,8 +92,8 @@ export async function ensureTelegramUser(input: {
   await client.unsafe(
     `INSERT INTO bot.telegram_users (username, telegram_user_id, chat_id, thread_id)
      VALUES ($1, $2, $3, $4)
-     ON CONFLICT (username) DO UPDATE SET
-       telegram_user_id = EXCLUDED.telegram_user_id,
+     ON CONFLICT (telegram_user_id) DO UPDATE SET
+       username = EXCLUDED.username,
        chat_id = EXCLUDED.chat_id,
        thread_id = EXCLUDED.thread_id,
        updated_at = now()`,

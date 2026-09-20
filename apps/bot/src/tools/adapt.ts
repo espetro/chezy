@@ -6,10 +6,10 @@
 import type { RequestContext } from "@mastra/core/request-context";
 import { createTool } from "@mastra/core/tools";
 import { toStandardJsonSchema } from "@valibot/to-json-schema";
-import type { Tool } from "ai";
 import * as v from "valibot";
 
 export const USERNAME_CONTEXT_KEY = "chezy.username";
+export const SESSION_CONTEXT_KEY = "chezy.sessionUserId";
 
 export function usernameFromContext(requestContext: RequestContext | undefined): string {
   const username = requestContext?.get(USERNAME_CONTEXT_KEY);
@@ -21,10 +21,26 @@ export function usernameFromContext(requestContext: RequestContext | undefined):
   return username;
 }
 
+export function sessionFromContext(requestContext: RequestContext | undefined): string {
+  const session = requestContext?.get(SESSION_CONTEXT_KEY);
+  if (typeof session !== "string" || session.length === 0) {
+    throw new Error(
+      "chezy sessionUserId is not resolved on this request context — the Telegram identity handler must run first",
+    );
+  }
+  return session;
+}
+
+interface WebTool {
+  readonly description?: unknown;
+  readonly execute?: unknown;
+}
+
 interface AdaptToolOptions<TInput extends v.ObjectSchema<v.ObjectEntries, undefined>> {
   readonly id: string;
-  /** The AI SDK tool from apps/web (`description` + `execute`). */
-  readonly source: Tool;
+  /** The AI SDK tool from apps/web, or its `{ sessionUserId }` factory.
+   * Structural type: `ai`'s `Tool` is not assignable across schema generics. */
+  readonly source: WebTool | ((ctx: { sessionUserId: string }) => WebTool);
   /** Raw Valibot object schema; may include `username`, which is stripped. */
   readonly input: TInput;
   readonly requireApproval?: boolean;
@@ -41,18 +57,26 @@ export function adaptTool<TInput extends v.ObjectSchema<v.ObjectEntries, undefin
 }: AdaptToolOptions<TInput>) {
   const hasUsername = "username" in input.entries;
   const exposed = hasUsername ? v.omit(input, ["username"]) : input;
-  const execute = source.execute as ((args: unknown, options: unknown) => unknown) | undefined;
-  if (!execute) {
+  // Factory sources (web tools take `{ sessionUserId }`) are resolved per call
+  // so the Telegram user's id closes over `scopedUsername`; a probe instance
+  // supplies the static description.
+  const isFactory = typeof source === "function";
+  const probe = isFactory ? source({ sessionUserId: "" }) : source;
+  if (!probe.execute) {
     throw new Error(`adaptTool(${id}): source tool has no execute`);
   }
 
   return createTool({
     id,
-    description: description ?? (typeof source.description === "string" ? source.description : ""),
+    description: description ?? (typeof probe.description === "string" ? probe.description : ""),
     inputSchema: toStandardJsonSchema(exposed),
     ...(requireApproval ? { requireApproval: true } : {}),
-    execute: async (args, ctx) =>
-      execute(
+    execute: async (args, ctx) => {
+      const tool = isFactory
+        ? source({ sessionUserId: sessionFromContext(ctx.requestContext) })
+        : source;
+      const execute = tool.execute as (a: unknown, o: unknown) => unknown;
+      return execute(
         hasUsername
           ? {
               ...(args as Record<string, unknown>),
@@ -61,6 +85,7 @@ export function adaptTool<TInput extends v.ObjectSchema<v.ObjectEntries, undefin
           : (args as Record<string, unknown>),
         // AI SDK ToolExecutionOptions; only toolCallId/messages matter here.
         { toolCallId: "telegram", messages: [] } as never,
-      ),
+      );
+    },
   });
 }

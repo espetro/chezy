@@ -49,9 +49,9 @@ describe("telegram e2e (fake Bot API)", () => {
     expect(String(reply?.body.chat_id)).toBe("900001");
 
     // Identity was linked and the username stamped.
-    const { getTelegramUserLink } = await import("../src/identity");
+    const { getTelegramUserLink, telegramUsername } = await import("../src/identity");
     const link = await getTelegramUserLink(900001);
-    expect(link?.username).toBe("tg-900001");
+    expect(link?.username).toBe(telegramUsername(900001));
 
     await telegram.disconnect("chezy");
     close();
@@ -139,10 +139,12 @@ describe("telegram e2e (fake Bot API)", () => {
 
     // Wait for the tool to execute: a bot.viewings row appears.
     const { client } = await import("~/lib/db/client");
+    const { telegramUsername } = await import("../src/identity");
     let rows: unknown[] = [];
     while (Date.now() < deadline + 5_000) {
       rows = await client.unsafe(
-        `SELECT * FROM bot.viewings WHERE username = 'tg-900002' AND property_ref = 'lst-fake-1'`,
+        `SELECT * FROM bot.viewings WHERE username = $1 AND property_ref = 'lst-fake-1'`,
+        [telegramUsername(900002)],
       );
       if (rows.length > 0) break;
       await new Promise((r) => setTimeout(r, 50));

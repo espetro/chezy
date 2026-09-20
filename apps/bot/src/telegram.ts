@@ -3,7 +3,7 @@ import { TelegramProvider } from "@mastra/telegram";
 
 import { env } from "./env";
 import { ensureTelegramUser } from "./identity";
-import { USERNAME_CONTEXT_KEY } from "./tools/adapt";
+import { SESSION_CONTEXT_KEY, USERNAME_CONTEXT_KEY } from "./tools/adapt";
 
 const allowedUserIds = (): Set<string> =>
   new Set(
@@ -39,8 +39,11 @@ export function createTelegramProvider(): TelegramProvider {
             chatId,
             threadId: thread.channelId,
           });
-          // Tools read this inside their execute; see tools/adapt.ts.
+          // Tools read these inside their execute; see tools/adapt.ts. The
+          // telegram user id doubles as the web tools' `sessionUserId`, which
+          // is why `username` is minted already-scoped in identity.ts.
           ctx.requestContext.set(USERNAME_CONTEXT_KEY, username);
+          ctx.requestContext.set(SESSION_CONTEXT_KEY, String(userId));
         }
         await defaultHandler(thread, message);
       },
