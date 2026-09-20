@@ -1,6 +1,11 @@
 import * as v from "valibot";
 
-export const FEEDBACK_REASONS = ["too_expensive", "wrong_area", "missing_balcony"] as const;
+export const FEEDBACK_REASONS = [
+  "too_expensive",
+  "wrong_area",
+  "missing_balcony",
+  "other",
+] as const;
 export const FeedbackReasonSchema = v.picklist(FEEDBACK_REASONS);
 export type FeedbackReason = v.InferOutput<typeof FeedbackReasonSchema>;
 
@@ -41,3 +46,12 @@ export const FeedbackOutputSchema = v.strictObject({ event: FeedbackEventSchema 
 export const FeedbackListOutputSchema = v.strictObject({ events: v.array(FeedbackEventSchema) });
 export type FeedbackOutput = v.InferOutput<typeof FeedbackOutputSchema>;
 export type FeedbackListOutput = v.InferOutput<typeof FeedbackListOutputSchema>;
+
+export const listingFeedbackInputSchema = v.object({
+  username: v.pipe(v.string(), v.minLength(1), v.maxLength(64)),
+  listingId: v.string(),
+  verdict: v.picklist(["accepted", "rejected"]),
+  reason: v.optional(v.string()),
+});
+
+export type ListingFeedbackInput = v.InferOutput<typeof listingFeedbackInputSchema>;

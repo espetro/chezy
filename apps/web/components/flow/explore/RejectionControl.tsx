@@ -9,6 +9,7 @@ const labels: Record<FeedbackReason, string> = {
   too_expensive: "Too expensive",
   wrong_area: "Wrong area",
   missing_balcony: "Missing balcony",
+  other: "Other",
 };
 
 interface RejectionControlProps {

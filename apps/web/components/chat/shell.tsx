@@ -137,6 +137,7 @@ export function ChatShell({ embedded = false }: { embedded?: boolean }) {
               onEditMessage={handleEditMessage}
               regenerate={regenerate}
               selectedModelId={currentModelId}
+              sendMessage={sendMessage}
               setMessages={setMessages}
               status={status}
               votes={votes}

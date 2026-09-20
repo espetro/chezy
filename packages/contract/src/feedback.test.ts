@@ -13,7 +13,7 @@ describe("feedback boundary", () => {
     expect(v.safeParse(FeedbackInputSchema, { ...input, reason }).success).toBe(true);
   });
   it.each([
-    { reason: "other" },
+    { reason: "bogus" },
     { eventId: "not-an-id" },
     { listingId: "" },
     { userId: "spoofed" },
