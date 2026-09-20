@@ -31,6 +31,8 @@ function run(cmd: string, args: string[], cwd: string): { code: number; output: 
     encoding: "utf8",
     timeout: 10 * 60 * 1000,
     maxBuffer: 64 * 1024 * 1024,
+    // Plain output so failing test names can be parsed from the logs.
+    env: { ...process.env, NO_COLOR: "1", FORCE_COLOR: "0" },
   });
   const output = `${res.stdout ?? ""}\n${res.stderr ?? ""}`;
   if (res.error) return { code: 1, output: `${output}\n${res.error.message}` };
@@ -147,7 +149,9 @@ async function verifySha(opts: VerifyOpts, sha: string, task: ForgeTask): Promis
         gate.name === "pytest"
           ? [...res.output.matchAll(/^FAILED (.+?)(?: - |$)/gm)].map((m) => m[1] ?? "")
           : gate.name === "vitest"
-            ? [...res.output.matchAll(/^\s*[×✗] (.+)$/gm)].map((m) => (m[1] ?? "").trim())
+            ? [...res.output.matchAll(/^\s*[×✗] (.+?)(?: \d+ms)?$/gm)].map((m) =>
+                (m[1] ?? "").trim(),
+              )
             : [];
       return { kind: "fail", gate: gate.name, output: tail(res.output, 80), failingTests, sha };
     }
