@@ -48,7 +48,7 @@ const BookVisitAction = ({ listingId }: { listingId: string }) => {
   if (phase === "booked" && booking.status === "booked") {
     return (
       <p className={statusPillClass}>
-        <BookedCheck size="sm" />
+        <BookedCheck size="sm" animate={false} />
         <span className="truncate">
           Booked · {slotFormatter.format(new Date(booking.result.slotIso))}
         </span>
