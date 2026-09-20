@@ -77,6 +77,12 @@ export const ADAPTATION_DEADLINE_MS = 10 * 60_000;
 export const ADAPTATION_MAX_ATTEMPTS = 2;
 // ACU cap for the Devin session; one small prompt-only job.
 export const ADAPTATION_MAX_ACU = 1;
+// Coverage below this threshold means the feed lacks usable capability evidence.
+export const CAPABILITY_GAP_COVERAGE_THRESHOLD = 0.2;
+// ACU cap for the capability forge session; matches scripts/devin-forge/forge.ts.
+export const CAPABILITY_FORGE_MAX_ACU = 8;
+// Branch the capability forge session starts from.
+export const CAPABILITY_FORGE_BASE_BRANCH = "main";
 // Feed candidates handed to the provider as the listing id allowlist.
 export const ADAPTATION_CANDIDATE_LIMIT = 6;
 // Outbound Devin API call bound, same role as FETCH_TIMEOUT_MS.

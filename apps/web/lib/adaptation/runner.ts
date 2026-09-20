@@ -4,10 +4,10 @@ import {
   isAdaptationFocus,
   type AdaptationFocus,
   type AdaptationJob,
+  type CapabilityJob,
   type FeedbackEvent,
   type TraceEvent,
 } from "@chezy/contract";
-import { getLogger } from "@chezy/observability";
 import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import * as v from "valibot";
 
@@ -28,6 +28,7 @@ import { db } from "~/lib/db/client";
 import {
   adaptationCandidate,
   adaptationJob,
+  capabilityJob,
   listing,
   listingFeedback,
   type AdaptationJobRow,
@@ -38,11 +39,13 @@ import type { DemoUserCleanup } from "~/lib/demo/reset";
 import {
   createDevinClient,
   createMockDevinClient,
-  DevinClientError,
   type DevinClient,
   type DevinSessionSnapshot,
 } from "~/lib/devin/client";
 import { env } from "~/lib/env";
+import { getCapabilityForAdaptation, launchCapabilityForge } from "~/lib/capability/jobs";
+import { detectCapabilityGap } from "~/lib/adaptation/gap";
+import { logProviderFailure, providerFailureMessage } from "~/lib/devin/failure";
 import { buildFeed } from "~/lib/feed";
 import { getFeedbackEvent, listActiveFeedback } from "~/lib/feedback";
 import { getListingRowById } from "~/lib/listings";
@@ -60,33 +63,11 @@ export class AdaptationError extends Error {
 }
 
 const TERMINAL: ReadonlySet<string> = new Set(["ready", "failed", "stale"]);
-const logger = getLogger(["chezy", "adaptation"]);
-
-// Safe user-facing message for a provider failure; the classified code picks
-// the honest variant, everything else stays generic.
-export const providerFailureMessage = (error: unknown): string => {
-  if (!(error instanceof DevinClientError)) return ADAPTATION_ERRORS.provider;
-  if (error.code === "out_of_quota") return ADAPTATION_ERRORS.quota;
-  if (error.code === "unauthorized") return ADAPTATION_ERRORS.unauthorized;
-  return ADAPTATION_ERRORS.provider;
-};
-
-// Server log only: status, code and the API's own detail text. Never the
-// prompt, never the key.
-const logProviderFailure = (op: "create" | "poll" | "message", jobId: string, error: unknown) => {
-  const known = error instanceof DevinClientError ? error : undefined;
-  logger.error("devin session {op} failed for job {jobId}: {status} {code} {detail}", {
-    op,
-    jobId,
-    status: known?.status,
-    code: known?.code ?? "unknown",
-    detail: known?.detail ?? (error instanceof Error ? error.message : String(error)),
-  });
-};
+export { providerFailureMessage } from "~/lib/devin/failure";
 
 // Wire shape: candidate_spec, validation_errors, provider_session_id and
 // source_listing_ids never leave the server.
-export const toAdaptationJob = (row: AdaptationJobRow): AdaptationJob =>
+export const toAdaptationJob = (row: AdaptationJobRow, capability?: CapabilityJob): AdaptationJob =>
   v.parse(AdaptationJobSchema, {
     jobId: row.id,
     feedbackEventId: row.feedbackEventId,
@@ -99,12 +80,24 @@ export const toAdaptationJob = (row: AdaptationJobRow): AdaptationJob =>
     // oxlint-disable-next-line unicorn/no-null
     panel: row.status === "ready" ? row.acceptedSpec : null,
     error: row.error,
+    // oxlint-disable-next-line unicorn/no-null
+    capability: capability ?? null,
     updatedAt: row.updatedAt.toISOString(),
   });
 
+const attachCapability = async (job: AdaptationJob): Promise<AdaptationJob> => ({
+  ...job,
+  // oxlint-disable-next-line unicorn/no-null
+  capability: (await getCapabilityForAdaptation(job.jobId)) ?? null,
+});
+
 const devinClient = (): DevinClient | undefined =>
   env.DEVIN_API_KEY
-    ? createDevinClient({ apiKey: env.DEVIN_API_KEY, baseUrl: env.DEVIN_API_BASE_URL })
+    ? createDevinClient({
+        apiKey: env.DEVIN_API_KEY,
+        baseUrl: env.DEVIN_API_BASE_URL,
+        orgId: env.DEVIN_ORG_ID,
+      })
     : undefined;
 
 const fetchRow = async (id: string) =>
@@ -208,7 +201,10 @@ const claimJob = async (
     .set({ ...patch, updatedAt: new Date() })
     .where(and(eq(adaptationJob.id, row.id), eq(adaptationJob.status, "queued")))
     .returning();
-  if (!claimed) return toAdaptationJob((await fetchRow(row.id)) ?? row);
+  if (!claimed) {
+    const existing = (await fetchRow(row.id)) ?? row;
+    return toAdaptationJob(existing, await getCapabilityForAdaptation(existing.id));
+  }
 
   if (claimed.provider === "devin" && !env.DEVIN_API_KEY) {
     return failStep(claimed, ADAPTATION_ERRORS.notConfigured);
@@ -216,11 +212,11 @@ const claimJob = async (
 
   const feedback = await listActiveFeedback(row.userId);
   const feed = await buildFeed(profile, undefined, undefined, feedback);
-  const candidates = feed.items
+  const allCandidates = feed.items
     .map((item) => item.listing)
     .filter((item) => item.id !== event.listingId)
-    .slice(0, ADAPTATION_CANDIDATE_LIMIT)
     .map(sanitizeCandidate);
+  const candidates = allCandidates.slice(0, ADAPTATION_CANDIDATE_LIMIT);
   const rejectedRow = await getListingRowById(event.listingId);
   if (!rejectedRow) return failStep(claimed, ADAPTATION_ERRORS.provider);
 
@@ -229,6 +225,7 @@ const claimJob = async (
       ? createDevinClient({
           apiKey: env.DEVIN_API_KEY ?? "",
           baseUrl: env.DEVIN_API_BASE_URL,
+          orgId: env.DEVIN_ORG_ID,
         })
       : createMockDevinClient({ candidates, event, focus }, env.ADAPTATION_MOCK_SCENARIO);
 
@@ -265,7 +262,18 @@ const claimJob = async (
     })
     .where(and(eq(adaptationJob.id, claimed.id), eq(adaptationJob.status, "running")))
     .returning();
-  return toAdaptationJob(updated ?? claimed);
+  const applied = updated ?? claimed;
+  const gap = detectCapabilityGap(focus, allCandidates);
+  const capability = gap
+    ? await launchCapabilityForge({
+        userId: row.userId,
+        adaptationJobId: applied.id,
+        trace: applied.trace,
+        gap,
+      })
+    : undefined;
+  const latest = capability ? await fetchRow(applied.id) : undefined;
+  return toAdaptationJob(latest ?? applied, capability);
 };
 
 // A running row with no providerSessionId is the window between the claim
@@ -362,7 +370,8 @@ export const advanceAdaptation = async (
     .from(adaptationJob)
     .where(and(eq(adaptationJob.id, jobId), eq(adaptationJob.userId, userId)));
   if (!row) return undefined;
-  if (TERMINAL.has(row.status)) return toAdaptationJob(row);
+  if (TERMINAL.has(row.status))
+    return toAdaptationJob(row, await getCapabilityForAdaptation(row.id));
 
   const event = await getFeedbackEvent(userId, row.feedbackEventId);
   const profile = await getProfile(userId);
@@ -373,16 +382,17 @@ export const advanceAdaptation = async (
     !profile ||
     getProfileVersion(profile) !== row.profileVersion
   ) {
-    return (await applyStep(row, { kind: "stale" })).job;
+    return attachCapability((await applyStep(row, { kind: "stale" })).job);
   }
   if (Date.now() > row.deadlineAt.getTime()) {
-    return (await applyStep(row, { kind: "timeout" })).job;
+    return attachCapability((await applyStep(row, { kind: "timeout" })).job);
   }
-  if (row.status === "queued") return claimJob(row, event, row.focus, profile);
+  if (row.status === "queued")
+    return attachCapability(await claimJob(row, event, row.focus, profile));
   if (row.status === "running" || row.status === "correcting") {
-    return pollJob(row, event, row.focus, profile);
+    return attachCapability(await pollJob(row, event, row.focus, profile));
   }
-  return toAdaptationJob(row);
+  return toAdaptationJob(row, await getCapabilityForAdaptation(row.id));
 };
 
 // A deliberate new attempt after a terminal failure: same job, next run, fresh
@@ -431,7 +441,7 @@ export const retryAdaptation = async (userId: string, jobId: string): Promise<Ad
     .where(and(eq(adaptationJob.id, row.id), eq(adaptationJob.status, "failed")))
     .returning();
   if (!updated) throw new AdaptationError("Only a failed comparison can be retried", 409);
-  return toAdaptationJob(updated);
+  return toAdaptationJob(updated, await getCapabilityForAdaptation(updated.id));
 };
 
 const activeEventJoin = and(
@@ -454,8 +464,9 @@ export const getLatestAcceptedPanel = async (userId: string) => {
   if (!row || !spec) return undefined;
   const rows = await db.select().from(listing).where(inArray(listing.id, spec.listingIds));
   const byId = new Map(rows.map((item) => [item.id, item]));
+  const capability = await getCapabilityForAdaptation(row.job.id);
   return {
-    job: toAdaptationJob(row.job),
+    job: toAdaptationJob(row.job, capability),
     spec,
     rows: spec.listingIds
       .map((id) => byId.get(id))
@@ -479,9 +490,10 @@ export const getActiveJob = async (userId: string): Promise<AdaptationJob | unde
     )
     .orderBy(desc(adaptationJob.createdAt))
     .limit(1);
-  return row ? toAdaptationJob(row.job) : undefined;
+  return row ? toAdaptationJob(row.job, await getCapabilityForAdaptation(row.job.id)) : undefined;
 };
 
 export const clearUserAdaptations: DemoUserCleanup = async (transaction, userId) => {
   await transaction.delete(adaptationJob).where(eq(adaptationJob.userId, userId));
+  await transaction.delete(capabilityJob).where(eq(capabilityJob.userId, userId));
 };
