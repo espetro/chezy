@@ -3,7 +3,7 @@ import { tool } from "ai";
 import * as v from "valibot";
 
 import { bookViewing } from "~/lib/calendar";
-import { getUserByUsername, insertViewing, updateViewingStatus } from "~/lib/db/queries";
+import { getUserByUsername, insertViewing } from "~/lib/db/queries";
 import { getListingById } from "~/lib/listings";
 import { normalizeUsername } from "~/lib/user-profile";
 import { dispatchViewing } from "~/lib/viewing";
@@ -63,9 +63,6 @@ export const arrangeViewing = tool({
       callId: viewing.callId,
       slotIso: booking?.slotIso ?? viewing.slotIso,
     });
-    if (booking?.status === "booked") {
-      await updateViewingStatus({ id: row.id, status: "booked", slotIso: booking.slotIso });
-    }
 
     return { listing, viewing, booking, viewingId: row.id };
   },
