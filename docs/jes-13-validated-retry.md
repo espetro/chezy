@@ -170,3 +170,5 @@ is real: every live candidate went through `validateComparisonPanel` and `accept
 written by the validator, not by the model.
 
 Not done: a live refused first candidate; a Linear update (no Linear access from this machine).
+
+See [the capability forge trigger](forge-trigger.md).
