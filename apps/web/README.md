@@ -94,6 +94,12 @@ reads the env parser before dotenv runs; `demo:setup` avoids that import-order i
 4. **Reset to empty onboarding** instead clears both profiles and restarts
    onboarding. It preserves login and other users' database records.
 
+Faster local loop: set `CHEZY_SKIP_ONBOARDING="1"` in `apps/web/.env.local` and a fresh
+guest opening `/explore` gets the demo persona loaded automatically instead of being
+redirected to `/onboarding`. Honoured only where the demo tools are enabled (development
+or `IS_DEMO=1`); the persona is the same one **Reset and load demo** installs. Playwright
+specs do not rely on it (they click the demo tools), so it can stay on while testing.
+
 The control appears in development or with `IS_DEMO=1`. Normal production returns
 404 for the reset endpoint. Production demo mode uses the existing `/demo` base
 path (set `IS_DEMO=1` at build and runtime). Both provider modes must be mock before

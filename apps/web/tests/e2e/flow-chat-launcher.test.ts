@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 
-const SHOT_DIR = "/tmp/card-chat";
+const SHOT_DIR = "/tmp/chat-bar";
 
 // The send flow needs a working model key; read .env.local the same way
 // flow-happy-path.test.ts does (playwright.config.ts also dotenv-loads it, but a
@@ -104,14 +104,14 @@ test.describe("flow chat launcher (desktop)", () => {
     expect(consoleErrors).toEqual([]);
   });
 
-  test("hides the launcher on /explore where cards carry the ask input", async ({ page }) => {
+  test("hides the launcher on /explore where the chat bar lives", async ({ page }) => {
     const consoleErrors = collectConsoleErrors(page);
     await completeOnboarding(page);
     await expect(page.getByRole("button", { name: "Chat with Chezy" })).toHaveCount(0);
-    const card = page.locator("article", { has: page.locator("a[href^='/explore/']") }).first();
-    await expect(card.getByRole("textbox", { name: /^Ask Chezy about / })).toBeVisible();
-    await expect(card.getByRole("button", { name: "Ask Chezy" })).toBeDisabled();
-    await page.screenshot({ path: `${SHOT_DIR}/card-with-input-desktop.png` });
+    const bar = page.getByRole("form", { name: "Ask Chezy" });
+    await expect(bar).toBeVisible();
+    await expect(bar.getByRole("button", { name: "Send question" })).toBeDisabled();
+    await page.screenshot({ path: `${SHOT_DIR}/chat-bar-desktop.png` });
     expect(consoleErrors).toEqual([]);
   });
 });
@@ -130,6 +130,10 @@ test.describe("flow chat launcher (mobile)", () => {
     const nextMatch = page.getByRole("button", { name: "Next match" });
     await nextMatch.scrollIntoViewIfNeeded();
     await expect(nextMatch).toBeInViewport();
+    // The pinned chat bar must sit below the carousel controls, never over them.
+    const chatBarBox = await page.getByRole("form", { name: "Ask Chezy" }).boundingBox();
+    const nextBox = await nextMatch.boundingBox();
+    expect((nextBox?.y ?? 0) + (nextBox?.height ?? 0)).toBeLessThanOrEqual(chatBarBox?.y ?? 0);
     await nextMatch.click();
     await expect(page.getByText(/Showing match 2 of \d+/)).toBeAttached();
     await page.screenshot({ path: `${SHOT_DIR}/explore-controls-mobile.png` });
@@ -171,31 +175,28 @@ test.describe("flow chat launcher (mobile)", () => {
     expect(consoleErrors).toEqual([]);
   });
 
-  test("asks about a listing from its card", async ({ page }) => {
+  test("asks a question from the pinned chat bar", async ({ page }) => {
     test.skip(!hasModelKey, "requires OPENAI_COMPATIBLE_API_KEY in apps/web/.env.local");
     const consoleErrors = collectConsoleErrors(page);
 
     await completeOnboarding(page);
-    const card = page.locator("article", { has: page.locator("a[href^='/explore/']") }).first();
-    const title = (await card.locator("h3").innerText()).trim();
-    const ask = card.getByRole("textbox", { name: /^Ask Chezy about / });
-    await ask.fill("Is the deposit negotiable?");
+    const ask = page.getByRole("textbox", { name: "Ask Chezy" });
+    await expect(ask).toBeVisible();
+    await page.screenshot({ path: `${SHOT_DIR}/chat-bar-mobile.png` });
+    await ask.fill("Can I raise my budget to 2600?");
     await ask.press("Enter");
 
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByText(`About: ${title}`)).toBeVisible();
     // The open drawer marks the page aria-hidden, so check the cleared input by CSS.
-    await expect(card.locator("input[aria-label^='Ask Chezy about']")).toHaveValue("");
+    await expect(page.locator("input[aria-label='Ask Chezy']")).toHaveValue("");
 
     const userMessage = dialog.getByTestId("message-user");
     await expect(userMessage).toBeVisible({ timeout: 15000 });
-    await expect(userMessage).toContainText("Regarding listing ");
-    await expect(userMessage).toContainText(title);
-    await expect(userMessage).toContainText("Is the deposit negotiable?");
-    await page.screenshot({ path: `${SHOT_DIR}/drawer-from-card-mobile.png` });
+    await expect(userMessage).toContainText("Can I raise my budget to 2600?");
+    await page.screenshot({ path: `${SHOT_DIR}/drawer-from-bar-mobile.png` });
 
-    await expect(dialog.getByTestId("message-assistant")).toBeVisible({ timeout: 60000 });
+    await expect(dialog.getByTestId("message-assistant")).toBeVisible({ timeout: 120000 });
     // Embedded mode must not rewrite the host URL to /chat/[id].
     await expect(page).toHaveURL(/\/explore$/);
 

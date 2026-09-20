@@ -1,10 +1,9 @@
 "use client";
 
-import { ArrowUp, CalendarCheck, CalendarPlus, Heart, PhoneOutgoing, X } from "lucide-react";
+import { CalendarCheck, CalendarPlus, Heart, PhoneOutgoing, X } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { FlowButton } from "~/components/flow/ui/Button";
-import { useChatLauncher } from "~/components/flow/ui/ChatLauncher";
 import { FlowPill } from "~/components/flow/ui/Pill";
 import { FlowScoreBadge } from "~/components/flow/ui/ScoreBadge";
 import type { FlowListing } from "~/lib/flow/types";
@@ -92,48 +91,6 @@ const BookVisitAction = ({ listingId }: { listingId: string }) => {
             : "Book a visit"}
       </span>
     </FlowButton>
-  );
-};
-
-// "Ask about this home": opens the chat drawer with the listing pinned as the
-// first message so the chat tools can resolve it by id.
-const AskAboutListing = ({ listing }: { listing: FlowListing }) => {
-  const { open } = useChatLauncher();
-  const [question, setQuestion] = useState("");
-  const trimmed = question.trim();
-  const price = listing.price > 0 ? `€${listing.price}/month` : "price unknown";
-
-  return (
-    <form
-      className="flex items-center gap-2 border-t border-cloud px-5 py-3 sm:px-7"
-      onSubmit={(event) => {
-        event.preventDefault();
-        if (!trimmed) return;
-        open({
-          subject: listing.title,
-          message: `Regarding listing ${listing.id} ("${listing.title}", ${listing.neighborhood}, ${price}): ${trimmed}`,
-        });
-        setQuestion("");
-      }}
-    >
-      <input
-        type="text"
-        value={question}
-        onChange={(event) => setQuestion(event.target.value)}
-        maxLength={500}
-        aria-label={`Ask Chezy about ${listing.title}`}
-        placeholder="Ask about this home…"
-        className="min-h-11 min-w-0 flex-1 rounded-buttons bg-paper px-3 text-[14px] text-obsidian placeholder:text-fog focus-visible:outline-2 focus-visible:outline-obsidian"
-      />
-      <button
-        type="submit"
-        aria-label="Ask Chezy"
-        disabled={!trimmed}
-        className={cn(iconButtonClass, "bg-obsidian text-snow hover:bg-graphite")}
-      >
-        <ArrowUp size={18} aria-hidden />
-      </button>
-    </form>
   );
 };
 
@@ -234,7 +191,6 @@ export const CandidateCard = ({
           </button>
         ) : undefined}
       </div>
-      <AskAboutListing listing={listing} />
     </article>
   );
 };

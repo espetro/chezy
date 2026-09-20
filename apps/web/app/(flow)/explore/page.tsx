@@ -6,6 +6,8 @@ import { ExploreFeed } from "~/components/flow/explore/ExploreFeed";
 import { buildFeed } from "~/lib/feed";
 import { toFlowListing } from "~/lib/flow/adapters";
 import { getProfile } from "~/lib/profile";
+import { isOnboardingSkipEnabled } from "~/lib/demo/access";
+import { resetDemo } from "~/lib/demo/reset";
 import { listActiveFeedback } from "~/lib/feedback";
 import { listSavedListingIds } from "~/lib/saved";
 
@@ -23,7 +25,9 @@ async function Explore() {
     redirect("/api/auth/guest?redirectUrl=/explore");
   }
 
-  const profile = await getProfile(session.user.id);
+  const profile =
+    (await getProfile(session.user.id)) ??
+    (isOnboardingSkipEnabled() ? (await resetDemo(session.user.id, true)).profile : undefined);
   if (!profile) {
     redirect("/onboarding");
   }
