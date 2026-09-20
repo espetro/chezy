@@ -10,11 +10,12 @@ export const guestRegex = /^guest-\d+$/;
 
 export const DUMMY_PASSWORD = generateDummyPassword();
 
+// Empty-chat prompts. Rental-agent copy; the template's generic prompts were replaced.
 export const suggestions = [
-  "What are the advantages of using Next.js?",
-  "Write code to demonstrate Dijkstra's algorithm",
-  "Help me write an essay about Silicon Valley",
-  "What is the weather in San Francisco?",
+  "Which neighbourhoods fit my budget best?",
+  "Why is my top match ranked first?",
+  "What should I check before a viewing?",
+  "Can you book a viewing for my best match?",
 ];
 
 // Demo coverage is Barcelona city only — the dataset/scraper only contain
