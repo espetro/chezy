@@ -1,16 +1,20 @@
 "use client";
 
 import { ArrowUpDown } from "lucide-react";
-import type { FeedbackEvent } from "@chezy/contract";
+import type { AdaptationJob, FeedbackEvent } from "@chezy/contract";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { ResolvedPanel } from "~/lib/adaptation/resolve";
 import { describeFeedback } from "~/lib/feedback-ranking";
+import { requestAdaptation } from "~/lib/flow/adaptation-client";
 import { useListingFeedback } from "~/lib/flow/use-listing-feedback";
 import { useRef, useState } from "react";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
 import { FlowButton } from "~/components/flow/ui/Button";
 import { FlowDropdown, FlowMultiDropdown } from "~/components/flow/ui/Dropdown";
 import { CandidateCarousel } from "~/components/flow/explore/CandidateCarousel";
+import { AdaptationStatus } from "~/components/flow/explore/AdaptationStatus";
+import { ComparisonPanel } from "~/components/flow/explore/ComparisonPanel";
 import type { FlowListing } from "~/lib/flow/types";
 
 type SortMode = "match" | "price-asc";
@@ -24,14 +28,18 @@ interface ExploreFeedProps {
   listings: FlowListing[];
   note?: string;
   feedback?: FeedbackEvent[];
+  panel?: { panel: ResolvedPanel; job: AdaptationJob };
+  job?: AdaptationJob;
 }
 
-export const ExploreFeed = ({ listings, note, feedback = [] }: ExploreFeedProps) => {
+export const ExploreFeed = ({ listings, note, feedback = [], panel, job }: ExploreFeedProps) => {
   const feedRef = useRef<HTMLDivElement>(null);
   const [activeZones, setActiveZones] = useState<string[]>([]);
   const [sortMode, setSortMode] = useState<SortMode>("match");
   const router = useRouter();
-  const { reject, undo, busy, error } = useListingFeedback(() => router.refresh());
+  const { reject, undo, busy, error } = useListingFeedback((event) => {
+    void requestAdaptation(event.eventId).finally(() => router.refresh());
+  });
   const lastDismissed = feedback.at(-1);
 
   const zones = Array.from(
@@ -94,6 +102,8 @@ export const ExploreFeed = ({ listings, note, feedback = [] }: ExploreFeedProps)
         onDismiss={reject}
         busy={busy}
       />
+      {job && job.jobId !== panel?.job.jobId ? <AdaptationStatus job={job} /> : undefined}
+      {panel ? <ComparisonPanel panel={panel.panel} job={panel.job} /> : undefined}
       {lastDismissed && (
         <div className="flex items-center justify-between gap-3 rounded-cards bg-snow px-4 py-3">
           <p role="status" className="text-sm text-fog">

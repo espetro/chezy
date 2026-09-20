@@ -5,6 +5,7 @@ import type { FeedbackEvent } from "@chezy/contract";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { RejectionControl } from "~/components/flow/explore/RejectionControl";
+import { requestAdaptation } from "~/lib/flow/adaptation-client";
 import { useListingFeedback } from "~/lib/flow/use-listing-feedback";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
 import { FlowBadge } from "~/components/flow/ui/Badge";
@@ -32,7 +33,10 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
   const isAutoCall = listing.matchScore >= AUTO_CALL_MATCH_THRESHOLD;
   const [state, setState] = useState<ViewingState>({ status: "idle" });
   const [feedback, setFeedback] = useState<FeedbackEvent>();
-  const { reject, undo, busy, error } = useListingFeedback(setFeedback);
+  const { reject, undo, busy, error } = useListingFeedback((event) => {
+    setFeedback(event);
+    void requestAdaptation(event.eventId);
+  });
   const [liveOptIn, setLiveOptIn] = useState(false);
   const controller = useRef<ReturnType<typeof createViewingController> | undefined>(undefined);
   const restoreFocus = useRef(false);
