@@ -6,8 +6,9 @@ grounding, evals, speed, cost, or reliability).
 
 ## Where Nebius sits in the stack
 
-Nebius AI Studio is the default OpenAI-compatible provider for every model call in the
-product, not a sidecar:
+Nebius AI Studio is the default OpenAI-compatible provider for model calls in the web
+product and its evals, not a sidecar (the one exception is the live Telegram bot's
+deployment env — see the Bot row):
 
 | Surface | Code | Model |
 | --- | --- | --- |
@@ -15,7 +16,7 @@ product, not a sidecar:
 | Chat titles | same provider | `Qwen/Qwen3-30B-A3B-Instruct-2507` (`CHEZY_TITLE_MODEL_ID`) |
 | Vision (listing photo forensics) | [`apps/web/lib/vision/extract.ts`](../../apps/web/lib/vision/extract.ts) | `moonshotai/Kimi-K3` (`VISION_MODEL_ID`) |
 | Embeddings | [`apps/web/lib/ai/embeddings.ts`](../../apps/web/lib/ai/embeddings.ts) | `Qwen/Qwen3-Embedding-8B` (`CHEZY_EMBEDDING_MODEL_ID`) |
-| Bot (Telegram client) | `apps/bot` Mastra model router | same `OPENAI_COMPATIBLE_*` env |
+| Bot (Telegram client) | `apps/bot` Mastra model router over `custom/<CHEZY_MODEL_ID>` at `OPENAI_COMPATIBLE_BASE_URL` | same code path; Nebius is the code default, but the live deployment's `apps/bot/.env` points at the local bifrost gateway (`http://localhost:8317/v1`) with `CHEZY_MODEL_ID=minimax-coding-plan/MiniMax-M3`, so the live bot does not run on Nebius |
 
 Configured endpoint: `OPENAI_COMPATIBLE_BASE_URL=https://api.studio.nebius.com/v1`
 ([`.env.example`](../../apps/web/.env.example)). `lib/ai/explain.ts` also detects
@@ -37,5 +38,6 @@ re-run against any other Nebius-hosted model for a cost/quality table.
 
 ## Gap
 
-No committed model-comparison table yet; the defensible claim today is "the product runs
-on Nebius end to end and our scored evals measure its behaviour".
+No committed model-comparison table yet; the defensible claim today is "the web app and
+its scored evals run on Nebius, while the live Telegram bot routes through the local
+bifrost gateway on `minimax-coding-plan/MiniMax-M3`".
