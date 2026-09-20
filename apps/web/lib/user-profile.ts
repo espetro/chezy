@@ -1,4 +1,10 @@
-import type { UserProfile } from "@chezy/contract";
+import {
+  MUST_HAVES,
+  RED_LINES,
+  type FeedbackReason,
+  type SearchProfileInput,
+  type UserProfile,
+} from "@chezy/contract";
 import type { Listing, SearchProfile } from "~/lib/db/schema";
 import { normalizeText } from "~/lib/geocode";
 
@@ -83,6 +89,35 @@ export function toScoringProfile(profile: UserProfile): SearchProfile {
   };
 }
 
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+// UserProfile (chat onboarding scratchpad) -> SearchProfileInput (the matching
+// store JES-8 reads). Same data as toScoringProfile, but shaped for the
+// upsertProfile write path: contract bounds are enforced here so the insert
+// never violates SearchProfileInputSchema. Named to not clash with
+// lib/flow/adapters.ts `toSearchProfileInput(UserPreferences)`.
+export function userProfileToSearchProfileInput(profile: UserProfile): SearchProfileInput {
+  return {
+    workAddress: (profile.workLocation ?? "").slice(0, 200),
+    maxCommuteMin: clamp(Math.round(profile.maxCommuteMin ?? 25), 5, 120),
+    neighbourhoods: (profile.areas ?? []).slice(0, 10),
+    minPriceEur: Math.round(profile.budgetMinEur ?? 0),
+    maxPriceEur: Math.round(profile.budgetMaxEur ?? 0),
+    minRooms: clamp(Math.round(profile.bedroomsMin ?? 0), 0, 10),
+    minM2: clamp(Math.round(profile.minM2 ?? 0), 0, 1000),
+    // oxlint-disable-next-line unicorn/no-null
+    moveDate: null,
+    flexibleDays: 0,
+    mustHaves: (profile.mustHaves ?? []).filter((mh): mh is (typeof MUST_HAVES)[number] =>
+      (MUST_HAVES as readonly string[]).includes(mh),
+    ),
+    redLines: (profile.redLines ?? []).filter((rl): rl is (typeof RED_LINES)[number] =>
+      (RED_LINES as readonly string[]).includes(rl),
+    ),
+    alertsEnabled: true,
+  };
+}
+
 const PRICE_WORDS = ["expensive", "price", "budget", "caro"];
 const AREA_WORDS = ["far", "area", "zone", "barrio", "neighbourhood", "neighborhood", "lejos"];
 const SIZE_WORDS = ["small", "tiny", "m2", "pequeño", "pequeno"];
@@ -151,4 +186,21 @@ export function inferPreferencePatch(
   }
 
   return patch;
+}
+
+// Maps a free-text rejection reason onto the JES-8 FeedbackReason enum the
+// listing_feedback store accepts. Same keyword lists as inferPreferencePatch;
+// anything unrecognized is "other" (recorded, no ranking change).
+export function mapRejectionReason(reason: string | undefined): FeedbackReason {
+  const text = normalizeText(reason ?? "");
+  if (containsAny(text, PRICE_WORDS)) {
+    return "too_expensive";
+  }
+  if (containsAny(text, AREA_WORDS)) {
+    return "wrong_area";
+  }
+  if (containsAny(text, BALCONY_WORDS)) {
+    return "missing_balcony";
+  }
+  return "other";
 }

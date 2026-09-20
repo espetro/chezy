@@ -1,11 +1,13 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, it, test } from "vitest";
 
 import {
   inferPreferencePatch,
+  mapRejectionReason,
   mergeUserProfile,
   missingProfileFields,
   normalizeUsername,
   toScoringProfile,
+  userProfileToSearchProfileInput,
   type UserProfile,
 } from "~/lib/user-profile";
 
@@ -227,5 +229,56 @@ describe("inferPreferencePatch", () => {
   test("returns an empty patch for unrecognized reasons", () => {
     expect(inferPreferencePatch("ugly tiles", listing, profile)).toEqual({});
     expect(inferPreferencePatch(undefined, listing, profile)).toEqual({});
+  });
+});
+
+describe("mapRejectionReason", () => {
+  it.each([
+    ["too far from work", "wrong_area"],
+    ["no balcony", "missing_balcony"],
+    ["caro", "too_expensive"],
+    ["", "other"],
+    ["no elevator", "other"],
+    [undefined, "other"],
+  ] as const)("reason %j -> %s", (reason, expected) => {
+    expect(mapRejectionReason(reason)).toBe(expected);
+  });
+});
+
+describe("userProfileToSearchProfileInput", () => {
+  it("maps chat fields onto the SearchProfile contract", () => {
+    const input = userProfileToSearchProfileInput({
+      areas: ["Eixample", "Poblenou"],
+      budgetMaxEur: 2400,
+      budgetMinEur: 1200,
+      bedroomsMin: 2,
+      workLocation: "Diagonal 405",
+      mustHaves: ["elevator", "balcony_or_terrace", "not-a-key"],
+      redLines: ["no_interior", "bogus"],
+      maxCommuteMin: 30,
+      minM2: 60,
+    });
+    expect(input).toEqual({
+      workAddress: "Diagonal 405",
+      maxCommuteMin: 30,
+      neighbourhoods: ["Eixample", "Poblenou"],
+      minPriceEur: 1200,
+      maxPriceEur: 2400,
+      minRooms: 2,
+      minM2: 60,
+      moveDate: null,
+      flexibleDays: 0,
+      mustHaves: ["elevator", "balcony_or_terrace"],
+      redLines: ["no_interior"],
+      alertsEnabled: true,
+    });
+  });
+
+  it("fills defaults and clamps the commute into the contract range", () => {
+    const input = userProfileToSearchProfileInput({ maxCommuteMin: 500 });
+    expect(input.maxCommuteMin).toBe(120);
+    expect(input.neighbourhoods).toEqual([]);
+    expect(input.maxPriceEur).toBe(0);
+    expect(userProfileToSearchProfileInput({ maxCommuteMin: 1 }).maxCommuteMin).toBe(5);
   });
 });
