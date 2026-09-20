@@ -1,12 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans } from "next/font/google";
 import { FlowMotion } from "~/components/flow/ui/FlowMotion";
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-dm-sans",
-});
 
 export const metadata: Metadata = {
   title: "Chezy — your rental agent",
@@ -24,7 +17,7 @@ interface FlowLayoutProps {
 // globals.css; they don't touch `--background`/`--foreground` etc., so the (chat) subtree
 // is unaffected.
 const FlowLayout = ({ children }: FlowLayoutProps) => (
-  <div className={`${dmSans.variable} min-h-[100dvh] bg-paper font-flow text-obsidian`}>
+  <div className="min-h-[100dvh] bg-paper font-flow text-obsidian">
     <FlowMotion>{children}</FlowMotion>
   </div>
 );

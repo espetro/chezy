@@ -36,6 +36,11 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
   const controller = useRef<ReturnType<typeof createViewingController> | undefined>(undefined);
   const restoreFocus = useRef(false);
   const { status } = state;
+  // A retryable failure with no live attempt on record (e.g. the server
+  // rejected the opt-in before dispatching) falls back to the simulate path.
+  const canSimulate =
+    status === "idle" || (state.status === "failed" && state.retryable && !state.live);
+  const canOptInLive = canSimulate || status === "simulated";
 
   function getController() {
     controller.current ??= createViewingController(listing.id, {
@@ -46,6 +51,7 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
   }
 
   const startCall = async (live = false) => {
+    if (live) setLiveOptIn(false);
     const pending = getController().start(live);
     setState({ status: "dispatching" });
     setState(await pending);
@@ -103,7 +109,7 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
               Auto-call simulation · ≥{AUTO_CALL_MATCH_THRESHOLD}% match
             </FlowBadge>
             <p className="text-[13px] text-fog">
-              This match cleared Chezy's {AUTO_CALL_MATCH_THRESHOLD}% confidence bar. Rehearsal
+              This match cleared the {AUTO_CALL_MATCH_THRESHOLD}% confidence bar. Rehearsal
               simulates the call; a live demo call requires your explicit approval.
             </p>
           </div>
@@ -171,17 +177,17 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
       </div>
 
       <div className="flex min-h-64 w-full flex-col gap-2.5 sm:min-h-40 sm:flex-row sm:flex-wrap sm:content-start sm:gap-3">
-        {status === "idle" ? (
+        {canSimulate ? (
           <FlowButton className="w-full sm:w-auto" onClick={() => void startCall()}>
             Simulate viewing call
           </FlowButton>
         ) : undefined}
-        {state.status === "failed" && state.retryable ? (
+        {state.status === "failed" && state.retryable && state.live ? (
           <FlowButton className="w-full sm:w-auto" onClick={() => void startCall()}>
             Try again
           </FlowButton>
         ) : undefined}
-        {status === "idle" || status === "simulated" ? (
+        {canOptInLive ? (
           <div className="flex flex-col gap-2">
             <label className="flex min-h-11 items-center gap-2 text-[13px] text-fog">
               <input

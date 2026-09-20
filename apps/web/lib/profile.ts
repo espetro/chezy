@@ -2,9 +2,10 @@ import type { SearchProfileInput } from "@chezy/contract";
 import { eq } from "drizzle-orm";
 
 import { db } from "~/lib/db/client";
-import { updateUserProfile } from "~/lib/db/queries";
 import { type SearchProfile, searchProfile, user } from "~/lib/db/schema";
 import { mergeUserProfile } from "~/lib/user-profile";
+
+type ProfileDatabase = Pick<typeof db, "select" | "insert" | "update" | "delete">;
 
 export async function getProfile(userId: string): Promise<SearchProfile | undefined> {
   const rows = await db.select().from(searchProfile).where(eq(searchProfile.userId, userId));
@@ -14,6 +15,7 @@ export async function getProfile(userId: string): Promise<SearchProfile | undefi
 export async function upsertProfile(
   userId: string,
   input: SearchProfileInput & { workLat?: number; workLon?: number },
+  connection: ProfileDatabase = db,
 ): Promise<SearchProfile> {
   const { workLat, workLon, ...fields } = input;
   const values = {
@@ -26,7 +28,7 @@ export async function upsertProfile(
     ...fields,
   };
   const now = new Date();
-  const [row] = await db
+  const [row] = await connection
     .insert(searchProfile)
     .values(values)
     .onConflictDoUpdate({
@@ -37,7 +39,7 @@ export async function upsertProfile(
 
   // Coarse one-way mirror into User.profile so the chat onboarding reads
   // the same preferences. mergeUserProfile preserves freeformRequirements.
-  const [existingUser] = await db
+  const [existingUser] = await connection
     .select({ profile: user.profile })
     .from(user)
     .where(eq(user.id, userId));
@@ -52,9 +54,21 @@ export async function upsertProfile(
       workLocation: input.workAddress,
     });
     merged.onboardedAt = now.toISOString();
-    await updateUserProfile({ userId, profile: merged });
+    await connection
+      .update(user)
+      .set({ profile: merged, updatedAt: now })
+      .where(eq(user.id, userId));
   }
   return row;
+}
+
+export async function resetProfile(userId: string, connection: ProfileDatabase): Promise<void> {
+  await connection.delete(searchProfile).where(eq(searchProfile.userId, userId));
+  await connection
+    .update(user)
+    // oxlint-disable-next-line unicorn/no-null
+    .set({ profile: null, updatedAt: new Date() })
+    .where(eq(user.id, userId));
 }
 
 export async function markVerified(userId: string): Promise<void> {

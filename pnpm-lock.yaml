@@ -98,6 +98,9 @@ importers:
       '@remotion/cli':
         specifier: 4.0.526
         version: 4.0.526(@swc/helpers@0.5.15)(lightningcss@1.33.0)(postcss@8.5.28)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(supports-color@8.1.1)(typescript@5.9.3)
+      '@remotion/fonts':
+        specifier: 4.0.526
+        version: 4.0.526(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react:
         specifier: catalog:default
         version: 19.2.7
@@ -2768,6 +2771,9 @@ packages:
     resolution: {integrity: sha512-bDS7BOw2Pw3TG8I9gutNTKG0AzgOnwJHF5oa/AbWNm0sYwSqkD0NVZnZ5YMWA7mF9PQ0ALX2vj9uXgsEa6LpEQ==}
     cpu: [x64]
     os: [win32]
+
+  '@remotion/fonts@4.0.526':
+    resolution: {integrity: sha512-HXjBYr7ZgH7Vhz4ybtcoNWG83xkg9TvcbkdSLRtJsRLc2iBF+61+rRTla+y1AXq0qKYmwSpVTcuB+wjGEGb3HQ==}
 
   '@remotion/licensing@4.0.526':
     resolution: {integrity: sha512-yd0E2nKBanDktQ5Y+vDkwE1cvsHrrVDXIL5JaODUYVbzECiK4X2J9Rm+kovW230tTMhEzAiVBtwneVp5EEgvCQ==}
@@ -7915,6 +7921,13 @@ snapshots:
 
   '@remotion/compositor-win32-x64-msvc@4.0.526':
     optional: true
+
+  '@remotion/fonts@4.0.526(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      remotion: 4.0.526(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+    transitivePeerDependencies:
+      - react
+      - react-dom
 
   '@remotion/licensing@4.0.526': {}
 

@@ -5,7 +5,18 @@ export type ViewingState =
   | { status: "idle" | "dispatching" }
   | { status: "simulated"; result: Extract<ViewingResult, { status: "mock" }> }
   | { status: "dispatched"; result: Extract<ViewingResult, { status: "dispatched" }> }
-  | { status: "failed"; detail: string; retryable: boolean };
+  // `live` records whether a live attempt is on record for this listing. A
+  // rejected live opt-in (config statuses below) clears it, unlocking the
+  // simulation controls again.
+  | { status: "failed"; detail: string; retryable: boolean; live: boolean };
+
+export type ViewingOutcome =
+  | Exclude<ViewingState, { status: "failed" }>
+  | Omit<Extract<ViewingState, { status: "failed" }>, "live">;
+
+// Statuses that mean the request was rejected before any provider attempt, so
+// the user is not committed to the live path.
+const CONFIG_REJECTION_STATUSES = [400, 401, 403, 503];
 
 const ReceiptSchema = v.object({
   requestId: v.pipe(v.string(), v.uuid()),
@@ -13,7 +24,7 @@ const ReceiptSchema = v.object({
   retry: v.optional(v.boolean(), true),
 });
 
-export function resolveViewingResponse(body: unknown, ok: boolean): ViewingState {
+export function resolveViewingResponse(body: unknown, ok: boolean): ViewingOutcome {
   const parsed = v.safeParse(ViewingResultSchema, body);
   if (!parsed.success) {
     return {
@@ -49,6 +60,9 @@ export function createViewingController(
   let requestId: string | undefined;
   let attempted = false;
 
+  const withMode = (outcome: ViewingOutcome): ViewingState =>
+    outcome.status === "failed" ? { ...outcome, live: liveRequested } : outcome;
+
   function restore(): ViewingState {
     try {
       const saved = storage.getItem(key);
@@ -56,19 +70,21 @@ export function createViewingController(
       const receipt = v.parse(ReceiptSchema, JSON.parse(saved));
       requestId = receipt.requestId;
       attempted = receipt.retry;
-      liveRequested = true;
+      liveRequested = receipt.retry;
       state = receipt.result
-        ? resolveViewingResponse(receipt.result, true)
+        ? withMode(resolveViewingResponse(receipt.result, true))
         : {
             status: "failed",
             detail: "Call response unavailable. Retry the same request to retrieve its outcome.",
             retryable: true,
+            live: liveRequested,
           };
     } catch {
       state = {
         status: "failed",
         detail: "Call history unavailable. Check the provider before making another live call.",
         retryable: false,
+        live: true,
       };
     }
     return state;
@@ -81,11 +97,11 @@ export function createViewingController(
         requestId ??= crypto.randomUUID();
         storage.setItem(key, JSON.stringify({ requestId, retry: true }));
       } catch {
-        return {
+        return withMode({
           status: "failed",
           detail: "Browser storage is required for safe live-call retries.",
           retryable: true,
-        };
+        });
       }
     }
     try {
@@ -93,7 +109,12 @@ export function createViewingController(
       const response = await fetcher("/api/viewing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ propertyRef, live: liveRequested, requestId, retry }),
+        body: JSON.stringify({
+          propertyRef,
+          live: liveRequested,
+          requestId: liveRequested ? requestId : undefined,
+          retry,
+        }),
       });
       const body: unknown = await response.json();
       const outcome = resolveViewingResponse(body, response.ok);
@@ -102,9 +123,10 @@ export function createViewingController(
         if (
           parsed.output.status === "failed" &&
           parsed.output.retryable &&
-          [400, 401, 403, 503].includes(response.status)
+          CONFIG_REJECTION_STATUSES.includes(response.status)
         ) {
           attempted = false;
+          liveRequested = false;
         }
         try {
           storage.setItem(
@@ -115,13 +137,13 @@ export function createViewingController(
           // Keep the in-memory outcome and the previously persisted request ID.
         }
       }
-      return outcome;
+      return withMode(outcome);
     } catch {
-      return {
+      return withMode({
         status: "failed",
         detail: "Network error or unreadable response. Retry uses the same call request.",
         retryable: true,
-      };
+      });
     }
   }
 

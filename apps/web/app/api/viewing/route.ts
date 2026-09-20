@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { ViewingRequestSchema, ViewingResultSchema, type ViewingResult } from "@chezy/contract";
+import { getLogger } from "@chezy/observability";
 import * as v from "valibot";
 
 import { auth } from "~/app/(auth)/auth";
@@ -12,6 +13,7 @@ import { CallDispatchError, createDispatchReceipts } from "~/lib/viewing-dispatc
 import { placeVonageCall } from "~/lib/vonage";
 
 const dispatchOnce = createDispatchReceipts();
+const logger = getLogger(["chezy", "viewing"]);
 const PhoneSchema = v.pipe(v.string(), v.regex(/^\+[1-9]\d{5,14}$/));
 
 function respond(result: ViewingResult, status = 200): Response {
@@ -83,50 +85,64 @@ export async function POST(request: Request): Promise<Response> {
     JSON.stringify([channel, input.propertyRef, to.output]),
     channel,
     async () => {
-      let callId: string;
-      if (channel === "slng") {
-        const context = await Promise.all([
-          getListingById(input.propertyRef),
-          getListingInsights(input.propertyRef),
-        ]).catch(() => {
-          throw new CallDispatchError("Listing context unavailable", true);
+      try {
+        let callId: string;
+        if (channel === "slng") {
+          const context = await Promise.all([
+            getListingById(input.propertyRef),
+            getListingInsights(input.propertyRef),
+          ]).catch(() => {
+            throw new CallDispatchError("Listing context unavailable", true);
+          });
+          const [summary, insights] = context;
+          const dispatched = await dispatchSlngCall({
+            to: to.output,
+            variables: summary
+              ? {
+                  ...listingToCallVariables(summary),
+                  ...(insights ? insightsToCallVariables(insights) : {}),
+                }
+              : { property_ref: input.propertyRef },
+          });
+          callId = dispatched.callId;
+        } else {
+          const dispatched = await placeVonageCall({
+            to: to.output,
+            ncco: [
+              {
+                action: "talk",
+                text: "Hola, llamo por el piso. Quisiera reservar una visita.",
+                language: "es-ES",
+              },
+            ],
+          });
+          callId = dispatched.uuid;
+        }
+        if (typeof callId !== "string" || callId.trim().length === 0) {
+          throw new CallDispatchError("Provider returned no call ID", false);
+        }
+        return v.parse(ViewingResultSchema, {
+          status: "dispatched",
+          channel,
+          callId: `redacted:${createHash("sha256").update(callId).digest("hex").slice(0, 12)}`,
+          requestedAt,
+          dispatchedAt: new Date().toISOString(),
+          latencyMs: Math.round(performance.now() - started),
+          detail: "Call requested / awaiting agency confirmation.",
         });
-        const [summary, insights] = context;
-        const dispatched = await dispatchSlngCall({
-          to: to.output,
-          variables: summary
-            ? {
-                ...listingToCallVariables(summary),
-                ...(insights ? insightsToCallVariables(insights) : {}),
-              }
-            : { property_ref: input.propertyRef },
+      } catch (error) {
+        logger.error("viewing dispatch failed ({channel}) for {propertyRef}: {detail}", {
+          channel,
+          propertyRef: input.propertyRef,
+          requestId: input.requestId,
+          retryable: error instanceof CallDispatchError && error.retryable,
+          detail: (error instanceof Error ? error.message : String(error)).replaceAll(
+            to.output,
+            "[redacted]",
+          ),
         });
-        callId = dispatched.callId;
-      } else {
-        const dispatched = await placeVonageCall({
-          to: to.output,
-          ncco: [
-            {
-              action: "talk",
-              text: "Hola, llamo por el piso. Quisiera reservar una visita.",
-              language: "es-ES",
-            },
-          ],
-        });
-        callId = dispatched.uuid;
+        throw error;
       }
-      if (typeof callId !== "string" || callId.trim().length === 0) {
-        throw new CallDispatchError("Provider returned no call ID", false);
-      }
-      return v.parse(ViewingResultSchema, {
-        status: "dispatched",
-        channel,
-        callId: `redacted:${createHash("sha256").update(callId).digest("hex").slice(0, 12)}`,
-        requestedAt,
-        dispatchedAt: new Date().toISOString(),
-        latencyMs: Math.round(performance.now() - started),
-        detail: "Call requested / awaiting agency confirmation.",
-      });
     },
     input.retry,
   );

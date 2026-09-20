@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { ThemeProvider } from "~/components/theme-provider";
 import { TooltipProvider } from "~/components/ui/tooltip";
 
@@ -16,10 +17,27 @@ export const viewport = {
   maximumScale: 1,
 };
 
-const geist = Geist({
+const dmSans = localFont({
   display: "swap",
-  subsets: ["latin"],
-  variable: "--font-geist",
+  src: [
+    {
+      path: "../../../assets/fonts/dm-sans/DMSans-Variable.woff2",
+      style: "normal",
+    },
+    {
+      path: "../../../assets/fonts/dm-sans/DMSans-Italic-Variable.woff2",
+      style: "italic",
+    },
+  ],
+  variable: "--font-dm-sans",
+  weight: "100 900",
+});
+
+const outfit = localFont({
+  display: "swap",
+  src: "../../../assets/fonts/outfit/Outfit-Variable.woff2",
+  variable: "--font-outfit",
+  weight: "100 900",
 });
 
 const geistMono = Geist_Mono({
@@ -54,7 +72,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html className={`${geist.variable} ${geistMono.variable}`} lang="en" suppressHydrationWarning>
+    <html
+      className={`${dmSans.variable} ${outfit.variable} ${geistMono.variable}`}
+      lang="en"
+      suppressHydrationWarning
+    >
       <head>
         <script
           // biome-ignore lint/security/noDangerouslySetInnerHtml: "Required"
