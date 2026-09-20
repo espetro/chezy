@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 
+import { clearUserAdaptations } from "~/lib/adaptation/runner";
 import { db } from "~/lib/db/client";
 import { user } from "~/lib/db/schema";
 import { DEMO_PERSONA } from "~/lib/demo/persona";
@@ -10,7 +11,10 @@ import { resetProfile, upsertProfile } from "~/lib/profile";
 export type DemoResetTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 export type DemoUserCleanup = (transaction: DemoResetTransaction, userId: string) => Promise<void>;
 
-export const demoUserCleanups: readonly DemoUserCleanup[] = [clearUserFeedback];
+export const demoUserCleanups: readonly DemoUserCleanup[] = [
+  clearUserAdaptations,
+  clearUserFeedback,
+];
 
 export const resetDemo = async (
   userId: string,
