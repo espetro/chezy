@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { Toaster } from "sonner";
 import { DataStreamProvider } from "~/components/chat/data-stream-provider";
 import { ChatShell } from "~/components/chat/shell";
+import { EmbeddedChatProvider } from "~/components/flow/ui/EmbeddedChatContext";
 import { ActiveChatProvider } from "~/hooks/use-active-chat";
 
 // The chat subtree mounted inside the flow chat launcher drawer. This is the
@@ -21,9 +22,11 @@ export const EmbeddedChat = ({ initialQuery }: { initialQuery?: string }) => (
       }}
     />
     <Suspense fallback={<div className="h-full bg-background" />}>
-      <ActiveChatProvider initialQuery={initialQuery}>
-        <ChatShell embedded />
-      </ActiveChatProvider>
+      <EmbeddedChatProvider>
+        <ActiveChatProvider initialQuery={initialQuery}>
+          <ChatShell embedded />
+        </ActiveChatProvider>
+      </EmbeddedChatProvider>
     </Suspense>
   </DataStreamProvider>
 );
