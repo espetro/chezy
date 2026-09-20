@@ -7,6 +7,7 @@ import { useState } from "react";
 import useSWR from "swr";
 import * as v from "valibot";
 import { AdaptationTrace } from "~/components/flow/explore/AdaptationTrace";
+import { CapabilityLine } from "~/components/flow/explore/CapabilityLine";
 import { ADAPTATION_POLL_INTERVAL_MS } from "~/lib/flow/constants";
 
 const TERMINAL = new Set(["ready", "failed", "stale"]);
@@ -94,6 +95,7 @@ export const AdaptationStatus = ({ job }: { job: AdaptationJob }) => {
           </>
         ) : undefined}
       </p>
+      {latest.capability ? <CapabilityLine capability={latest.capability} /> : undefined}
       {latest.status === "failed" ? (
         <div className="flex flex-wrap items-center gap-3">
           <button

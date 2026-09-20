@@ -175,6 +175,7 @@ export const TRACE_STEPS = [
   "failed",
   "stale",
   "retried",
+  "capability_gap",
 ] as const;
 export const TraceEventSchema = v.strictObject({
   at: v.pipe(v.string(), v.isoTimestamp()),
@@ -186,6 +187,26 @@ export const TraceEventSchema = v.strictObject({
   message: v.optional(v.string()),
 });
 export type TraceEvent = v.InferOutput<typeof TraceEventSchema>;
+
+export const CAPABILITY_STATUSES = ["queued", "running", "pr_opened", "failed"] as const;
+export const CapabilityStatusSchema = v.picklist(CAPABILITY_STATUSES);
+export type CapabilityStatus = v.InferOutput<typeof CapabilityStatusSchema>;
+
+export const CapabilityJobSchema = v.strictObject({
+  jobId: v.pipe(v.string(), v.uuid()),
+  capability: v.string(),
+  status: CapabilityStatusSchema,
+  provider: v.picklist(["devin", "mock"]),
+  coverage: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
+  // oxlint-disable-next-line unicorn/no-null
+  sessionUrl: v.nullable(v.pipe(v.string(), v.url())),
+  // oxlint-disable-next-line unicorn/no-null
+  prUrl: v.nullable(v.pipe(v.string(), v.url())),
+  // oxlint-disable-next-line unicorn/no-null
+  error: v.nullable(v.string()),
+  updatedAt: v.pipe(v.string(), v.isoTimestamp()),
+});
+export type CapabilityJob = v.InferOutput<typeof CapabilityJobSchema>;
 
 export const AdaptationJobSchema = v.strictObject({
   jobId: v.pipe(v.string(), v.uuid()),
@@ -202,6 +223,7 @@ export const AdaptationJobSchema = v.strictObject({
   panel: v.nullable(ComparisonPanelSpecSchema),
   // Safe user-facing message only; never provider internals.
   error: v.nullable(v.string()),
+  capability: v.optional(v.nullable(CapabilityJobSchema)),
   updatedAt: v.pipe(v.string(), v.isoTimestamp()),
 });
 export type AdaptationJob = v.InferOutput<typeof AdaptationJobSchema>;
@@ -213,3 +235,6 @@ export type AdaptationInput = v.InferOutput<typeof AdaptationInputSchema>;
 
 export const AdaptationOutputSchema = v.strictObject({ job: AdaptationJobSchema });
 export type AdaptationOutput = v.InferOutput<typeof AdaptationOutputSchema>;
+
+export const CapabilityOutputSchema = v.strictObject({ capability: CapabilityJobSchema });
+export type CapabilityOutput = v.InferOutput<typeof CapabilityOutputSchema>;

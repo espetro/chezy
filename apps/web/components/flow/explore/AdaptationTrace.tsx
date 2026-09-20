@@ -22,6 +22,8 @@ const label = (event: TraceEvent): string => {
       return "Discarded: your preferences changed";
     case "retried":
       return `New attempt started (run ${event.run ?? "?"})`;
+    case "capability_gap":
+      return `Capability gap detected: ${event.message ?? "unknown"}`;
   }
 };
 

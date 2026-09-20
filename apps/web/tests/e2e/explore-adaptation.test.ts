@@ -90,6 +90,13 @@ test.describe(`adaptive comparison, mock scenario ${scenario}`, () => {
   test("a valid first candidate is accepted and rendered from trusted data", async ({ page }) => {
     await rejectForMissingBalcony(page);
     await expect(panel(page)).toBeVisible({ timeout: 60_000 });
+    if (process.env.FORGE_TRIGGER_MODE === "mock") {
+      await expect(
+        panel(page).getByRole("status").filter({ hasText: "Simulated: capability gap recorded" }),
+      ).toBeVisible();
+      const trace = await openTrace(panel(page));
+      await expect(trace.locator("[data-step='capability_gap']")).toBeVisible();
+    }
     await expect(panel(page)).toContainText("Accepted on the first attempt.");
     await expect(panel(page)).not.toContainText("Unknown listing");
     await expect(status(page)).toHaveCount(0);
