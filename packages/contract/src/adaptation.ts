@@ -41,7 +41,8 @@ export const ComparisonPanelSpecSchema = v.strictObject({
   feedbackEventId: v.pipe(v.string(), v.uuid()),
   profileVersion: ProfileVersionSchema,
   focus: AdaptationFocusSchema,
-  // Echoed from the prompt; 1 until correction retries exist.
+  // Echoed from the prompt (1, or 2 after a correction message); together with
+  // a content hash it tells a fresh candidate from the previous output.
   attempt: v.pipe(v.number(), v.integer(), v.minValue(1)),
   title: v.pipe(v.string(), v.minLength(1), v.maxLength(COMPARISON_TITLE_MAX)),
   listingIds: v.pipe(
@@ -138,6 +139,10 @@ export const PANEL_ERROR_CODES = [
   "wrong_focus",
   "unknown_listing",
   "missing_required_row",
+  "rejected_listing",
+  "red_line_violation",
+  "unsafe_text",
+  "no_improvement",
 ] as const;
 export const PanelValidationErrorSchema = v.strictObject({
   code: v.picklist(PANEL_ERROR_CODES),
@@ -149,6 +154,7 @@ export type PanelValidationError = v.InferOutput<typeof PanelValidationErrorSche
 export const ADAPTATION_STATUSES = [
   "queued",
   "running",
+  "correcting",
   "validating",
   "ready",
   "failed",
@@ -157,12 +163,40 @@ export const ADAPTATION_STATUSES = [
 export const AdaptationStatusSchema = v.picklist(ADAPTATION_STATUSES);
 export type AdaptationStatus = v.InferOutput<typeof AdaptationStatusSchema>;
 
+// Run trace shown to the user and exported as the sponsor proof. Carries step
+// names, timestamps and validator codes only; never candidate content.
+export const TRACE_STEPS = [
+  "triggered",
+  "session_created",
+  "proposed",
+  "rejected",
+  "correcting",
+  "accepted",
+  "failed",
+  "stale",
+  "retried",
+] as const;
+export const TraceEventSchema = v.strictObject({
+  at: v.pipe(v.string(), v.isoTimestamp()),
+  step: v.picklist(TRACE_STEPS),
+  attempt: v.optional(v.pipe(v.number(), v.integer())),
+  run: v.optional(v.pipe(v.number(), v.integer())),
+  errors: v.optional(v.array(PanelValidationErrorSchema)),
+  sessionId: v.optional(v.string()),
+  message: v.optional(v.string()),
+});
+export type TraceEvent = v.InferOutput<typeof TraceEventSchema>;
+
 export const AdaptationJobSchema = v.strictObject({
   jobId: v.pipe(v.string(), v.uuid()),
   feedbackEventId: v.pipe(v.string(), v.uuid()),
   status: AdaptationStatusSchema,
   provider: v.picklist(["devin", "mock"]),
   attempt: v.number(),
+  // Deliberate new attempts after a terminal failure; each run has its own
+  // candidate budget.
+  run: v.number(),
+  trace: v.array(TraceEventSchema),
   sessionUrl: v.nullable(v.pipe(v.string(), v.url())),
   // The accepted panel; only set when status is "ready".
   panel: v.nullable(ComparisonPanelSpecSchema),

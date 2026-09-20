@@ -12,6 +12,7 @@ import {
   ComparisonPanelSpecSchema,
   comparisonPanelJsonSchema,
   isAdaptationFocus,
+  TraceEventSchema,
 } from "./adaptation";
 
 const spec = {
@@ -119,5 +120,26 @@ describe("isAdaptationFocus", () => {
     ["other", false],
   ] as const)("%s is %s", (reason, expected) => {
     expect(isAdaptationFocus(reason)).toBe(expected);
+  });
+});
+
+describe("TraceEventSchema", () => {
+  const at = "2026-09-20T10:00:00.000Z";
+  it("accepts a rejected step with coded errors", () => {
+    expect(
+      v.is(TraceEventSchema, {
+        at,
+        step: "rejected",
+        attempt: 1,
+        errors: [{ code: "unknown_listing", path: "listingIds.0", message: "x" }],
+      }),
+    ).toBe(true);
+  });
+  it.each([
+    ["unknown step", { at, step: "validated" }],
+    ["spec content", { at, step: "proposed", spec: { title: "x" } }],
+    ["bad timestamp", { at: "yesterday", step: "triggered" }],
+  ])("rejects %s", (_name, event) => {
+    expect(v.is(TraceEventSchema, event)).toBe(false);
   });
 });
