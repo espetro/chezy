@@ -43,7 +43,7 @@ export const AgentActivityCard = () => (
       <HomeSignalMark className="size-10 rounded-[12px]" />
       <div className="min-w-0 flex-1">
         <p className="text-body-medium text-obsidian">Chezy agent</p>
-        <p className="text-caption text-fog">Watching partner listings for you</p>
+        <p className="text-caption text-fog">Watching partner listings</p>
       </div>
       <FlowPill>Example</FlowPill>
     </div>

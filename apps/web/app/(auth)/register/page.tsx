@@ -46,7 +46,7 @@ export default function Page() {
         <p className="text-center text-label-md text-fog">
           {"Have an account? "}
           <Link
-            className="text-obsidian underline underline-offset-4 hover:text-ember-deep"
+            className="inline-block py-3.5 text-obsidian underline underline-offset-4 hover:text-ember-deep"
             href="/login"
           >
             Sign in

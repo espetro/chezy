@@ -42,7 +42,7 @@ export default function Page() {
         <p className="text-center text-label-md text-fog">
           {"No account? "}
           <Link
-            className="text-obsidian underline underline-offset-4 hover:text-ember-deep"
+            className="inline-block py-3.5 text-obsidian underline underline-offset-4 hover:text-ember-deep"
             href="/register"
           >
             Sign up

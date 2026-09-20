@@ -28,7 +28,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <p className="text-center text-label-md text-fog">
             {"Just looking? "}
             <Link
-              className="text-obsidian underline underline-offset-4 hover:text-ember-deep"
+              className="inline-block py-3.5 text-obsidian underline underline-offset-4 hover:text-ember-deep"
               href="/onboarding"
             >
               Explore as a guest

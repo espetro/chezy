@@ -47,7 +47,7 @@ export const SignalField = ({ className }: { className?: string }) => (
     className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
   >
     <div className="absolute inset-0" style={gridStyle} />
-    <div className="absolute -top-40 left-1/2 size-[30rem] -translate-x-1/2 rounded-full bg-ember/8 blur-3xl" />
+    <div className="absolute -top-44 left-1/2 size-[22rem] -translate-x-1/2 rounded-full bg-ember/5 blur-3xl" />
     {particles.map(({ id, left, top, size, duration, delay, opacity, ember }) => (
       <span
         key={id}
