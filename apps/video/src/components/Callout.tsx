@@ -13,6 +13,7 @@ export const Callout = ({ text }: { text: string }) => {
       style={{
         fontSize: 46,
         fontWeight: 700,
+        fontFamily: theme.fontHeading,
         lineHeight: 1.18,
         letterSpacing: "-0.02em",
         color: theme.text,
