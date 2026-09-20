@@ -98,3 +98,6 @@ apps/evals/.galtea-ids.json
 
 # Devin forge run logs
 scripts/devin-forge/runs/
+
+# HackBarna evidence logs (Devin forge runs)
+!.agents/evidence/**
