@@ -1,0 +1,28 @@
+{
+  "source": "https://www.pisos.com/alquilar/casa-sencelles_centro_urbano-58349428966_109300/ captured 2026-09-20 13:09 CEST (live page that crashed the merged parser)",
+  "operation": "rent",
+  "platform_id": "58349428966.109300",
+  "url": "https://www.pisos.com/alquilar/casa-sencelles_centro_urbano-58349428966_109300/",
+  "title": "Casa en alquiler en Sencelles",
+  "price_eur": 4800.0,
+  "price_period": "month",
+  "property_type": "casa",
+  "built_m2": 360.0,
+  "usable_m2": 345.0,
+  "rooms": 8,
+  "bathrooms": 5,
+  "raw_features": {
+    "Referencia": "SPCRM3776",
+    "Jardín": "Propio",
+    "Piscina": "Propia"
+  },
+  "raw_features_true": ["Amueblado", "Calefacción", "Aire acondicionado", "Garaje", "Terraza"],
+  "furnished": true,
+  "energy_consumption_label": null,
+  "energy_emissions_label": null,
+  "lat": 39.617334621,
+  "lon": 2.877690131,
+  "publisher_phone_suffix": "851810144",
+  "min_photos": 10,
+  "description_prefix": "Encantadora villa rústica cerca de Sencelles"
+}
