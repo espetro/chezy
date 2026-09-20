@@ -146,6 +146,12 @@ Non-gated, advisory. Lint-clean does not mean idiomatic.
   `.agents/docs/screens/radar.md`. Voice viewing flow (SLNG / Vonage, `VIEWING_MODE`,
   `CALENDAR_MODE`) lives in `apps/web/lib/{slng,vonage,calendar}.ts` with `/api/viewing`
   and `/api/calendar` routes.
+- Keep the `latest` annotated tag pointed at the current branch HEAD whenever a session
+  lands a merged, green change. Cut it with `git tag -fa latest -m "<one-liner>" HEAD`
+  from the merged commit (not from the worktree branch tip before merge). The matching
+  `deadline` tag is a hackathon submission cutoff (last commit before 14:00 CEST on the
+  submission day); both are listed in `README.md` under "Submission cuts". Do not move
+  `deadline` after the cutoff — it is the immutable judging reference.
 - Route map (2026-09-20): the product surface is `app/(flow)` — `/` landing →
   `/onboarding` → `/explore` → `/explore/[id]`; the `/chat` and `/chat/[id]` pages are
   dropped (components/chat/** and the API routes under `app/(chat)/api/*` are kept for
