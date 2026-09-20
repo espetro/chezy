@@ -7,14 +7,21 @@ cross-package `~/*` imports).
 
 ## Layout
 
-- `src/index.ts`, entrypoint: loads `.env`/`.env.local`, `ensureBotSchema()`,
-  Hono + `MastraServer`, `POST /internal/radar/run` (guarded by
-  `BOT_INTERNAL_TOKEN`), `telegram.connect("chezy", ...)`.
+- `src/index.ts`, entrypoint: loads `.env`/`.env.local`, `configureLogger({ service: "chezy-bot" })`,
+  `ensureBotSchema()`, Hono + `MastraServer`, `POST /internal/radar/run`
+  (guarded by `BOT_INTERNAL_TOKEN`), `telegram.connect("chezy", ...)`.
 - `src/env.ts`, the ONLY `process.env` reader (oxlint override). Accepts
   `TELEGRAM_BOT_TOKEN` or `TELEGRAM_BOT_API_KEY`, `TELEGRAM_BOT_USERNAME` or
   `TELEGRAM_BOT_NAME`; resolved as `env.BOT_TOKEN` / `env.BOT_USERNAME`.
 - `src/mastra.ts`, `createBotStack()`: PostgresStore (schema `mastra`), Memory
-  (lastMessages 20, working memory on, semantic recall off), Agent `chezy`.
+  (lastMessages 20, working memory on, semantic recall off), Agent `chezy`,
+  `Observability` with `ChezyAuditExporter` and `requestContextKeys`
+  `chezy.username`/`chezy.sessionUserId`/`chezy.threadId`.
+- `src/observability/audit-exporter.ts`, folds each trace into the shared
+  `chat.turn.complete`/`chat.turn.fail` audit vocabulary via
+  `~/lib/ai/turn-audit`. Emits when the root AGENT_RUN span has ended and all
+  started TOOL_CALL spans have ended (approval-gated tools resume in the same
+  trace and end after the root). Never emits message bodies or prompts.
 - `src/telegram.ts`, `TelegramProvider` in polling mode, `toolDisplay: "cards"`
   (required for approve/deny inline keyboards), `onDirectMessage` stamps the
   resolved username and the telegram user id (as `sessionUserId`) into
@@ -53,6 +60,7 @@ mise run bot:dev     # watch mode
 mise run bot:start   # single run
 mise run bot:test    # fake-Telegram suite
 mise run bot:radar   # POST /internal/radar/run (BOT_INTERNAL_TOKEN required)
+mise run audit:turns # chat.turn.complete table over .audit/chezy-*-<date>.jsonl
 ```
 
 Supervised (oxmgr) entry, snippet only, add to `~/.config/oxmgr/oxfile.toml`
