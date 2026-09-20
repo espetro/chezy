@@ -25,4 +25,12 @@ Evidence is the populated `outdoorSpace` column only. The current seed has 0%
 coverage in that column, so the gap fires on every `missing_balcony` rejection
 until the capability PR lands. Amenity text is deliberately not counted.
 
-<!-- live run: session URL / PR URL -->
+## Live run (2026-09-20)
+
+One `missing_balcony` rejection with `FORGE_TRIGGER_MODE=devin` created the
+capability job and forge session
+<https://app.devin.ai/sessions/b5b15584a3ca40b79e02c2c51fd613e9>, which opened
+<https://github.com/espetro/chezy/pull/97> about six minutes later; the job row
+moved to `pr_opened` and the panel showed the PR link. The comparison itself ran
+in <https://app.devin.ai/sessions/c174a7010a064f9e887b7cb4f6168541>. PR #97 still
+needs the CLI verifier (`scripts/devin-forge/verify.ts`) before merge.
