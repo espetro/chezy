@@ -34,8 +34,10 @@ from a client owner, not an ordinary server component.
 Carousel exits focus the next remaining card (or the empty message) when complete.
 Undo restores card focus, or the feed if filters hide that card. Existing scroll,
 previous/next and indicator controls remain; indicators now have 44px targets.
-Tabbing into a card scrolls its entire slide into view immediately so focused
-links and dismissal controls remain visible.
+Keyboard focus into a card aligns its slide to the start so focused links and
+dismissal controls remain visible; pointer focus only scrolls when the slide is
+clipped. Previous and Next stay focusable at the boundaries (`aria-disabled`)
+so focus is never dropped to the document.
 
 ## Motion and dimensions
 
