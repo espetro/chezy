@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { FlowChatLauncher } from "~/components/flow/ui/ChatLauncher";
 import { FlowMotion } from "~/components/flow/ui/FlowMotion";
 
@@ -20,7 +21,9 @@ interface FlowLayoutProps {
 const FlowLayout = ({ children }: FlowLayoutProps) => (
   <div className="min-h-[100dvh] bg-paper font-flow text-obsidian">
     <FlowMotion>{children}</FlowMotion>
-    <FlowChatLauncher />
+    <Suspense>
+      <FlowChatLauncher />
+    </Suspense>
   </div>
 );
 
