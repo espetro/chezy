@@ -1,4 +1,5 @@
 import type {
+  AdaptationFocus,
   AdaptationStatus,
   ComparisonPanelSpec,
   FeedbackEvent,
@@ -319,6 +320,24 @@ export const viewing = pgTable("Viewing", {
 
 export type Viewing = InferSelectModel<typeof viewing>;
 
+// Heart on a candidate card: a per-session bookmark, no ranking effect.
+export const listingSave = pgTable(
+  "listing_save",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    listingId: text("listing_id")
+      .notNull()
+      .references(() => listing.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex("listing_save_user_listing").on(table.userId, table.listingId)],
+);
+
+export type ListingSave = InferSelectModel<typeof listingSave>;
+
 export const adaptationJob = pgTable(
   "adaptation_job",
   {
@@ -328,6 +347,9 @@ export const adaptationJob = pgTable(
       .references(() => user.id, { onDelete: "cascade" }),
     feedbackEventId: uuid("feedback_event_id").notNull(),
     profileVersion: text("profile_version").notNull(),
+    // The rejection reason the session was briefed for; a later refine to a
+    // different reason marks the job stale.
+    focus: text("focus").$type<AdaptationFocus>().notNull(),
     status: text("status").$type<AdaptationStatus>().notNull(),
     provider: text("provider").$type<"devin" | "mock">().notNull(),
     attempt: integer("attempt").notNull().default(0),

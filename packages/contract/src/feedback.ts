@@ -24,6 +24,14 @@ export const FeedbackUndoInputSchema = v.strictObject({
 });
 export type FeedbackUndoInput = v.InferOutput<typeof FeedbackUndoInputSchema>;
 
+// Swap the reason on an active rejection (the card-level "other" refined into a
+// specific one the rerank understands).
+export const FeedbackRefineInputSchema = v.strictObject({
+  eventId: v.pipe(v.string(), v.uuid()),
+  reason: FeedbackReasonSchema,
+});
+export type FeedbackRefineInput = v.InferOutput<typeof FeedbackRefineInputSchema>;
+
 export const FeedbackEventSchema = v.strictObject({
   schemaVersion: v.literal(1),
   type: v.literal("listing.rejected"),

@@ -130,6 +130,7 @@ export const startAdaptation = async (userId: string, eventId: string): Promise<
       userId,
       feedbackEventId: eventId,
       profileVersion: getProfileVersion(profile),
+      focus: event.reason,
       status: "queued",
       provider: env.ADAPTATION_MODE === "devin" ? "devin" : "mock",
       deadlineAt: new Date(Date.now() + ADAPTATION_DEADLINE_MS),
@@ -284,7 +285,7 @@ export const advanceAdaptation = async (
   if (
     !event ||
     event.undoneAt !== null ||
-    !isAdaptationFocus(event.reason) ||
+    event.reason !== row.focus ||
     !profile ||
     getProfileVersion(profile) !== row.profileVersion
   ) {
@@ -293,8 +294,8 @@ export const advanceAdaptation = async (
   if (Date.now() > row.deadlineAt.getTime()) {
     return applyStep(row, { kind: "timeout" });
   }
-  if (row.status === "queued") return claimJob(row, event, event.reason, profile);
-  if (row.status === "running") return pollJob(row, event, event.reason);
+  if (row.status === "queued") return claimJob(row, event, row.focus, profile);
+  if (row.status === "running") return pollJob(row, event, row.focus);
   return toAdaptationJob(row);
 };
 

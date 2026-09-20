@@ -4,15 +4,15 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useRef, useState } from "react";
 import { CandidateCard } from "~/components/flow/explore/CandidateCard";
-import { RejectionControl } from "~/components/flow/explore/RejectionControl";
 import type { FlowListing } from "~/lib/flow/types";
-import type { FeedbackHandler } from "~/lib/flow/use-listing-feedback";
 import { cn } from "~/lib/utils";
 
 interface CandidateCarouselProps {
   listings: FlowListing[];
   label: string;
-  onDismiss?: FeedbackHandler;
+  savedIds?: readonly string[];
+  onToggleSave?: (listingId: string, saved: boolean) => Promise<boolean>;
+  onDismiss?: (listingId: string) => Promise<boolean>;
   busy?: boolean;
 }
 
@@ -21,7 +21,14 @@ interface CandidateCarouselProps {
 // region, each slide as a `group` with its own position label, and Previous/Next buttons
 // that are the primary navigation (arrow-key/native scroll still works for touch and
 // keyboard-focus-follows-scroll, but isn't the only way in).
-export const CandidateCarousel = ({ listings, label, onDismiss, busy }: CandidateCarouselProps) => {
+export const CandidateCarousel = ({
+  listings,
+  label,
+  savedIds = [],
+  onToggleSave,
+  onDismiss,
+  busy,
+}: CandidateCarouselProps) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const pendingFocus = useRef<string | undefined>(undefined);
   const reducedMotion = useReducedMotion();
@@ -143,20 +150,22 @@ export const CandidateCarousel = ({ listings, label, onDismiss, busy }: Candidat
               }}
               className="flex w-[85%] shrink-0 snap-start flex-col gap-2 sm:w-[380px]"
             >
-              <CandidateCard listing={listing} />
-              {onDismiss && (
-                <RejectionControl
-                  listingId={listing.id}
-                  title={listing.title}
-                  disabled={busy}
-                  onReject={async (listingId, reason) => {
-                    pendingFocus.current = listingId;
-                    const saved = await onDismiss(listingId, reason);
-                    if (!saved) pendingFocus.current = undefined;
-                    return saved;
-                  }}
-                />
-              )}
+              <CandidateCard
+                listing={listing}
+                saved={savedIds.includes(listing.id)}
+                busy={busy}
+                onToggleSave={onToggleSave}
+                onDismiss={
+                  onDismiss
+                    ? async (listingId) => {
+                        pendingFocus.current = listingId;
+                        const saved = await onDismiss(listingId);
+                        if (!saved) pendingFocus.current = undefined;
+                        return saved;
+                      }
+                    : undefined
+                }
+              />
             </motion.div>
           ))}
         </AnimatePresence>

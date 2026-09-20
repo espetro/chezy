@@ -78,3 +78,4 @@ export * from "./user";
 export * from "./profile";
 export * from "./feedback";
 export * from "./adaptation";
+export * from "./saved";

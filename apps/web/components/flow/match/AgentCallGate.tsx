@@ -35,7 +35,7 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
   const [feedback, setFeedback] = useState<FeedbackEvent>();
   const { reject, undo, busy, error } = useListingFeedback((event) => {
     setFeedback(event);
-    void requestAdaptation(event.eventId);
+    void requestAdaptation(event);
   });
   const [liveOptIn, setLiveOptIn] = useState(false);
   const controller = useRef<ReturnType<typeof createViewingController> | undefined>(undefined);

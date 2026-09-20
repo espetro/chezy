@@ -1,13 +1,14 @@
 "use client";
 
 import { ArrowUpDown } from "lucide-react";
-import type { AdaptationJob, FeedbackEvent } from "@chezy/contract";
+import type { AdaptationJob, FeedbackEvent, FeedbackReason } from "@chezy/contract";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ResolvedPanel } from "~/lib/adaptation/resolve";
 import { describeFeedback } from "~/lib/feedback-ranking";
 import { requestAdaptation } from "~/lib/flow/adaptation-client";
 import { useListingFeedback } from "~/lib/flow/use-listing-feedback";
+import { useSavedListings } from "~/lib/flow/use-saved-listings";
 import { useRef, useState } from "react";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
 import { FlowButton } from "~/components/flow/ui/Button";
@@ -18,6 +19,13 @@ import { ComparisonPanel } from "~/components/flow/explore/ComparisonPanel";
 import type { FlowListing } from "~/lib/flow/types";
 
 type SortMode = "match" | "price-asc";
+
+// Offered after a card-level X so the rerank can still learn a specific reason.
+const refineOptions: readonly { reason: FeedbackReason; label: string }[] = [
+  { reason: "too_expensive", label: "Too expensive" },
+  { reason: "wrong_area", label: "Wrong area" },
+  { reason: "missing_balcony", label: "Missing balcony" },
+];
 
 const sortOptions = [
   { value: "match" as const, label: "Best match" },
@@ -30,16 +38,25 @@ interface ExploreFeedProps {
   feedback?: FeedbackEvent[];
   panel?: { panel: ResolvedPanel; job: AdaptationJob };
   job?: AdaptationJob;
+  savedIds?: string[];
 }
 
-export const ExploreFeed = ({ listings, note, feedback = [], panel, job }: ExploreFeedProps) => {
+export const ExploreFeed = ({
+  listings,
+  note,
+  feedback = [],
+  panel,
+  job,
+  savedIds: initialSavedIds = [],
+}: ExploreFeedProps) => {
   const feedRef = useRef<HTMLDivElement>(null);
   const [activeZones, setActiveZones] = useState<string[]>([]);
   const [sortMode, setSortMode] = useState<SortMode>("match");
   const router = useRouter();
-  const { reject, undo, busy, error } = useListingFeedback((event) => {
-    void requestAdaptation(event.eventId).finally(() => router.refresh());
+  const { reject, undo, refine, busy, error } = useListingFeedback((event) => {
+    void requestAdaptation(event).finally(() => router.refresh());
   });
+  const { savedIds, toggleSave, error: saveError } = useSavedListings(initialSavedIds);
   const lastDismissed = feedback.at(-1);
 
   const zones = Array.from(
@@ -99,28 +116,49 @@ export const ExploreFeed = ({ listings, note, feedback = [], panel, job }: Explo
         key={`${activeZones.join(",") || "all"}-${sortMode}`}
         listings={sorted}
         label="Candidate matches"
-        onDismiss={reject}
+        savedIds={savedIds}
+        onToggleSave={toggleSave}
+        onDismiss={(listingId) => reject(listingId, "other")}
         busy={busy}
       />
       {job && job.jobId !== panel?.job.jobId ? <AdaptationStatus job={job} /> : undefined}
       {panel ? <ComparisonPanel panel={panel.panel} job={panel.job} /> : undefined}
       {lastDismissed && (
-        <div className="flex items-center justify-between gap-3 rounded-cards bg-snow px-4 py-3">
-          <p role="status" className="text-sm text-fog">
-            {describeFeedback(lastDismissed)}
-          </p>
-          <FlowButton
-            variant="ghost"
-            disabled={busy}
-            onClick={async () => {
-              if (await undo(lastDismissed.eventId)) feedRef.current?.focus();
-            }}
-          >
-            Undo
-          </FlowButton>
+        <div className="flex flex-col gap-3 rounded-cards bg-snow px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <p role="status" className="text-sm text-fog">
+              {describeFeedback(lastDismissed)}
+            </p>
+            <FlowButton
+              variant="ghost"
+              disabled={busy}
+              onClick={async () => {
+                if (await undo(lastDismissed.eventId)) feedRef.current?.focus();
+              }}
+            >
+              Undo
+            </FlowButton>
+          </div>
+          {lastDismissed.reason === "other" && (
+            <div className="flex flex-wrap items-center gap-2" aria-label="Refine the reason">
+              <span className="text-[13px] text-fog">Why? (optional)</span>
+              {refineOptions.map(({ reason, label }) => (
+                <FlowButton
+                  key={reason}
+                  variant="ghost"
+                  size="sm"
+                  disabled={busy}
+                  onClick={() => void refine(lastDismissed.eventId, reason)}
+                >
+                  {label}
+                </FlowButton>
+              ))}
+            </div>
+          )}
         </div>
       )}
       {error && <p role="alert">{error}</p>}
+      {saveError && <p role="alert">{saveError}</p>}
       {busy && <p role="status">Updating your comparison…</p>}
       {sorted.length === 0 && (
         <div className="rounded-cards bg-snow p-4">

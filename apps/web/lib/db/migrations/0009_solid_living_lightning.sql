@@ -3,6 +3,7 @@ CREATE TABLE "adaptation_job" (
 	"user_id" uuid NOT NULL,
 	"feedback_event_id" uuid NOT NULL,
 	"profile_version" text NOT NULL,
+	"focus" text NOT NULL,
 	"status" text NOT NULL,
 	"provider" text NOT NULL,
 	"attempt" integer DEFAULT 0 NOT NULL,

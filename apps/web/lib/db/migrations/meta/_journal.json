@@ -61,8 +61,15 @@
     {
       "idx": 8,
       "version": "7",
-      "when": 1789896476545,
-      "tag": "0008_giant_virginia_dare",
+      "when": 1789896507219,
+      "tag": "0008_listing_save",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1789897108985,
+      "tag": "0009_solid_living_lightning",
       "breakpoints": true
     }
   ]

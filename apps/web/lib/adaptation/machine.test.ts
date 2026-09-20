@@ -29,6 +29,7 @@ const job = (over: Partial<AdaptationJobRow> = {}): AdaptationJobRow => ({
   userId: "770e8400-e29b-41d4-a716-446655440000",
   feedbackEventId: ctx.feedbackEventId,
   profileVersion: ctx.profileVersion,
+  focus: "missing_balcony",
   status: "running",
   provider: "mock",
   attempt: 1,

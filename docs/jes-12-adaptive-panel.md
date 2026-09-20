@@ -10,7 +10,7 @@ family, one session per rejection, no general builder.
 - `packages/contract/src/adaptation.ts`: `ComparisonPanelSpecSchema` (Valibot, strict),
   its Draft 7 twin `comparisonPanelJsonSchema` (built from the same constants), the
   validator error codes, the `AdaptationJob` wire shape and the route input/output schemas.
-- `apps/web/lib/db/schema.ts`: table `adaptation_job`, migration `0007_wonderful_boom_boom`.
+- `apps/web/lib/db/schema.ts`: table `adaptation_job`, migration `0009_solid_living_lightning`.
 - `apps/web/lib/devin/client.ts`: v1 Devin API client plus a deterministic mock.
 - `apps/web/lib/adaptation/`: `prompt.ts` (sanitized facts and the prompt), `validate.ts`
   (deterministic gate), `machine.ts` (pure `nextStep`), `runner.ts` (database glue),
@@ -28,7 +28,8 @@ family, one session per rejection, no general builder.
 `ComparisonPanelSpec` v1: `schemaVersion: 1`, `feedbackEventId` (uuid), `profileVersion`
 (the JES-8 `sha256:` token), `focus` (an `AdaptationFocus`: `too_expensive | wrong_area |
 missing_balcony`; a free-form `other` rejection starts no job and `POST /api/adaptation`
-answers 409), `attempt` (integer, min 1,
+answers 409 and the client never sends the request; refining the card-level rejection to
+a structured reason triggers it), `attempt` (integer, min 1,
 echoed from the prompt), `title` (1 to 80 chars), `listingIds` (2 to 3 unique ids),
 `rows` (1 to 4, unique `field` from `price | area | balcony | rooms | size`, `label`,
 optional `note`), `actions` (up to 2 unique from `open_listing | edit_preferences`). No
@@ -49,8 +50,9 @@ expectedAttempt }`. Every violation is collected; schema issues carry the Valibo
 - `nextStep(job: AdaptationJobRow, input: AdaptationStepInput)` returns `{ patch, effect }`
   and is pure. Inputs: `claim`, `snapshot` (with the validation context),
   `provider_error`, `stale`, `timeout`. Effects: `create_session | none`.
-- `adaptation_job` columns: `id`, `user_id`, `feedback_event_id`, `profile_version`,
-  `status` (`queued | running | validating | ready | failed | stale`), `provider`
+- `adaptation_job` columns: `id`, `user_id`, `feedback_event_id`, `profile_version`, `focus`
+  (the reason the session was briefed for; a later refine to another reason marks the job
+  stale), `status` (`queued | running | validating | ready | failed | stale`), `provider`
   (`devin | mock`), `attempt`, `source_listing_ids`, `provider_session_id`,
   `provider_session_url`, `candidate_spec`, `accepted_spec`, `validation_errors`,
   `error`, `deadline_at`, `created_at`, `updated_at`. Unique on

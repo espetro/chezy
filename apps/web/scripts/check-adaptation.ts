@@ -11,7 +11,7 @@ const { adaptationJob, listing, listingFeedback, searchProfile, user } =
   await import("~/lib/db/schema");
 const { DEMO_PERSONA } = await import("~/lib/demo/persona");
 const { resetDemo } = await import("~/lib/demo/reset");
-const { recordFeedback, undoFeedback } = await import("~/lib/feedback");
+const { recordFeedback, refineFeedback, undoFeedback } = await import("~/lib/feedback");
 const { upsertProfile } = await import("~/lib/profile");
 const { advanceAdaptation, startAdaptation } = await import("~/lib/adaptation/runner");
 const { env } = await import("~/lib/env");
@@ -91,6 +91,13 @@ try {
     reason: "other",
   });
   await assert.rejects(startAdaptation(guest, eventOther.eventId), { status: 409 });
+  // Refining it to a structured reason makes the same event eligible.
+  await refineFeedback(guest, eventOther.eventId, "wrong_area");
+  const refined = await startAdaptation(guest, eventOther.eventId);
+  assert.equal(refined.status, "queued");
+  // Refining again to a different reason marks the briefed job stale.
+  await refineFeedback(guest, eventOther.eventId, "too_expensive");
+  assert.equal((await advanceAdaptation(guest, refined.jobId))?.status, "stale");
 
   // A queued job goes stale when the profile version drifts.
   const eventB = await recordFeedback(guest, {
@@ -133,7 +140,8 @@ try {
         checks: [
           "queued insert + dedupe on feedback event",
           "cross-user advance isolation",
-          "free-form reason starts no job",
+          "free-form reason starts no job until refined",
+          "refine to another reason marks the job stale",
           "mock session reaches ready with validated spec",
           "listingIds subset of source set, rejected listing excluded",
           "profile drift marks queued job stale",

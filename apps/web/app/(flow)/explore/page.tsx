@@ -9,6 +9,7 @@ import { buildFeed } from "~/lib/feed";
 import { toFlowListing } from "~/lib/flow/adapters";
 import { getProfile } from "~/lib/profile";
 import { listActiveFeedback } from "~/lib/feedback";
+import { listSavedListingIds } from "~/lib/saved";
 
 export default function ExplorePage() {
   return (
@@ -29,8 +30,9 @@ async function Explore() {
     redirect("/onboarding");
   }
 
-  const [feedback, accepted, active] = await Promise.all([
+  const [feedback, savedIds, accepted, active] = await Promise.all([
     listActiveFeedback(session.user.id),
+    listSavedListingIds(session.user.id),
     getLatestAcceptedPanel(session.user.id),
     getActiveJob(session.user.id),
   ]);
@@ -43,6 +45,7 @@ async function Explore() {
       listings={listings}
       note={feed.note}
       feedback={feedback}
+      savedIds={savedIds}
       panel={
         accepted
           ? { panel: resolvePanel(accepted.spec, accepted.rows), job: accepted.job }

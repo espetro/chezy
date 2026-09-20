@@ -1,7 +1,17 @@
-import { FeedbackInputSchema, FeedbackUndoInputSchema } from "@chezy/contract";
+import {
+  FeedbackInputSchema,
+  FeedbackRefineInputSchema,
+  FeedbackUndoInputSchema,
+} from "@chezy/contract";
 import * as v from "valibot";
 import { auth } from "~/app/(auth)/auth";
-import { FeedbackError, listActiveFeedback, recordFeedback, undoFeedback } from "~/lib/feedback";
+import {
+  FeedbackError,
+  listActiveFeedback,
+  recordFeedback,
+  refineFeedback,
+  undoFeedback,
+} from "~/lib/feedback";
 
 export const GET = async () => {
   const session = await auth();
@@ -14,7 +24,9 @@ export const GET = async () => {
   );
 };
 
-const mutate = async (request: Request, undo: boolean) => {
+type Mutation = "record" | "undo" | "refine";
+
+const mutate = async (request: Request, mutation: Mutation) => {
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "unauthorized" }, { status: 401 });
   const origin = request.headers.get("origin");
@@ -31,10 +43,16 @@ const mutate = async (request: Request, undo: boolean) => {
     return Response.json({ error: "invalid JSON" }, { status: 400 });
   }
   try {
-    if (undo) {
+    if (mutation === "undo") {
       const parsed = v.safeParse(FeedbackUndoInputSchema, body);
       if (!parsed.success) return Response.json({ error: "invalid feedback" }, { status: 400 });
       return Response.json({ event: await undoFeedback(session.user.id, parsed.output.eventId) });
+    }
+    if (mutation === "refine") {
+      const parsed = v.safeParse(FeedbackRefineInputSchema, body);
+      if (!parsed.success) return Response.json({ error: "invalid feedback" }, { status: 400 });
+      const { eventId, reason } = parsed.output;
+      return Response.json({ event: await refineFeedback(session.user.id, eventId, reason) });
     }
     const parsed = v.safeParse(FeedbackInputSchema, body);
     if (!parsed.success) return Response.json({ error: "invalid feedback" }, { status: 400 });
@@ -47,5 +65,6 @@ const mutate = async (request: Request, undo: boolean) => {
   }
 };
 
-export const POST = (request: Request) => mutate(request, false);
-export const DELETE = (request: Request) => mutate(request, true);
+export const POST = (request: Request) => mutate(request, "record");
+export const DELETE = (request: Request) => mutate(request, "undo");
+export const PATCH = (request: Request) => mutate(request, "refine");
