@@ -28,3 +28,24 @@ export function stubTelegramEnv(apiBaseUrl: string) {
   vi.stubEnv("TELEGRAM_API_BASE_URL", apiBaseUrl);
   vi.stubEnv("TELEGRAM_BOT_TOKEN", "fake-token");
 }
+
+/**
+ * The suite runs against the shared pg0 database, so leftover rows from a
+ * previous run can leak into assertions. Delete this test's `bot.*` rows before
+ * each case. (The web `User` row stays: `createNamedUser` is idempotent.)
+ */
+export async function cleanBotState(...telegramUserIds: number[]) {
+  const { client } = await import("~/lib/db/client");
+  const usernames = telegramUserIds.map((id) => `tg-${id}`);
+  for (const table of [
+    "viewings",
+    "listing_feedback",
+    "radar_seen",
+    "telegram_users",
+  ]) {
+    await client.unsafe(
+      `DELETE FROM bot.${table} WHERE username = ANY($1)`,
+      [usernames],
+    );
+  }
+}

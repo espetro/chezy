@@ -1,7 +1,7 @@
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { MastraLanguageModelV2Mock } from "@mastra/core/test-utils/llm-mock";
 
-import { startFakeTelegram, stubTelegramEnv } from "./harness";
+import { cleanBotState, startFakeTelegram, stubTelegramEnv } from "./harness";
 
 afterAll(() => {
   vi.unstubAllEnvs();
@@ -20,6 +20,7 @@ describe("telegram e2e (fake Bot API)", () => {
     );
     await telegram.disconnect("chezy").catch(() => {});
     await telegram.connect("chezy", { botToken: "fake-token" });
+    await cleanBotState(900001);
 
     fake.sendText({ telegramUserId: 900001, text: "hola" });
     // The adapter posts a "..." placeholder first and streams the real reply
@@ -107,6 +108,7 @@ describe("telegram e2e (fake Bot API)", () => {
     const { telegram } = createBotStack(model);
     await telegram.disconnect("chezy").catch(() => {});
     await telegram.connect("chezy", { botToken: "fake-token" });
+    await cleanBotState(900002);
 
     fake.sendText({ telegramUserId: 900002, text: "I want to visit lst-fake-1" });
 

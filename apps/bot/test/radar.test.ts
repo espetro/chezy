@@ -1,6 +1,6 @@
 import { afterAll, describe, expect, it, vi } from "vitest";
 
-import { startFakeTelegram, stubTelegramEnv } from "./harness";
+import { cleanBotState, startFakeTelegram, stubTelegramEnv } from "./harness";
 
 afterAll(() => {
   vi.unstubAllEnvs();
@@ -20,6 +20,7 @@ describe("radar", () => {
     const { createTelegramProvider } = await import("../src/telegram");
 
     await ensureBotSchema();
+    await cleanBotState(910001);
 
     // Seed a linked user with a complete profile.
     const link = await ensureTelegramUser({ telegramUserId: 910001, chatId: 910001 });
