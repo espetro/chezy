@@ -289,3 +289,25 @@ export const listingFeedback = pgTable(
 );
 
 export type ListingFeedback = InferSelectModel<typeof listingFeedback>;
+
+// A viewing arranged by the chat agent (or the SLNG call it dispatches).
+// `status` tracks the lifecycle: dispatched (call placed, slot pending) ->
+// booked (calendar confirmed, either by the tool or the SLNG webhook) or
+// failed. `mock` marks rows written under VIEWING_MODE=mock.
+export const viewing = pgTable("Viewing", {
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  userId: uuid("userId")
+    .notNull()
+    .references(() => user.id),
+  listingId: text("listingId")
+    .notNull()
+    .references(() => listing.id),
+  channel: text("channel").notNull(),
+  callId: text("callId"),
+  slotIso: text("slotIso"),
+  status: text("status").notNull(),
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+});
+
+export type Viewing = InferSelectModel<typeof viewing>;

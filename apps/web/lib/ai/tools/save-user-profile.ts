@@ -3,6 +3,7 @@ import { tool } from "ai";
 import { valibotSchema } from "@ai-sdk/valibot";
 import { createNamedUser, getUserByUsername, updateUserProfile } from "~/lib/db/queries";
 import { mergeUserProfile, missingProfileFields, normalizeUsername } from "~/lib/user-profile";
+import { syncSearchProfile } from "~/lib/user-profile-sync";
 
 export const saveUserProfile = tool({
   description:
@@ -29,6 +30,10 @@ export const saveUserProfile = tool({
     }
 
     await updateUserProfile({ userId, profile: merged });
+
+    // Once complete, write through to the SearchProfile matching store so
+    // searchListings and JES-8 feedback see the same preferences.
+    await syncSearchProfile(userId, merged);
 
     return {
       userId,

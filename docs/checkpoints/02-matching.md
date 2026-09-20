@@ -39,6 +39,10 @@ the user, plus the username. Nothing else.
 - Chat tools: `apps/web/lib/ai/tools/search-listings.ts` (scored, with `topMatches`),
   `record-listing-feedback.ts` (PR #47). Profile adapter `toScoringProfile` and
   `inferPreferencePatch` in `apps/web/lib/user-profile.ts` (PR #47).
+- Feedback store: `listing_feedback` (JES-8, `apps/web/lib/feedback.ts`) is the only
+  rejection store; `recordListingFeedback` writes through `recordFeedback`,
+  `searchListings` reads `listActiveFeedback`. Free-text reasons map to
+  `FEEDBACK_REASONS` via `mapRejectionReason`.
 - Cards: `apps/web/components/chat/listing-results.tsx` (accept/reject, PR #47);
   `components/flow/explore/CandidateCard.tsx` and `components/flow/ui/ScoreBadge.tsx`
   are the frozen-surface equivalents and reusable.

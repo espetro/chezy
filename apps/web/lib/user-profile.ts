@@ -1,4 +1,12 @@
-import type { UserProfile } from "@chezy/contract";
+import {
+  MUST_HAVES,
+  RED_LINES,
+  type FeedbackReason,
+  type SearchProfileInput,
+  type UserProfile,
+} from "@chezy/contract";
+import type { Listing, SearchProfile } from "~/lib/db/schema";
+import { normalizeText } from "~/lib/geocode";
 
 export type { UserProfile };
 
@@ -47,4 +55,152 @@ export function mergeUserProfile(base: UserProfile, patch: UserProfile): UserPro
   }
 
   return merged;
+}
+
+// Chat-profile -> scorer-profile adapter. The chat path stores preferences in
+// `User.profile` (jsonb); the scorer wants a `SearchProfile` row shape, so we
+// synthesize one with placeholder row fields. workLat/Lon stay null because
+// `workLocation` is free text and the chat path does not geocode.
+export function toScoringProfile(profile: UserProfile): SearchProfile {
+  const now = new Date(0);
+  return {
+    id: "chat-profile",
+    userId: "chat-user",
+    workAddress: profile.workLocation ?? "",
+    // oxlint-disable-next-line unicorn/no-null
+    workLat: null,
+    // oxlint-disable-next-line unicorn/no-null
+    workLon: null,
+    maxCommuteMin: profile.maxCommuteMin ?? 25,
+    neighbourhoods: profile.areas ?? [],
+    minPriceEur: Math.round(profile.budgetMinEur ?? 0),
+    maxPriceEur: Math.round(profile.budgetMaxEur ?? Number.MAX_SAFE_INTEGER),
+    minRooms: Math.round(profile.bedroomsMin ?? 0),
+    minM2: Math.round(profile.minM2 ?? 0),
+    // oxlint-disable-next-line unicorn/no-null
+    moveDate: null,
+    flexibleDays: 0,
+    mustHaves: profile.mustHaves ?? [],
+    redLines: profile.redLines ?? [],
+    alertsEnabled: true,
+    verified: false,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+// UserProfile (chat onboarding scratchpad) -> SearchProfileInput (the matching
+// store JES-8 reads). Same data as toScoringProfile, but shaped for the
+// upsertProfile write path: contract bounds are enforced here so the insert
+// never violates SearchProfileInputSchema. Named to not clash with
+// lib/flow/adapters.ts `toSearchProfileInput(UserPreferences)`.
+export function userProfileToSearchProfileInput(profile: UserProfile): SearchProfileInput {
+  return {
+    workAddress: (profile.workLocation ?? "").slice(0, 200),
+    maxCommuteMin: clamp(Math.round(profile.maxCommuteMin ?? 25), 5, 120),
+    neighbourhoods: (profile.areas ?? []).slice(0, 10),
+    minPriceEur: Math.round(profile.budgetMinEur ?? 0),
+    maxPriceEur: Math.round(profile.budgetMaxEur ?? 0),
+    minRooms: clamp(Math.round(profile.bedroomsMin ?? 0), 0, 10),
+    minM2: clamp(Math.round(profile.minM2 ?? 0), 0, 1000),
+    // oxlint-disable-next-line unicorn/no-null
+    moveDate: null,
+    flexibleDays: 0,
+    mustHaves: (profile.mustHaves ?? []).filter((mh): mh is (typeof MUST_HAVES)[number] =>
+      (MUST_HAVES as readonly string[]).includes(mh),
+    ),
+    redLines: (profile.redLines ?? []).filter((rl): rl is (typeof RED_LINES)[number] =>
+      (RED_LINES as readonly string[]).includes(rl),
+    ),
+    alertsEnabled: true,
+  };
+}
+
+const PRICE_WORDS = ["expensive", "price", "budget", "caro"];
+const AREA_WORDS = ["far", "area", "zone", "barrio", "neighbourhood", "neighborhood", "lejos"];
+const SIZE_WORDS = ["small", "tiny", "m2", "pequeño", "pequeno"];
+const ELEVATOR_WORDS = ["elevator", "ascensor"];
+const BALCONY_WORDS = ["balcony", "terrace", "terraza", "balcón", "balcon"];
+const INTERIOR_WORDS = ["dark", "interior", "light", "luz"];
+const FURNISHED_WORDS = ["furnished", "amueblado"];
+const PETS_WORDS = ["pets", "mascota", "mascotas"];
+
+const containsAny = (text: string, words: string[]): boolean => words.some((w) => text.includes(w));
+
+const addUnique = (list: string[] | undefined, item: string): string[] =>
+  list?.includes(item) ? list : [...(list ?? []), item];
+
+// Keyword-based preference inference from a rejection reason. Returns a
+// UserProfile-shaped patch (only the fields that should change); the caller
+// merges it. English + Spanish keywords since users mix both.
+export function inferPreferencePatch(
+  reason: string | undefined,
+  listing: Pick<Listing, "priceEur" | "neighbourhood" | "district" | "builtM2">,
+  profile: UserProfile,
+): UserProfile {
+  const patch: UserProfile = {};
+  const text = normalizeText(reason ?? "");
+
+  if (containsAny(text, PRICE_WORDS) && listing.priceEur !== null) {
+    const current = profile.budgetMaxEur;
+    if (current !== undefined && listing.priceEur > current) {
+      patch.budgetMaxEur = Math.min(current, Math.round(listing.priceEur) - 1);
+    } else {
+      patch.budgetMaxEur = Math.round(listing.priceEur * 0.95);
+    }
+  }
+
+  if (containsAny(text, AREA_WORDS)) {
+    const rejected = new Set(
+      [listing.neighbourhood, listing.district]
+        .filter((v): v is string => v !== null)
+        .map(normalizeText),
+    );
+    const kept = (profile.areas ?? []).filter((a) => !rejected.has(normalizeText(a)));
+    if (kept.length !== (profile.areas ?? []).length) {
+      patch.areas = kept;
+    }
+  }
+
+  if (containsAny(text, SIZE_WORDS) && listing.builtM2 !== null) {
+    patch.minM2 = Math.round(listing.builtM2) + 5;
+  }
+
+  if (containsAny(text, ELEVATOR_WORDS)) {
+    patch.mustHaves = addUnique(patch.mustHaves ?? profile.mustHaves, "elevator");
+  }
+  if (containsAny(text, BALCONY_WORDS)) {
+    patch.mustHaves = addUnique(patch.mustHaves ?? profile.mustHaves, "balcony_or_terrace");
+  }
+  if (containsAny(text, INTERIOR_WORDS)) {
+    patch.mustHaves = addUnique(patch.mustHaves ?? profile.mustHaves, "exterior");
+    patch.redLines = addUnique(profile.redLines, "no_interior");
+  }
+  if (containsAny(text, FURNISHED_WORDS)) {
+    patch.mustHaves = addUnique(patch.mustHaves ?? profile.mustHaves, "furnished");
+  }
+  if (containsAny(text, PETS_WORDS)) {
+    patch.mustHaves = addUnique(patch.mustHaves ?? profile.mustHaves, "pets_allowed");
+  }
+
+  return patch;
+}
+
+// Maps a free-text rejection reason onto the JES-8 FeedbackReason enum the
+// listing_feedback store accepts. Same keyword lists as inferPreferencePatch;
+// anything unrecognized is "other" (recorded, no ranking change).
+export function mapRejectionReason(reason: string | undefined): FeedbackReason {
+  const text = normalizeText(reason ?? "");
+  if (containsAny(text, PRICE_WORDS)) {
+    return "too_expensive";
+  }
+  if (containsAny(text, AREA_WORDS)) {
+    return "wrong_area";
+  }
+  if (containsAny(text, BALCONY_WORDS)) {
+    return "missing_balcony";
+  }
+  return "other";
 }
