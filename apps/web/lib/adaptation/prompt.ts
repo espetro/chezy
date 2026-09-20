@@ -19,8 +19,8 @@ interface AdaptationPromptInput {
   rejected: CandidateFacts;
   candidates: CandidateFacts[];
   schema: Record<string, unknown>;
-  // The attempt number Devin must echo back in the spec (always 1 while
-  // correction retries are JES-13 scope).
+  // The attempt number Devin must echo back in the spec (always 1 until
+  // correction retries exist).
   attempt: number;
 }
 

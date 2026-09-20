@@ -28,7 +28,7 @@ const EnvSchema = v.object({
   SLNG_API_KEY: v.optional(v.string()),
   SLNG_AGENT_ID: v.optional(v.string()),
 
-  // Adaptive comparison panel (JES-12): Devin API session or deterministic
+  // Adaptive comparison panel: Devin API session or deterministic
   // mock. `devin` mode without a key fails the job, never throws at import.
   ADAPTATION_MODE: v.fallback(v.picklist(["mock", "devin"]), "mock"),
   // v1 personal key (apk_user_...); DEVIN_ORG_ID is unused until a v3 `cog_`

@@ -29,7 +29,7 @@ const advanceUntilTerminal = async (userId: string, jobId: string, limit = 6) =>
 };
 
 const [guest, other] = [randomUUID(), randomUUID()];
-// One fixture listing per event: JES-8 folds a second rejection of the same
+// One fixture listing per event: the feedback store folds a second rejection of the same
 // listing into the existing active event, which would reuse the first job.
 const fixtureIds = [0, 1, 2].map(() => `adaptation-check:${randomUUID()}`);
 const [fixtureId, fixtureB, fixtureC] = fixtureIds as [string, string, string];

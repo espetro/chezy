@@ -38,7 +38,7 @@ export const ComparisonPanelSpecSchema = v.strictObject({
   feedbackEventId: v.pipe(v.string(), v.uuid()),
   profileVersion: ProfileVersionSchema,
   focus: FeedbackReasonSchema,
-  // Echoed from the prompt; 1 while correction retries are JES-13 scope.
+  // Echoed from the prompt; 1 until correction retries exist.
   attempt: v.pipe(v.number(), v.integer(), v.minValue(1)),
   title: v.pipe(v.string(), v.minLength(1), v.maxLength(COMPARISON_TITLE_MAX)),
   listingIds: v.pipe(
@@ -126,7 +126,7 @@ export const comparisonPanelJsonSchema: Record<string, unknown> = {
   },
 };
 
-// Validator codes stored in adaptation_job.validation_errors; JES-13 appends.
+// Validator codes stored in adaptation_job.validation_errors; the retry follow-up appends.
 export const PANEL_ERROR_CODES = [
   "schema",
   "wrong_attempt",

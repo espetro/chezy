@@ -33,7 +33,7 @@ const unchanged: AdaptationStep = { patch: {}, effect: { kind: "none" } };
 
 // Pure transition function. The "validating" status is transient inside one
 // snapshot step (validate inline, then write ready/failed); it is never
-// persisted. There are no correction retries on this branch (JES-13 scope):
+// persisted. There are no correction retries yet:
 // attempt is 1 from the claim onward and an invalid candidate fails the job.
 export const nextStep = (job: AdaptationJobRow, input: AdaptationStepInput): AdaptationStep => {
   if (TERMINAL.has(job.status)) return unchanged;

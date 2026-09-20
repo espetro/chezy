@@ -26,9 +26,9 @@ const error = (
 ): PanelValidationError => ({ code, path, message });
 
 // Deterministic gate between the provider output and the accepted spec.
-// Collects every violation as a coded PanelValidationError so JES-13 retries
-// can feed them back to the session. JES-13 extends ValidationContext,
-// appends codes and adds semantic checks; the signature stays.
+// Collects every violation as a coded PanelValidationError so correction retries
+// can feed them back to the session. The retry follow-up extends
+// ValidationContext, appends codes and adds semantic checks; the signature stays.
 export const validateComparisonPanel = (
   candidate: unknown,
   ctx: ValidationContext,

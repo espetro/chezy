@@ -64,7 +64,7 @@ export const ADAPTATION_DEADLINE_MS = 10 * 60_000;
 // Client poll cadence lives in lib/flow/constants.ts: this module imports
 // lib/db/utils (bcrypt, ai) and cannot ship in the client bundle.
 // Every adaptation job is a single attempt; correction retries after an
-// invalid candidate are JES-13 scope.
+// invalid candidate belong to the validator-and-retry follow-up.
 export const ADAPTATION_MAX_ATTEMPTS = 1;
 // ACU cap for the Devin session; one small prompt-only job.
 export const ADAPTATION_MAX_ACU = 1;
