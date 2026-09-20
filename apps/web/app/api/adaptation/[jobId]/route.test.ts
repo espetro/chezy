@@ -24,6 +24,8 @@ const job = {
   status: "running",
   provider: "mock",
   attempt: 0,
+  run: 1,
+  trace: [{ at: "2026-09-20T10:00:00.000Z", step: "triggered" }],
   sessionUrl: null,
   panel: null,
   error: null,
