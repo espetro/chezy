@@ -39,7 +39,7 @@ test.beforeAll(() => {
 // /explore.
 async function completeOnboarding(page: import("@playwright/test").Page) {
   await page.goto("/");
-  await page.getByRole("link", { name: "Explore as a guest" }).first().click();
+  await page.getByRole("link", { name: "Find my home" }).click();
   await page.getByRole("button", { name: "Let's go" }).click();
 
   // Budget & space: defaults are fine.
