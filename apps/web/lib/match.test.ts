@@ -46,6 +46,7 @@ const makeListing = (over: Partial<Listing> = {}): Listing => ({
   municipality: "Barcelona",
   postalCode: "08012",
   amenities: [],
+  outdoorSpace: null,
   title: "Piso",
   description: null,
   publisherName: null,

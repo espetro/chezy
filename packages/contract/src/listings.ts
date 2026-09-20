@@ -15,6 +15,10 @@ export const PricePeriodSchema = v.picklist(["month", "total"]);
 export const MediaKindSchema = v.picklist(["photo", "plan", "video", "tour_3d"]);
 export const PublisherKindSchema = v.picklist(["professional", "private"]);
 export const LocationAccuracySchema = v.picklist(["exact", "street", "zone"]);
+// Photo-derived outdoor space label from the scraper's media enrichment step.
+export const OUTDOOR_SPACES = ["none", "balcony", "terrace", "patio", "garden"] as const;
+export const OutdoorSpaceSchema = v.picklist(OUTDOOR_SPACES);
+export type OutdoorSpace = v.InferOutput<typeof OutdoorSpaceSchema>;
 
 const nullableString = v.nullable(v.string());
 const nullableNumber = v.nullable(v.number());
@@ -88,6 +92,7 @@ export const ListingSchema = v.strictObject({
 
   // features
   amenities: v.array(v.string()),
+  outdoor_space: v.optional(v.nullable(OutdoorSpaceSchema)),
   raw_features: v.record(v.string(), v.unknown()),
 
   media: v.array(MediaSchema),

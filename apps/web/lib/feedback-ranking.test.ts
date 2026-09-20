@@ -49,6 +49,7 @@ const home = (id: string, extras: Partial<Listing> = {}): Listing => ({
   municipality: "Barcelona",
   postalCode: null,
   amenities: ["exterior"],
+  outdoorSpace: null,
   title: id,
   description: null,
   publisherName: null,
