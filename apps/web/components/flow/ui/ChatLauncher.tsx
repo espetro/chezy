@@ -53,10 +53,11 @@ interface DrawerState {
 const LauncherButton = ({ open, onOpen }: { open: boolean; onOpen: () => void }) => {
   const pathname = usePathname();
 
-  // Onboarding is itself the agent conversation, and on /explore every card
-  // carries its own "ask" input (the floating button would also cover the
-  // carousel's Next control there).
-  if (pathname === "/onboarding" || pathname === "/explore") return undefined;
+  // Only the listing detail page gets the floating button: the landing has
+  // nothing to chat about yet, onboarding is itself the agent conversation, and
+  // on /explore every card carries its own "ask" input (the button would also
+  // cover the carousel's Next control there).
+  if (!/^\/explore\/.+/.test(pathname)) return undefined;
 
   // /explore/[id] has a fixed bottom action bar below md; raise the launcher to
   // clear it there, otherwise sit just above the safe-area edge.
