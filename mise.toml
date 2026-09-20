@@ -119,8 +119,13 @@ description = "Verify repeatable persona, fixture candidates, transactional roll
 run = "cd apps/web && node --env-file-if-exists=.env.local --import=tsx scripts/check-demo.ts"
 
 [tasks."check:adaptation"]
-description = "Verify adaptation job lifecycle: dedupe, owner isolation, mock ready, stale paths, reset cleanup"
-run = "cd apps/web && node --env-file-if-exists=.env.local --import=tsx scripts/check-adaptation.ts"
+description = "Verify adaptation job lifecycle per mock scenario: dedupe, isolation, ready, correction, exhaustion, retry, stale, reset"
+run = """
+cd apps/web
+for scenario in valid invalid_first invalid_twice; do
+  node --env-file-if-exists=.env.local --import=tsx scripts/check-adaptation.ts --scenario "$scenario"
+done
+"""
 
 [tasks."slng:agent:sync"]
 description = "Pin the SLNG agent to eu-central/livekit and report its outbound trunk"
