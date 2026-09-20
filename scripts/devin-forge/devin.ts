@@ -10,7 +10,9 @@ const sessionSchema = v.looseObject({
   status: v.picklist(["new", "claimed", "running", "exit", "error", "suspended", "resuming"]),
   status_detail: v.optional(v.nullable(v.string())),
   structured_output: v.optional(v.nullable(v.record(v.string(), v.unknown()))),
-  pull_requests: v.optional(v.array(v.looseObject({ pr_url: v.string() }))),
+  pull_requests: v.optional(
+    v.array(v.looseObject({ pr_url: v.string(), pr_state: v.optional(v.string()) })),
+  ),
   acus_consumed: v.optional(v.number()),
 });
 

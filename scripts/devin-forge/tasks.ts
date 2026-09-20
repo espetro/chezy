@@ -24,6 +24,9 @@ const LIST_FORBIDDEN = [
 const DETAIL_FORBIDDEN = [
   "apps/scraper/tests/test_pisos_detail.py",
   "apps/scraper/tests/test_pisos_detail_holdout.py",
+  "apps/scraper/tests/test_pisos_detail_holdout2.py",
+  "apps/scraper/tests/fixtures/pisos_detail_bare_rows.html",
+  "apps/scraper/tests/fixtures/pisos_detail_bare_rows.golden.json",
   "apps/scraper/tests/fixtures/pisos_detail_rent.html",
   "apps/scraper/tests/fixtures/pisos_detail_rent.golden.json",
   "apps/scraper/tests/fixtures/pisos_detail_sale.html",
@@ -65,6 +68,7 @@ export const TASKS: Record<string, ForgeTask> = {
     visibleTests: [
       "apps/scraper/tests/test_pisos_detail.py",
       "apps/scraper/tests/test_pisos_detail_holdout.py",
+      "apps/scraper/tests/test_pisos_detail_holdout2.py",
     ],
     holdoutDir: "/tmp/chezy-forge/holdout-detail",
     holdoutFiles: [
@@ -79,6 +83,18 @@ export const TASKS: Record<string, ForgeTask> = {
       {
         src: "test_pisos_detail_holdout.py",
         dest: "apps/scraper/tests/test_pisos_detail_holdout.py",
+      },
+      {
+        src: "pisos_detail_bare_rows.html",
+        dest: "apps/scraper/tests/fixtures/pisos_detail_bare_rows.html",
+      },
+      {
+        src: "pisos_detail_bare_rows.golden.json",
+        dest: "apps/scraper/tests/fixtures/pisos_detail_bare_rows.golden.json",
+      },
+      {
+        src: "test_pisos_detail_holdout2.py",
+        dest: "apps/scraper/tests/test_pisos_detail_holdout2.py",
       },
     ],
     allowlist: [

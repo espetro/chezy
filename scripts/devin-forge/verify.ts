@@ -137,7 +137,7 @@ export function prHeadSha(prUrl: string, repoRoot: string): string | undefined {
 export async function verify(opts: VerifyOpts, task: ForgeTask): Promise<Verdict> {
   const pr = run(
     "gh",
-    ["pr", "view", opts.prUrl ?? "", "--json", "number,headRefOid,headRefName,baseRefName"],
+    ["pr", "view", opts.prUrl ?? "", "--json", "number,headRefOid,headRefName,baseRefName,state"],
     opts.repoRoot,
   );
   if (pr.code !== 0) {
@@ -148,7 +148,17 @@ export async function verify(opts: VerifyOpts, task: ForgeTask): Promise<Verdict
     headRefOid: string;
     headRefName: string;
     baseRefName: string;
+    state: string;
   };
+  if (info.state !== "OPEN") {
+    return {
+      kind: "fail",
+      gate: "pr_not_open",
+      output: `pr state is ${info.state}`,
+      failingTests: [],
+      sha: info.headRefOid,
+    };
+  }
   if (info.baseRefName !== opts.baseBranch) {
     return {
       kind: "refused",

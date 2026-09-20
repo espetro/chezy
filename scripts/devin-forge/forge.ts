@@ -183,10 +183,60 @@ async function main(): Promise<number> {
     return undefined;
   };
 
-  const sessionPrUrl = (s: Awaited<ReturnType<typeof getSession>>) =>
-    s.pull_requests?.[0]?.pr_url ?? (s.structured_output?.["pr_url"] as string | undefined);
+  const sessionPrUrl = (s: Awaited<ReturnType<typeof getSession>>) => {
+    const prs = s.pull_requests ?? [];
+    const open = [...prs].reverse().find((p) => p.pr_state === "open");
+    return (
+      open?.pr_url ?? prs.at(-1)?.pr_url ?? (s.structured_output?.["pr_url"] as string | undefined)
+    );
+  };
 
   let lastVerifiedSha: string | undefined;
+  const seedSha = arg("--seed-failure");
+  if (seedSha) {
+    const seedVerdict = await verifyLocal(
+      {
+        sha: seedSha,
+        baseBranch: base,
+        runId,
+        attempt: 0,
+        repoRoot: REPO_ROOT,
+        holdoutDir,
+      },
+      task,
+    );
+    logEvent(runId, {
+      event: "verdict",
+      attempt: 0,
+      kind: seedVerdict.kind,
+      ...(seedVerdict.kind === "fail"
+        ? { gate: seedVerdict.gate, failingTests: seedVerdict.failingTests }
+        : {}),
+      ...(seedVerdict.kind === "refused" ? { paths: seedVerdict.paths } : {}),
+      sha: seedVerdict.sha,
+      seed: true,
+    });
+    if (seedVerdict.kind === "pass") {
+      console.log("seed sha passes; nothing to feed back");
+      return 0;
+    }
+    lastVerifiedSha = seedSha;
+    const seedMsg =
+      seedVerdict.kind === "refused"
+        ? `Rejected by the verifier: your PR changes files outside the allowlist: ${seedVerdict.paths.join(", ")}. Allowlist: ${task.allowlist.join(", ")}. Do not edit tests or fixtures.`
+        : `New verifier evidence against the merged head ${seedSha}: your parser crashes on a live pisos.com page it had not seen. The branch of PR #70 is merged and deleted; create a NEW branch \`feat/chezy-forge/${task.branchSlug}-${runId}-fix\` from \`${base}\`, fix it there, open a NEW PR against \`${base}\`, and provide structured output again.
+
+Gate: ${seedVerdict.gate}. Failing tests: ${seedVerdict.failingTests.join(", ") || "none"}.
+
+Output (tail):
+${seedVerdict.output}
+
+${task.feedbackHint}${task.feedbackHint.includes("Do not edit tests") ? "" : " Do not edit tests or fixtures."}`;
+    await sendMessage(client, session.session_id, seedMsg);
+    if (!(await waitForResume(client, session.session_id, undefined, undefined))) {
+      logEvent(runId, { event: "resume_timeout", attempt: 0 });
+    }
+  }
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const deadline = Date.now() + ATTEMPT_CAP_MS;
     let waited = await waitForSession(client, session.session_id, deadline);
