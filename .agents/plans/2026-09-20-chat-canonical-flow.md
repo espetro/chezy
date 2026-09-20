@@ -3,6 +3,7 @@
 > Status 2026-09-20 10:39: Tier 0 backend + evals landed via PR #47. The /chat page was
 > dropped (PR #49); the four checkpoints in docs/checkpoints/ replaced the flow doc.
 > Tier 1 form-in-chat is void.
+> Aligned with JES-8 (single feedback + profile store) same day.
 
 Contract: `.agents/docs/demo-flow.md`. Demo at 11:00 CEST, delivery 12:00. This plan is
 ordered by demo value; stop wherever the clock says stop, each tier is shippable.
