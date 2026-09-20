@@ -1,6 +1,7 @@
 import type {
   AdaptationFocus,
   AdaptationStatus,
+  CapabilityStatus,
   ComparisonPanelSpec,
   FeedbackEvent,
   FeedbackReason,
@@ -341,6 +342,29 @@ export const listingSave = pgTable(
 
 export type ListingSave = InferSelectModel<typeof listingSave>;
 
+export const capabilityJob = pgTable(
+  "capability_job",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    capability: text("capability").notNull(),
+    status: text("status").$type<CapabilityStatus>().notNull(),
+    provider: text("provider").$type<"devin" | "mock">().notNull(),
+    coverage: doublePrecision("coverage").notNull(),
+    providerSessionId: text("provider_session_id"),
+    providerSessionUrl: text("provider_session_url"),
+    prUrl: text("pr_url"),
+    error: text("error"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex("capability_job_capability").on(table.capability)],
+);
+
+export type CapabilityJobRow = InferSelectModel<typeof capabilityJob>;
+
 export const adaptationJob = pgTable(
   "adaptation_job",
   {
@@ -348,6 +372,9 @@ export const adaptationJob = pgTable(
     userId: uuid("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    capabilityJobId: uuid("capability_job_id").references(() => capabilityJob.id, {
+      onDelete: "set null",
+    }),
     feedbackEventId: uuid("feedback_event_id").notNull(),
     profileVersion: text("profile_version").notNull(),
     // The rejection reason the session was briefed for; a later refine to a

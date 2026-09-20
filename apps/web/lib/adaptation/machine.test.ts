@@ -52,6 +52,7 @@ const correctedSpec = { ...validSpec, attempt: 2, title: "Homes with a balcony" 
 const job = (over: Partial<AdaptationJobRow> = {}): AdaptationJobRow => ({
   id: "660e8400-e29b-41d4-a716-446655440000",
   userId: "770e8400-e29b-41d4-a716-446655440000",
+  capabilityJobId: null,
   feedbackEventId: ctx.feedbackEventId,
   profileVersion: ctx.profileVersion,
   focus: "missing_balcony",
