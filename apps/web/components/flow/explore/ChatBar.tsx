@@ -21,7 +21,7 @@ export const FlowChatBar = () => {
         onSubmit={(event) => {
           event.preventDefault();
           if (!trimmed) return;
-          open({ message: trimmed });
+          open({ message: trimmed, placement: "bottom" });
           setQuestion("");
         }}
       >

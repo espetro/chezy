@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircle, X } from "lucide-react";
+import { MessageCircle, RotateCcw, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { createContext, type ReactNode, Suspense, useContext, useState } from "react";
@@ -26,6 +26,8 @@ interface OpenChatOptions {
   message?: string;
   // Shown in the drawer header, e.g. the listing title the question is about.
   subject?: string;
+  // "bottom" rises from the pinned chat bar (explore); "right" is the side drawer.
+  placement?: "right" | "bottom";
 }
 
 interface ChatLauncherContextValue {
@@ -44,6 +46,7 @@ interface DrawerState {
   open: boolean;
   message?: string;
   subject?: string;
+  placement: "right" | "bottom";
   // Bumped whenever a seeded conversation starts so the chat remounts fresh.
   session: number;
 }
@@ -87,14 +90,28 @@ const LauncherButton = ({ open, onOpen }: { open: boolean; onOpen: () => void })
 // Owns the floating launcher and the drawer for the whole (flow) surface, and
 // lets any flow component open the drawer with a seed message (the card input).
 export const FlowChatLauncherProvider = ({ children }: { children: ReactNode }) => {
-  const [state, setState] = useState<DrawerState>({ open: false, session: 0 });
+  const [state, setState] = useState<DrawerState>({
+    open: false,
+    placement: "right",
+    session: 0,
+  });
 
   const open = (options: OpenChatOptions = {}) =>
     setState((current) => ({
       open: true,
       message: options.message,
       subject: options.subject,
+      placement: options.placement ?? "right",
       session: options.message ? current.session + 1 : current.session,
+    }));
+
+  // Clear the thread: remount the chat with no seed, keep the sheet where it is.
+  const newChat = () =>
+    setState((current) => ({
+      ...current,
+      message: undefined,
+      subject: undefined,
+      session: current.session + 1,
     }));
 
   const setOpen = (next: boolean) =>
@@ -112,9 +129,13 @@ export const FlowChatLauncherProvider = ({ children }: { children: ReactNode }) 
           <LauncherButton open={state.open} onOpen={() => open()} />
         </Suspense>
         <SheetContent
-          side="right"
+          side={state.placement}
           showCloseButton={false}
-          className="gap-0 p-0 font-flow data-[side=right]:w-full data-[side=right]:sm:max-w-md"
+          className={cn(
+            "gap-0 p-0 font-flow data-[side=right]:w-full data-[side=right]:sm:max-w-md",
+            // Bottom sheet: rises to leave the page peeking above, rounded like a card.
+            "data-[side=bottom]:h-[78dvh] data-[side=bottom]:rounded-t-cards data-[side=bottom]:border-t-0 data-[side=bottom]:shadow-[0_-12px_40px_rgba(9,9,11,0.18)]",
+          )}
         >
           <SheetTitle className="sr-only">Chat with Chezy</SheetTitle>
           <div className="flex items-center gap-3 border-b border-cloud bg-snow px-4 py-3">
@@ -125,6 +146,14 @@ export const FlowChatLauncherProvider = ({ children }: { children: ReactNode }) 
                 {state.subject ? `About: ${state.subject}` : "Ask anything about your search"}
               </p>
             </div>
+            <button
+              type="button"
+              onClick={newChat}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-[13px] text-fog hover:bg-paper hover:text-obsidian focus-visible:outline-2 focus-visible:outline-obsidian"
+            >
+              <RotateCcw size={14} aria-hidden />
+              New chat
+            </button>
             <SheetClose asChild>
               <button
                 type="button"
