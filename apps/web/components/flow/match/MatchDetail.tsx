@@ -78,7 +78,10 @@ export const MatchDetail = ({ listing, explanation }: MatchDetailProps) => {
       >
         <AgentCallGate listing={listing} />
       </section>
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-mist bg-snow/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:hidden">
+      <div
+        aria-label="Listing actions"
+        className="fixed inset-x-0 bottom-0 z-20 border-t border-mist bg-snow/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:hidden"
+      >
         <a
           href="#agency-actions"
           className="mx-auto flex min-h-12 max-w-md items-center justify-center rounded-buttons bg-obsidian px-4 text-sm font-medium text-snow focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-obsidian"
