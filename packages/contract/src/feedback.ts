@@ -1,6 +1,11 @@
 import * as v from "valibot";
 
-export const FEEDBACK_REASONS = ["too_expensive", "wrong_area", "missing_balcony"] as const;
+export const FEEDBACK_REASONS = [
+  "too_expensive",
+  "wrong_area",
+  "missing_balcony",
+  "other",
+] as const;
 export const FeedbackReasonSchema = v.picklist(FEEDBACK_REASONS);
 export type FeedbackReason = v.InferOutput<typeof FeedbackReasonSchema>;
 

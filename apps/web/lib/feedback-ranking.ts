@@ -6,6 +6,7 @@ export const FEEDBACK_EXPLANATIONS: Record<FeedbackReason, string> = {
     "Balcony moved up in your comparison. Only listing-reported outdoor space counts.",
   too_expensive: "Lower known rents moved up in your comparison. Your budget is unchanged.",
   wrong_area: "Homes outside the rejected neighborhood moved up in your comparison.",
+  other: "Candidate hidden. No ranking change.",
 };
 
 export const describeFeedback = (event: FeedbackEvent) => {

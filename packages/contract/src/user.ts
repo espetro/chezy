@@ -10,9 +10,8 @@ export const userProfileSchema = v.object({
   // Scorer amenity keys: exterior, balcony_or_terrace, elevator,
   // air_conditioning, furnished, pets_allowed, heating.
   mustHaves: v.optional(v.array(v.string())),
-  // Red-line keys: no_interior, no_high_deposit, no_flatmates.
+  // Red-line keys: no_interior, no_high_deposit, no_suspicious_ads.
   redLines: v.optional(v.array(v.string())),
-  rejectedListingIds: v.optional(v.array(v.string())),
   maxCommuteMin: v.optional(v.number()),
   minM2: v.optional(v.number()),
   onboardedAt: v.optional(v.pipe(v.string(), v.isoTimestamp())),
