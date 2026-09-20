@@ -40,6 +40,12 @@ async function Explore() {
     getLatestAcceptedPanel(session.user.id),
     getActiveJob(session.user.id),
   ]);
+  // A failure older than the accepted panel has been superseded; in-flight
+  // jobs and newer failures still get their status line and "Try again".
+  const job =
+    active?.status === "failed" && accepted && accepted.job.updatedAt > active.updatedAt
+      ? undefined
+      : active;
   const feed = await buildFeed(profile, undefined, undefined, feedback);
   const listings = feed.items.map(({ listing, match }) => toFlowListing(listing, match, profile));
 
@@ -55,7 +61,7 @@ async function Explore() {
           ? { panel: resolvePanel(accepted.spec, accepted.rows), job: accepted.job }
           : undefined
       }
-      job={active}
+      job={job}
     />
   );
 }
