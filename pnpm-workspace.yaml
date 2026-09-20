@@ -50,6 +50,11 @@ catalogs:
 # tool inputSchema types stop being assignable (TS2769).
 overrides:
   '@ai-sdk/valibot>@ai-sdk/provider-utils': '5.0.45'
+  # Keep the whole Chat SDK tree on one version: @mastra/telegram's ^4.34.0
+  # range would otherwise resolve a newer @chat-adapter/telegram + chat than the
+  # state adapter, and the two `chat` type graphs are incompatible.
+  '@chat-adapter/telegram': '4.40.0'
+  chat: '4.40.0'
 
 minimumReleaseAgeExclude:
   - '@ai-sdk/openai-compatible@3.0.53'
