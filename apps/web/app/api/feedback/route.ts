@@ -12,6 +12,7 @@ import {
   refineFeedback,
   undoFeedback,
 } from "~/lib/feedback";
+import { isSameOrigin } from "~/lib/request-origin";
 
 export const GET = async () => {
   const session = await auth();
@@ -29,8 +30,7 @@ type Mutation = "record" | "undo" | "refine";
 const mutate = async (request: Request, mutation: Mutation) => {
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "unauthorized" }, { status: 401 });
-  const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) {
+  if (!isSameOrigin(request)) {
     return Response.json({ error: "invalid origin" }, { status: 403 });
   }
   if (request.headers.get("content-type")?.split(";")[0] !== "application/json") {

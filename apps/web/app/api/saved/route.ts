@@ -1,6 +1,7 @@
 import { SavedInputSchema } from "@chezy/contract";
 import * as v from "valibot";
 import { auth } from "~/app/(auth)/auth";
+import { isSameOrigin } from "~/lib/request-origin";
 import { listSavedListingIds, SavedError, setSaved } from "~/lib/saved";
 
 export const GET = async () => {
@@ -15,8 +16,7 @@ export const GET = async () => {
 export const PUT = async (request: Request) => {
   const session = await auth();
   if (!session?.user?.id) return Response.json({ error: "unauthorized" }, { status: 401 });
-  const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) {
+  if (!isSameOrigin(request)) {
     return Response.json({ error: "invalid origin" }, { status: 403 });
   }
   if (request.headers.get("content-type")?.split(";")[0] !== "application/json") {
