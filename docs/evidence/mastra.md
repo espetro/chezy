@@ -14,7 +14,7 @@ It is an adapter, not a fork: it imports `apps/web/lib` read-only (tools, listin
 insights) and adds only Telegram-specific pieces. Follow-ups that matter for judging:
 
 - [PR #75](https://github.com/espetro/chezy/pull/75) — the bot adapts the web tools
-  (`saveUserProfile`, `searchListings`, `getListingInsights`, `recordListingFeedback`,
+  (`saveUserProfile`, `searchListings`, `recordListingFeedback`,
   approval-gated `arrangeViewing`), so cards carry the real match `N/100` score and
   non-empty `topMatches` produce an explicit viewing offer.
 - [PR #79](https://github.com/espetro/chezy/pull/79) — per-turn `chat.turn.*` audit
