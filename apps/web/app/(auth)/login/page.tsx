@@ -1,62 +1,54 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 
-import { AuthForm } from "~/components/chat/auth-form";
-import { SubmitButton } from "~/components/chat/submit-button";
-import { toast } from "~/components/chat/toast";
+import { AuthFields } from "~/components/flow/auth/AuthFields";
 import { type LoginActionState, login } from "../actions";
 
-export default function Page() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [isSuccessful, setIsSuccessful] = useState(false);
+// Derived from the action state during render — no effect, no toast. A successful
+// sign-in never reaches here: the server action redirects to /explore.
+const errorFor = (status: LoginActionState["status"]) => {
+  if (status === "failed") return "That email and password do not match an account.";
+  if (status === "invalid_data") return "Enter a valid email and a password of 6+ characters.";
+  return undefined;
+};
 
+export default function Page() {
+  const [email, setEmail] = useState("");
   const [state, formAction] = useActionState<LoginActionState, FormData>(login, { status: "idle" });
 
-  const { update: updateSession } = useSession();
-
-  // updateSession (next-auth useSession update) and router are stable refs.
-  useEffect(() => {
-    if (state.status === "failed") {
-      toast({ description: "Invalid credentials!", type: "error" });
-    } else if (state.status === "invalid_data") {
-      toast({
-        description: "Failed validating your submission!",
-        type: "error",
-      });
-    } else if (state.status === "success") {
-      setIsSuccessful(true);
-      updateSession();
-      router.refresh();
-    }
-  }, [state.status, setIsSuccessful, updateSession, router]);
-
   const handleSubmit = (formData: FormData) => {
-    setEmail(formData.get("email") as string);
+    setEmail(String(formData.get("email") ?? ""));
     formAction(formData);
   };
 
   return (
     <>
-      <h1 className="text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">
-        Welcome back
-      </h1>
-      <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
-        Sign in to your account to continue
-      </p>
-      <AuthForm action={handleSubmit} defaultEmail={email}>
-        <SubmitButton isSuccessful={isSuccessful}>Sign in</SubmitButton>
-        <p className="text-center text-[13px] text-muted-foreground">
+      <div className="flex flex-col gap-2">
+        <h1 className="font-heading text-headline-md text-obsidian">Welcome back</h1>
+        <p className="text-body-default text-steel">
+          Sign in to pick up where your agent left off.
+        </p>
+      </div>
+
+      <form action={handleSubmit} className="flex flex-col gap-5">
+        <AuthFields
+          defaultEmail={email}
+          error={errorFor(state.status)}
+          pendingLabel="Signing you in…"
+          submitLabel="Sign in"
+        />
+        <p className="text-center text-label-md text-fog">
           {"No account? "}
-          <Link className="text-foreground underline-offset-4 hover:underline" href="/register">
+          <Link
+            className="text-obsidian underline underline-offset-4 hover:text-ember-deep"
+            href="/register"
+          >
             Sign up
           </Link>
         </p>
-      </AuthForm>
+      </form>
     </>
   );
 }
