@@ -161,9 +161,7 @@ function lowestScoredListingId(turns: TurnRecord[]): string | undefined {
       if (call.toolName !== "searchListings") {
         continue;
       }
-      const out = call.output as
-        | { listings?: Array<{ id?: string; score?: number }> }
-        | undefined;
+      const out = call.output as { listings?: Array<{ id?: string; score?: number }> } | undefined;
       for (const l of out?.listings ?? []) {
         if (l.id && typeof l.score === "number" && (!best || l.score < best.score)) {
           best = { id: l.id, score: l.score };
