@@ -108,8 +108,9 @@ The carousel renders rejection buttons **outside** the existing card/title link.
 Three reason buttons, Cancel and Escape work without gestures. Successful writes
 refresh server results; failures show an alert and allow an idempotent retry.
 Keyboard focus goes to the next ranked card (or the empty result) after exit.
-Undo focuses the feed region. Detail rejection navigates to the feed and does not
-rewrite viewing state; rejected detail URLs redirect before mounting auto-call.
+Undo focuses the feed region. Detail rejection offers in-place Undo and a link
+to the updated feed, preserving its mounted viewing controller and call display.
+Rejected detail URLs redirect on reload before mounting auto-call.
 The viewing controller and call authorization logic are unchanged.
 
 ## Verification

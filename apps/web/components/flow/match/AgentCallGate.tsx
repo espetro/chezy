@@ -1,6 +1,8 @@
 "use client";
 
 import { useMountEffect } from "@chezy/ui/hooks/useMountEffect";
+import type { FeedbackEvent } from "@chezy/contract";
+import Link from "next/link";
 import { useRef, useState } from "react";
 import { RejectionControl } from "~/components/flow/explore/RejectionControl";
 import { useListingFeedback } from "~/lib/flow/use-listing-feedback";
@@ -29,9 +31,11 @@ const autoCallKey = (listingId: string) => `chezy:autocall:${listingId}`;
 const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
   const isAutoCall = listing.matchScore >= AUTO_CALL_MATCH_THRESHOLD;
   const [state, setState] = useState<ViewingState>({ status: "idle" });
-  const { reject, busy, error } = useListingFeedback(() => window.location.assign("/explore"));
+  const [feedback, setFeedback] = useState<FeedbackEvent>();
+  const { reject, undo, busy, error } = useListingFeedback(setFeedback);
   const [liveOptIn, setLiveOptIn] = useState(false);
   const controller = useRef<ReturnType<typeof createViewingController> | undefined>(undefined);
+  const restoreFocus = useRef(false);
   const { status } = state;
 
   function getController() {
@@ -61,9 +65,40 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
     void startCall();
   });
 
+  if (feedback && !feedback.undoneAt) {
+    return (
+      <div
+        ref={(node) => node?.querySelector("button")?.focus({ preventScroll: true })}
+        className="flex min-h-[42rem] flex-col items-start justify-center gap-4 rounded-cards bg-snow p-5 sm:min-h-[34rem] sm:p-7"
+      >
+        <p role="status">Candidate rejected. Your comparison has been updated.</p>
+        <FlowButton
+          variant="ghost"
+          disabled={busy}
+          onClick={async () => {
+            restoreFocus.current = true;
+            if (!(await undo(feedback.eventId))) restoreFocus.current = false;
+          }}
+        >
+          Undo
+        </FlowButton>
+        <Link href="/explore" className="inline-flex min-h-11 items-center underline">
+          See updated comparison
+        </Link>
+        {error && <p role="alert">{error}</p>}
+      </div>
+    );
+  }
+
   return (
     <div
       tabIndex={-1}
+      ref={(node) => {
+        if (node && restoreFocus.current) {
+          node.focus({ preventScroll: true });
+          restoreFocus.current = false;
+        }
+      }}
       className="flex min-h-[42rem] flex-col gap-4 rounded-cards bg-snow p-5 shadow-sm focus-visible:outline-2 focus-visible:outline-obsidian sm:min-h-[34rem] sm:p-7"
     >
       {isAutoCall ? (
