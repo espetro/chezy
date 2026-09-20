@@ -53,10 +53,23 @@ export async function startBot() {
   });
 
   if (env.BOT_TOKEN) {
-    await telegram.connect("chezy", {
-      botToken: env.BOT_TOKEN,
-      name: env.BOT_USERNAME,
-    });
+    try {
+      await telegram.connect("chezy", {
+        botToken: env.BOT_TOKEN,
+        name: env.BOT_USERNAME,
+      });
+    } catch (error) {
+      // A stale installation (e.g. a previous token or the fake test bot)
+      // persists in Mastra storage; drop it and reconnect.
+      if (!(error instanceof Error && error.message.includes("already connected"))) {
+        throw error;
+      }
+      await telegram.disconnect("chezy").catch(() => {});
+      await telegram.connect("chezy", {
+        botToken: env.BOT_TOKEN,
+        name: env.BOT_USERNAME,
+      });
+    }
     console.log("[bot] telegram connected (polling)");
   } else {
     console.log("[bot] TELEGRAM_BOT_TOKEN/TELEGRAM_BOT_API_KEY unset — HTTP routes only");
