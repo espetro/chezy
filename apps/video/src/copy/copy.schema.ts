@@ -85,20 +85,15 @@ const copySchema = v.object({
         dialingSub: nonEmpty,
         speakers: v.object({ agent: nonEmpty, agency: nonEmpty }),
         transcript: v.pipe(v.array(transcriptLine), v.length(4)),
-        agreed: nonEmpty,
+        outcome: nonEmpty,
         endedChip: nonEmpty,
       }),
     }),
-    booked: v.object({
+    handoff: v.object({
       ...baseFields,
       screen: v.object({
         assistant: nonEmpty,
-        calendar: v.object({
-          day: nonEmpty,
-          month: nonEmpty,
-          title: nonEmpty,
-          time: nonEmpty,
-        }),
+        status: nonEmpty,
       }),
     }),
     stack: v.object({

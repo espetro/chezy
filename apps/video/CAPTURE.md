@@ -32,14 +32,14 @@ _Jessie says who she is; Chezy fills the profile_
   - three profile fields
   - confirmation
 - **Badges:** Nebius
-- **VO:** Jessie is moving to Barcelona. She opens Chezy and says who she is. Instead of a form, the assistant asks the three things it needs: neighbourhoods, budget, bedrooms. Her answers become a profile that follows her into every future chat, so she never repeats herself.
+- **VO:** Jessie is moving to Barcelona for a job at Norrsken in Poblenou. She opens Chezy and says who she is. Instead of a form, the assistant asks the three things it needs: neighbourhoods, budget, bedrooms. Her answers become a profile that follows her into every future chat.
 
 ## Shortlist (`shortlist`)
 
-_Real Barcelona listings, as cards_
+_Real Barcelona listings, ranked for her_
 
 - **Target seconds:** 15.7 (VO) + 0.5 s tail
-- **Callout:** Price per m² next to the barrio average.
+- **Callout:** Say why a flat is wrong. The ranking listens.
 - **Start state:** Previous chat scrolled so the last confirmation is at the top.
 - **Actions:**
   - User asks "Find me a bright 2-bed in Gràcia under €1,800."
@@ -52,68 +52,68 @@ _Real Barcelona listings, as cards_
   - 3 cards
   - price/m² vs average on each
 - **Badges:** Nebius
-- **VO:** She asks for a bright two bedroom in Gràcia under eighteen hundred euros. Chezy searches real Barcelona listings and returns a shortlist as cards, with the price per square metre next to the barrio average. It's a starting point, not a verdict.
+- **VO:** Chezy ranks real Barcelona listings against her profile and shows them as cards, price per square metre included. It's a starting point, not a verdict. When she rejects one and says why, no outdoor space, the reason is saved and the remaining candidates re-rank in front of her.
 
-## Forensic check (`forensic`)
+## Grounded check (`forensic`)
 
-_Sunlight and price vs barrio, from the data_
+_Every claim points at a listing fact, or says unknown_
 
 - **Target seconds:** 27.8 (VO) + 0.5 s tail
-- **Callout:** 0% direct sunlight. 13% over the barrio average.
+- **Callout:** Sourced facts. Explicit unknowns. No invented sunlight.
 - **Start state:** Cards 1 and 2 visible.
 - **Actions:**
-  - Assistant says "I checked both."
-  - Amber insight card under card 1: 0% direct sunlight, windows onto a 1.5 m interior lightwell, 13% over the Gràcia average; three bullets in Spanish italic.
-  - Green line under card 2: forensic check passed, south facing, 17% under the Eixample average.
+  - Assistant says "I checked both against the listing data."
+  - Amber insight card under card 1: 37,5 €/m² is the priciest per square metre of the three, floor and orientation not in the listing so they stay unknown; three bullets in Spanish italic.
+  - Green line under card 2: grounded check passed, terrace listed, 77 m², within budget.
   - Stage push-in on the phone from scale 1.0 to 1.12 over 6 s while the amber card is read, then back.
 - **End state:** Amber card and green line visible.
 - **Transition:** Push-out, user bubble appears.
 - **Must show:**
-  - amber warning with the three facts
+  - amber price flag with explicit unknowns
   - green pass
   - both cards
 - **Badges:** Nebius
-- **VO:** Now the part listings don't want you to see. Chezy reads the photos and the data behind each card. The first flat says "luminoso". Its windows face an interior lightwell, one and a half metres wide. Zero percent direct sunlight, and thirteen percent over the barrio average. It gets an amber flag. The second flat faces south and sits seventeen percent under the average. It passes. The trap is visible before Jessie wastes an afternoon on it.
+- **VO:** Now the part listings don't want you to see. Chezy explains a match only from facts it can point at: price, size, rooms, listed amenities. When the listing doesn't say, it says unknown instead of guessing. The first flat lists a terrace and sits inside her budget. It passes. The second is the priciest per square metre, with no floor stated, so that stays unknown. It gets an amber flag. The trap is visible before Jessie wastes an afternoon.
 
 ## The call (`call`)
 
 _Spanish, with the AI disclosure, on the renter's behalf_
 
 - **Target seconds:** 37.0 (VO) + 0.5 s tail
-- **Callout:** She never had to speak Spanish.
+- **Callout:** Simulated by default. Live only with her opt-in.
 - **Start state:** Forensic end state.
 - **Actions:**
-  - User asks "Book a viewing for the Eixample one." (0 to ~10 s)
-  - Assistant: "Calling the agency now, in Spanish. I'll say I'm an AI assistant."
+  - User asks "Arrange a viewing for the Poblenou one." (0 to ~10 s)
+  - Assistant: "Simulating the agency call in Spanish. I'd say I'm an AI assistant. Tick the box if you want a live demo call instead."
   - Dialing card: phone icon, masked +34 number, pulsing dot, badges from config.
-  - Dialing card expands to a call sheet (~10 s to end): synthetic waveform keyed to transcript lines; four es/en transcript lines appear in sync with the VO; footer line shows the agreed slot.
-- **End state:** Call sheet with four lines and the agreed slot.
-- **Transition:** Call sheet collapses into a "Call ended · 1:12" chip, chat continues.
+  - Dialing card expands to a call sheet (~10 s to end): synthetic waveform keyed to transcript lines; four es/en transcript lines appear in sync with the VO; footer line shows the truthful outcome line.
+- **End state:** Call sheet with four lines and the truthful outcome line.
+- **Transition:** Call sheet collapses into a "Simulation ended" chip, chat continues.
 - **Must show:**
   - approval bubble
-  - dialing state
+  - simulated dialing state
   - AI disclosure line
-  - agreed slot
+  - truthful outcome line
 - **Badges:** SLNG, Vonage
-- **VO:** Jessie likes the second one and asks Chezy to book a viewing. This is where every renter loses time: agencies don't answer email, and the call happens in Spanish, during office hours. Chezy picks up the phone. A voice agent built with unmute and deployed on SLNG dials the agency through Vonage telephony. It opens by disclosing it is an AI assistant, as the EU AI Act requires. It names the flat, asks what's available, and agrees a slot. Tuesday at half past six. Jessie never had to speak Spanish, or be awake for it.
+- **VO:** Jessie picks the Poblenou flat and asks Chezy to arrange a viewing. Agencies don't answer email, and the call happens in Spanish, during office hours. Chezy's voice agent, authored with unmute and deployed on SLNG over Vonage telephony, opens by disclosing it is an AI assistant, as the EU AI Act requires, names the flat and asks what's available. In this demo the call is simulated: no phone rings unless Jessie opts in to a live call to our own test line. The screen tells the truth about which one happened.
 
-## Booked (`booked`)
+## Handoff (`handoff`)
 
-_Confirmed slot on her calendar_
+_Truthful state: simulated, dispatched or failed_
 
 - **Target seconds:** 15.9 (VO) + 0.5 s tail
-- **Callout:** One conversation. Brief to booked.
-- **Start state:** Chat with the call-ended chip.
+- **Callout:** One conversation. Brief to a call she can trust.
+- **Start state:** Chat with the simulation-ended chip.
 - **Actions:**
-  - Assistant: "Viewing booked: Tuesday 22 September, 18:30. Added to your calendar."
-  - Calendar card: "22 SEP" tile, "Viewing · Eixample 2-bed", "18:30 to 19:00", green check.
-- **End state:** Calendar card visible.
+  - Assistant: "Viewing call simulated for the Poblenou 2-bed. Nothing was booked."
+  - Second assistant bubble describes the live-mode dispatched state.
+- **End state:** Two status bubbles.
 - **Transition:** Chat holds; the left zone swaps the phone frame for the stack diagram.
 - **Must show:**
-  - booked message with the slot
-  - calendar card
+  - truthful status bubble
+  - no calendar tile
   - all five sidebar items checked
-- **VO:** The confirmed slot comes back to the chat, and the viewing lands on Jessie's calendar. Brief, shortlist, forensic check, call, booked. One conversation, and the renter gets an agent of her own. Chezy. Finding a flat, made easy.
+- **VO:** The result comes back as it is: simulated, or a real dispatch awaiting the agency's confirmation, never a booking Chezy didn't make. Brief, shortlist, grounded check, call, honest handoff. One conversation, and the renter gets an agent of her own.
 
 ## How it works (`stack`)
 

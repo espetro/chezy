@@ -3,7 +3,7 @@
 // The prose fields below are the handoff contract for real captures; they are
 // rendered into CAPTURE.md by scripts/capture-doc.ts, never on screen.
 
-export type CheckpointId = "brief" | "shortlist" | "forensic" | "call" | "booked" | "stack";
+export type CheckpointId = "brief" | "shortlist" | "forensic" | "call" | "handoff" | "stack";
 export type SegmentId = "intro" | CheckpointId;
 
 export type Badge = {
@@ -118,12 +118,12 @@ export const demoConfig: DemoConfig = {
     {
       id: "forensic",
       badges: [{ label: "Nebius", logo: "nebius.png" }],
-      mustShow: ["amber warning with the three facts", "green pass", "both cards"],
+      mustShow: ["amber price flag with explicit unknowns", "green pass", "both cards"],
       startState: "Cards 1 and 2 visible.",
       actions: [
-        'Assistant says "I checked both."',
-        "Amber insight card under card 1: 0% direct sunlight, windows onto a 1.5 m interior lightwell, 13% over the Gràcia average; three bullets in Spanish italic.",
-        "Green line under card 2: forensic check passed, south facing, 17% under the Eixample average.",
+        'Assistant says "I checked both against the listing data."',
+        "Amber insight card under card 1: 37,5 €/m² is the priciest per square metre of the three, floor and orientation not in the listing so they stay unknown; three bullets in Spanish italic.",
+        "Green line under card 2: grounded check passed, terrace listed, 77 m², within budget.",
         "Stage push-in on the phone from scale 1.0 to 1.12 over 6 s while the amber card is read, then back.",
       ],
       endState: "Amber card and green line visible.",
@@ -136,28 +136,33 @@ export const demoConfig: DemoConfig = {
         { label: "SLNG", logo: "slng.png" },
         { label: "Vonage", logo: "vonage.png" },
       ],
-      mustShow: ["approval bubble", "dialing state", "AI disclosure line", "agreed slot"],
+      mustShow: [
+        "approval bubble",
+        "simulated dialing state",
+        "AI disclosure line",
+        "truthful outcome line",
+      ],
       startState: "Forensic end state.",
       actions: [
-        'User asks "Book a viewing for the Eixample one." (0 to ~10 s)',
-        "Assistant: \"Calling the agency now, in Spanish. I'll say I'm an AI assistant.\"",
+        'User asks "Arrange a viewing for the Poblenou one." (0 to ~10 s)',
+        "Assistant: \"Simulating the agency call in Spanish. I'd say I'm an AI assistant. Tick the box if you want a live demo call instead.\"",
         "Dialing card: phone icon, masked +34 number, pulsing dot, badges from config.",
-        "Dialing card expands to a call sheet (~10 s to end): synthetic waveform keyed to transcript lines; four es/en transcript lines appear in sync with the VO; footer line shows the agreed slot.",
+        "Dialing card expands to a call sheet (~10 s to end): synthetic waveform keyed to transcript lines; four es/en transcript lines appear in sync with the VO; footer line shows the truthful outcome line.",
       ],
-      endState: "Call sheet with four lines and the agreed slot.",
-      transition: 'Call sheet collapses into a "Call ended · 1:12" chip, chat continues.',
+      endState: "Call sheet with four lines and the truthful outcome line.",
+      transition: 'Call sheet collapses into a "Simulation ended" chip, chat continues.',
       source: { kind: "placeholder" },
     },
     {
-      id: "booked",
+      id: "handoff",
       badges: [],
-      mustShow: ["booked message with the slot", "calendar card", "all five sidebar items checked"],
-      startState: "Chat with the call-ended chip.",
+      mustShow: ["truthful status bubble", "no calendar tile", "all five sidebar items checked"],
+      startState: "Chat with the simulation-ended chip.",
       actions: [
-        'Assistant: "Viewing booked: Tuesday 22 September, 18:30. Added to your calendar."',
-        'Calendar card: "22 SEP" tile, "Viewing · Eixample 2-bed", "18:30 to 19:00", green check.',
+        'Assistant: "Viewing call simulated for the Poblenou 2-bed. Nothing was booked."',
+        "Second assistant bubble describes the live-mode dispatched state.",
       ],
-      endState: "Calendar card visible.",
+      endState: "Two status bubbles.",
       transition: "Chat holds; the left zone swaps the phone frame for the stack diagram.",
       source: { kind: "placeholder" },
     },
