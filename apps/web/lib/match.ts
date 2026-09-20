@@ -138,22 +138,21 @@ export function scoreListing(profile: SearchProfile, row: Listing): MatchResult 
   };
 }
 
+// Only no_interior is computable today; the other red lines are stored
+// for display only (the dataset has no deposit or flatmate data).
+export function violatesRedLines(profile: SearchProfile, row: Listing): boolean {
+  return profile.redLines.includes("no_interior") && !row.amenities.includes("exterior");
+}
+
 export function rankListings(
   profile: SearchProfile,
   rows: Listing[],
   feedback: readonly FeedbackEvent[] = [],
 ): Array<{ listing: Listing; match: MatchResult }> {
-  const redLines = new Set(profile.redLines);
   const rejected = new Set(
     feedback.filter((event) => !event.undoneAt).map((event) => event.listingId),
   );
-  const eligible = rows.filter(
-    // Only no_interior is computable today; the other red lines are stored
-    // for display only (the dataset has no deposit or flatmate data).
-    (row) =>
-      !rejected.has(row.id) &&
-      !(redLines.has("no_interior") && !row.amenities.includes("exterior")),
-  );
+  const eligible = rows.filter((row) => !rejected.has(row.id) && !violatesRedLines(profile, row));
   return dedupeListings(eligible)
     .map((listing) => ({ listing, match: scoreListing(profile, listing) }))
     .sort(
