@@ -6,17 +6,17 @@ const BARS = 26;
 
 // Expanded call sheet: synthetic waveform (amplitude keyed to whichever
 // transcript line is currently speaking), es/en transcript lines appearing in
-// sync, and the agreed-slot footer.
+// sync, and the truthful-outcome footer.
 export const CallSheet = ({
   transcript,
   speakers,
-  agreed,
+  outcome,
   at,
   span,
 }: {
   transcript: Copy["checkpoints"]["call"]["screen"]["transcript"];
   speakers: Copy["checkpoints"]["call"]["screen"]["speakers"];
-  agreed: string;
+  outcome: string;
   at: number;
   // Frames over which the four transcript lines stagger in.
   span: number;
@@ -34,7 +34,7 @@ export const CallSheet = ({
   });
 
   // Line i speaks during its slot of the span (last 12% reserved for the
-  // agreed footer).
+  // outcome footer).
   const lineSpan = Math.max(1, Math.floor((span * 0.88) / transcript.length));
   const activeLine = Math.min(transcript.length - 1, Math.floor(local / lineSpan));
   const speaking = local < lineSpan * transcript.length;
@@ -159,7 +159,7 @@ export const CallSheet = ({
           ),
         }}
       >
-        {agreed}
+        {outcome}
       </div>
     </div>
   );

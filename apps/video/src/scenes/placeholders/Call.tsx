@@ -8,8 +8,8 @@ import { MockTag } from "../mock/MockTag";
 import type { SceneProps } from "./sceneProps";
 
 // 4. call — approval, dialing card (pulsing dot, badges), then the call sheet:
-// synthetic waveform + four es/en transcript lines in sync with the VO, agreed
-// slot footer, and the "Call ended" chip at the tail.
+// synthetic waveform + four es/en transcript lines in sync with the VO,
+// truthful outcome footer, and the "Simulation ended" chip at the tail.
 export const Call = ({ checkpoint, frames, showMockTag }: SceneProps) => {
   const frame = useCurrentFrame();
   const at = (p: number) => Math.round(p * frames);
@@ -47,7 +47,7 @@ export const Call = ({ checkpoint, frames, showMockTag }: SceneProps) => {
           <CallSheet
             transcript={s.transcript}
             speakers={s.speakers}
-            agreed={s.agreed}
+            outcome={s.outcome}
             at={sheetAt}
             span={sheetSpan}
           />
