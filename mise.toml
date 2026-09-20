@@ -279,3 +279,15 @@ run = "mise run video:tts && mise run video:durations && mise run video:capture-
 [tasks."eval:trace"]
 description = "LLM tool-call trace eval for demo happy path A against a running dev server (default http://localhost:4656; pass another URL as the first arg). Writes /tmp/chezy-eval/tool-trace-<ts>.json. See docs/checkpoints/."
 run = "cd apps/web && node --env-file-if-exists=.env.local --import=tsx evals/tool-trace.eval.ts"
+
+[tasks."eval:seed"]
+description = "Seed the 'jessie' demo user with a fully onboarded profile into pg0 (idempotent upsert)."
+run = "cd apps/web && node --env-file-if-exists=.env.local --require=./evals/preload.cjs --import=tsx evals/seed-jessie.ts"
+
+[tasks."eval:galtea:setup"]
+description = "Idempotent Galtea setup: product, specs, metrics, datasets for the Chezy eval harness. Needs GALTEA_API_KEY (root .env) and a dev server is NOT required."
+run = "set -a && . ./.env && set +a && uv run --package chezy-evals python -m chezy_evals.setup"
+
+[tasks."eval:galtea:run"]
+description = "Run a Galtea evaluation pass against the dev server on :4656. Usage: mise run eval:galtea:run -- --version <git-sha>"
+run = "set -a && . ./.env && set +a && uv run --package chezy-evals python -m chezy_evals.run"

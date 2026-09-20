@@ -6,10 +6,24 @@ code in `apps/web`. Vendor and untouched upstream files are accepted, see the re
 
 ## Scores
 
-| | Production-Ready Score | Open issues |
+| | Production-Ready Score | Issues |
 |---|---|---|
-| Before (portal Full Scan of `calohco/chezy2`) | 62/100, Conditional | 366 |
-| After (portal rescan) | TBD, needs the rescan after merge | TBD |
+| Before (portal Full Scan of `calohco/chezy2`) | 62/100, Conditional | 366 open |
+| After (portal rescan, 2026-09-20 09:55 UTC) | **67/100, Conditional** | 627 shown |
+
+After, per dimension (portal, 20/09/2026 09:55 scan): Architecture 100% (0 issues),
+Maintainability 92% (41), Performance 90% (55), Manageability 86% (59), Scalability 66%
+(463 issues, 442 HIGH — mostly `js-no-error-handling-async` on upstream template awaits),
+Security 30% still FAIL (9 issues, 9 HIGH — the triaged upstream innerHTML/cookie
+findings). Weighted total 67.
+
+Delta vs before: +5 overall (62 -> 67). Security 24% -> 30%, Performance 77% -> 90%,
+Maintainability 88% -> 92%, Manageability 83% -> 86%, Scalability 65% -> 66%,
+Architecture unchanged at 100%. Issue-count display differs between views (366 open vs
+627 shown) — portal counting changed between scans; the score and per-dimension
+percentages are the comparable numbers. Screenshot evidence:
+`/Users/josocjoq/Documents/recordings/Screenshot 2026-09-20 at 11.58.02.png` (copy into
+evidence folder before submission).
 
 Before, per dimension: Performance 77%, Scalability 65%, Manageability 83%, Security 24%
 (FAIL), Maintainability 88%, Architecture 100%. The portal also shows 130 AI generated

@@ -11,6 +11,14 @@ takes a `Settings` instead of touching `os.environ`.
     CHEZY_IDEALISTA_RENT_URL / CHEZY_IDEALISTA_SALE_URL
                         idealista search URLs (e.g. a `?shape=` polygon); default: whole city
     DATABASE_URL        pg0 connection string    default: local pg0
+    OPENAI_COMPATIBLE_BASE_URL
+                        chat completions gateway for `enrich-media`
+                        default: http://localhost:8317/v1 (local bifrost; Nebius is
+                        https://api.studio.nebius.com/v1)
+    OPENAI_COMPATIBLE_API_KEY
+                        bearer token for that gateway   default: empty (command refuses to run)
+    CHEZY_VLM_MODEL     vision model id for `enrich-media`
+                        default: minimax-coding-plan/MiniMax-M3
 """
 
 from __future__ import annotations
@@ -29,6 +37,9 @@ class Settings:
     database_url: str
     cdp_url: str
     chrome_profile_dir: Path
+    vlm_base_url: str = "http://localhost:8317/v1"
+    vlm_api_key: str = ""
+    vlm_model: str = "minimax-coding-plan/MiniMax-M3"
     idealista_search_urls: dict[str, str] = field(default_factory=dict)
     # One request per 2-5 s per host, randomized.
     http_min_delay: float = 2.0
@@ -52,6 +63,9 @@ class Settings:
                     str(Path.home() / "Library/Application Support/Google/Chrome"),
                 )
             ),
+            vlm_base_url=os.environ.get("OPENAI_COMPATIBLE_BASE_URL", "http://localhost:8317/v1"),
+            vlm_api_key=os.environ.get("OPENAI_COMPATIBLE_API_KEY", ""),
+            vlm_model=os.environ.get("CHEZY_VLM_MODEL", "minimax-coding-plan/MiniMax-M3"),
             idealista_search_urls={
                 op: url
                 for op, var in (

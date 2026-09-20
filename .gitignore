@@ -86,7 +86,12 @@ next-env.d.ts
 # CDN instead. Keep the tables (data/, schema/, docs) tracked.
 chezy-mock-data/media/
 
+# Enrichment tables are tracked; the raw Nominatim / Overpass / VLM responses they were
+# derived from are regenerable scratch.
+chezy-mock-data/enriched/cache/
+
 # apps/video generated media: TTS WAVs, teammate phone captures, renders
 apps/video/public/audio/
 apps/video/public/clips/
 apps/video/out/
+apps/evals/.galtea-ids.json
