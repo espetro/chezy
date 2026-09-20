@@ -1,7 +1,7 @@
 "use client";
 import type { UseChatHelpers } from "@ai-sdk/react";
 import cx from "classnames";
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import { motion, useMotionValue, useTransform } from "motion/react";
 import { WrenchIcon, XIcon } from "lucide-react";
 import { nanoid } from "nanoid";
 import {
