@@ -17,20 +17,20 @@ Short clips hold the last frame; long clips are trimmed to the VO
 
 _Hannah tells Chezy her preferences._
 
-- **Target seconds:** 13.5 (VO) + 0.5 s tail
+- **Target seconds:** 12.8 (VO) + 0.5 s tail
 - **Callout:** No form. A profile that follows her.
-- **Start state:** Empty chat, greeting "What flat are you looking for?", composer focused.
+- **Start state:** Landing page on a 393x852 viewport, guest session, no profile.
 - **Actions:**
-  - User bubble "Hi, I'm Jessie" types in (40 ms/char).
-  - Assistant asks for neighbourhoods, monthly budget, bedrooms.
-  - User answers "Gràcia or Eixample, 1,800 a month, 2 bedrooms."
-  - Assistant confirms the saved profile and asks what else matters.
-- **End state:** Four bubbles visible, profile confirmation last.
-- **Transition:** Chat scrolls up 300 ms ease-out, next user bubble appears.
+  - "Find my home" opens /onboarding; "Let's go" starts the interview.
+  - Budget & space scrolls through the prefilled range, then Continue.
+  - Move-in picks the Flexible radio; must-haves toggle exterior + elevator.
+  - Routine & area fills the work address and the 25 min commute radio.
+- **End state:** Routine step with the sticky "N listings match right now" counter live.
+- **Transition:** Cross-dissolve into the explore feed.
 - **Must show:**
-  - identity line
-  - three profile fields
-  - confirmation
+  - onboarding steps
+  - answers being picked
+  - live match counter
 - **Badges:** Nebius
 - **VO:** Hannah is moving to Barcelona. She tells Chezy what she wants: neighbourhoods, budget, bedrooms. No form. Her answers become a profile that follows her into every chat, so she never repeats herself.
 
@@ -38,88 +38,86 @@ _Hannah tells Chezy her preferences._
 
 _Home listings, matched to her profile_
 
-- **Target seconds:** 13.6 (VO) + 0.5 s tail
-- **Callout:** Price per m² next to the barrio average.
-- **Start state:** Previous chat scrolled so the last confirmation is at the top.
+- **Target seconds:** 13.3 (VO) + 0.5 s tail
+- **Callout:** Every yes or no sharpens the next search.
+- **Start state:** /explore with the loose profile applied and a full carousel.
 - **Actions:**
-  - User asks "Find me a bright 2-bed in Gràcia under €1,800."
-  - Assistant replies "Three candidates."
-  - Three ListingCard-shaped cards stagger in 80 ms apart: photo block, price, specs, zone, price/m² line with barrio average.
-- **End state:** Three cards visible, card 1 top.
-- **Transition:** Cards 1 and 2 stay, card 3 fades; insight cards attach beneath 1 and 2.
+  - Two taps on "Next match" page through the matched candidates.
+  - A candidate is discarded; the feed reranks and offers Undo.
+  - The reason chips refine the feedback ("Too expensive"), then Undo restores it.
+- **End state:** Carousel back at full length after the undo.
+- **Transition:** Slide into the match detail.
 - **Must show:**
-  - query bubble
-  - 3 cards
-  - price/m² vs average on each
+  - candidate carousel
+  - a discarded candidate
+  - rerank with Undo
 - **Badges:** Nebius
-- **VO:** Chezy searches real Barcelona listings and returns the ones that match her profile, as cards, with the price per square metre next to the barrio average. It knows what she likes, and every yes or no she gives sharpens the next search.
+- **VO:** Chezy searches real Barcelona listings and returns the ones that match her profile, as cards, each with its match score, its price and its size. It knows what she likes, and every yes or no she gives reranks the shortlist on the spot.
 
 ## Forensic check (`forensic`)
 
-_Sunlight and price, from the data_
+_Every claim next to its evidence_
 
-- **Target seconds:** 30.8 (VO) + 0.5 s tail
-- **Callout:** 0% direct sunlight. 13% over the barrio average.
-- **Start state:** Cards 1 and 2 visible.
+- **Target seconds:** 28.5 (VO) + 0.5 s tail
+- **Callout:** Every claim stamped with its evidence.
+- **Start state:** /explore/<id> for a 100% match, explanation panel settled.
 - **Actions:**
-  - Assistant says "I checked both."
-  - Amber insight card under card 1: 0% direct sunlight, windows onto a 1.5 m interior lightwell, 13% over the Gràcia average; three bullets in Spanish italic.
-  - Green line under card 2: forensic check passed, south facing, 17% under the Eixample average.
-  - Stage push-in on the phone from scale 1.0 to 1.12 over 6 s while the amber card is read, then back.
-- **End state:** Amber card and green line visible.
-- **Transition:** Push-out, user bubble appears.
+  - The panel scrolls claim by claim: listed price, listed rooms, built m².
+  - The "What to check" card names natural light as unknown, with its missing evidence field.
+  - In-beat push-in on the phone while the trade-off is narrated.
+- **End state:** Trade-off card and the neighbourhood profile visible.
+- **Transition:** Slide into the call gate.
 - **Must show:**
-  - amber warning with the three facts
-  - green pass
-  - both cards
+  - "Why this home" panel
+  - evidence field under every claim
+  - the unknown trade-off
 - **Badges:** Nebius
-- **VO:** Now the part listings don't want you to see. Chezy reads the photos and the data behind each card. The first flat says "luminoso". Its windows face an interior lightwell, one and a half metres wide. Zero percent direct sunlight, and thirteen percent over the barrio average. It gets an amber flag. The second flat faces south and sits seventeen percent under the average. It passes. The trap is visible before Hannah wastes an afternoon on it.
+- **VO:** Now the part listings don't want you to see. Chezy opens the flat and explains why it matches, claim by claim, and stamps each one with the field it came from: the listed price, the listed rooms, the square metres. Where the data is missing it says so, in plain words: natural light unknown, no usable photo analysis stored. Nothing is invented, and the trade-off to check is named before Hannah wastes an afternoon on the flat.
 
 ## The call (`call`)
 
-_One tap, and Chezy calls the agency in Spanish_
+_Past 95%, Chezy calls the agency itself_
 
-- **Target seconds:** 21.4 (VO) + 0.5 s tail
+- **Target seconds:** 21.6 (VO) + 0.5 s tail
 - **Callout:** She doesn't have to chase anymore.
-- **Start state:** Forensic end state.
+- **Start state:** Call gate mounting for a >=95% match (VIEWING_MODE=mock), no stored viewing.
 - **Actions:**
-  - User asks "Book a viewing for the Eixample one." (0 to ~10 s)
-  - Assistant: "Calling the agency now, in Spanish. I'll say I'm an AI assistant."
-  - Dialing card: phone icon, masked +34 number, pulsing dot, badges from config.
-  - Dialing card expands to a call sheet (~10 s to end): synthetic waveform keyed to transcript lines; four es/en transcript lines appear in sync with the VO; footer line shows the agreed slot.
-- **End state:** Call sheet with four lines and the agreed slot.
-- **Transition:** Call sheet collapses into a "Call ended · 1:12" chip, chat continues.
+  - The gate dials on its own and shows the Demo pill.
+  - Stages advance: calling the agency, asking about the listing, proposing a slot, confirming the visit.
+  - The gate lands on the booked slot with the calendar line.
+- **End state:** Visit booked card with the agreed slot.
+- **Transition:** Cross-dissolve into the booked receipt.
 - **Must show:**
-  - approval bubble
-  - dialing state
-  - AI disclosure line
-  - agreed slot
+  - auto-call notice
+  - call stages advancing
+  - booked slot
 - **Badges:** SLNG, Vonage
-- **VO:** The Eixample flat is a hundred percent match, so Hannah asks Chezy to call. This is where every renter loses the race: agencies don't answer email, and the call happens during office hours. Chezy calls the agency, names the flat, and agrees a slot. Tuesday at half past six. Hannah never had to call anyone.
+- **VO:** This flat is a hundred percent match, past the bar where Chezy calls on its own. This is where every renter loses the race: agencies don't answer email, and the call happens during office hours. Chezy calls the agency, names the flat, agrees a slot and books it. Hannah never had to call anyone.
 
 ## Booked (`booked`)
 
 _Confirmed slot on her calendar_
 
-- **Target seconds:** 13.3 (VO) + 0.5 s tail
+- **Target seconds:** 14.8 (VO) + 0.5 s tail
 - **Callout:** Brief to booked. One conversation.
-- **Start state:** Chat with the call-ended chip.
+- **Start state:** Detail page reloaded after the call: the booking survives the reload.
 - **Actions:**
-  - Assistant: "Viewing booked: Tuesday 22 September, 18:30. Added to your calendar."
-  - Calendar card: "22 SEP" tile, "Viewing · Eixample 2-bed", "18:30 to 19:00", green check.
-- **End state:** Calendar card visible.
-- **Transition:** Chat holds; the left zone swaps the phone frame for the stack diagram.
+  - The booked card shows the confirmed day, time and listing.
+  - "30 min · added to your calendar" reads under the slot.
+  - A slow pan over the receipt and the viewing options.
+- **End state:** Booked receipt visible.
+- **Transition:** Cross-dissolve; the left zone swaps the phone frame for the stack diagram.
 - **Must show:**
-  - booked message with the slot
-  - calendar card
-  - all five sidebar items checked
+  - persisted booking
+  - slot and duration
+  - added to your calendar
 - **VO:** The confirmed slot lands on Hannah's calendar. Brief, shortlist, check, call, booked. No chasing, no refreshing, no being too late. Booking a visit made easy.
 
 ## How it works (`stack`)
 
 _Architecture and the agentic loop_
 
-- **Target seconds:** 26.1 (VO) + 0.5 s tail
+- **Target seconds:** 26.0 (VO) + 0.5 s tail
 - **Callout:** The listing works for the agency. Chezy works for you.
 - **Start state:** Left zone swaps the phone frame for a full-zone diagram canvas; the sidebar shows all six items with the last one active.
 - **Actions:**

@@ -25,8 +25,8 @@
     "shortlist": {
       "label": "Shortlist",
       "subtext": "Home listings, matched to her profile",
-      "callout": "Price per m² next to the barrio average.",
-      "vo": "Chezy searches real Barcelona listings and returns the ones that match her profile, as cards, with the price per square metre next to the barrio average. It knows what she likes, and every yes or no she gives sharpens the next search.",
+      "callout": "Every yes or no sharpens the next search.",
+      "vo": "Chezy searches real Barcelona listings and returns the ones that match her profile, as cards, each with its match score, its price and its size. It knows what she likes, and every yes or no she gives reranks the shortlist on the spot.",
       "screen": {
         "user": "Find me a bright 2-bed in Gràcia under €1,800.",
         "assistant": "Three matches.",
@@ -54,26 +54,26 @@
     },
     "forensic": {
       "label": "Forensic check",
-      "subtext": "Sunlight and price, from the data",
-      "callout": "0% direct sunlight. 13% over the barrio average.",
-      "vo": "Now the part listings don't want you to see. Chezy reads the photos and the data behind each card. The first flat says \"luminoso\". Its windows face an interior lightwell, one and a half metres wide. Zero percent direct sunlight, and thirteen percent over the barrio average. It gets an amber flag. The second flat faces south and sits seventeen percent under the average. It passes. The trap is visible before Hannah wastes an afternoon on it.",
+      "subtext": "Every claim next to its evidence",
+      "callout": "Every claim stamped with its evidence.",
+      "vo": "Now the part listings don't want you to see. Chezy opens the flat and explains why it matches, claim by claim, and stamps each one with the field it came from: the listed price, the listed rooms, the square metres. Where the data is missing it says so, in plain words: natural light unknown, no usable photo analysis stored. Nothing is invented, and the trade-off to check is named before Hannah wastes an afternoon on the flat.",
       "screen": {
-        "checked": "I checked both.",
-        "amberTitle": "Forensic warning",
-        "amberSummary": "0% direct sunlight, windows onto a 1.5 m interior lightwell. 13% over the Gràcia average.",
+        "checked": "I checked the evidence.",
+        "amberTitle": "What to check",
+        "amberSummary": "Natural light: unknown (no usable stored photo analysis).",
         "amberBullets": [
-          "Ventanas a patio interior de 1.5 m",
-          "0% luz solar directa",
-          "13% sobre media del barrio"
+          "Evidence: insight.light_natural (missing)",
+          "Listed rooms: 2 · evidence rooms",
+          "Listed price: €2.018/month · within budget"
         ],
-        "greenLine": "Forensic check passed: south facing, 17% under the Eixample average."
+        "greenLine": "Facts from stored data; no claim without its field."
       }
     },
     "call": {
       "label": "The call",
-      "subtext": "One tap, and Chezy calls the agency in Spanish",
+      "subtext": "Past 95%, Chezy calls the agency itself",
       "callout": "She doesn't have to chase anymore.",
-      "vo": "The Eixample flat is a hundred percent match, so Hannah asks Chezy to call. This is where every renter loses the race: agencies don't answer email, and the call happens during office hours. Chezy calls the agency, names the flat, and agrees a slot. Tuesday at half past six. Hannah never had to call anyone.",
+      "vo": "This flat is a hundred percent match, past the bar where Chezy calls on its own. This is where every renter loses the race: agencies don't answer email, and the call happens during office hours. Chezy calls the agency, names the flat, agrees a slot and books it. Hannah never had to call anyone.",
       "screen": {
         "approvalUser": "Book a viewing for the Eixample one.",
         "approvalAssistant": "Calling the agency now, in Spanish. I'll say I'm an AI assistant.",

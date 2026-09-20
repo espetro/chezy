@@ -2,6 +2,11 @@ import type { DemoConfig, SegmentId } from "./demo.config";
 
 export const DEFAULT_TAIL_FRAMES = 24;
 
+// Overlap between two segments in DemoComposition's TransitionSeries. It eats
+// into the outgoing segment's tail, so it must stay well under
+// DEFAULT_TAIL_FRAMES and never reaches the narration.
+export const TRANSITION_FRAMES = 13;
+
 export type SegmentTiming = {
   id: SegmentId;
   // Absolute frame where the segment (and its VO) starts.
