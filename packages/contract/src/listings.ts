@@ -3,7 +3,13 @@
 // Wire shape: snake_case, `null` for absent values (wire seam, so null is allowed).
 import * as v from "valibot";
 
-export const PlatformSchema = v.picklist(["fotocasa", "habitaclia", "idealista", "milanuncios"]);
+export const PlatformSchema = v.picklist([
+  "fotocasa",
+  "habitaclia",
+  "idealista",
+  "milanuncios",
+  "pisos",
+]);
 export const OperationSchema = v.picklist(["rent", "sale"]);
 export const PricePeriodSchema = v.picklist(["month", "total"]);
 export const MediaKindSchema = v.picklist(["photo", "plan", "video", "tour_3d"]);
