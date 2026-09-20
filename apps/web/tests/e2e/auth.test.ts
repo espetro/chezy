@@ -52,13 +52,25 @@ test.describe("Authentication Pages", () => {
     await expect(page.getByRole("button", { name: "Let's go" })).toBeVisible();
   });
 
+  // Errors render inline from the action state. Matched by text rather than by
+  // role=alert: Next's route announcer also carries role="alert".
   test("rejects a password under six characters without leaving the page", async ({ page }) => {
     await page.goto("/register");
     await page.getByLabel("Email").fill(`e2e-${Date.now()}@chezy.test`);
     await page.getByLabel("Password").fill("short");
     await page.getByRole("button", { name: "Sign up" }).click();
 
-    await expect(page.getByRole("alert")).toContainText("6+ characters");
+    await expect(page.getByText(/password of 6\+ characters/)).toBeVisible();
     await expect(page).toHaveURL(/\/register/);
+  });
+
+  test("shows an inline error for wrong credentials", async ({ page }) => {
+    await page.goto("/login");
+    await page.getByLabel("Email").fill(`nobody-${Date.now()}@chezy.test`);
+    await page.getByLabel("Password").fill("definitely-wrong");
+    await page.getByRole("button", { name: "Sign in" }).click();
+
+    await expect(page.getByText(/do not match an account/)).toBeVisible();
+    await expect(page).toHaveURL(/\/login/);
   });
 });
