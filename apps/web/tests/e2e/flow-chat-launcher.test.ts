@@ -183,11 +183,25 @@ test.describe("flow chat launcher (mobile)", () => {
     const ask = page.getByRole("textbox", { name: "Ask Chezy" });
     await expect(ask).toBeVisible();
     await page.screenshot({ path: `${SHOT_DIR}/chat-bar-mobile.png` });
+
+    // The question is tied to the listing in view: move to the second card first.
+    const carousel = page.getByRole("region", { name: "Candidate matches" });
+    await page.getByRole("button", { name: "Next match" }).click();
+    await expect(page.getByText(/Showing match 2 of \d+/)).toBeAttached();
+    const secondTitle = (await carousel.getByRole("group").nth(1).locator("h3").innerText()).trim();
+    const secondHref = await carousel
+      .getByRole("group")
+      .nth(1)
+      .locator("a[href^='/explore/']")
+      .getAttribute("href");
+    const secondId = decodeURIComponent((secondHref ?? "").replace("/explore/", ""));
+
     await ask.fill("Can I raise my budget to 2600?");
     await ask.press("Enter");
 
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(`About: ${secondTitle}`)).toBeVisible();
     // The bar's question rises as a bottom sheet that leaves the feed peeking above.
     await expect(dialog).toHaveAttribute("data-side", "bottom");
     const sheetBox = await dialog.boundingBox();
@@ -199,6 +213,7 @@ test.describe("flow chat launcher (mobile)", () => {
 
     const userMessage = dialog.getByTestId("message-user");
     await expect(userMessage).toBeVisible({ timeout: 15000 });
+    await expect(userMessage).toContainText(`[Viewing listing ${secondId}`);
     await expect(userMessage).toContainText("Can I raise my budget to 2600?");
     await page.screenshot({ path: `${SHOT_DIR}/sheet-from-bar-mobile.png` });
 
@@ -218,6 +233,19 @@ test.describe("flow chat launcher (mobile)", () => {
     await expect(dialog.getByTestId("message-user")).toHaveCount(0);
     await expect(dialog.getByTestId("multimodal-input")).toBeVisible({ timeout: 15000 });
     await page.screenshot({ path: `${SHOT_DIR}/sheet-new-chat-mobile.png` });
+
+    // Moving the carousel drops the thread: reopening from the bar on card 3
+    // shows only the new question, never the earlier one.
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await page.getByRole("button", { name: "Next match" }).click();
+    await expect(page.getByText(/Showing match 3 of \d+/)).toBeAttached();
+    await ask.fill("Is there an elevator?");
+    await ask.press("Enter");
+    await expect(page.getByRole("dialog")).toBeVisible();
+    const bubbles = page.getByRole("dialog").getByTestId("message-user");
+    await expect(bubbles).toHaveCount(1, { timeout: 15000 });
+    await expect(bubbles.first()).toContainText("Is there an elevator?");
 
     expect(consoleErrors).toEqual([]);
   });

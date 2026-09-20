@@ -1,14 +1,16 @@
 # Challenge evidence
 
 One file per sponsor challenge, mapping our work to the judging criteria in
-[`docs/hackbarna.md`](../hackbarna.md).
+[`docs/hackbarna.md`](../hackbarna.md). Start here; each file links the concrete
+code, runs, and receipts.
 
 | Challenge | File | State |
 | --- | --- | --- |
-| QualityClouds / Norma | [norma-qualityclouds.md](norma-qualityclouds.md) | Done — scan → fix → rescan, 62 → 67/100 |
+| QualityClouds / Norma | [norma-qualityclouds.md](norma-qualityclouds.md) + [DEFENSE.md](../../DEFENSE.md) + [rescan screenshot](norma-rescan-2026-09-20.png) | Done — scan → fix → rescan, 62 → 67/100 |
 | Galtea | [galtea.md](galtea.md) | Done — two findings fixed and proven; survey pending |
-| Mastra | `apps/bot` + PR #53 | Live: `@hackbarna_chezybot` on Telegram |
+| Mastra | [mastra.md](mastra.md) | Live — `@hackbarna_chezybot` on Telegram, `apps/bot` merged (PR #53) |
 | SLNG (+ unmute) | [slng.md](slng.md) + [call JSONs](slng/) | Done — 2 completed calls, transcripts + usage numbers |
-| Vonage | `apps/web/lib/vonage.ts` | Live test call done (Voice API); prize needs Video API |
-| Nebius | `apps/web/lib/ai/providers.ts`, `apps/evals` | Default provider; Galtea runs are Nebius-powered evals |
-| Devin (validated retry) | [jes-13-validated-retry.md](../jes-13-validated-retry.md) + [live runs](jes-13/live-run-2026-09-20/) | 4 live sessions accepted through the independent gate; refused-first-candidate proof incomplete (not staged) |
+| Nebius | [nebius.md](nebius.md) | Done — default provider for chat, titles, vision, embeddings; Galtea deltas as quality evidence |
+| Vonage | [vonage.md](vonage.md) | Partial — Voice API live call done; prize requires Video API (not built) |
+| Cognition / Devin | [`.agents/notes/2026-09-20-devin-forge-run.md`](../../.agents/notes/2026-09-20-devin-forge-run.md) + [raw logs](../../.agents/evidence/devin-forge/) | Done — forge loop, 3 verified PRs (#66, #70, #71) |
+| Devin (JES-13 validated retry) | [jes-13-validated-retry.md](../jes-13-validated-retry.md) + [live runs](jes-13/live-run-2026-09-20/) | 4 live sessions accepted through the independent gate; refused-first-candidate proof incomplete (not staged) |

@@ -32,6 +32,8 @@ interface OpenChatOptions {
 
 interface ChatLauncherContextValue {
   open: (options?: OpenChatOptions) => void;
+  // Drop the current thread (next open starts fresh), e.g. the listing in view changed.
+  reset: () => void;
 }
 
 const ChatLauncherContext = createContext<ChatLauncherContextValue | undefined>(undefined);
@@ -106,7 +108,7 @@ export const FlowChatLauncherProvider = ({ children }: { children: ReactNode }) 
     }));
 
   // Clear the thread: remount the chat with no seed, keep the sheet where it is.
-  const newChat = () =>
+  const reset = () =>
     setState((current) => ({
       ...current,
       message: undefined,
@@ -122,7 +124,7 @@ export const FlowChatLauncherProvider = ({ children }: { children: ReactNode }) 
     );
 
   return (
-    <ChatLauncherContext.Provider value={{ open }}>
+    <ChatLauncherContext.Provider value={{ open, reset }}>
       {children}
       <Sheet open={state.open} onOpenChange={setOpen}>
         <Suspense>
@@ -148,7 +150,7 @@ export const FlowChatLauncherProvider = ({ children }: { children: ReactNode }) 
             </div>
             <button
               type="button"
-              onClick={newChat}
+              onClick={reset}
               className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-[13px] text-fog hover:bg-paper hover:text-obsidian focus-visible:outline-2 focus-visible:outline-obsidian"
             >
               <RotateCcw size={14} aria-hidden />

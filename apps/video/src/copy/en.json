@@ -1,9 +1,9 @@
 {
   "intro": {
-    "vo": "Renting in Barcelona has two problems. Listings lie, and speed decides. Thirty-six percent of flats are gone within a day. Chezy is the agent on the renter's side.",
-    "title": "chezy",
+    "vo": "Renting in Barcelona is exhausting. Chasing agencies, refreshing portals, waiting for the callback, and finding out you were too late. In Barcelona, thirty-six percent of flats are gone within a day. Chezy is the AI rental agent that does the hard work for you: it searches, calls the agency and books the viewing.",
+    "title": "Chezy",
     "kicker": "HackBarna / AI Summit Barcelona 2026",
-    "lines": ["Listings lie.", "Speed decides."]
+    "lines": ["Stop chasing.", "Start visiting."]
   },
   "footer": {
     "tagline": "Finding a flat, made easy."
@@ -11,25 +11,25 @@
   "checkpoints": {
     "brief": {
       "label": "Brief",
-      "subtext": "Jessie says who she is; Chezy fills the profile",
+      "subtext": "Hannah tells Chezy her preferences.",
       "callout": "No form. A profile that follows her.",
-      "vo": "Jessie is moving to Barcelona. She opens Chezy and says who she is. Instead of a form, the assistant asks the three things it needs: neighbourhoods, budget, bedrooms. Her answers become a profile that follows her into every future chat, so she never repeats herself.",
+      "vo": "Hannah is moving to Barcelona. She tells Chezy what she wants: neighbourhoods, budget, bedrooms. No form. Her answers become a profile that follows her into every chat, so she never repeats herself.",
       "screen": {
         "greeting": "What flat are you looking for?",
-        "user1": "Hi, I'm Jessie",
-        "assistant1": "Welcome, Jessie. Three quick things: which neighbourhoods, your monthly budget, and how many bedrooms?",
+        "user1": "Hi, I'm Hannah",
+        "assistant1": "Welcome, Hannah. Three quick things: which neighbourhoods, your monthly budget, and how many bedrooms?",
         "user2": "Gràcia or Eixample, 1,800 a month, 2 bedrooms.",
         "assistant2": "Saved. Gràcia or Eixample, up to €1,800, 2 bedrooms. Anything else that matters, like commute or a gym nearby?"
       }
     },
     "shortlist": {
       "label": "Shortlist",
-      "subtext": "Real Barcelona listings, as cards",
+      "subtext": "Home listings, matched to her profile",
       "callout": "Price per m² next to the barrio average.",
-      "vo": "She asks for a bright two bedroom in Gràcia under eighteen hundred euros. Chezy searches real Barcelona listings and returns a shortlist as cards, with the price per square metre next to the barrio average. It's a starting point, not a verdict.",
+      "vo": "Chezy searches real Barcelona listings and returns the ones that match her profile, as cards, with the price per square metre next to the barrio average. It knows what she likes, and every yes or no she gives sharpens the next search.",
       "screen": {
         "user": "Find me a bright 2-bed in Gràcia under €1,800.",
-        "assistant": "Three candidates.",
+        "assistant": "Three matches.",
         "cards": [
           {
             "price": "1.750 €/mes",
@@ -54,9 +54,9 @@
     },
     "forensic": {
       "label": "Forensic check",
-      "subtext": "Sunlight and price vs barrio, from the data",
+      "subtext": "Sunlight and price, from the data",
       "callout": "0% direct sunlight. 13% over the barrio average.",
-      "vo": "Now the part listings don't want you to see. Chezy reads the photos and the data behind each card. The first flat says \"luminoso\". Its windows face an interior lightwell, one and a half metres wide. Zero percent direct sunlight, and thirteen percent over the barrio average. It gets an amber flag. The second flat faces south and sits seventeen percent under the average. It passes. The trap is visible before Jessie wastes an afternoon on it.",
+      "vo": "Now the part listings don't want you to see. Chezy reads the photos and the data behind each card. The first flat says \"luminoso\". Its windows face an interior lightwell, one and a half metres wide. Zero percent direct sunlight, and thirteen percent over the barrio average. It gets an amber flag. The second flat faces south and sits seventeen percent under the average. It passes. The trap is visible before Hannah wastes an afternoon on it.",
       "screen": {
         "checked": "I checked both.",
         "amberTitle": "Forensic warning",
@@ -71,9 +71,9 @@
     },
     "call": {
       "label": "The call",
-      "subtext": "Spanish, with the AI disclosure, on the renter's behalf",
-      "callout": "She never had to speak Spanish.",
-      "vo": "Jessie likes the second one and asks Chezy to book a viewing. This is where every renter loses time: agencies don't answer email, and the call happens in Spanish, during office hours. Chezy picks up the phone. A voice agent built with unmute and deployed on SLNG dials the agency through Vonage telephony. It opens by disclosing it is an AI assistant, as the EU AI Act requires. It names the flat, asks what's available, and agrees a slot. Tuesday at half past six. Jessie never had to speak Spanish, or be awake for it.",
+      "subtext": "One tap, and Chezy calls the agency in Spanish",
+      "callout": "She doesn't have to chase anymore.",
+      "vo": "The Eixample flat is a hundred percent match, so Hannah asks Chezy to call. This is where every renter loses the race: agencies don't answer email, and the call happens during office hours. Chezy calls the agency, names the flat, and agrees a slot. Tuesday at half past six. Hannah never had to call anyone.",
       "screen": {
         "approvalUser": "Book a viewing for the Eixample one.",
         "approvalAssistant": "Calling the agency now, in Spanish. I'll say I'm an AI assistant.",
@@ -83,8 +83,8 @@
         "transcript": [
           {
             "who": "agent",
-            "es": "Hola, soy el asistente de inteligencia artificial de Jessie. Llamo por el piso de dos habitaciones en Eixample.",
-            "en": "Hi, I'm Jessie's AI assistant. I'm calling about the two-bedroom in Eixample.",
+            "es": "Hola, soy el asistente de inteligencia artificial de Hannah. Llamo por el piso de dos habitaciones en Eixample.",
+            "en": "Hi, I'm Hannah's AI assistant. I'm calling about the two-bedroom in Eixample.",
             "tag": "AI disclosure"
           },
           {
@@ -110,8 +110,8 @@
     "booked": {
       "label": "Booked",
       "subtext": "Confirmed slot on her calendar",
-      "callout": "One conversation. Brief to booked.",
-      "vo": "The confirmed slot comes back to the chat, and the viewing lands on Jessie's calendar. Brief, shortlist, forensic check, call, booked. One conversation, and the renter gets an agent of her own. Chezy. Finding a flat, made easy.",
+      "callout": "Brief to booked. One conversation.",
+      "vo": "The confirmed slot lands on Hannah's calendar. Brief, shortlist, check, call, booked. No chasing, no refreshing, no being too late. Booking a visit made easy.",
       "screen": {
         "assistant": "Viewing booked: Tuesday 22 September, 18:30. Added to your calendar.",
         "calendar": {
@@ -124,7 +124,7 @@
     },
     "stack": {
       "label": "How it works",
-      "subtext": "Architecture, brand voice, and the agentic loop",
+      "subtext": "Architecture and the agentic loop",
       "callout": "The listing works for the agency. Chezy works for you.",
       "vo": "Under the hood: a chat surface on Next.js and Nebius, a Postgres store of real Barcelona listings, and an agentic loop that does not stop at answers — it acts. SLNG runs the voice agent, authored with unmute. Vonage carries the call to the agency's phone. Cognition's Devin helped build it, and QualityClouds keeps it honest. The listing works for the agency. Chezy works for you.",
       "screen": {

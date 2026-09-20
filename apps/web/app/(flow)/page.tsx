@@ -1,6 +1,7 @@
 import { CircleCheck } from "lucide-react";
 import Link from "next/link";
 import { FlowButton } from "~/components/flow/ui/Button";
+import { FlowCard } from "~/components/flow/ui/Card";
 import { FlowPill } from "~/components/flow/ui/Pill";
 
 const highlights = [
@@ -10,54 +11,48 @@ const highlights = [
 ];
 
 const FlowLandingPage = () => (
-  <main className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col gap-12 px-4 py-8 sm:px-6 sm:py-12 md:max-w-[1200px] md:gap-20 md:py-16">
-    <header className="flex items-center justify-between">
+  <main className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col px-4 sm:max-w-xl sm:px-6">
+    <header className="flex items-center py-5">
       <span className="text-[15px] font-semibold">Chezy</span>
-      <div className="flex items-center gap-2">
-        <Link href="/onboarding">
-          <FlowButton size="sm">Get started</FlowButton>
-        </Link>
-      </div>
     </header>
 
-    <section className="grid gap-10 md:grid-cols-2 md:items-center">
-      <div className="flex flex-col gap-6">
-        <FlowPill variant="accent" className="w-fit rounded-full px-3">
+    <div className="flex flex-1 flex-col gap-8 py-4 sm:gap-10 sm:py-6">
+      <section className="flex flex-col gap-6">
+        <FlowPill variant="accent" className="w-fit px-3 py-1 text-[13px]">
           AI rental agent
         </FlowPill>
         <h1 className="font-heading text-3xl leading-tight font-extrabold tracking-tight text-obsidian sm:text-4xl lg:text-5xl">
           Find your next home without chasing it yourself
         </h1>
         <p className="text-sm leading-relaxed text-fog sm:text-base">
-          Describe what you're looking for once. Chezy tracks inventory from partner agencies,
-          scores every listing against your profile, and calls the agency itself the moment a match
-          is strong enough.
+          Tell Chezy what you want once — it finds the match and books the visit.
         </p>
-        <div className="flex w-full flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3">
-          <Link className="w-full sm:w-auto" href="/onboarding">
-            <FlowButton className="w-full sm:w-auto">Find my home</FlowButton>
-          </Link>
-          <Link className="w-full sm:w-auto" href="/explore">
-            <FlowButton className="w-full sm:w-auto" variant="secondary">
-              See a match in action
-            </FlowButton>
-          </Link>
-        </div>
-        <p className="text-sm text-fog">About 1 minute to set up · you&apos;re always in control</p>
-      </div>
+      </section>
 
-      <div className="rounded-cards border border-cloud bg-slate p-5 text-snow sm:p-7">
-        <p className="text-[13px] tracking-wide text-mist uppercase">How Chezy works</p>
-        <ul className="mt-4 flex flex-col gap-4">
+      <FlowCard padded={false} className="flex flex-col gap-4 p-5 sm:p-7">
+        <h2 className="text-subheading font-semibold text-obsidian">How Chezy works</h2>
+        <ul className="flex flex-col gap-4">
           {highlights.map((highlight) => (
-            <li key={highlight} className="flex items-start gap-3 text-[15px] sm:text-[16px]">
-              <CircleCheck size={18} aria-hidden className="mt-1 shrink-0 text-ember" />
+            <li
+              key={highlight}
+              className="flex items-start gap-3 text-[15px] text-graphite sm:text-[16px]"
+            >
+              <CircleCheck size={18} aria-hidden className="mt-1 shrink-0 text-obsidian" />
               <span>{highlight}</span>
             </li>
           ))}
         </ul>
-      </div>
-    </section>
+      </FlowCard>
+    </div>
+
+    <div className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-3 bg-paper/90 p-4 [padding-bottom:max(1rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:-mx-6 sm:px-6">
+      <Link href="/onboarding" className="w-full">
+        <FlowButton className="w-full">Find my home</FlowButton>
+      </Link>
+      <p className="text-center text-sm text-fog">
+        About 1 minute to set up · you&apos;re always in control
+      </p>
+    </div>
   </main>
 );
 
