@@ -56,7 +56,15 @@ function extractChatId(pathname: string): string | undefined {
   return match ? match[1] : undefined;
 }
 
-export function ActiveChatProvider({ children }: { children: ReactNode }) {
+export function ActiveChatProvider({
+  children,
+  initialQuery,
+}: {
+  children: ReactNode;
+  // Seed message for an embedded conversation (the flow card input); bypasses
+  // the legacy `?query=` URL handshake.
+  initialQuery?: string;
+}) {
   const pathname = usePathname();
   const { setDataStream, setWaitingStatus } = useDataStream();
   const { mutate } = useSWRConfig();
@@ -216,20 +224,26 @@ export function ActiveChatProvider({ children }: { children: ReactNode }) {
   const hasAppendedQueryRef = useRef(false);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const query = params.get("query");
-    if (query && !hasAppendedQueryRef.current) {
+    const query = initialQuery ?? params.get("query");
+    if (!query || hasAppendedQueryRef.current) return;
+    // Deferred by a tick: useChat stops the chat in its effect cleanup, so a
+    // send issued synchronously here is aborted by the dev StrictMode remount.
+    const timer = setTimeout(() => {
       hasAppendedQueryRef.current = true;
-      window.history.replaceState(
-        {},
-        "",
-        `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/chat/${chatId}`,
-      );
+      if (!initialQuery) {
+        window.history.replaceState(
+          {},
+          "",
+          `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/chat/${chatId}`,
+        );
+      }
       sendMessage({
         parts: [{ text: query, type: "text" }],
         role: "user" as const,
       });
-    }
-  }, [sendMessage, chatId]);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [sendMessage, chatId, initialQuery]);
 
   useAutoResume({
     autoResume: !isNewChat && !!chatData,
