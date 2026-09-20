@@ -27,7 +27,7 @@ managed = true
 package = false
 
 [tool.uv.workspace]
-members = ["apps/scraper"]
+members = ["apps/scraper", "apps/evals"]
 
 [tool.ruff]
 line-length = 100
