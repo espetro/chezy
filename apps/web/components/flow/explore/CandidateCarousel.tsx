@@ -1,14 +1,18 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useRef, useState } from "react";
 import { CandidateCard } from "~/components/flow/explore/CandidateCard";
+import { FlowButton } from "~/components/flow/ui/Button";
 import type { FlowListing } from "~/lib/flow/types";
+import type { CandidateDismissHandler } from "~/lib/flow/use-candidate-dismissal";
 import { cn } from "~/lib/utils";
 
 interface CandidateCarouselProps {
   listings: FlowListing[];
   label: string;
+  onDismiss?: CandidateDismissHandler;
 }
 
 // Manual carousel, no autoplay — WCAG 2.2.2 (Pause, Stop, Hide) is trivially satisfied by
@@ -16,15 +20,24 @@ interface CandidateCarouselProps {
 // region, each slide as a `group` with its own position label, and Previous/Next buttons
 // that are the primary navigation (arrow-key/native scroll still works for touch and
 // keyboard-focus-follows-scroll, but isn't the only way in).
-export const CandidateCarousel = ({ listings, label }: CandidateCarouselProps) => {
+export const CandidateCarousel = ({ listings, label, onDismiss }: CandidateCarouselProps) => {
   const trackRef = useRef<HTMLDivElement>(null);
+  const pendingFocus = useRef<string | undefined>(undefined);
+  const reducedMotion = useReducedMotion();
   const [activeIndex, setActiveIndex] = useState(0);
 
   const total = listings.length;
+  const currentIndex = Math.min(activeIndex, Math.max(0, total - 1));
+
+  const visibleSlides = () =>
+    Array.from(trackRef.current?.children ?? []).filter(
+      (child): child is HTMLElement =>
+        child instanceof HTMLElement &&
+        listings.some((listing) => listing.id === child.dataset.listingId),
+    );
 
   const scrollToIndex = (index: number) => {
-    const track = trackRef.current;
-    const slide = track?.children[index];
+    const slide = visibleSlides()[index];
     if (!(slide instanceof HTMLElement)) return;
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -37,19 +50,30 @@ export const CandidateCarousel = ({ listings, label }: CandidateCarouselProps) =
     setActiveIndex(index);
   };
 
-  const goPrevious = () => scrollToIndex(Math.max(activeIndex - 1, 0));
-  const goNext = () => scrollToIndex(Math.min(activeIndex + 1, total - 1));
+  const goPrevious = () => {
+    if (currentIndex > 0) scrollToIndex(currentIndex - 1);
+  };
+  const goNext = () => {
+    if (currentIndex < total - 1) scrollToIndex(currentIndex + 1);
+  };
+
+  const focusReplacement = () => {
+    if (!pendingFocus.current) return;
+    const slides = visibleSlides();
+    const slide = slides.find((item) => item.dataset.listingId === pendingFocus.current);
+    pendingFocus.current = undefined;
+    slide?.querySelector("a")?.focus({ preventScroll: true });
+  };
 
   // Keeps activeIndex honest when the user free-scrolls or swipes past the button-driven
   // index (so the live region and disabled states stay accurate either way).
   const handleTrackScroll = () => {
     const track = trackRef.current;
     if (!track) return;
-    const { scrollLeft, children } = track;
+    const { scrollLeft } = track;
     let closest = 0;
     let closestDistance = Number.POSITIVE_INFINITY;
-    Array.from(children).forEach((child, index) => {
-      if (!(child instanceof HTMLElement)) return;
+    visibleSlides().forEach((child, index) => {
       const distance = Math.abs(child.offsetLeft - scrollLeft);
       if (distance < closestDistance) {
         closestDistance = distance;
@@ -61,7 +85,17 @@ export const CandidateCarousel = ({ listings, label }: CandidateCarouselProps) =
 
   if (total === 0) {
     return (
-      <p className="rounded-cards bg-snow px-4 py-8 text-center text-[14px] text-fog shadow-sm sm:px-6">
+      <p
+        tabIndex={-1}
+        role="status"
+        ref={(node) => {
+          if (node && pendingFocus.current) {
+            node.focus({ preventScroll: true });
+            pendingFocus.current = undefined;
+          }
+        }}
+        className="flex min-h-96 items-center justify-center rounded-cards bg-snow px-4 py-8 text-center text-[14px] text-fog shadow-sm focus-visible:outline-2 focus-visible:outline-obsidian sm:px-6"
+      >
         No candidates match these filters yet.
       </p>
     );
@@ -72,28 +106,68 @@ export const CandidateCarousel = ({ listings, label }: CandidateCarouselProps) =
       <div
         ref={trackRef}
         onScroll={handleTrackScroll}
-        className="flex snap-x snap-mandatory [scrollbar-width:none] gap-6 overflow-x-auto scroll-smooth pb-2 [&::-webkit-scrollbar]:hidden"
+        className="relative flex snap-x snap-mandatory [scrollbar-width:none] gap-6 overflow-x-auto scroll-smooth pb-2 motion-reduce:scroll-auto [&::-webkit-scrollbar]:hidden"
       >
-        {listings.map((listing, index) => (
-          <div
-            key={listing.id}
-            role="group"
-            aria-roledescription="slide"
-            aria-label={`${index + 1} of ${total}`}
-            className="w-[85%] shrink-0 snap-start sm:w-[380px]"
-          >
-            <CandidateCard listing={listing} />
-          </div>
-        ))}
+        <AnimatePresence initial={false} mode="popLayout" onExitComplete={focusReplacement}>
+          {listings.map((listing, index) => (
+            <motion.div
+              key={listing.id}
+              data-listing-id={listing.id}
+              layout={reducedMotion ? false : "position"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: reducedMotion !== false ? 0 : -16 }}
+              transition={{ duration: reducedMotion ? 0 : 0.2 }}
+              role="group"
+              aria-roledescription="slide"
+              aria-label={`${index + 1} of ${total}`}
+              onFocusCapture={(event) => {
+                const slide = event.currentTarget;
+                const track = trackRef.current;
+                const keyboard =
+                  event.target instanceof HTMLElement && event.target.matches(":focus-visible");
+                const slideRect = slide.getBoundingClientRect();
+                const trackRect = track?.getBoundingClientRect();
+                const clipped =
+                  trackRect !== undefined &&
+                  (slideRect.left < trackRect.left || slideRect.right > trackRect.right);
+                if (keyboard || clipped) {
+                  slide.scrollIntoView({
+                    behavior: "instant",
+                    block: "nearest",
+                    inline: keyboard ? "start" : "nearest",
+                  });
+                }
+                setActiveIndex(index);
+              }}
+              className="flex w-[85%] shrink-0 snap-start flex-col gap-2 sm:w-[380px]"
+            >
+              <CandidateCard listing={listing} />
+              {onDismiss && (
+                <FlowButton
+                  variant="ghost"
+                  aria-label={`Not for me: ${listing.title}`}
+                  onClick={() => {
+                    pendingFocus.current =
+                      listings[index + 1]?.id ?? listings[index - 1]?.id ?? listing.id;
+                    onDismiss(listing.id);
+                  }}
+                >
+                  Not for me
+                </FlowButton>
+              )}
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
 
       <div aria-live="polite" className="sr-only">
-        Showing match {activeIndex + 1} of {total}
+        Showing match {currentIndex + 1} of {total}
       </div>
 
-      <div className="mt-4 flex items-center justify-between">
+      <div className="mt-4 flex items-center justify-between gap-3">
         <div
-          className="flex [scrollbar-width:none] gap-1.5 overflow-x-auto"
+          className="flex min-w-0 flex-1 [scrollbar-width:none] gap-1.5 overflow-x-auto"
           role="group"
           aria-label="Choose a match to view"
         >
@@ -101,38 +175,38 @@ export const CandidateCarousel = ({ listings, label }: CandidateCarouselProps) =
             <button
               key={listing.id}
               type="button"
-              aria-pressed={index === activeIndex}
+              aria-pressed={index === currentIndex}
               aria-label={`Go to match ${index + 1} of ${total}`}
               onClick={() => scrollToIndex(index)}
-              className="group flex h-11 w-5 shrink-0 items-center justify-center"
+              className="group flex size-11 shrink-0 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-obsidian"
             >
               <span
                 aria-hidden
                 className={cn(
                   "size-2 rounded-full transition-colors duration-200",
-                  index === activeIndex ? "bg-obsidian" : "bg-mist group-hover:bg-ash",
+                  index === currentIndex ? "bg-obsidian" : "bg-mist group-hover:bg-ash",
                 )}
               />
             </button>
           ))}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex shrink-0 gap-2">
           <button
             type="button"
             onClick={goPrevious}
-            disabled={activeIndex === 0}
+            aria-disabled={currentIndex === 0}
             aria-label="Previous match"
-            className="flex size-11 items-center justify-center rounded-full border border-mist bg-snow text-graphite transition-opacity hover:border-iron focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex size-11 items-center justify-center rounded-full border border-mist bg-snow text-graphite transition-opacity hover:border-iron focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none aria-disabled:cursor-not-allowed aria-disabled:opacity-30"
           >
             <ChevronLeft size={18} />
           </button>
           <button
             type="button"
             onClick={goNext}
-            disabled={activeIndex === total - 1}
+            aria-disabled={currentIndex === total - 1}
             aria-label="Next match"
-            className="flex size-11 items-center justify-center rounded-full border border-mist bg-snow text-graphite transition-opacity hover:border-iron focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex size-11 items-center justify-center rounded-full border border-mist bg-snow text-graphite transition-opacity hover:border-iron focus-visible:ring-2 focus-visible:ring-obsidian focus-visible:outline-none aria-disabled:cursor-not-allowed aria-disabled:opacity-30"
           >
             <ChevronRight size={18} />
           </button>

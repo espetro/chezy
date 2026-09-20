@@ -107,7 +107,7 @@ describe("scoreListing barrio", () => {
       makeListing({ neighbourhood: "gracia", district: "Other" }),
     );
     expect(score).toBe(30 + 25 + 25 + 10 + 10);
-    expect(reasons.some((r) => r.includes("barrios objetivo"))).toBe(true);
+    expect(reasons.some((r) => r.includes("preferred neighborhoods"))).toBe(true);
   });
 
   it("awards 25 on substring containment either direction", () => {

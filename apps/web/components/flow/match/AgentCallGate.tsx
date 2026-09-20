@@ -5,12 +5,18 @@ import { useRef, useState } from "react";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
 import { FlowBadge } from "~/components/flow/ui/Badge";
 import { FlowButton } from "~/components/flow/ui/Button";
+import { FlowStateTransition } from "~/components/flow/ui/FlowMotion";
 import { AUTO_CALL_MATCH_THRESHOLD } from "~/lib/flow/constants";
 import type { FlowListing } from "~/lib/flow/types";
+import {
+  useCandidateDismissal,
+  type CandidateDismissHandler,
+} from "~/lib/flow/use-candidate-dismissal";
 import { createViewingController, type ViewingState } from "~/lib/viewing";
 
 interface AgentCallGateProps {
   listing: FlowListing;
+  onDismiss?: CandidateDismissHandler;
 }
 
 const slotFormatter = new Intl.DateTimeFormat("en-US", {
@@ -22,12 +28,13 @@ const slotFormatter = new Intl.DateTimeFormat("en-US", {
 
 const autoCallKey = (listingId: string) => `chezy:autocall:${listingId}`;
 
-const CallGate = ({ listing }: AgentCallGateProps) => {
+const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
   const isAutoCall = listing.matchScore >= AUTO_CALL_MATCH_THRESHOLD;
   const [state, setState] = useState<ViewingState>({ status: "idle" });
-  const [discarded, setDiscarded] = useState(false);
+  const { dismissedIds, dismissCandidate, restoreCandidate } = useCandidateDismissal();
   const [liveOptIn, setLiveOptIn] = useState(false);
   const controller = useRef<ReturnType<typeof createViewingController> | undefined>(undefined);
+  const restoreFocus = useRef(false);
   const { status } = state;
   // A retryable failure with no live attempt on record (e.g. the server
   // rejected the opt-in before dispatching) falls back to the simulate path.
@@ -63,11 +70,20 @@ const CallGate = ({ listing }: AgentCallGateProps) => {
     void startCall();
   });
 
-  if (discarded) {
+  if (dismissedIds.includes(listing.id)) {
     return (
-      <div className="flex items-center justify-between rounded-cards bg-card-subtle px-4 py-4 shadow-sm sm:px-6 sm:py-5">
+      <div
+        ref={(node) => node?.querySelector("button")?.focus({ preventScroll: true })}
+        className="flex min-h-[42rem] items-center justify-between rounded-cards bg-card-subtle px-4 py-4 shadow-sm sm:min-h-[34rem] sm:px-6 sm:py-5"
+      >
         <p className="text-[14px] text-fog">Candidate discarded.</p>
-        <FlowButton variant="ghost" size="sm" onClick={() => setDiscarded(false)}>
+        <FlowButton
+          variant="ghost"
+          onClick={() => {
+            restoreFocus.current = true;
+            restoreCandidate(listing.id);
+          }}
+        >
           Undo
         </FlowButton>
       </div>
@@ -75,12 +91,21 @@ const CallGate = ({ listing }: AgentCallGateProps) => {
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-cards bg-snow p-5 shadow-sm sm:p-7">
+    <div
+      tabIndex={-1}
+      ref={(node) => {
+        if (node && restoreFocus.current) {
+          node.focus({ preventScroll: true });
+          restoreFocus.current = false;
+        }
+      }}
+      className="flex min-h-[42rem] flex-col gap-4 rounded-cards bg-snow p-5 shadow-sm focus-visible:outline-2 focus-visible:outline-obsidian sm:min-h-[34rem] sm:p-7"
+    >
       {isAutoCall ? (
         <div className="flex items-start gap-3">
           <FlowAgentMark size="sm" className="mt-0.5" />
-          <div className="flex flex-col gap-1">
-            <FlowBadge variant="accent" className="w-fit">
+          <div className="flex min-w-0 flex-col gap-1">
+            <FlowBadge variant="accent" className="w-fit whitespace-normal">
               Auto-call simulation · ≥{AUTO_CALL_MATCH_THRESHOLD}% match
             </FlowBadge>
             <p className="text-[13px] text-fog">
@@ -102,49 +127,56 @@ const CallGate = ({ listing }: AgentCallGateProps) => {
         </div>
       )}
 
-      <div className="rounded-[20px] bg-paper p-5" role="status" aria-live="polite">
-        {status === "idle" ? (
-          <p className="text-[14px] text-iron">No call requested.</p>
-        ) : status === "dispatching" ? (
-          <div className="flex items-center gap-2">
-            <span className="size-2 animate-pulse rounded-full bg-ember motion-reduce:animate-none" />
-            <p className="text-[14px] font-medium text-graphite">Requesting call…</p>
-          </div>
-        ) : status === "failed" ? (
-          <div className="flex flex-col gap-1">
-            <p className="text-[14px] font-medium text-graphite">
-              Call request could not be confirmed
-            </p>
-            <p className="text-[13px] text-fog">{state.detail}</p>
-          </div>
-        ) : state.status === "dispatched" ? (
-          <div className="flex flex-col gap-1">
-            <p className="text-[14px] font-medium text-graphite">Call requested</p>
-            <p className="text-[13px] text-fog">
-              Awaiting agency confirmation. No appointment is booked.
-            </p>
-            <p className="text-[13px] text-fog">
-              {state.result.channel.toUpperCase()} · {state.result.callId}
-            </p>
-            <p className="text-[13px] text-fog">
-              Request-to-dispatch: {state.result.latencyMs} ms (server receipt to provider
-              acknowledgement, including lookup). This is not conversational latency.
-            </p>
-          </div>
-        ) : state.status === "simulated" ? (
-          <div className="flex flex-col gap-1">
-            <FlowBadge variant="accent" className="w-fit">
-              Simulated
-            </FlowBadge>
-            <p className="text-[14px] font-medium text-graphite">
-              Example viewing: {slotFormatter.format(new Date(state.result.slotIso))}
-            </p>
-            <p className="text-[13px] text-fog">No phone call or calendar booking was made.</p>
-          </div>
-        ) : undefined}
+      <div
+        className="h-56 overflow-y-auto rounded-[20px] bg-paper p-5 focus-visible:outline-2 focus-visible:outline-obsidian"
+        tabIndex={0}
+        role="status"
+        aria-live="polite"
+      >
+        <FlowStateTransition state={status}>
+          {status === "idle" ? (
+            <p className="text-[14px] text-iron">No call requested.</p>
+          ) : status === "dispatching" ? (
+            <div className="flex items-center gap-2">
+              <span className="size-2 animate-pulse rounded-full bg-ember motion-reduce:animate-none" />
+              <p className="text-[14px] font-medium text-graphite">Requesting call…</p>
+            </div>
+          ) : status === "failed" ? (
+            <div className="flex flex-col gap-1">
+              <p className="text-[14px] font-medium text-graphite">
+                Call request could not be confirmed
+              </p>
+              <p className="text-[13px] text-fog">{state.detail}</p>
+            </div>
+          ) : state.status === "dispatched" ? (
+            <div className="flex flex-col gap-1">
+              <p className="text-[14px] font-medium text-graphite">Call requested</p>
+              <p className="text-[13px] text-fog">
+                Awaiting agency confirmation. No appointment is booked.
+              </p>
+              <p className="text-[13px] text-fog">
+                {state.result.channel.toUpperCase()} · {state.result.callId}
+              </p>
+              <p className="text-[13px] text-fog">
+                Request-to-dispatch: {state.result.latencyMs} ms (server receipt to provider
+                acknowledgement, including lookup). This is not conversational latency.
+              </p>
+            </div>
+          ) : state.status === "simulated" ? (
+            <div className="flex flex-col gap-1">
+              <FlowBadge variant="accent" className="w-fit">
+                Simulated
+              </FlowBadge>
+              <p className="text-[14px] font-medium text-graphite">
+                Example viewing: {slotFormatter.format(new Date(state.result.slotIso))}
+              </p>
+              <p className="text-[13px] text-fog">No phone call or calendar booking was made.</p>
+            </div>
+          ) : undefined}
+        </FlowStateTransition>
       </div>
 
-      <div className="flex w-full flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3">
+      <div className="flex min-h-64 w-full flex-col gap-2.5 sm:min-h-40 sm:flex-row sm:flex-wrap sm:content-start sm:gap-3">
         {canSimulate ? (
           <FlowButton className="w-full sm:w-auto" onClick={() => void startCall()}>
             Simulate viewing call
@@ -157,7 +189,7 @@ const CallGate = ({ listing }: AgentCallGateProps) => {
         ) : undefined}
         {canOptInLive ? (
           <div className="flex flex-col gap-2">
-            <label className="flex items-start gap-2 text-[13px] text-fog">
+            <label className="flex min-h-11 items-center gap-2 text-[13px] text-fog">
               <input
                 type="checkbox"
                 checked={liveOptIn}
@@ -174,7 +206,10 @@ const CallGate = ({ listing }: AgentCallGateProps) => {
           className="w-full sm:w-auto"
           variant="ghost"
           disabled={status === "dispatching"}
-          onClick={() => setDiscarded(true)}
+          onClick={() => {
+            dismissCandidate(listing.id);
+            onDismiss?.(listing.id);
+          }}
         >
           Discard candidate
         </FlowButton>
@@ -183,6 +218,6 @@ const CallGate = ({ listing }: AgentCallGateProps) => {
   );
 };
 
-export const AgentCallGate = ({ listing }: AgentCallGateProps) => (
-  <CallGate key={listing.id} listing={listing} />
+export const AgentCallGate = ({ listing, onDismiss }: AgentCallGateProps) => (
+  <CallGate key={listing.id} listing={listing} onDismiss={onDismiss} />
 );

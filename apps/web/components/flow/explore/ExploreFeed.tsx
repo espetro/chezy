@@ -1,12 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { ArrowUpDown } from "lucide-react";
+import { useRef, useState } from "react";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
+import { FlowButton } from "~/components/flow/ui/Button";
+import { FlowDropdown, FlowMultiDropdown } from "~/components/flow/ui/Dropdown";
 import { CandidateCarousel } from "~/components/flow/explore/CandidateCarousel";
 import type { FlowListing } from "~/lib/flow/types";
-import { cn } from "~/lib/utils";
+import { useCandidateDismissal } from "~/lib/flow/use-candidate-dismissal";
 
 type SortMode = "match" | "price-asc";
+
+const sortOptions = [
+  { value: "match" as const, label: "Best match" },
+  { value: "price-asc" as const, label: "Price (low to high)" },
+];
 
 interface ExploreFeedProps {
   listings: FlowListing[];
@@ -14,19 +22,35 @@ interface ExploreFeedProps {
 }
 
 export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
-  const [activeZone, setActiveZone] = useState<string | undefined>();
+  const feedRef = useRef<HTMLDivElement>(null);
+  const [activeZones, setActiveZones] = useState<string[]>([]);
   const [sortMode, setSortMode] = useState<SortMode>("match");
+  const { dismissedIds, dismissCandidate, restoreCandidate } = useCandidateDismissal();
+  const lastDismissed = dismissedIds.at(-1);
 
   const zones = Array.from(new Set(listings.map((listing) => listing.neighborhood)));
 
-  const filtered = listings.filter((listing) => !activeZone || listing.neighborhood === activeZone);
+  const zoneOptions = zones.map((zone) => ({
+    value: zone,
+    label: `${zone} (${listings.filter((listing) => listing.neighborhood === zone).length})`,
+  }));
+
+  const filtered = listings.filter(
+    (listing) =>
+      !dismissedIds.includes(listing.id) &&
+      (activeZones.length === 0 || activeZones.includes(listing.neighborhood)),
+  );
 
   const sorted = [...filtered].sort((a, b) =>
     sortMode === "match" ? b.matchScore - a.matchScore : a.price - b.price,
   );
 
   return (
-    <div className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-10 md:max-w-[1200px]">
+    <div
+      ref={feedRef}
+      tabIndex={-1}
+      className="mx-auto flex min-h-[100dvh] w-full max-w-md flex-col gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-10 md:max-w-[1200px]"
+    >
       <div className="flex items-start gap-3 rounded-cards bg-snow px-4 py-4 shadow-sm sm:px-6 sm:py-5">
         <FlowAgentMark size="sm" className="mt-0.5" />
         <div className="flex flex-col gap-1.5">
@@ -39,55 +63,54 @@ export const ExploreFeed = ({ listings, note }: ExploreFeedProps) => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setActiveZone(undefined)}
-            className={cn(
-              "min-h-11 rounded-pills border px-4 py-2 text-[13px]",
-              !activeZone
-                ? "border-obsidian bg-obsidian text-snow"
-                : "border-mist bg-snow text-graphite hover:border-iron",
-            )}
-          >
-            All neighborhoods
-          </button>
-          {zones.map((zone) => (
-            <button
-              key={zone}
-              type="button"
-              onClick={() => setActiveZone(zone)}
-              className={cn(
-                "min-h-11 rounded-pills border px-4 py-2 text-[13px]",
-                activeZone === zone
-                  ? "border-obsidian bg-obsidian text-snow"
-                  : "border-mist bg-snow text-graphite hover:border-iron",
-              )}
-            >
-              {zone}
-            </button>
-          ))}
-        </div>
-
-        <label className="flex w-full items-center gap-2 text-[13px] text-fog sm:w-auto">
-          Sort by
-          <select
-            value={sortMode}
-            onChange={(event) => setSortMode(event.target.value as SortMode)}
-            className="h-11 flex-1 rounded-inputs border border-mist bg-snow px-3 py-2 text-[13px] text-graphite outline-none focus-visible:ring-2 focus-visible:ring-obsidian sm:flex-none"
-          >
-            <option value="match">Best match</option>
-            <option value="price-asc">Price (low to high)</option>
-          </select>
-        </label>
+      <div className="flex items-center gap-2">
+        <FlowMultiDropdown
+          label="Neighborhoods"
+          className="min-w-0 flex-1 sm:max-w-xs"
+          values={activeZones}
+          options={zoneOptions}
+          onChange={setActiveZones}
+          emptyLabel={`All neighborhoods (${listings.length})`}
+          selectionLabel={(count) => `${count} neighborhoods`}
+        />
+        <FlowDropdown
+          label="Sort by"
+          compact
+          align="end"
+          icon={<ArrowUpDown size={16} aria-hidden />}
+          value={sortMode}
+          options={sortOptions}
+          onChange={setSortMode}
+        />
       </div>
 
       <CandidateCarousel
-        key={`${activeZone ?? "all"}-${sortMode}`}
+        key={`${activeZones.join(",") || "all"}-${sortMode}`}
         listings={sorted}
         label="Candidate matches"
+        onDismiss={dismissCandidate}
       />
+      {lastDismissed && (
+        <div className="flex items-center justify-between gap-3 rounded-cards bg-snow px-4 py-3">
+          <p role="status" className="text-sm text-fog">
+            Candidate hidden for this visit.
+          </p>
+          <FlowButton
+            variant="ghost"
+            onClick={() => {
+              restoreCandidate(lastDismissed);
+              requestAnimationFrame(() => {
+                const restoredCard = feedRef.current?.querySelector<HTMLAnchorElement>(
+                  `[data-listing-id="${CSS.escape(lastDismissed)}"] a`,
+                );
+                (restoredCard ?? feedRef.current)?.focus();
+              });
+            }}
+          >
+            Undo
+          </FlowButton>
+        </div>
+      )}
     </div>
   );
 };

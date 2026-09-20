@@ -67,7 +67,7 @@ describe("toSearchProfileInput", () => {
     const input = toSearchProfileInput({
       ...minimalPrefs,
       mustHaves: ["natural-light", "balcony", "elevator", "air-conditioning", "furnished", "pets"],
-      dealBreakers: ["no-dark-interior", "no-excessive-deposit", "no-unknown-flatmates"],
+      dealBreakers: ["no-dark-interior", "no-excessive-deposit", "no-suspicious-ads"],
     });
     expect(input.mustHaves).toEqual([
       "exterior",
@@ -77,7 +77,7 @@ describe("toSearchProfileInput", () => {
       "furnished",
       "pets_allowed",
     ]);
-    expect(input.redLines).toEqual(["no_interior", "no_high_deposit", "no_flatmates"]);
+    expect(input.redLines).toEqual(["no_interior", "no_high_deposit", "no_suspicious_ads"]);
   });
 
   it("drops unknown ids instead of sending them", () => {
@@ -106,7 +106,7 @@ const baseProfile: SearchProfile = {
   moveDate: "2026-10-01",
   flexibleDays: 0,
   mustHaves: ["exterior", "pets_allowed"],
-  redLines: ["no_interior", "no_flatmates"],
+  redLines: ["no_interior", "no_suspicious_ads"],
   alertsEnabled: true,
   verified: false,
   createdAt: new Date(0),
@@ -126,7 +126,7 @@ describe("fromSearchProfile", () => {
       sizeMin: 50,
       moveIn: { mode: "date", date: "2026-10-01" },
       mustHaves: ["natural-light", "pets"],
-      dealBreakers: ["no-dark-interior", "no-unknown-flatmates"],
+      dealBreakers: ["no-dark-interior", "no-suspicious-ads"],
       alerts: true,
       autonomy: "cowork",
     });

@@ -103,7 +103,7 @@ describe("buildFeed ladder", () => {
     const { run } = scriptedRun(sizes);
     const res = await buildFeed(profile, run);
     expect(res.relaxed).toEqual(expected);
-    expect(res.note).toContain("Pocos pisos cumplen todo");
+    expect(res.note).toContain("Few homes meet every preference");
   });
 
   it("stops relaxing as soon as minItems is reached", async () => {
@@ -126,8 +126,8 @@ describe("buildFeed ladder", () => {
   it("composes the note with one clause per relaxed step", async () => {
     const { run } = scriptedRun([0, 0, 0, 8]);
     const res = await buildFeed(profile, run);
-    expect(res.note).toContain("superficie mínima");
-    expect(res.note).toContain("barrios");
-    expect(res.note).toContain("presupuesto");
+    expect(res.note).toContain("minimum floor area");
+    expect(res.note).toContain("neighborhoods");
+    expect(res.note).toContain("budget");
   });
 });

@@ -33,5 +33,28 @@ async function Detail({ params }: ExploreDetailPageProps) {
   const profile = await getProfile(session.user.id);
   const match = profile ? scoreListing(profile, row) : { score: 0, reasons: [] };
 
-  return <MatchDetail listing={toFlowListing(row, match, profile)} />;
+  return (
+    <MatchDetail
+      listing={toFlowListing(row, match, profile)}
+      explanation={{
+        listing: {
+          id: row.id,
+          priceEur: row.priceEur,
+          pricePeriod: row.pricePeriod,
+          rooms: row.rooms,
+          builtM2: row.builtM2,
+          amenities: row.amenities,
+        },
+        matchScore: match.score,
+        preferences: profile
+          ? {
+              maxPriceEur: profile.maxPriceEur,
+              minRooms: profile.minRooms,
+              minM2: profile.minM2,
+            }
+          : undefined,
+        profileKey: `${session.user.id}:${profile?.updatedAt.toISOString() ?? "no-profile"}`,
+      }}
+    />
+  );
 }

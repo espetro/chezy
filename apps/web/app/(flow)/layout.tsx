@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { FlowMotion } from "~/components/flow/ui/FlowMotion";
 
 export const metadata: Metadata = {
-  title: "chezMoi — your rental agent",
+  title: "Chezy — your rental agent",
   description:
-    "chezMoi searches, scores, and negotiates your next rental for you, with you approving what matters.",
+    "Chezy searches, scores, and negotiates your next rental for you, with you approving what matters.",
 };
 
 interface FlowLayoutProps {
@@ -16,7 +17,9 @@ interface FlowLayoutProps {
 // globals.css; they don't touch `--background`/`--foreground` etc., so the (chat) subtree
 // is unaffected.
 const FlowLayout = ({ children }: FlowLayoutProps) => (
-  <div className="min-h-[100dvh] bg-paper font-flow text-obsidian">{children}</div>
+  <div className="min-h-[100dvh] bg-paper font-flow text-obsidian">
+    <FlowMotion>{children}</FlowMotion>
+  </div>
 );
 
 export default FlowLayout;

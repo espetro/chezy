@@ -50,11 +50,7 @@ const scrollIntoViewOnMount = (element: HTMLDivElement | null) => {
 const canSubmit = (id: OnboardingStepId, prefs: UserPreferences) => {
   switch (id) {
     case "routine":
-      return (
-        prefs.workAddress.trim().length > 0 &&
-        prefs.commuteMaxMin !== undefined &&
-        prefs.zones.length > 0
-      );
+      return prefs.zones.length > 0;
     case "moveIn":
       return (
         prefs.moveIn?.mode === "flexible" ||
@@ -71,7 +67,12 @@ const answerSummary = (id: OnboardingStepId, prefs: UserPreferences): string | u
       return "Let's go";
     case "routine": {
       const commute = commuteOptions.find((o) => o.value === prefs.commuteMaxMin)?.label;
-      return `${prefs.zones.map(zoneLabel).join(", ")} · max ${commute} from ${prefs.workAddress}`;
+      const zones = prefs.zones.map(zoneLabel).join(", ");
+      const from = prefs.workAddress.trim();
+      if (commute === undefined) return zones;
+      return from.length > 0
+        ? `${zones} · max ${commute} from ${from}`
+        : `${zones} · max ${commute}`;
     }
     case "budget":
       return `${formatEur(prefs.budgetMin)} — ${formatEur(prefs.budgetMax)} · ${prefs.rooms >= 3 ? "3+" : prefs.rooms} bd · +${prefs.sizeMin} m²`;
@@ -223,13 +224,9 @@ export const OnboardingFlow = ({ initial, initialCount }: OnboardingFlowProps) =
 
   const welcomeMeta =
     currentStep.id === "welcome" ? (
-      <>
-        <span className="rounded-full bg-paper px-2 py-0.5 text-label-sm font-normal text-fog">
-          Estimated time: 1 min
-        </span>
-        <span className="size-1 rounded-full bg-mist" />
-        <span className="text-label-sm font-medium text-ember">24/7 search active</span>
-      </>
+      <span className="rounded-full bg-paper px-2 py-0.5 text-label-sm font-normal text-fog">
+        Estimated time: 1 min
+      </span>
     ) : undefined;
 
   return (
