@@ -333,6 +333,7 @@ const PurePreviewMessage = ({
         const output = part.output as {
           verdict?: string;
           listingId?: string;
+          explanation?: string;
           error?: string;
         };
         if (output.error) {
@@ -346,8 +347,11 @@ const PurePreviewMessage = ({
         }
         return (
           <div className="w-[min(100%,450px)]" key={toolCallId}>
-            <div className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs text-muted-foreground">
-              {output.verdict === "rejected" ? "Rejected" : "Accepted"} {output.listingId}
+            <div className="inline-flex max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs text-muted-foreground">
+              <span className="truncate">
+                {output.verdict === "rejected" ? "Rejected" : "Accepted"} {output.listingId}
+                {output.explanation ? ` — ${output.explanation}` : ""}
+              </span>
             </div>
           </div>
         );
