@@ -18,7 +18,10 @@ export const useListingFeedback = (onSaved: (event: FeedbackEvent) => void) => {
   const [refreshing, startTransition] = useTransition();
   const [error, setError] = useState<string>();
 
-  const submit = async (method: "POST" | "DELETE", input: FeedbackInput | { eventId: string }) => {
+  const submit = async (
+    method: "POST" | "DELETE" | "PATCH",
+    input: FeedbackInput | { eventId: string } | { eventId: string; reason: FeedbackReason },
+  ) => {
     if (inFlight.current || refreshing) return false;
     inFlight.current = true;
     setSaving(true);
@@ -56,6 +59,7 @@ export const useListingFeedback = (onSaved: (event: FeedbackEvent) => void) => {
   return {
     reject,
     undo: (eventId: string) => submit("DELETE", { eventId }),
+    refine: (eventId: string, reason: FeedbackReason) => submit("PATCH", { eventId, reason }),
     busy: saving || refreshing,
     error,
   };

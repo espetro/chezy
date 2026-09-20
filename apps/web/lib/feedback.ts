@@ -1,4 +1,4 @@
-import { FeedbackEventSchema, type FeedbackInput } from "@chezy/contract";
+import { FeedbackEventSchema, type FeedbackInput, type FeedbackReason } from "@chezy/contract";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import * as v from "valibot";
 import { db } from "~/lib/db/client";
@@ -120,6 +120,26 @@ export const undoFeedback = async (userId: string, eventId: string) =>
     const [row] = await transaction
       .update(listingFeedback)
       .set({ undoneAt: now, updatedAt: now })
+      .where(and(eq(listingFeedback.userId, userId), eq(listingFeedback.eventId, eventId)))
+      .returning();
+    return toFeedbackEvent(row);
+  });
+
+// Swap the reason on an active rejection (e.g. the card-level `not_interested`
+// refined into a specific one). Facts are reason-independent, so only the
+// reason changes and the rerank picks it up on the next read.
+export const refineFeedback = async (userId: string, eventId: string, reason: FeedbackReason) =>
+  db.transaction(async (transaction) => {
+    await transaction.select({ id: user.id }).from(user).where(eq(user.id, userId)).for("update");
+    const [existing] = await transaction
+      .select()
+      .from(listingFeedback)
+      .where(and(eq(listingFeedback.userId, userId), eq(listingFeedback.eventId, eventId)));
+    if (!existing || existing.undoneAt) throw new FeedbackError("Feedback not found", 404);
+    if (existing.reason === reason) return toFeedbackEvent(existing);
+    const [row] = await transaction
+      .update(listingFeedback)
+      .set({ reason, updatedAt: new Date() })
       .where(and(eq(listingFeedback.userId, userId), eq(listingFeedback.eventId, eventId)))
       .returning();
     return toFeedbackEvent(row);
