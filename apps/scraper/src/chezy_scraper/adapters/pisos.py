@@ -19,6 +19,7 @@ import math
 import re
 from datetime import datetime
 from typing import TYPE_CHECKING, NamedTuple, cast
+from urllib.parse import urljoin
 
 from parsel import Selector
 from pydantic import JsonValue
@@ -77,6 +78,92 @@ class PisosAdapter:
             total_pages=math.ceil(total_count / per_page) if total_count and per_page else None,
         )
 
+    def parse_detail(self, html: str, *, operation: Operation, scraped_at: datetime) -> Listing:
+        page = Selector(html)
+        details_sel = page.css("div.details.js-contactInfo[data-lnk-href]")
+        if not details_sel:
+            msg = "no pisos.com detail block found"
+            raise ValueError(msg)
+
+        detail = details_sel[0]
+        path = detail.attrib.get("data-lnk-href", "")
+        url = _absolute(path) or BASE
+        platform_id = detail.attrib.get("id") or detail.attrib.get("data-ad-id")
+        if not platform_id:
+            msg = "no pisos.com detail id found"
+            raise ValueError(msg)
+
+        price_text = _string(page, ".details-featured__price .price__value")
+        price, monthly = _price_text(price_text)
+        title = _string(page, "h1")
+        neighbourhood, district, municipality = _location_from_detail(page)
+        features = _detail_features(page)
+        energy = _detail_energy(page)
+        publisher = _detail_publisher(page)
+        media = _detail_media(page)
+        description = _detail_description(page)
+        coordinates = _detail_coordinates(page)
+        raw_features = cast("dict[str, JsonValue]", features["raw_features"])
+        feature_values = cast("dict[str, str]", raw_features)
+        built_m2 = _spanish_number(feature_values.get("Superficie construida", ""))
+        usable_m2 = _spanish_number(feature_values.get("Superficie útil", ""))
+        rooms = _feature_int(feature_values, "Habitaciones")
+        bathrooms = _feature_int(feature_values, "Baños")
+        property_type = _property_type(path[1:] if path.startswith("~") else path)
+        period: PricePeriod = "month" if monthly or operation == "rent" else "total"
+        raw: JsonObj = {
+            "detail": {
+                "id": platform_id,
+                "data_lnk_href": path,
+                "attributes": {
+                    key: value for key, value in detail.attrib.items() if key != "data-lnk-href"
+                },
+            },
+            "features": raw_features,
+            "energy": energy,
+            "location": {
+                "subtitle": _string(page, "h1 + p"),
+                "coordinates": coordinates,
+            },
+            "publisher": publisher.model_dump() if publisher else None,
+            "media": [item.model_dump() for item in media],
+            "description": description,
+        }
+        return Listing(
+            platform="pisos",
+            platform_id=platform_id,
+            url=url,
+            scraped_at=scraped_at,
+            operation=operation,
+            price_eur=price,
+            price_period=period if price is not None else None,
+            price_per_m2=round(price / built_m2, 2) if price and built_m2 else None,
+            property_type=property_type,
+            built_m2=built_m2,
+            usable_m2=usable_m2,
+            rooms=rooms,
+            bathrooms=bathrooms,
+            floor=feature_values.get("Planta"),
+            furnished=cast("bool | None", features["furnished"]),
+            heating=feature_values.get("Calefacción"),
+            energy_consumption_label=cast("str | None", energy["consumption_label"]),
+            energy_consumption_value=cast("float | None", energy["consumption_value"]),
+            energy_emissions_label=cast("str | None", energy["emissions_label"]),
+            energy_emissions_value=cast("float | None", energy["emissions_value"]),
+            lat=coordinates["latitude"],
+            lon=coordinates["longitude"],
+            neighbourhood=neighbourhood,
+            district=district,
+            municipality=municipality,
+            location_accuracy="zone",
+            raw_features=raw_features,
+            media=media,
+            publisher=publisher,
+            title=title,
+            description=description,
+            source_raw=cast("dict[str, JsonValue]", raw),
+        )
+
 
 def _int_attr(page: Selector, css: str) -> int | None:
     raw = page.css(f"{css}::attr(value)").get()
@@ -92,7 +179,10 @@ def _result_count(page: Selector) -> int | None:
 
 def _spanish_number(raw: str) -> float | None:
     """Parse `"3.397"` / `"1.234,5"` — dot groups thousands, comma is the decimal mark."""
-    cleaned = raw.replace(".", "").replace(",", ".")
+    match = re.search(r"\d[\d.,]*", raw)
+    if match is None:
+        return None
+    cleaned = match.group().replace(".", "").replace(",", ".")
     try:
         return float(cleaned)
     except ValueError:
@@ -116,10 +206,138 @@ def _string(card: Selector, css: str) -> str | None:
     return text(value)
 
 
+def _clean(value: str | None) -> str:
+    return " ".join((value or "").split())
+
+
 def _absolute(url: str | None) -> str | None:
     if url is None:
         return None
-    return f"{BASE}{url}" if url.startswith("/") else url
+    if url.startswith("~/"):
+        url = url[1:]
+    return urljoin(BASE, url)
+
+
+def _price_text(raw: str | None) -> tuple[float | None, bool]:
+    return _amount(raw), bool(raw and _MONTHLY.search(raw))
+
+
+def _feature_int(features: dict[str, str], label: str) -> int | None:
+    value = features.get(label)
+    if value is None:
+        return None
+    match = re.search(r"\d+", value)
+    return int(match.group()) if match else None
+
+
+def _detail_features(page: Selector) -> dict[str, object]:
+    raw_features: dict[str, JsonValue] = {}
+    furnished = False
+    container = page.css(".features-container")
+    for feature in container.css(".features__feature"):
+        label = text(feature.css(".features__label::text").get())
+        if label is None:
+            continue
+        label = label.rstrip(":").strip()
+        value = text(feature.css(".features__value::text").get())
+        if value is None:
+            raw_features[label] = True
+            furnished = furnished or label.casefold() == "amueblado"
+        else:
+            raw_features[label] = value
+    return {"raw_features": raw_features, "furnished": furnished or None}
+
+
+def _detail_energy(page: Selector) -> dict[str, JsonValue]:
+    result: dict[str, JsonValue] = {
+        "consumption_label": None,
+        "consumption_value": None,
+        "emissions_label": None,
+        "emissions_value": None,
+    }
+    for item in page.css(".energy-certificate__data"):
+        label = _clean(item.xpath("string()").get()).lower()
+        tag = text(item.css(".energy-certificate__tag::text").get())
+        value = _spanish_number(_clean(item.xpath("string()").get()))
+        if "consumo" in label:
+            result["consumption_label"] = tag.upper() if tag else None
+            result["consumption_value"] = value
+        elif "emisiones" in label:
+            result["emissions_label"] = tag.upper() if tag else None
+            result["emissions_value"] = value
+    return result
+
+
+def _detail_coordinates(page: Selector) -> dict[str, float | None]:
+    params = page.css(".location::attr(data-params)").get() or ""
+    latitude = re.search(r"(?:^|&)latitude=([^&]+)", params)
+    longitude = re.search(r"(?:^|&)longitude=([^&]+)", params)
+    return {
+        "latitude": _coordinate(latitude.group(1) if latitude else None),
+        "longitude": _coordinate(longitude.group(1) if longitude else None),
+    }
+
+
+def _location_from_detail(page: Selector) -> tuple[str | None, str | None, str | None]:
+    subtitle = _string(page, "h1 + p")
+    if subtitle is None:
+        return None, None, None
+    return _location_parts(subtitle)
+
+
+def _location_parts(subtitle: str) -> tuple[str | None, str | None, str | None]:
+    match = _SUBTITLE.match(subtitle)
+    if match is None:
+        return None, None, _municipality(subtitle)
+    inside = match.group("inside").strip()
+    district_match = _DISTRICT.match(inside)
+    if district_match is None:
+        return text(match.group("area")), None, _municipality(inside)
+    return (
+        text(match.group("area")),
+        text(district_match.group("district")),
+        _municipality(district_match.group("municipality")),
+    )
+
+
+def _detail_publisher(page: Selector) -> Publisher | None:
+    owner = page.css(".owner-info")
+    if not owner:
+        return None
+    owner_info = owner[0]
+    name = _string(owner_info, ".owner-info__name")
+    phone = owner_info.css("[data-action='call'][data-number]::attr(data-number)").get()
+    profile = owner_info.css(".owner-info__name a::attr(href)").get()
+    return Publisher(
+        name=name,
+        kind="professional" if name else None,
+        phone=text(phone),
+        profile_url=_absolute(text(profile)),
+    )
+
+
+def _detail_media(page: Selector) -> list[Media]:
+    candidates = page.css(".masonry__item[data-media-type='Photo'] img")
+    candidates.extend(page.css(".carousel__slide[data-open-gallery='true'] img"))
+    urls: dict[str, str] = {}
+    for image in candidates:
+        url = _absolute(text(image.attrib.get("data-src") or image.attrib.get("src")))
+        if url is None:
+            continue
+        key = url.rsplit("/", maxsplit=1)[-1].split("?", maxsplit=1)[0]
+        current = urls.get(key)
+        if current is None or _media_rank(url) > _media_rank(current):
+            urls[key] = url
+    return [Media(url=url) for url in urls.values()]
+
+
+def _media_rank(url: str) -> int:
+    return 2 if "/fch-wp/" in url else 1 if "/fchm-wp/" in url else 0
+
+
+def _detail_description(page: Selector) -> str | None:
+    content = page.css(".description__content")
+    return _clean(content.xpath("string()").get()) if content else None
 
 
 def _source_raw(card: Selector) -> JsonObj:
