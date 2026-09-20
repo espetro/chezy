@@ -130,19 +130,23 @@ flow and radar dedupe with no network.
   <img src="apps/video/public/badges/slng.png" height="28" alt="SLNG" valign="middle" />&nbsp;&nbsp;
   <img src="apps/video/public/badges/vonage.png" height="28" alt="Vonage" valign="middle" />&nbsp;&nbsp;
   <img src="apps/video/public/badges/galtea.png" height="28" alt="Galtea" valign="middle" />&nbsp;&nbsp;
-  <img src="apps/video/public/badges/qualityclouds.png" height="28" alt="QualityClouds" valign="middle" />
+  <img src="apps/video/public/badges/qualityclouds.png" height="28" alt="QualityClouds" valign="middle" />&nbsp;&nbsp;
+  <img src="apps/video/public/badges/cognition.png" height="28" alt="Cognition (Devin)" valign="middle" />
 </p>
+
+One file per sponsor challenge lives in [`docs/evidence/`](docs/evidence/README.md).
 
 | Layer | Choice | Evidence |
 |:------|:-------|:---------|
-| App | Next.js 16, React 19, AI SDK 7, shadcn/ui, Tailwind 4 | [PRD tracks](PRD.md#hackathon-tracks) |
-| LLM | Nebius AI Studio through `@ai-sdk/openai-compatible` (DeepSeek-V4.1-Flash by default) | [PRD tracks](PRD.md#hackathon-tracks) |
-| Voice | SLNG managed agent on LiveKit SIP, Vonage Voice API for the PSTN leg | [PRD tracks](PRD.md#hackathon-tracks) |
-| Data | Drizzle + postgres-js on pg0 (embedded Postgres 18 + pgvector), 300 committed Barcelona listings | [PRD tracks](PRD.md#hackathon-tracks) |
-| Calendar | Google Calendar via service account | [PRD tracks](PRD.md#hackathon-tracks) |
+| App | Next.js 16, React 19, AI SDK 7, shadcn/ui, Tailwind 4 | [evidence index](docs/evidence/README.md) |
+| LLM | Nebius AI Studio through `@ai-sdk/openai-compatible` (DeepSeek-V4.1-Flash by default) | [nebius.md](docs/evidence/nebius.md): providers, models, embeddings, vision |
+| Voice | SLNG managed agent on LiveKit SIP, Vonage Voice API for the PSTN leg | [slng.md](docs/evidence/slng.md): 2 live calls + transcripts + usage; [vonage.md](docs/evidence/vonage.md): live PSTN receipt |
+| Bot | Mastra agent on Telegram (`@chezy/bot`) | [mastra.md](docs/evidence/mastra.md): live [@hackbarna_chezybot](https://t.me/hackbarna_chezybot) |
+| Data | Drizzle + postgres-js on pg0 (embedded Postgres 18 + pgvector), 300 committed Barcelona listings | [evidence index](docs/evidence/README.md) |
+| Calendar | Google Calendar via service account | [evidence index](docs/evidence/README.md) |
 | Scraper | uv-managed Python CLI (httpx, parsel, pydantic) with fotocasa, habitaclia, idealista, milanuncios and pisos.com adapters | pisos.com adapter written by Devin, see below |
 | Autonomy | Chezy Forge: Devin sessions driven through the v3 API, verified by pytest + hidden hold-outs, failures fed back until the verifier passes (`scripts/devin-forge`) | **[Cognition (Devin) track evidence](#cognition-devin-track-evidence)**: [write-up](.agents/notes/2026-09-20-devin-forge-run.md), [raw logs](.agents/evidence/devin-forge/), PRs [#66](https://github.com/espetro/chezy/pull/66) [#70](https://github.com/espetro/chezy/pull/70) [#71](https://github.com/espetro/chezy/pull/71) |
-| Evals | Galtea and QualityClouds runs against the concierge | [PRD tracks](PRD.md#hackathon-tracks) |
+| Evals | Galtea and QualityClouds runs against the concierge | [galtea.md](docs/evidence/galtea.md): find/fix/prove deltas; [norma-qualityclouds.md](docs/evidence/norma-qualityclouds.md) + [DEFENSE.md](DEFENSE.md): 62 → 67/100 |
 
 ### Cognition (Devin) track evidence
 
