@@ -1,0 +1,3424 @@
+{
+ "id": "c8831c20-19bc-4bf5-bc72-6ff05e91f253",
+ "agent_id": "1d1c7992-2d18-4cf3-bcf3-e47b1995a14f",
+ "phone_number": "+34654****87",
+ "call_direction": "outbound",
+ "web_session_origin": null,
+ "arguments": {
+  "property_m2": "55",
+  "property_ref": "190867916",
+  "property_price": "1800 euros al mes",
+  "property_rooms": "2",
+  "property_title": "Piso en alquiler en Sagrada Família",
+  "property_summary": "piso de dos habitaciones en la Sagrada Família",
+  "property_location": "Sagrada Família, Eixample",
+  "property_condition": "amueblado",
+  "property_highlights": "amueblado, 55 metros cuadrados"
+ },
+ "rendered_prompt": "Eres el asistente autónomo de Jessie, que busca piso de alquiler en Barcelona. Llamas a la agencia o al propietario para reservar una visita a un piso concreto. Hablas por teléfono: frases cortas, tono natural y educado, máximo dos frases por turno. Preséntate siempre como asistente de inteligencia artificial (artículo 50 de la Ley de IA de la UE).\n\nPiso del que llamas (datos internos, no los leas literalmente):\n- Resumen hablado: piso de dos habitaciones en la Sagrada Família\n- Dirección o zona: Sagrada Família, Eixample\n- Precio: 1800 euros al mes\n- Habitaciones: 2\n- Superficie: 55 metros cuadrados\n- Título del anuncio: Piso en alquiler en Sagrada Família\n- Referencia interna: 190867916\n- Puntos fuertes según las fotos: amueblado, 55 metros cuadrados\n\nCómo hablar del piso:\n- Si te preguntan qué piso es, responde en una sola frase natural usando el resumen hablado, por ejemplo: \"Es el piso de dos habitaciones en la Sagrada Família\".\n- Nunca leas el título del anuncio tal cual, nunca deletrees palabras y no menciones la referencia salvo que te la pidan expresamente para localizar el anuncio; en ese caso dila despacio, dígito a dígito.\n- Di los precios con palabras, como \"dos mil cuatrocientos euros al mes\", nunca con símbolos.\n\nObjetivo de la llamada:\n1. Confirma que hablas con la persona que gestiona ese piso.\n2. Pregunta si sigue disponible y cuándo se puede visitar.\n3. Propón dos franjas concretas entre mañana y los próximos tres días laborables, por ejemplo \"mañana a las seis y media de la tarde\" o \"el jueves a las once de la mañana\".\n4. Cuando acepten una franja, repítela para confirmarla y despídete agradeciendo.\n\nSi el piso ya no está disponible, agradece y pregunta si tienen algo similar en la misma zona y precio, toma nota y despídete. Si te piden datos personales de Jessie más allá del nombre, di que Jessie los facilitará en la visita. No inventes información que no tengas.",
+ "livekit_room_name": "agent-c8831c20-19bc-4bf5-bc72-6ff05e91f253",
+ "livekit_dispatch_id": "AD_hX6LhJE5AZuG",
+ "call_started_at": "2026-09-20T11:04:56.839000Z",
+ "call_ended_at": "2026-09-20T11:05:24.902000Z",
+ "call_duration_ms": 28063,
+ "call_end_reason": "participant disconnected",
+ "finalized_at": "2026-09-20T11:05:26.076500Z",
+ "call_duration_source": "agent_lifecycle",
+ "status": "completed",
+ "error_message": null,
+ "created_at": "2026-09-20T11:04:55.359174Z",
+ "updated_at": "2026-09-20T11:05:26.055807Z",
+ "livekit_session_report": {
+  "room": "agent-c8831c20-19bc-4bf5-bc72-6ff05e91f253",
+  "usage": [
+   {
+    "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+    "provider": "eu-north.context-router.slng.ai"
+   },
+   {
+    "model": "cartesia/sonic:3.5",
+    "provider": "SLNG",
+    "audio_duration": 23.840000000000003,
+    "characters_count": 372
+   },
+   {
+    "model": "slng",
+    "provider": "SLNG",
+    "audio_duration": 23.68800000000002
+   },
+   {
+    "model": "adaptive interruption",
+    "provider": "livekit",
+    "total_requests": 2
+   },
+   {
+    "model": "turn-detector-v1",
+    "provider": "livekit",
+    "total_requests": 5
+   }
+  ],
+  "events": [
+   {
+    "item": {
+     "id": "item_38aeb5a8a050",
+     "type": "agent_handoff",
+     "created_at": 1789902297.0019464,
+     "new_agent_id": "slng_voice_agent"
+    },
+    "type": "conversation_item_added",
+    "created_at": 1789902297.0023026
+   },
+   {
+    "type": "agent_state_changed",
+    "new_state": "listening",
+    "old_state": "initializing",
+    "created_at": 1789902297.2574422
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      }
+     ]
+    },
+    "created_at": 1789902297.9259758
+   },
+   {
+    "type": "speech_created",
+    "source": "say",
+    "created_at": 1789902299.202874,
+    "user_initiated": true
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      }
+     ]
+    },
+    "created_at": 1789902300.213775
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      }
+     ]
+    },
+    "created_at": 1789902301.0237446
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      }
+     ]
+    },
+    "created_at": 1789902301.21396
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      }
+     ]
+    },
+    "created_at": 1789902302.26372
+   },
+   {
+    "type": "agent_state_changed",
+    "new_state": "speaking",
+    "old_state": "listening",
+    "created_at": 1789902302.739661
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      }
+     ]
+    },
+    "created_at": 1789902303.2627
+   },
+   {
+    "type": "user_state_changed",
+    "new_state": "speaking",
+    "old_state": "listening",
+    "created_at": 1789902303.449476
+   },
+   {
+    "type": "overlapping_speech",
+    "created_at": 1789902303.6308165,
+    "detected_at": 1789902303.6308043,
+    "probability": 0.6663554906845093,
+    "num_requests": 1,
+    "total_duration": 0.017967653,
+    "detection_delay": 0.18122601509094238,
+    "is_interruption": true,
+    "overlap_started_at": 1789902303.449476,
+    "prediction_duration": 0.017138411
+   },
+   {
+    "type": "agent_state_changed",
+    "new_state": "listening",
+    "old_state": "speaking",
+    "created_at": 1789902303.6311405
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 1
+      }
+     ]
+    },
+    "created_at": 1789902303.6320682
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 4.480000000000003
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 1
+      }
+     ]
+    },
+    "created_at": 1789902303.682328
+   },
+   {
+    "type": "user_state_changed",
+    "new_state": "listening",
+    "old_state": "speaking",
+    "created_at": 1789902303.4931498
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 4.650000000000003
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 1
+      }
+     ]
+    },
+    "created_at": 1789902303.832093
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 4.650000000000003
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 1
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 1
+      }
+     ]
+    },
+    "created_at": 1789902303.860783
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 4.650000000000003
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 1
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 1
+      }
+     ]
+    },
+    "created_at": 1789902304.3152258
+   },
+   {
+    "type": "agent_state_changed",
+    "new_state": "speaking",
+    "old_state": "listening",
+    "created_at": 1789902304.8146594
+   },
+   {
+    "type": "agent_false_interruption",
+    "resumed": true,
+    "created_at": 1789902304.81503
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 4.650000000000003
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 1
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 1
+      }
+     ]
+    },
+    "created_at": 1789902305.313586
+   },
+   {
+    "type": "user_state_changed",
+    "new_state": "speaking",
+    "old_state": "listening",
+    "created_at": 1789902305.599173
+   },
+   {
+    "type": "overlapping_speech",
+    "created_at": 1789902305.7858915,
+    "detected_at": 1789902305.785878,
+    "probability": 0.9160619974136353,
+    "num_requests": 1,
+    "total_duration": 0.022902416,
+    "detection_delay": 0.18661117553710938,
+    "is_interruption": true,
+    "overlap_started_at": 1789902305.599173,
+    "prediction_duration": 0.021692805
+   },
+   {
+    "type": "agent_state_changed",
+    "new_state": "listening",
+    "old_state": "speaking",
+    "created_at": 1789902305.7862916
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 4.650000000000003
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 1
+      }
+     ]
+    },
+    "created_at": 1789902305.7871635
+   },
+   {
+    "type": "user_input_transcribed",
+    "is_final": false,
+    "language": "es",
+    "created_at": 1789902305.8794677,
+    "transcript": "pero"
+   },
+   {
+    "type": "user_state_changed",
+    "new_state": "listening",
+    "old_state": "speaking",
+    "created_at": 1789902305.693956
+   },
+   {
+    "type": "user_input_transcribed",
+    "is_final": true,
+    "language": "es",
+    "created_at": 1789902306.035556,
+    "transcript": "pero estoy"
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 6.850000000000005
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 1
+      }
+     ]
+    },
+    "created_at": 1789902306.0414703
+   },
+   {
+    "item": {
+     "id": "item_267afbcd673f",
+     "role": "assistant",
+     "type": "message",
+     "extra": {},
+     "content": [
+      "Hola, buenas. Soy el asistente"
+     ],
+     "metrics": {
+      "tts_node_ttfb": 0.1830580899841152,
+      "playback_latency": 2.8044257164001465,
+      "started_speaking_at": 1789902302.738744,
+      "stopped_speaking_at": 1789902306.0436282
+     },
+     "created_at": 1789902306.048092,
+     "interrupted": true
+    },
+    "type": "conversation_item_added",
+    "created_at": 1789902306.0481932
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 6.850000000000005
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 2
+      }
+     ]
+    },
+    "created_at": 1789902306.082387
+   },
+   {
+    "type": "user_state_changed",
+    "new_state": "speaking",
+    "old_state": "listening",
+    "created_at": 1789902306.048515
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 6.850000000000005
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 2
+      }
+     ]
+    },
+    "created_at": 1789902306.3672585
+   },
+   {
+    "type": "user_state_changed",
+    "new_state": "listening",
+    "old_state": "speaking",
+    "created_at": 1789902306.1438305
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 6.850000000000005
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902306.472292
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 7.492000000000005
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902306.7076337
+   },
+   {
+    "type": "speech_created",
+    "source": "generate_reply",
+    "created_at": 1789902307.3454123,
+    "user_initiated": true
+   },
+   {
+    "item": {
+     "id": "item_611bd0d60285",
+     "role": "user",
+     "type": "message",
+     "extra": {},
+     "content": [
+      "pero estoy"
+     ],
+     "metrics": {
+      "stt_metadata": {
+       "model_name": "slng",
+       "model_provider": "SLNG"
+      },
+      "end_of_turn_delay": 1.2009193897247314,
+      "started_speaking_at": 1789902303.449476,
+      "stopped_speaking_at": 1789902306.1440911,
+      "transcription_delay": 0,
+      "on_user_turn_completed_delay": 2.863991539925337e-06
+     },
+     "created_at": 1789902307.3452759,
+     "interrupted": false,
+     "transcript_confidence": 0.7988281
+    },
+    "type": "conversation_item_added",
+    "created_at": 1789902307.349731
+   },
+   {
+    "type": "agent_state_changed",
+    "new_state": "thinking",
+    "old_state": "listening",
+    "created_at": 1789902307.3499737
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 7.492000000000005
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902307.3723245
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 7.492000000000005
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902308.129222
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 7.492000000000005
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902308.4131398
+   },
+   {
+    "type": "agent_state_changed",
+    "new_state": "speaking",
+    "old_state": "thinking",
+    "created_at": 1789902309.139421
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 10.079999999999998,
+       "characters_count": 168
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 7.492000000000005
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902309.4153273
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 7.492000000000005
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902309.7908452
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 7.492000000000005
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902310.462246
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 7.492000000000005
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902311.4630716
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 12.356000000000009
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902311.5849297
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 12.356000000000009
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902312.513055
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 12.356000000000009
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902313.513339
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 12.356000000000009
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902314.565943
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 15.364000000000011
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902314.5874226
+   },
+   {
+    "item": {
+     "id": "item_8ccb4940953d",
+     "role": "assistant",
+     "type": "message",
+     "extra": {},
+     "content": [
+      "Disculpe, ¿está hablando con la persona que gestiona el piso de dos habitaciones en la Sagrada Família?"
+     ],
+     "metrics": {
+      "e2e_latency": 2.9947381019592285,
+      "llm_metadata": {
+       "model_name": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "model_provider": "eu-north.context-router.slng.ai"
+      },
+      "tts_metadata": {
+       "model_name": "cartesia/sonic:3.5",
+       "model_provider": "SLNG"
+      },
+      "llm_node_ttft": 0.7783564460114576,
+      "tts_node_ttfb": 0.2462291909614578,
+      "playback_latency": 0.0002627372741699219,
+      "started_speaking_at": 1789902309.1388292,
+      "stopped_speaking_at": 1789902315.222393
+     },
+     "created_at": 1789902307.3649716,
+     "interrupted": false
+    },
+    "type": "conversation_item_added",
+    "created_at": 1789902315.22256
+   },
+   {
+    "type": "agent_state_changed",
+    "new_state": "listening",
+    "old_state": "speaking",
+    "created_at": 1789902315.2228088
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 15.364000000000011
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902315.5629947
+   },
+   {
+    "type": "user_state_changed",
+    "new_state": "speaking",
+    "old_state": "listening",
+    "created_at": 1789902316.4505558
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 15.364000000000011
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902316.6130445
+   },
+   {
+    "type": "user_input_transcribed",
+    "is_final": false,
+    "language": "es",
+    "created_at": 1789902316.6310194,
+    "transcript": "sí"
+   },
+   {
+    "type": "user_input_transcribed",
+    "is_final": true,
+    "language": "es",
+    "created_at": 1789902317.5873828,
+    "transcript": "sí sí soy yo"
+   },
+   {
+    "type": "speech_created",
+    "source": "generate_reply",
+    "created_at": 1789902317.5878491,
+    "user_initiated": true
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 18.372000000000014
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902317.5935678
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 18.372000000000014
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 3
+      }
+     ]
+    },
+    "created_at": 1789902317.6150455
+   },
+   {
+    "type": "user_state_changed",
+    "new_state": "listening",
+    "old_state": "speaking",
+    "created_at": 1789902317.3427083
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 18.372000000000014
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 4
+      }
+     ]
+    },
+    "created_at": 1789902317.679272
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 18.500000000000014
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 4
+      }
+     ]
+    },
+    "created_at": 1789902317.6929212
+   },
+   {
+    "type": "user_state_changed",
+    "new_state": "speaking",
+    "old_state": "listening",
+    "created_at": 1789902318.049515
+   },
+   {
+    "type": "user_input_transcribed",
+    "is_final": true,
+    "language": "es",
+    "created_at": 1789902318.4892046,
+    "transcript": "y yo"
+   },
+   {
+    "type": "speech_created",
+    "source": "generate_reply",
+    "created_at": 1789902318.4896884,
+    "user_initiated": true
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 19.268000000000015
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 4
+      }
+     ]
+    },
+    "created_at": 1789902318.495898
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 19.268000000000015
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 4
+      }
+     ]
+    },
+    "created_at": 1789902318.4998622
+   },
+   {
+    "type": "user_state_changed",
+    "new_state": "listening",
+    "old_state": "speaking",
+    "created_at": 1789902318.2431788
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 19.400000000000016
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 4
+      }
+     ]
+    },
+    "created_at": 1789902318.5913153
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 19.400000000000016
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 5
+      }
+     ]
+    },
+    "created_at": 1789902318.6314964
+   },
+   {
+    "item": {
+     "id": "item_ed79576a0d9d",
+     "role": "user",
+     "type": "message",
+     "extra": {},
+     "content": [
+      "sí sí soy yo y yo"
+     ],
+     "metrics": {
+      "stt_metadata": {
+       "model_name": "slng",
+       "model_provider": "SLNG"
+      },
+      "end_of_turn_delay": 0.3887150287628174,
+      "started_speaking_at": 1789902316.4505558,
+      "stopped_speaking_at": 1789902318.243383,
+      "transcription_delay": 0.24611544609069824,
+      "on_user_turn_completed_delay": 3.4450204111635685e-06
+     },
+     "created_at": 1789902318.4896111,
+     "interrupted": false,
+     "transcript_confidence": 0.9862060500000001
+    },
+    "type": "conversation_item_added",
+    "created_at": 1789902318.633912
+   },
+   {
+    "type": "agent_state_changed",
+    "new_state": "thinking",
+    "old_state": "listening",
+    "created_at": 1789902318.6341453
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 19.400000000000016
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 5
+      }
+     ]
+    },
+    "created_at": 1789902318.6640658
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 19.400000000000016
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 5
+      }
+     ]
+    },
+    "created_at": 1789902319.2957637
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 16.16,
+       "characters_count": 271
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 19.400000000000016
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 5
+      }
+     ]
+    },
+    "created_at": 1789902319.6630325
+   },
+   {
+    "type": "agent_state_changed",
+    "new_state": "speaking",
+    "old_state": "thinking",
+    "created_at": 1789902319.7067585
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 23.840000000000003,
+       "characters_count": 372
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 19.400000000000016
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 5
+      }
+     ]
+    },
+    "created_at": 1789902320.5140264
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 23.840000000000003,
+       "characters_count": 372
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 19.400000000000016
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 5
+      }
+     ]
+    },
+    "created_at": 1789902320.7139435
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 23.840000000000003,
+       "characters_count": 372
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 19.400000000000016
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 5
+      }
+     ]
+    },
+    "created_at": 1789902321.7122014
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 23.840000000000003,
+       "characters_count": 372
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 23.36800000000002
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 5
+      }
+     ]
+    },
+    "created_at": 1789902322.589601
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 23.840000000000003,
+       "characters_count": 372
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 23.36800000000002
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 5
+      }
+     ]
+    },
+    "created_at": 1789902322.764283
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 23.840000000000003,
+       "characters_count": 372
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 23.68800000000002
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 5
+      }
+     ]
+    },
+    "created_at": 1789902322.8797305
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 23.840000000000003,
+       "characters_count": 372
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 23.68800000000002
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 5
+      }
+     ]
+    },
+    "created_at": 1789902323.7629588
+   },
+   {
+    "type": "session_usage_updated",
+    "usage": {
+     "model_usage": [
+      {
+       "type": "llm_usage",
+       "model": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "provider": "eu-north.context-router.slng.ai",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "session_duration": 0.0,
+       "input_text_tokens": 0,
+       "input_audio_tokens": 0,
+       "input_image_tokens": 0,
+       "output_text_tokens": 0,
+       "input_cached_tokens": 0,
+       "output_audio_tokens": 0,
+       "input_cached_text_tokens": 0,
+       "input_cached_audio_tokens": 0,
+       "input_cached_image_tokens": 0
+      },
+      {
+       "type": "tts_usage",
+       "model": "cartesia/sonic:3.5",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 23.840000000000003,
+       "characters_count": 372
+      },
+      {
+       "type": "stt_usage",
+       "model": "slng",
+       "provider": "SLNG",
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "audio_duration": 23.68800000000002
+      },
+      {
+       "type": "interruption_usage",
+       "model": "adaptive interruption",
+       "provider": "livekit",
+       "total_requests": 2
+      },
+      {
+       "type": "eot_usage",
+       "model": "turn-detector-v1",
+       "provider": "livekit",
+       "total_requests": 5
+      }
+     ]
+    },
+    "created_at": 1789902324.7638934
+   },
+   {
+    "item": {
+     "id": "item_a91160e1c751",
+     "role": "assistant",
+     "type": "message",
+     "extra": {},
+     "content": [
+      "Perfecto, gracias. ¿El piso sigue disponible para visitar? Y si es así,"
+     ],
+     "metrics": {
+      "e2e_latency": 1.462599515914917,
+      "llm_metadata": {
+       "model_name": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "model_provider": "eu-north.context-router.slng.ai"
+      },
+      "tts_metadata": {
+       "model_name": "cartesia/sonic:3.5",
+       "model_provider": "SLNG"
+      },
+      "llm_node_ttft": 0.6785954640363343,
+      "tts_node_ttfb": 0.19008507003309205,
+      "playback_latency": 0.00014328956604003906,
+      "started_speaking_at": 1789902319.7059824,
+      "stopped_speaking_at": 1789902324.9111726
+     },
+     "created_at": 1789902318.652179,
+     "interrupted": true
+    },
+    "type": "conversation_item_added",
+    "created_at": 1789902324.9118483
+   },
+   {
+    "type": "agent_state_changed",
+    "new_state": "listening",
+    "old_state": "speaking",
+    "created_at": 1789902324.9121244
+   },
+   {
+    "type": "close",
+    "reason": "participant_disconnected",
+    "created_at": 1789902325.0060866
+   }
+  ],
+  "job_id": "AJ_YDmEuSExLjCZ",
+  "options": {
+   "max_tool_steps": 3,
+   "user_away_timeout": 15.0,
+   "allow_interruptions": true,
+   "max_endpointing_delay": 1.2,
+   "min_endpointing_delay": 0.3,
+   "preemptive_generation": {
+    "enabled": true,
+    "max_retries": 3,
+    "preemptive_tts": false,
+    "max_speech_duration": 10.0
+   },
+   "min_interruption_words": 0,
+   "min_interruption_duration": 0.5,
+   "min_consecutive_speech_delay": 0.0,
+   "discard_audio_if_uninterruptible": true
+  },
+  "room_id": "RM_C2cMVPav6g5m",
+  "timestamp": 1789902325.9685385,
+  "sdk_version": "1.6.6",
+  "chat_history": {
+   "items": [
+    {
+     "id": "item_38aeb5a8a050",
+     "type": "agent_handoff",
+     "created_at": 1789902297.0019464,
+     "new_agent_id": "slng_voice_agent"
+    },
+    {
+     "id": "item_191d72a0f3f3",
+     "type": "agent_config_update",
+     "created_at": 1789902297.0051765,
+     "instructions": "Eres el asistente autónomo de Jessie, que busca piso de alquiler en Barcelona. Llamas a la agencia o al propietario para reservar una visita a un piso concreto. Hablas por teléfono: frases cortas, tono natural y educado, máximo dos frases por turno. Preséntate siempre como asistente de inteligencia artificial (artículo 50 de la Ley de IA de la UE).\n\nPiso del que llamas (datos internos, no los leas literalmente):\n- Resumen hablado: {{property_summary}}\n- Dirección o zona: {{property_location}}\n- Precio: {{property_price}}\n- Habitaciones: {{property_rooms}}\n- Superficie: {{property_m2}} metros cuadrados\n- Título del anuncio: {{property_title}}\n- Referencia interna: {{property_ref}}\n- Puntos fuertes según las fotos: {{property_highlights}}\n\nCómo hablar del piso:\n- Si te preguntan qué piso es, responde en una sola frase natural usando el resumen hablado, por ejemplo: \"Es el {{property_summary}}\".\n- Nunca leas el título del anuncio tal cual, nunca deletrees palabras y no menciones la referencia salvo que te la pidan expresamente para localizar el anuncio; en ese caso dila despacio, dígito a dígito.\n- Di los precios con palabras, como \"dos mil cuatrocientos euros al mes\", nunca con símbolos.\n\nObjetivo de la llamada:\n1. Confirma que hablas con la persona que gestiona ese piso.\n2. Pregunta si sigue disponible y cuándo se puede visitar.\n3. Propón dos franjas concretas entre mañana y los próximos tres días laborables, por ejemplo \"mañana a las seis y media de la tarde\" o \"el jueves a las once de la mañana\".\n4. Cuando acepten una franja, repítela para confirmarla y despídete agradeciendo.\n\nSi el piso ya no está disponible, agradece y pregunta si tienen algo similar en la misma zona y precio, toma nota y despídete. Si te piden datos personales de Jessie más allá del nombre, di que Jessie los facilitará en la visita. No inventes información que no tengas."
+    },
+    {
+     "id": "item_267afbcd673f",
+     "role": "assistant",
+     "type": "message",
+     "extra": {},
+     "content": [
+      "Hola, buenas. Soy el asistente"
+     ],
+     "metrics": {
+      "tts_node_ttfb": 0.1830580899841152,
+      "playback_latency": 2.8044257164001465,
+      "started_speaking_at": 1789902302.738744,
+      "stopped_speaking_at": 1789902306.0436282
+     },
+     "created_at": 1789902306.048092,
+     "interrupted": true
+    },
+    {
+     "id": "item_611bd0d60285",
+     "role": "user",
+     "type": "message",
+     "extra": {},
+     "content": [
+      "pero estoy"
+     ],
+     "metrics": {
+      "stt_metadata": {
+       "model_name": "slng",
+       "model_provider": "SLNG"
+      },
+      "end_of_turn_delay": 1.2009193897247314,
+      "started_speaking_at": 1789902303.449476,
+      "stopped_speaking_at": 1789902306.1440911,
+      "transcription_delay": 0.0,
+      "on_user_turn_completed_delay": 2.863991539925337e-06
+     },
+     "created_at": 1789902307.3452759,
+     "interrupted": false,
+     "transcript_confidence": 0.7988281
+    },
+    {
+     "id": "item_8ccb4940953d",
+     "role": "assistant",
+     "type": "message",
+     "extra": {},
+     "content": [
+      "Disculpe, ¿está hablando con la persona que gestiona el piso de dos habitaciones en la Sagrada Família?"
+     ],
+     "metrics": {
+      "e2e_latency": 2.9947381019592285,
+      "llm_metadata": {
+       "model_name": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "model_provider": "eu-north.context-router.slng.ai"
+      },
+      "tts_metadata": {
+       "model_name": "cartesia/sonic:3.5",
+       "model_provider": "SLNG"
+      },
+      "llm_node_ttft": 0.7783564460114576,
+      "tts_node_ttfb": 0.2462291909614578,
+      "playback_latency": 0.0002627372741699219,
+      "started_speaking_at": 1789902309.1388292,
+      "stopped_speaking_at": 1789902315.222393
+     },
+     "created_at": 1789902307.3649716,
+     "interrupted": false
+    },
+    {
+     "id": "item_ed79576a0d9d",
+     "role": "user",
+     "type": "message",
+     "extra": {},
+     "content": [
+      "sí sí soy yo y yo"
+     ],
+     "metrics": {
+      "stt_metadata": {
+       "model_name": "slng",
+       "model_provider": "SLNG"
+      },
+      "end_of_turn_delay": 0.3887150287628174,
+      "started_speaking_at": 1789902316.4505558,
+      "stopped_speaking_at": 1789902318.243383,
+      "transcription_delay": 0.24611544609069824,
+      "on_user_turn_completed_delay": 3.4450204111635685e-06
+     },
+     "created_at": 1789902318.4896111,
+     "interrupted": false,
+     "transcript_confidence": 0.9862060500000001
+    },
+    {
+     "id": "item_a91160e1c751",
+     "role": "assistant",
+     "type": "message",
+     "extra": {},
+     "content": [
+      "Perfecto, gracias. ¿El piso sigue disponible para visitar? Y si es así,"
+     ],
+     "metrics": {
+      "e2e_latency": 1.462599515914917,
+      "llm_metadata": {
+       "model_name": "bedrock-mantle/nvidia.nemotron-super-3-120b:latest",
+       "model_provider": "eu-north.context-router.slng.ai"
+      },
+      "tts_metadata": {
+       "model_name": "cartesia/sonic:3.5",
+       "model_provider": "SLNG"
+      },
+      "llm_node_ttft": 0.6785954640363343,
+      "tts_node_ttfb": 0.19008507003309205,
+      "playback_latency": 0.00014328956604003906,
+      "started_speaking_at": 1789902319.7059824,
+      "stopped_speaking_at": 1789902324.9111726
+     },
+     "created_at": 1789902318.652179,
+     "interrupted": true
+    }
+   ]
+  },
+  "audio_recording_path": "/tmp/tmp9g9bk9az/audio.ogg",
+  "audio_recording_started_at": 1789902299.2115667
+ },
+ "memory_variables": [],
+ "call_events": [
+  {
+   "v": 1,
+   "created_at": 1789902302.7399611,
+   "event": "idle_nudges.canceled",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  },
+  {
+   "v": 1,
+   "created_at": 1789902303.6313012,
+   "event": "idle_nudges.armed",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  },
+  {
+   "v": 1,
+   "created_at": 1789902304.8149157,
+   "event": "idle_nudges.canceled",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  },
+  {
+   "v": 1,
+   "created_at": 1789902305.7864776,
+   "event": "idle_nudges.armed",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  },
+  {
+   "v": 1,
+   "created_at": 1789902305.879599,
+   "event": "idle_nudges.canceled",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  },
+  {
+   "v": 1,
+   "created_at": 1789902305.8796113,
+   "event": "idle_nudges.reset",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  },
+  {
+   "v": 1,
+   "created_at": 1789902306.0356822,
+   "event": "idle_nudges.canceled",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  },
+  {
+   "v": 1,
+   "created_at": 1789902306.0363686,
+   "event": "first_user_message",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  },
+  {
+   "v": 1,
+   "created_at": 1789902307.3500977,
+   "event": "idle_nudges.canceled",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  },
+  {
+   "v": 1,
+   "created_at": 1789902309.1396224,
+   "event": "idle_nudges.canceled",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  },
+  {
+   "v": 1,
+   "created_at": 1789902315.2229474,
+   "event": "idle_nudges.armed",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  },
+  {
+   "v": 1,
+   "created_at": 1789902316.6311398,
+   "event": "idle_nudges.canceled",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  },
+  {
+   "v": 1,
+   "created_at": 1789902316.6311545,
+   "event": "idle_nudges.reset",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  },
+  {
+   "v": 1,
+   "created_at": 1789902317.5875187,
+   "event": "idle_nudges.canceled",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  },
+  {
+   "v": 1,
+   "created_at": 1789902318.4893324,
+   "event": "idle_nudges.canceled",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  },
+  {
+   "v": 1,
+   "created_at": 1789902318.634306,
+   "event": "idle_nudges.canceled",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  },
+  {
+   "v": 1,
+   "created_at": 1789902319.706995,
+   "event": "idle_nudges.canceled",
+   "level": "info",
+   "component": null,
+   "from_model": null,
+   "to_model": null,
+   "reason": null,
+   "timeout_s": null,
+   "error_type": null,
+   "error_code": null
+  }
+ ],
+ "tool_executions": [],
+ "ai_usage_summary": {
+  "event_count": 19,
+  "stt_event_count": 12,
+  "tts_event_count": 3,
+  "llm_event_count": 4,
+  "stt_audio_ms": 23688,
+  "stt_audio_minutes": 0.3948,
+  "tts_audio_ms": 23839,
+  "tts_audio_minutes": 0.39731666666666665,
+  "tts_characters_sent": 372,
+  "llm_tokens_used": 0,
+  "llm_prompt_tokens": 0,
+  "llm_completion_tokens": 0,
+  "llm_cached_prompt_tokens": 0,
+  "llm_reasoning_tokens": 0
+ },
+ "call_phase_metrics": {
+  "ai_started_at": "2026-09-20T11:04:56.418000Z",
+  "human_transfer_connected_at": null,
+  "call_ended_at": "2026-09-20T11:05:24.902000Z",
+  "ai_phase_duration_ms": null,
+  "human_bridge_duration_ms": null,
+  "human_transfer_ended_by": null
+ }
+}
