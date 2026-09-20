@@ -289,3 +289,21 @@ export const listingFeedback = pgTable(
 );
 
 export type ListingFeedback = InferSelectModel<typeof listingFeedback>;
+
+// Heart on a candidate card: a per-session bookmark, no ranking effect.
+export const listingSave = pgTable(
+  "listing_save",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    listingId: text("listing_id")
+      .notNull()
+      .references(() => listing.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex("listing_save_user_listing").on(table.userId, table.listingId)],
+);
+
+export type ListingSave = InferSelectModel<typeof listingSave>;

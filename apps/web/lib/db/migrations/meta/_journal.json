@@ -50,6 +50,13 @@
       "when": 1789863436500,
       "tag": "0006_equal_stellaris",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789895350140,
+      "tag": "0007_listing_save",
+      "breakpoints": true
     }
   ]
 }
