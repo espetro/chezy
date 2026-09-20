@@ -20,6 +20,16 @@ export const callTranscript = (agency: string, slotIso?: string): string[] => [
   "Confirming the visit",
 ];
 
+const CALL_STAGE_LABELS = [
+  "AI calling…",
+  "Asking availability…",
+  "Proposing a slot…",
+  "Confirming visit…",
+] as const;
+
+export const callStageLabel = (stage: number): string =>
+  CALL_STAGE_LABELS[Math.min(Math.max(stage, 0), CALL_STAGES - 1)];
+
 export const CallRings = ({ className }: { className?: string }) => (
   <span aria-hidden className={className}>
     <span className="absolute inset-0 animate-call-ring rounded-full border-2 border-ember opacity-0" />
@@ -34,12 +44,16 @@ export const CallProgress = ({
   agency,
   stage,
   slotIso,
+  transcript,
 }: {
   agency: string;
   stage: number;
   slotIso?: string;
+  transcript?: { role: "agent" | "human"; text: string }[];
 }) => {
-  const lines = callTranscript(agency, slotIso).slice(0, Math.min(stage, CALL_STAGES - 1) + 1);
+  const lines = transcript?.length
+    ? transcript.map(({ role, text }) => `${role === "agent" ? "Chezy" : "Agency"}: ${text}`)
+    : callTranscript(agency, slotIso).slice(0, Math.min(stage, CALL_STAGES - 1) + 1);
   return (
     <div className="flex flex-col items-center gap-5 py-2 text-center">
       <div className="relative flex size-14 items-center justify-center">
@@ -52,7 +66,7 @@ export const CallProgress = ({
           <AnimatePresence initial={false}>
             {lines.map((line, index) => (
               <motion.li
-                key={line}
+                key={`${index}-${line}`}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: index === lines.length - 1 ? 1 : 0.55, y: 0 }}
                 transition={{ duration: 0.32, ease: "easeOut" }}

@@ -222,4 +222,43 @@ describe("viewing request controller", () => {
     const controller = createViewingController("listing", storage(), fetcher);
     expect(await controller.start(true)).toMatchObject({ live: true, retryable: true });
   });
+
+  it("abandons an ended call and dispatches a fresh request", async () => {
+    const saved = storage();
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(Response.json(dispatched))
+      .mockResolvedValueOnce(Response.json(dispatched));
+    const controller = createViewingController("listing", saved, fetcher);
+    await controller.start(true);
+    const firstRequestId = JSON.parse(String(fetcher.mock.calls[0]?.[1]?.body)).requestId;
+
+    expect(controller.abandon("x")).toEqual({
+      status: "failed",
+      detail: "x",
+      retryable: true,
+      live: true,
+    });
+    await controller.start(true);
+
+    const secondBody = JSON.parse(String(fetcher.mock.calls[1]?.[1]?.body));
+    expect(secondBody.requestId).not.toBe(firstRequestId);
+    expect(secondBody.retry).toBe(false);
+  });
+
+  it("restores an abandoned call as retryable and dispatches after remount", async () => {
+    const saved = storage();
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(Response.json(dispatched))
+      .mockResolvedValueOnce(Response.json(dispatched));
+    const controller = createViewingController("listing", saved, fetcher);
+    await controller.start(true);
+    controller.abandon("x");
+
+    const remounted = createViewingController("listing", saved, fetcher);
+    expect(remounted.restore()).toMatchObject({ status: "failed", retryable: true });
+    await remounted.start(true);
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
 });

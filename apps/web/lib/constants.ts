@@ -59,6 +59,10 @@ export const AUTO_CALL_MATCH_THRESHOLD = 95;
 // bounds a stalled gateway/provider so requests fail instead of hanging.
 export const FETCH_TIMEOUT_MS = 10_000;
 
+// Grace after an SLNG call ends before an un-booked viewing row is marked failed,
+// so a late book_viewing webhook (/api/calendar) still wins.
+export const LIVE_CALL_END_GRACE_MS = 15_000;
+
 // The VLM call reads several photos and can legitimately take much longer
 // than a plain API round trip.
 export const VISION_FETCH_TIMEOUT_MS = 60_000;

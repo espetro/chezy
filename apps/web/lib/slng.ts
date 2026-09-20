@@ -19,6 +19,21 @@ export interface SlngDispatchResult {
   readonly detail: string;
 }
 
+export interface SlngTranscriptLine {
+  readonly role: "agent" | "human";
+  readonly text: string;
+}
+
+export interface SlngCallSnapshot {
+  readonly status: string;
+  readonly startedAt: string | undefined;
+  readonly endedAt: string | undefined;
+  readonly endReason: string | undefined;
+  readonly answered: boolean;
+  readonly toolNames: string[];
+  readonly transcript: SlngTranscriptLine[];
+}
+
 export interface SlngAgentState {
   readonly region: string | undefined;
   readonly orchestrator: string | undefined;
@@ -36,6 +51,12 @@ interface SlngAgentResponse {
   readonly sip_outbound_trunk_id?: string | null;
   readonly template_variables?: Record<string, unknown> | null;
 }
+
+const asRecord = (value: unknown): Record<string, unknown> | undefined =>
+  typeof value === "object" && value !== null ? (value as Record<string, unknown>) : undefined;
+
+const asString = (value: unknown): string | undefined =>
+  typeof value === "string" ? value : undefined;
 
 function slngCredentials(): { apiKey: string; agentId: string } {
   const apiKey = env.SLNG_API_KEY;
@@ -70,6 +91,53 @@ function toAgentState(json: SlngAgentResponse): SlngAgentState {
     declaredVariables:
       json.template_variables == undefined ? undefined : Object.keys(json.template_variables),
   };
+}
+
+function toSlngCallSnapshot(json: unknown): SlngCallSnapshot {
+  const record = asRecord(json);
+  const events = Array.isArray(record?.call_events) ? record.call_events : [];
+  const tools = Array.isArray(record?.tool_executions) ? record.tool_executions : [];
+  const report = asRecord(record?.livekit_session_report);
+  const chatHistory = asRecord(report?.chat_history);
+  const items = Array.isArray(chatHistory?.items) ? chatHistory.items : [];
+  const transcript: SlngTranscriptLine[] = [];
+  for (const item of items) {
+    const message = asRecord(item);
+    if (message?.type !== "message") continue;
+    const role =
+      message.role === "assistant" ? "agent" : message?.role === "user" ? "human" : undefined;
+    if (!role) continue;
+    const content = Array.isArray(message.content)
+      ? message.content.filter((part): part is string => typeof part === "string").join(" ")
+      : asString(message.content);
+    const text = content?.trim();
+    if (text) transcript.push({ role, text });
+  }
+
+  return {
+    status: asString(record?.status) ?? "",
+    startedAt: asString(record?.call_started_at),
+    endedAt: asString(record?.call_ended_at) ?? asString(record?.finalized_at),
+    endReason: asString(record?.call_end_reason) ?? asString(record?.error_message),
+    answered: events.some((event) => asRecord(event)?.event === "first_user_message"),
+    toolNames: tools.flatMap((tool) => {
+      const name = asString(asRecord(tool)?.tool_name);
+      return name ? [name] : [];
+    }),
+    transcript,
+  };
+}
+
+export async function getSlngCall(callId: string): Promise<SlngCallSnapshot> {
+  const { apiKey, agentId } = slngCredentials();
+  const response = await slngFetch(`/v1/agents/${agentId}/calls/${encodeURIComponent(callId)}`, {
+    method: "GET",
+    apiKey,
+  });
+  if (!response.ok) {
+    throw new CallDispatchError(`SLNG call fetch failed: ${response.status}`, true);
+  }
+  return toSlngCallSnapshot(await response.json());
 }
 
 export async function ensureSlngAgentPinned(): Promise<SlngAgentState> {

@@ -36,9 +36,8 @@ const autoCallKey = (listingId: string) => `chezy:autocall:${listingId}`;
 
 const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
   const isAutoCall = listing.matchScore >= AUTO_CALL_MATCH_THRESHOLD;
-  const { call, booking, phase, stage, slotIso, start, restore, retryBooking } = useViewingBooking(
-    listing.id,
-  );
+  const { call, booking, phase, stage, transcript, slotIso, start, restore, retryBooking } =
+    useViewingBooking(listing.id);
   const [feedback, setFeedback] = useState<FeedbackEvent>();
   const { reject, undo, busy, error } = useListingFeedback((event) => {
     setFeedback(event);
@@ -131,7 +130,12 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
           {phase === "idle" ? (
             <p className="text-[14px] text-iron">Ready to call the agency for you.</p>
           ) : phase === "calling" ? (
-            <CallProgress agency={listing.agency} stage={stage} slotIso={slotIso} />
+            <CallProgress
+              agency={listing.agency}
+              stage={stage}
+              slotIso={slotIso}
+              transcript={transcript}
+            />
           ) : phase === "booking" ? (
             <div className="flex items-center gap-2">
               <span className="size-2 animate-pulse rounded-full bg-ember motion-reduce:animate-none" />

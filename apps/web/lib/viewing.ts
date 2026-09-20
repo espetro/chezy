@@ -167,5 +167,25 @@ export function createViewingController(
     return inFlight;
   }
 
-  return { restore, start };
+  function abandon(detail: string): ViewingState {
+    state = { status: "failed", detail, retryable: true, live: true };
+    requestId = undefined;
+    attempted = false;
+    inFlight = undefined;
+    try {
+      storage.setItem(
+        key,
+        JSON.stringify({
+          requestId: crypto.randomUUID(),
+          result: { status: "failed", channel: "slng", retryable: true, detail },
+          retry: false,
+        }),
+      );
+    } catch {
+      // Keep the in-memory outcome when browser storage is unavailable.
+    }
+    return state;
+  }
+
+  return { restore, start, abandon };
 }

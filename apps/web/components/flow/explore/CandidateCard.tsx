@@ -3,7 +3,7 @@
 import { useMountEffect } from "@chezy/ui/hooks/useMountEffect";
 import { CalendarPlus, Heart, X } from "lucide-react";
 import Link from "next/link";
-import { CallRings } from "~/components/flow/match/CallProgress";
+import { callStageLabel, CallRings } from "~/components/flow/match/CallProgress";
 import { BookedCheck } from "~/components/flow/ui/BookedCheck";
 import { FlowButton } from "~/components/flow/ui/Button";
 import { FlowPill } from "~/components/flow/ui/Pill";
@@ -39,7 +39,8 @@ const statusPillClass =
 // Quick "book a visit" from the card: the same state machine as the detail page
 // gate, never live (the live opt-in stays on the detail page).
 const BookVisitAction = ({ listingId }: { listingId: string }) => {
-  const { call, booking, phase, start, restore, retryBooking } = useViewingBooking(listingId);
+  const { call, booking, phase, stage, start, restore, retryBooking } =
+    useViewingBooking(listingId);
   useMountEffect(function restoreReceipts() {
     restore();
   });
@@ -72,7 +73,7 @@ const BookVisitAction = ({ listingId }: { listingId: string }) => {
       )}
       <span className="truncate">
         {phase === "calling"
-          ? "AI calling…"
+          ? callStageLabel(stage)
           : phase === "booking"
             ? "Booking…"
             : phase === "failed"
