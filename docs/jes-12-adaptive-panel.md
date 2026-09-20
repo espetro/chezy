@@ -38,7 +38,8 @@ must contain; `isAdaptationFocus(reason)` is the guard.
 
 `PANEL_ERROR_CODES = schema | wrong_attempt | wrong_event | stale_profile | wrong_focus |
 unknown_listing | missing_required_row`; `PanelValidationErrorSchema = { code, path,
-message }`. JES-13 appends codes to this list.
+message }`. JES-13 appended `rejected_listing | red_line_violation | unsafe_text |
+no_improvement` (see `docs/jes-13-validated-retry.md`).
 
 Stable signatures JES-13 builds on:
 
@@ -49,18 +50,21 @@ expectedAttempt }`. Every violation is collected; schema issues carry the Valibo
   path.
 - `nextStep(job: AdaptationJobRow, input: AdaptationStepInput)` returns `{ patch, effect }`
   and is pure. Inputs: `claim`, `snapshot` (with the validation context),
-  `provider_error`, `stale`, `timeout`. Effects: `create_session | none`.
+  `provider_error`, `stale`, `timeout`. Effects: `create_session | send_correction | none`
+  (the correction effect and the optional `now` parameter come from JES-13).
 - `adaptation_job` columns: `id`, `user_id`, `feedback_event_id`, `profile_version`, `focus`
   (the reason the session was briefed for; a later refine to another reason marks the job
-  stale), `status` (`queued | running | validating | ready | failed | stale`), `provider`
-  (`devin | mock`), `attempt`, `source_listing_ids`, `provider_session_id`,
-  `provider_session_url`, `candidate_spec`, `accepted_spec`, `validation_errors`,
+  stale), `status` (`queued | running | correcting | validating | ready | failed | stale`),
+  `provider` (`devin | mock`), `attempt`, `run`, `source_listing_ids`, `provider_session_id`,
+  `provider_session_url`, `candidate_spec`, `accepted_spec`, `validation_errors`, `trace`,
   `error`, `deadline_at`, `created_at`, `updated_at`. Unique on
-  `(user_id, feedback_event_id)`. `candidate_spec` and `validation_errors` are written on
-  every validated snapshot, accepted or not.
-- `ADAPTATION_MAX_ATTEMPTS = 1`. Correction retries after an invalid candidate, semantic
-  checks beyond the list above, the run trace UI and any "Try again" control are JES-13
-  scope. `DevinClient.sendMessage` exists and is tested but nothing calls it here.
+  `(user_id, feedback_event_id)`. `candidate_spec` and `validation_errors` hold the latest
+  judged candidate; every judged candidate is also kept in `adaptation_candidate`
+  (migration `0010`, JES-13).
+- `ADAPTATION_MAX_ATTEMPTS = 2` since JES-13: one correction message through
+  `DevinClient.sendMessage` after a refused first candidate, then the job fails and offers a
+  deliberate "Try again". Semantic checks, the run trace and the retry route are documented in
+  `docs/jes-13-validated-retry.md`.
 
 ## Runtime
 

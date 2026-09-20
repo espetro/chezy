@@ -1,0 +1,51 @@
+[
+  {
+    "id": "3009ec17-bda8-4c1d-87db-f08d5fdcae23",
+    "jobId": "5f07af46-c183-4f9f-8487-ebf0ef5a7f3b",
+    "run": 1,
+    "attempt": 1,
+    "providerSessionId": "devin-fba4e649ba4549f79a7efbc6a586a36c",
+    "spec": {
+      "rows": [
+        {
+          "note": "All three list a balcony among their amenities.",
+          "field": "balcony",
+          "label": "Balcony"
+        },
+        {
+          "note": "Two of the three come in under the rejected 2300 EUR.",
+          "field": "price",
+          "label": "Monthly rent"
+        },
+        {
+          "note": "Compare against the rejected 77 m2.",
+          "field": "size",
+          "label": "Built size"
+        },
+        {
+          "field": "area",
+          "label": "Neighbourhood"
+        }
+      ],
+      "focus": "missing_balcony",
+      "title": "Alternatives with a balcony confirmed in the listing",
+      "actions": [
+        "open_listing",
+        "edit_preferences"
+      ],
+      "attempt": 1,
+      "listingIds": [
+        "habitaclia:4737003822466",
+        "fotocasa:189698965",
+        "fotocasa:190451552"
+      ],
+      "schemaVersion": 1,
+      "profileVersion": "sha256:3f400de5c2a442058f184e05936e62fa3f511fd364f38446ec1730d42b905f12",
+      "feedbackEventId": "9076c63f-2bc5-4fff-95f6-e7f3a1d1cf36"
+    },
+    "hash": "sha256:9d01bd6a592c491bcc1c0d399fe10aa377240149f2cadd60c60777ff3825dbef",
+    "errors": [],
+    "accepted": true,
+    "createdAt": "2026-09-20T11:45:59.023Z"
+  }
+]

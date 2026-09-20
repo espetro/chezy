@@ -1,0 +1,118 @@
+{
+  "id": "0b4454e5-d173-4f70-82c2-d6ae0c58b094",
+  "feedbackEventId": "7bc2fcac-2cea-4cd9-bde1-c242b2e2f069",
+  "profileVersion": "sha256:addb6dba157a68b8b4a4baa864cefc72b9b7b5317cdfee422a44965238b694a7",
+  "focus": "too_expensive",
+  "status": "ready",
+  "provider": "devin",
+  "attempt": 1,
+  "run": 1,
+  "sourceListingIds": [
+    "habitaclia:4737003822466",
+    "fotocasa:189698965",
+    "fotocasa:190836118",
+    "fotocasa:190451552",
+    "fotocasa:190867916",
+    "milanuncios:543386986"
+  ],
+  "providerSessionId": "devin-b093f962ecd346a19844f4782d79e12a",
+  "providerSessionUrl": "https://app.devin.ai/sessions/b093f962ecd346a19844f4782d79e12a",
+  "candidateSpec": {
+    "rows": [
+      {
+        "note": "All three are cheaper than the rejected listing.",
+        "field": "price",
+        "label": "Monthly price"
+      },
+      {
+        "field": "area",
+        "label": "Neighbourhood"
+      },
+      {
+        "field": "size",
+        "label": "Built area"
+      },
+      {
+        "field": "balcony",
+        "label": "Outdoor space"
+      }
+    ],
+    "focus": "too_expensive",
+    "title": "Lower-cost Barcelona alternatives",
+    "actions": [
+      "open_listing",
+      "edit_preferences"
+    ],
+    "attempt": 1,
+    "listingIds": [
+      "fotocasa:190867916",
+      "habitaclia:4737003822466",
+      "fotocasa:189698965"
+    ],
+    "schemaVersion": 1,
+    "profileVersion": "sha256:addb6dba157a68b8b4a4baa864cefc72b9b7b5317cdfee422a44965238b694a7",
+    "feedbackEventId": "7bc2fcac-2cea-4cd9-bde1-c242b2e2f069"
+  },
+  "acceptedSpec": {
+    "rows": [
+      {
+        "note": "All three are cheaper than the rejected listing.",
+        "field": "price",
+        "label": "Monthly price"
+      },
+      {
+        "field": "area",
+        "label": "Neighbourhood"
+      },
+      {
+        "field": "size",
+        "label": "Built area"
+      },
+      {
+        "field": "balcony",
+        "label": "Outdoor space"
+      }
+    ],
+    "focus": "too_expensive",
+    "title": "Lower-cost Barcelona alternatives",
+    "actions": [
+      "open_listing",
+      "edit_preferences"
+    ],
+    "attempt": 1,
+    "listingIds": [
+      "fotocasa:190867916",
+      "habitaclia:4737003822466",
+      "fotocasa:189698965"
+    ],
+    "schemaVersion": 1,
+    "profileVersion": "sha256:addb6dba157a68b8b4a4baa864cefc72b9b7b5317cdfee422a44965238b694a7",
+    "feedbackEventId": "7bc2fcac-2cea-4cd9-bde1-c242b2e2f069"
+  },
+  "validationErrors": [],
+  "trace": [
+    {
+      "at": "2026-09-20T11:58:54.087Z",
+      "step": "triggered"
+    },
+    {
+      "at": "2026-09-20T11:58:55.164Z",
+      "step": "session_created",
+      "sessionId": "devin-b093f962ecd346a19844f4782d79e12a"
+    },
+    {
+      "at": "2026-09-20T11:59:09.300Z",
+      "step": "proposed",
+      "attempt": 1
+    },
+    {
+      "at": "2026-09-20T11:59:09.300Z",
+      "step": "accepted",
+      "attempt": 1
+    }
+  ],
+  "error": null,
+  "deadlineAt": "2026-09-20T12:08:54.087Z",
+  "createdAt": "2026-09-20T11:58:54.087Z",
+  "updatedAt": "2026-09-20T11:59:09.302Z"
+}
