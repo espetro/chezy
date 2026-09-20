@@ -2,9 +2,9 @@
 
 import { useMountEffect } from "@chezy/ui/hooks/useMountEffect";
 import type { FeedbackEvent } from "@chezy/contract";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, usePresence } from "motion/react";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { RejectionControl } from "~/components/flow/explore/RejectionControl";
 import { CallProgress } from "~/components/flow/match/CallProgress";
 import { FlowAgentMark } from "~/components/flow/ui/AgentMark";
@@ -34,6 +34,24 @@ const slotFormatter = new Intl.DateTimeFormat("en-GB", {
 });
 
 const autoCallKey = (listingId: string) => `chezy:autocall:${listingId}`;
+
+// Buttons leaving via AnimatePresence stay mounted mid-exit; aria-hidden keeps
+// the exiting clone out of role locators (and the a11y tree) while it animates.
+const AnimatedAction = ({ children }: { children: ReactNode }) => {
+  const [isPresent] = usePresence();
+  return (
+    <motion.div
+      aria-hidden={isPresent ? undefined : true}
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 6 }}
+      transition={flowSpring}
+      className="w-full sm:w-auto"
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
   const isAutoCall = listing.matchScore >= AUTO_CALL_MATCH_THRESHOLD;
@@ -213,35 +231,21 @@ const CallGate = ({ listing, onDismiss }: AgentCallGateProps) => {
       >
         <AnimatePresence initial={false}>
           {canCall ? (
-            <motion.div
-              key="call"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 6 }}
-              transition={flowSpring}
-              className="w-full sm:w-auto"
-            >
+            <AnimatedAction key="call">
               <FlowButton className="w-full sm:w-auto" onClick={() => startCall()}>
                 Call the agency
               </FlowButton>
-            </motion.div>
+            </AnimatedAction>
           ) : undefined}
           {canRetry ? (
-            <motion.div
-              key="retry"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 6 }}
-              transition={flowSpring}
-              className="w-full sm:w-auto"
-            >
+            <AnimatedAction key="retry">
               <FlowButton
                 className="w-full sm:w-auto"
                 onClick={() => (booking.status === "failed" ? void retryBooking() : startCall())}
               >
                 Try again
               </FlowButton>
-            </motion.div>
+            </AnimatedAction>
           ) : undefined}
         </AnimatePresence>
         <RejectionControl
