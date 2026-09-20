@@ -27,12 +27,12 @@ managed = true
 package = false
 
 [tool.uv.workspace]
-members = ["apps/scraper"]
+members = ["apps/scraper", "apps/evals"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py312"
-extend-exclude = ["**/.venv", "**/node_modules", "**/dist", "**/.next"]
+extend-exclude = ["**/.venv", "**/node_modules", "**/dist", "**/.next", ".agents"]
 
 [tool.ruff.lint]
 select = [

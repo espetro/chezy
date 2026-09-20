@@ -114,6 +114,13 @@ of `apps/web/app/globals.css`; none of them redefine the chat's shadcn tokens. S
   agency now" override; failures show `detail` + "Try again". This overrides the
   onboarding autonomy tier entirely, by design. See `.agents/docs/screens/flow-match.md`.
 
+- **Galtea eval harness (2026-09-20)**: `apps/evals` drives the dev server on :4656 via
+  the Galtea Python SDK conversation simulator; specs/rubrics in
+  `.agents/plans/2026-09-20-galtea-find-fix-prove.md`, results and IDs in
+  `.agents/notes/2026-09-20-galtea-find-fix-prove.md`. Chat usernames are session-scoped
+  (`scopedUsername`) since `e6c2869`; run `mise run eval:seed` before red-teaming so the
+  impersonation dataset has a victim account.
+
 ## Key references
 
 - `.agents/skills/no-use-effect/` — the no-`useEffect` rule + `useMountEffect` escape hatch.

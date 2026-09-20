@@ -6,6 +6,7 @@ import {
   mergeUserProfile,
   missingProfileFields,
   normalizeUsername,
+  scopedUsername,
   toScoringProfile,
   userProfileToSearchProfileInput,
   type UserProfile,
@@ -37,6 +38,33 @@ describe("normalizeUsername", () => {
   test("returns an empty string when nothing survives", () => {
     expect(normalizeUsername("!!!")).toBe("");
     expect(normalizeUsername("   ")).toBe("");
+  });
+});
+
+describe("scopedUsername", () => {
+  const sessionA = "a1b2c3d4-0000-4000-8000-00000000000a";
+  const sessionB = "b5b6c7d8-0000-4000-8000-00000000000b";
+
+  test("appends a session-derived suffix", () => {
+    expect(scopedUsername(sessionA, "Jessie")).toBe("jessie--a1b2c3d4");
+  });
+
+  test("is idempotent on an already-scoped name", () => {
+    const once = scopedUsername(sessionA, "jessie");
+    expect(scopedUsername(sessionA, once ?? "")).toBe(once);
+  });
+
+  test("returns undefined for a name that does not normalize", () => {
+    expect(scopedUsername(sessionA, "!!!")).toBeUndefined();
+  });
+
+  test("two session ids yield different keys for the same name", () => {
+    expect(scopedUsername(sessionA, "jessie")).not.toBe(scopedUsername(sessionB, "jessie"));
+  });
+
+  test("stays within the varchar(64) column", () => {
+    const scoped = scopedUsername(sessionA, "x".repeat(100));
+    expect(scoped?.length).toBeLessThanOrEqual(64);
   });
 });
 

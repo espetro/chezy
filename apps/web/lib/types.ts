@@ -20,16 +20,16 @@ export const messageMetadataSchema = z.object({
 export type MessageMetadata = z.infer<typeof messageMetadataSchema>;
 
 type weatherTool = InferUITool<typeof getWeather>;
-type identifyUserTool = InferUITool<typeof identifyUser>;
-type saveUserProfileTool = InferUITool<typeof saveUserProfile>;
+type identifyUserTool = InferUITool<ReturnType<typeof identifyUser>>;
+type saveUserProfileTool = InferUITool<ReturnType<typeof saveUserProfile>>;
 type createDocumentTool = InferUITool<ReturnType<typeof createDocument>>;
 type updateDocumentTool = InferUITool<ReturnType<typeof updateDocument>>;
 type requestSuggestionsTool = InferUITool<ReturnType<typeof requestSuggestions>>;
 
-type searchListingsToolType = InferUITool<typeof searchListingsTool>;
+type searchListingsToolType = InferUITool<ReturnType<typeof searchListingsTool>>;
 type getListingToolType = InferUITool<typeof getListingTool>;
-type recordListingFeedbackTool = InferUITool<typeof recordListingFeedback>;
-type arrangeViewingTool = InferUITool<typeof arrangeViewing>;
+type recordListingFeedbackTool = InferUITool<ReturnType<typeof recordListingFeedback>>;
+type arrangeViewingTool = InferUITool<ReturnType<typeof arrangeViewing>>;
 
 export type ChatTools = {
   getWeather: weatherTool;
