@@ -13,6 +13,7 @@
     "format:check": "oxfmt --check \"src/**/*.ts\" \"test/**/*.ts\""
   },
   "dependencies": {
+    "@chat-adapter/state-memory": "4.41.0",
     "@chat-adapter/telegram": "4.41.0",
     "@chezy/contract": "workspace:*",
     "@hono/node-server": "1.19.17",
@@ -28,7 +29,6 @@
     "valibot": "catalog:default"
   },
   "devDependencies": {
-    "@chat-adapter/state-memory": "4.41.0",
     "@chat-adapter/tests": "4.41.0",
     "oxfmt": "catalog:default",
     "oxlint": "catalog:default",
